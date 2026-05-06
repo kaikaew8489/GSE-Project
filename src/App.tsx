@@ -870,10 +870,10 @@ function MainApp({ onGoHome, initialRole }) {
     return (
       <div className="px-5 pb-5 pt-2 space-y-5 animate-in fade-in duration-500 pb-32">
         {/* 🌟 เพิ่มแถบวันที่แบบยาว เหมือนหน้าแจ้งซ่อม (ฟันธง!) */}
-        <div className="bg-slate-800/60 backdrop-blur-xl border border-slate-600/50 rounded-3xl py-4 text-center shadow-[0_0_30px_rgba(0,0,0,0.3)] font-sans tracking-widest text-white font-bold">
+        <div className="bg-slate-800/60 backdrop-blur-xl  border-2 border-solid border-white-500/80 rounded-2xl py-4 text-center shadow-[0_0_30px_rgba(0,0,0,0.3)] font-sans tracking-widest text-white font-bold">
           {ThaiDateFormatter(sysTime)}
         </div>
-        <div className="bg-slate-800/60 backdrop-blur-xl border-2 border-solid border-white-500/80 shadow-[0_0_20px_rgba(249,115,22,0.15)] rounded-[2.5rem] p-6 relative overflow-hidden">
+        <div className="bg-slate-800/60 backdrop-blur-xl border-2 border-solid border-white-500/80 shadow-[0_0_20px_rgba(249,115,22,0.15)] rounded-[1rem] p-6 relative overflow-hidden">
           <div className="absolute top-0 right-0 w-40 h-40 bg-white/60 rounded-full blur-3xl -mr-10 -mt-10 pointer-events-none"></div>
 
           <div className="relative z-10">
@@ -990,7 +990,7 @@ function MainApp({ onGoHome, initialRole }) {
         </div>
 
         {(longestPendingTicket || longestFixingTicket) && (
-          <div className="bg-slate-800/60 backdrop-blur-xl p-5 rounded-[2.5rem] border-2 border-solid border-orange-500/80 shadow-[0_0_20px_rgba(249,115,22,0.15)] mt-6">
+          <div className="bg-slate-800/60 backdrop-blur-xl p-5 rounded-[2rem] border-2 border-solid border-orange-500/80 shadow-[0_0_20px_rgba(249,115,22,0.15)] mt-6 overflow-hidden">
             <div className="absolute -top-10 -right-10 w-32 h-32 bg-rose-500/10 rounded-full blur-2xl"></div>
             <h3 className="text-[15px] font-black text-white uppercase tracking-widest mb-4 flex items-center gap-2 relative z-10">
               <Flame size={20} className="text-emerald-500 animate-pulse" />{' '}
@@ -1176,14 +1176,14 @@ function MainApp({ onGoHome, initialRole }) {
         </div>
       ) : (
         <form onSubmit={handleSubmit} className="space-y-6">
-          <div className="bg-slate-800/60 backdrop-blur-xl border border-slate-600/50 rounded-3xl py-4 text-center shadow-[0_0_30px_rgba(0,0,0,0.3)] font-sans tracking-widest text-white font-bold">
+          <div className="bg-slate-800/60 backdrop-blur-xl  border-2 border-solid border-white-600/50 rounded-3xl py-4 text-center shadow-[0_0_30px_rgba(0,0,0,0.3)] font-sans tracking-widest text-white font-bold">
             {ThaiDateFormatter(sysTime)}
           </div>
 
           {/* ================= กรอบที่ 1: ข้อมูลผู้แจ้งซ่อม ================= */}
-          <div className="relative bg-slate-800/60 backdrop-blur-xl border border-slate-600/50 rounded-[2.5rem] p-6 pt-10 shadow-[0_0_40px_rgba(0,0,0,0.4)] text-left">
-            <div className="absolute -top-4 left-6 bg-emerald-50 text-emerald-600 px-4 py-2.5 rounded-xl font-black text-xs shadow-sm border border-emerald-100 flex items-center gap-2 tracking-widest uppercase">
-              <User size={20} className="text-orange-500" /> ข้อมูลผู้แจ้งซ่อม
+          <div className="relative bg-slate-800/60 backdrop-blur-xl border-2 border-solid border-orange-400/80 rounded-[2.5rem] p-6 pt-10 shadow-[0_0_40px_rgba(0,0,0,0.4)] text-left">
+            <div className="absolute -top-4 left-6 bg-emerald-50 text-emerald-600 px-4 py-2.5 rounded-xl font-black text-xs shadow-sm border-2 border-solid border-green-500 flex items-center gap-2 tracking-widest uppercase">
+              <User size={20} className="text-orange-500"/> ข้อมูลผู้แจ้งซ่อม
             </div>
 
             <div className="space-y-4">
@@ -1194,7 +1194,7 @@ function MainApp({ onGoHome, initialRole }) {
                     ชื่อ-นามสกุล <span className="text-rose-500">*</span>
                   </>
                 }
-                icon={<User size={12} className="text-emerald-200" />}
+                icon={<User size={14} className="text-emerald-300"/>}
                 placeholder="เลือกชื่อหรือพิมพ์ค้นหา"
                 options={employeeList.map((e) => String(e.name))}
                 value={formData.reporter}
@@ -1209,7 +1209,7 @@ function MainApp({ onGoHome, initialRole }) {
                 <input
                   value={formData.position}
                   readOnly
-                  className="w-full bg-slate-50 border border-slate-100 rounded-2xl px-5 py-4 text-sm font-bold text-slate-500 outline-none cursor-not-allowed shadow-inner"
+                  className="w-full bg-slate-50 border-2 border-solid border-orange-500 rounded-2xl px-5 py-4 text-sm font-bold text-slate-500 outline-none cursor-not-allowed shadow-inner"
                   placeholder="-"
                 />
               </div>
@@ -1220,7 +1220,7 @@ function MainApp({ onGoHome, initialRole }) {
                 <input
                   value={formData.department}
                   readOnly
-                  className="w-full bg-slate-50 border border-slate-100 rounded-2xl px-5 py-4 text-sm font-bold text-slate-500 outline-none cursor-not-allowed shadow-inner"
+                  className="w-full bg-slate-50 border-2 border-solid border-orange-500 rounded-2xl px-5 py-4 text-sm font-bold text-slate-500 outline-none cursor-not-allowed shadow-inner"
                   placeholder="-"
                 />
               </div>
@@ -1232,7 +1232,7 @@ function MainApp({ onGoHome, initialRole }) {
                 <input
                   value={formData.bureau}
                   readOnly
-                  className="w-full bg-slate-50 border border-slate-100 rounded-2xl px-5 py-4 text-sm font-bold text-slate-500 outline-none cursor-not-allowed shadow-inner"
+                  className="w-full bg-slate-50 border-2 border-solid border-orange-500 rounded-2xl px-5 py-4 text-sm font-bold text-slate-500 outline-none cursor-not-allowed shadow-inner"
                   placeholder="สำนักปฏิบัติการดาวเทียม"
                 />
               </div>
@@ -1247,10 +1247,10 @@ function MainApp({ onGoHome, initialRole }) {
                   value={formData.reporterContact}
                   onChange={handlePhoneChange}
                   maxLength={12}
-                  className={`w-full bg-white border ${
+                  className={`w-full bg-white border-2 border-solid border-orange-500 ${
                     formErrors.reporterContact
                       ? 'border-rose-500 focus:border-rose-500 ring-1 ring-rose-500/30'
-                      : 'border-2 border-orange-400 focus:border-orange-500 focus:ring-2 focus:ring-orange-500/30'
+                      : 'border-2 border-orange-500 focus:border-orange-500 focus:ring-2 focus:ring-orange-500/30'
                   } rounded-2xl px-5 py-4 text-sm font-bold text-slate-800 outline-none font-mono tracking-widest shadow-sm transition-all`}
                   placeholder="0X-XXXX-XXXX"
                 />
@@ -1264,8 +1264,8 @@ function MainApp({ onGoHome, initialRole }) {
           </div>
 
           {/* ================= กรอบที่ 2: รายละเอียดการแจ้งซ่อม ================= */}
-          <div className="relative bg-slate-800/60 backdrop-blur-xl border border-slate-600/50 rounded-[2.5rem] p-6 pt-10 shadow-[0_0_40px_rgba(0,0,0,0.4)] text-left">
-            <div className="absolute -top-4 left-6 bg-emerald-50 text-emerald-600 px-4 py-2.5 rounded-xl font-black text-xs shadow-sm border border-emerald-100 flex items-center gap-2 tracking-widest uppercase">
+          <div className="relative bg-slate-800/60 backdrop-blur-xl border-2 border-solid border-pink-400/80 rounded-[2.5rem] p-6 pt-10 shadow-[0_0_40px_rgba(0,0,0,0.4)] text-left">
+            <div className="absolute -top-4 left-6 bg-emerald-50 text-emerald-600 px-4 py-2.5 rounded-xl font-black text-xs shadow-sm border-2 border-solid border-green-500 flex items-center gap-2 tracking-widest uppercase">
               <Wrench size={20} className="text-orange-500" />{' '}
               รายละเอียดการแจ้งซ่อม
             </div>
@@ -1435,8 +1435,9 @@ function MainApp({ onGoHome, initialRole }) {
                       </button>
                     </div>
                   ))}
+                  {/* 🌟 ฟันธงข้อ 3: ใส่ col-start-2 ให้อยู่ตรงกลางเมื่อยังไม่มีรูป */}
                   {formData.images.length < 5 && (
-                    <label className="aspect-square border-2 border-dashed border-white-600/50 bg-slate-800/40 hover:bg-slate-500/30 rounded-2xl flex flex-col items-center justify-center transition-all cursor-pointer shadow-sm active:scale-95">
+                    <label className={`aspect-square border-2 border-dashed border-white-400/50 bg-slate-800/40 hover:bg-slate-500/30 rounded-2xl flex flex-col items-center justify-center transition-all cursor-pointer shadow-sm active:scale-95 ${formData.images.length === 0 ? 'col-start-2' : ''}`}>
                       <input
                         type="file"
                         accept="image/*"
@@ -1444,7 +1445,7 @@ function MainApp({ onGoHome, initialRole }) {
                         onChange={handleImageUpload}
                         className="hidden"
                       />
-                      <Camera size={36} className="text-emerald-400 mb-1.5" />
+                      <Camera size={40} className="text-emerald-400 mb-1.5" />
                       <span className="text-[11px] font-bold text-emerald-500 tracking-widest">
                         เพิ่มรูป
                       </span>
@@ -1459,7 +1460,7 @@ function MainApp({ onGoHome, initialRole }) {
             <button
               type="submit"
               disabled={isSubmitting}
-              className="group w-full bg-gradient-to-r from-orange-500 to-amber-500 text-white font-black text-xl py-5 rounded-[2rem] shadow-xl shadow-orange-500/30 active:scale-95 transition-all duration-300 flex justify-center items-center gap-3 disabled:grayscale disabled:opacity-50 border border-orange-400/50"
+              className="group w-full bg-gradient-to-r from-orange-500 to-amber-500 text-white font-black text-xl py-4 rounded-[1rem] shadow-xl shadow-orange-500/30 active:scale-95 transition-all duration-300 flex justify-center items-center gap-3 disabled:grayscale disabled:opacity-50 border-2 border-solid border-white-500/50"
             >
               <Send size={24} />{' '}
               <span className="tracking-wide">ยืนยันแจ้งซ่อม</span>
@@ -1467,7 +1468,7 @@ function MainApp({ onGoHome, initialRole }) {
             <button
               type="button"
               onClick={handleResetForm}
-              className="mt-4 w-full bg-rose-50 text-rose-500 hover:bg-rose-100 font-bold text-sm py-3.5 rounded-2xl transition-all flex items-center justify-center gap-2 border border-rose-100 active:scale-95 shadow-sm"
+              className="mt-4 w-full bg-rose-50 text-rose-500 hover:bg-rose-100 font-bold text-sm py-3.5 rounded-2xl transition-all flex items-center justify-center gap-2 border-2 border-solid border-rose-500/50 active:scale-95 shadow-sm"
             >
               <RotateCcw size={16} /> ล้างข้อมูลฟอร์ม
             </button>
@@ -1645,7 +1646,6 @@ function MainApp({ onGoHome, initialRole }) {
                     {t.room ? `(${t.room})` : ''}
                   </div>
 
-                  {/* ⏱️ Vertical Timeline Progress */}
                   {!isCancelled && (
                     <div className="mt-5 pl-4 border-l-2 border-2 border-orange-400/70 space-y-4 py-2 relative">
                       <div className="relative">
@@ -1736,7 +1736,6 @@ function MainApp({ onGoHome, initialRole }) {
                 </div>
                 <div className="p-5 space-y-4">
                   <div className="bg-slate-50 p-4 rounded-2xl border border-slate-100 shadow-inner relative">
-                    {/* แสดงสาเหตุที่ถูกยกเลิก */}
                     {t.status === 'cancelled' && t.cancelReason && (
                       <div className="bg-rose-50 text-rose-700 p-3 rounded-xl text-xs font-bold mb-3 flex gap-2 border border-rose-200 shadow-sm">
                         <XCircle size={16} className="shrink-0 mt-0.5" />{' '}
@@ -1811,20 +1810,14 @@ function MainApp({ onGoHome, initialRole }) {
                       </p>
                     )}
 
-<div className="pt-3 border-t border-2 border-orange-400/70 flex flex-col gap-2 mt-3 text-xs text-slate-600">
-                      
-                      {/* 🔴 โซนที่ 1: ผู้แจ้งปัญหา */}
+                    <div className="pt-3 border-t border-2 border-orange-400/70 flex flex-col gap-2 mt-3 text-xs text-slate-600">
                       <div className="flex justify-between items-start gap-2">
                         <div className="flex flex-col min-w-0 flex-1">
-                          {/* 🌟 เพิ่มคำว่า ผู้แจ้งปัญหา */}
-                          <span className="text-[11px] font-bold text-slate-400 mb-0.5">
+                          <span className="text-[11px] font-bold text-green-500 mb-0.5">
                             ผู้แจ้งปัญหา
                           </span>
-                          {/* 🌟 ใส่ truncate เพื่อให้ชื่อยาวๆ กลายเป็น ... และไม่ดันหน้าจอ */}
                           <span className="font-bold text-slate-800 flex items-center gap-1.5 truncate">
-                            <User
-                              size={14}
-                              className={`shrink-0 ${isCancelled ? 'text-slate-400' : 'text-emerald-500'}`}
+                            <User size={14} className={`shrink-0 ${isCancelled ? 'text-slate-400' : 'text-emerald-500'}`}
                             />
                             <span className="truncate">{String(t.reporter)}</span>
                           </span>
@@ -1832,7 +1825,6 @@ function MainApp({ onGoHome, initialRole }) {
                             {formatDateTimeString(t.date)}
                           </span>
                         </div>
-                        {/* 🌟 ล็อคเบอร์โทรด้วย shrink-0 และย่อฟอนต์นิดนึงให้อยู่ในกรอบสวยๆ */}
                         <a
                           href={`tel:${String(t.reporterContact).replace(/\D/g, '')}`}
                           className="font-mono shrink-0 whitespace-nowrap text-[12px] font-bold bg-white px-2.5 py-1.5 rounded-lg border border-slate-200 shadow-sm text-emerald-600 hover:bg-emerald-50 active:scale-95 transition-all flex items-center gap-1.5 cursor-pointer"
@@ -1841,28 +1833,23 @@ function MainApp({ onGoHome, initialRole }) {
                           {formatDisplayPhone(t.reporterContact)}
                         </a>
                       </div>
-
-                      {/* 🔴 โซนที่ 2: ผู้รับผิดชอบ (ช่าง) */}
                       {t.techName && (
-                        {/* 🌟 ปรับสีพื้นหลังให้เข้มขึ้นเป็น bg-orange-100 และขอบ border-orange-300 */}
-                        <div className="flex justify-between items-center text-slate-700 bg-orange-100 p-3 rounded-xl border border-orange-300 shadow-sm mt-2 gap-2">
+                        <div className="flex justify-between items-center text-slate-700 bg-green-200 p-3 rounded-xl border border-orange-300 shadow-sm mt-2 gap-2">
                           <div className="flex flex-col min-w-0 flex-1">
-                            <span className="text-[11px] font-bold text-orange-700 mb-0.5">
+                            <span className="text-[11px] font-bold text-orange-600 mb-0.5">
                               ผู้รับผิดชอบ
                             </span>
-                            {/* 🌟 ใส่ truncate ให้ชื่อช่างที่ยาวๆ กลายเป็น ... */}
                             <span className="flex items-center gap-1.5 font-bold text-slate-800 truncate">
-                              <Wrench size={12} className="text-orange-500 shrink-0" />{' '}
+                            <User size={14} className="text-rose-500 shrink-0" />{' '}
                               <span className="truncate">{String(t.techName)}</span>
                             </span>
                           </div>
                           {t.techPhone && t.techPhone !== '-' && t.techPhone !== 'N/A' ? (
-                            {/* 🌟 ล็อคเบอร์ช่างห้ามตกขอบเด็ดขาด */}
                             <a
                               href={`tel:${String(t.techPhone).replace(/\D/g, '')}`}
                               className="font-mono shrink-0 whitespace-nowrap text-[12px] font-bold bg-white px-2.5 py-1.5 rounded-lg border border-orange-300 shadow-sm text-orange-600 hover:bg-orange-200 active:scale-95 transition-all flex items-center gap-1.5 cursor-pointer"
                             >
-                              <Phone size={12} className="text-orange-500" />{' '}
+                              <Phone size={12} className="text-orange-600" />{' '}
                               {formatDisplayPhone(t.techPhone)}
                             </a>
                           ) : (
@@ -1872,11 +1859,9 @@ function MainApp({ onGoHome, initialRole }) {
                           )}
                         </div>
                       )}
-
                     </div>
                   </div>
 
-                  {/* --- TECH ACTIONS --- */}
                   {currentUserRole === 'technician' && !isCancelled && (
                     <div className="flex flex-col gap-2.5">
                       {isPending && (
@@ -1972,7 +1957,6 @@ function MainApp({ onGoHome, initialRole }) {
                     </div>
                   )}
 
-                  {/* --- REPORTER ACTIONS --- */}
                   {currentUserRole === 'reporter' && !isCancelled && (
                     <div className="flex flex-col gap-2.5">
                       {isPending && (
@@ -2181,7 +2165,7 @@ function MainApp({ onGoHome, initialRole }) {
       )}
 
       {/* 🚀 Dynamic Header (ปรับมุมมน + ขอบส้ม + สีพื้นหลังอวกาศ) */}
-      <div className="bg-slate-900/50 backdrop-blur-xl px-6 py-4 flex items-center justify-between sticky top-4 z-50 border-2 border-solid border-orange-500 rounded-full mx-4 mt-4 shadow-[0_0_15px_rgba(249,115,22,0.4)]">
+      <div className="bg-slate-900/50 backdrop-blur-xl px-6 py-4 flex items-center justify-between sticky top-4 z-50 border-2 border-solid border-orange-500 rounded-2xl mx-4 mt-4 shadow-[0_0_15px_rgba(249,115,22,0.4)]">
         <div className="flex items-center gap-3.5">
           <div className="bg-white p-2 rounded-xl shadow-sm text-orange-500 border border-orange-200/50">
             {activeTab === 'dashboard' ? (
