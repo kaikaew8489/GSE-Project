@@ -870,7 +870,9 @@ function MainApp({ onGoHome, initialRole }) {
     return (
       <div className="px-5 pb-5 pt-2 space-y-5 animate-in fade-in duration-500 pb-32">
         {/* 🌟 เพิ่มแถบวันที่แบบยาว เหมือนหน้าแจ้งซ่อม (ฟันธง!) */}
-        <div className="bg-slate-800/60 backdrop-blur-xl  border-2 border-solid border-white-500/80 rounded-2xl py-4 text-center shadow-[0_0_30px_rgba(0,0,0,0.3)] font-sans tracking-widest text-white font-bold">
+        {/* 🌟 ฟันธง: เปลี่ยนสีกรอบวันที่/เวลา เป็นเส้นขอบสีส้มหนา 2px พร้อมเงาเรืองแสงให้เข้าธีม */}
+        {/* 🌟 แบบที่ 1: เส้นขาว เรืองแสงส้ม */}
+        <div className="bg-slate-800/60 backdrop-blur-xl border-2 border-solid border-white/80 rounded-[1rem] py-4 text-center shadow-[0_0_20px_rgba(249,115,22,0.6)] font-sans tracking-widest text-white font-bold">
           {ThaiDateFormatter(sysTime)}
         </div>
         <div className="bg-slate-800/60 backdrop-blur-xl border-2 border-solid border-white-500/80 shadow-[0_0_20px_rgba(249,115,22,0.15)] rounded-[1rem] p-6 relative overflow-hidden">
@@ -879,26 +881,26 @@ function MainApp({ onGoHome, initialRole }) {
           <div className="relative z-10">
             <div className="flex justify-between items-end">
               <div>
-                <p className="text-white-500 text-[18px] font-bold uppercase tracking-widest mb-2">
+                <p className="text-white-500 text-[15px] font-bold uppercase tracking-widest mb-2">
                   จำนวนงานทั้งหมด
                 </p>
                 <div className="flex items-baseline gap-2">
                   <span className="text-6xl font-black font-mono tracking-tighter leading-none text-orange-500 drop-shadow-sm">
                     {String(stats.total).padStart(2, '0')}
                   </span>
-                  <span className="text-white-500 text-[18px] font-bold tracking-widest">
+                  <span className="text-white-500 text-[15px] font-bold tracking-widest">
                     รายการ
                   </span>
                 </div>
               </div>
 
               <div className="bg-white/80 backdrop-blur-md border-2 Border-solid border-orange-200 px-3 py-2 rounded-2xl flex flex-col items-center shadow-sm">
-                <span className="text-[18px] font-black uppercase tracking-widest text-emerald-800 mb-1">
+                <span className="text-[15px] font-black uppercase tracking-widest text-emerald-800 mb-1">
                   อัตราปิดงาน
                 </span>
-                <div className="flex items-center gap-1 text-orange-500">
+                <div className="flex items-center gap-1 text-green-600/50">
                   <PieChart size={20} />
-                  <span className="text-[25px] font-bold font-black">
+                  <span className="text-[30px] font-bold font-black">
                     {completionRate}%
                   </span>
                 </div>
@@ -993,7 +995,7 @@ function MainApp({ onGoHome, initialRole }) {
           <div className="bg-slate-800/60 backdrop-blur-xl p-5 rounded-[1rem] border-2 border-solid border-orange-500/80 shadow-[0_0_20px_rgba(249,115,22,0.15)] mt-6 overflow-hidden">
             <div className="absolute -top-10 -right-10 w-32 h-32 bg-rose-500/10 rounded-full blur-2xl"></div>
             <h3 className="text-[15px] font-black text-white uppercase tracking-widest mb-4 flex items-center gap-2 relative z-10">
-              <Flame size={20} className="text-emerald-500 animate-pulse" />{' '}
+              <Flame size={20} className="text-white-500 animate-pulse" />{' '}
               งานที่รอเกินระยะเวลากำหนด
             </h3>
             <div className="grid grid-cols-1 gap-3 relative z-10">
@@ -1004,14 +1006,14 @@ function MainApp({ onGoHome, initialRole }) {
                     setSearchTerm(longestPendingTicket.id);
                     setFilterStatus('all');
                   }}
-                  className="bg-white p-4 rounded-2xl border border-rose-100 shadow-sm cursor-pointer hover:border-rose-400 hover:shadow-md transition-all active:scale-[0.98]"
+                  className="bg-white p-4 rounded-2xl border-2 border-solid border-orange-800 shadow-[0_4px_10px_rgba(225,29,72,0.1)] cursor-pointer hover:border-rose-500 hover:bg-rose-100 hover:shadow-md transition-all active:scale-[0.98]"
                 >
                   <div className="flex justify-between items-start mb-2">
                     <div className="flex items-center gap-2">
-                      <span className="text-[10px] font-black text-rose-600 border-2 border-solid bg-rose-100 px-2 py-0.5 rounded-md border border-rose-200 shadow-sm">
+                      <span className="text-[12px] font-black text-rose-600 border-2 border-solid bg-rose-100 px-2 py-0.5 rounded-md border border-rose-200 shadow-sm">
                         รอนานที่สุด
                       </span>
-                      <span className="text-[9px] font-mono font-bold text-slate-500">
+                      <span className="text-[12px] font-mono font-bold text-slate-500">
                         {longestPendingTicket.id}
                       </span>
                     </div>
@@ -1019,11 +1021,11 @@ function MainApp({ onGoHome, initialRole }) {
                       {getMinutesDiff(longestPendingTicket.date, sysTime)} นาที
                     </span>
                   </div>
-                  <h4 className="text-sm font-black text-slate-800 truncate mb-1">
+                  <h4 className="text-sm font-black text-rose-800 truncate mb-1">
                     {longestPendingTicket.equipment}
                   </h4>
-                  <p className="text-[10px] font-bold text-slate-500 flex items-center gap-1.5">
-                    <User size={10} className="text-rose-400" />{' '}
+                  <p className="text-[12px] font-bold text-orange-500 flex items-center gap-1.5">
+                    <User size={15} className="text-orange-400" />{' '}
                     {longestPendingTicket.reporter}
                   </p>
                 </div>
@@ -1035,14 +1037,14 @@ function MainApp({ onGoHome, initialRole }) {
                     setSearchTerm(longestFixingTicket.id);
                     setFilterStatus('all');
                   }}
-                  className="bg-white p-4 rounded-2xl border border-orange-100 shadow-sm cursor-pointer hover:border-orange-400 hover:shadow-md transition-all active:scale-[0.98]"
+                  className="bg-white p-4 rounded-2xl border-2 border-solid border-orange-400 shadow-[0_4px_10px_rgba(249,115,22,0.1)] cursor-pointer hover:border-orange-500 hover:bg-orange-50 hover:shadow-md transition-all active:scale-[0.98]"
                 >
                   <div className="flex justify-between items-start mb-2">
                     <div className="flex items-center gap-2">
-                      <span className="text-[10px] font-black text-orange-600 bg-orange-100 px-2 py-0.5 rounded-md border border-orange-200 shadow-sm">
+                      <span className="text-[12px] font-black text-orange-600 bg-orange-100 px-2 py-0.5 rounded-md border border-orange-200 shadow-sm">
                         ซ่อมมาราธอน
                       </span>
-                      <span className="text-[9px] font-mono font-bold text-slate-500">
+                      <span className="text-[12px] font-mono font-bold text-slate-500">
                         {longestFixingTicket.id}
                       </span>
                     </div>
@@ -1055,11 +1057,11 @@ function MainApp({ onGoHome, initialRole }) {
                       นาที
                     </span>
                   </div>
-                  <h4 className="text-sm font-black text-slate-800 truncate mb-1">
+                  <h4 className="text-sm font-black text-rose-800 truncate mb-1">
                     {longestFixingTicket.equipment}
                   </h4>
-                  <p className="text-[10px] font-bold text-slate-500 flex items-center gap-1.5">
-                    <Wrench size={10} className="text-orange-400" />{' '}
+                  <p className="text-[12px] font-bold text-green-500 flex items-center gap-1.5">
+                  <User size={15} className="text-green-400" />{' '}
                     {longestFixingTicket.techName || 'กำลังดำเนินการ'}
                   </p>
                 </div>
@@ -1072,7 +1074,7 @@ function MainApp({ onGoHome, initialRole }) {
           <h3 className="text-[15px] font-black text-white uppercase  tracking-widest mb-4 flex items-center gap-2">
             <FileText
               size={20}
-              className="text-[15px] font-bold text-emerald-800"
+              className="text-[15px] font-bold text-white-800"
             />{' '}
             รายการล่าสุด
           </h3>
@@ -1085,15 +1087,21 @@ function MainApp({ onGoHome, initialRole }) {
                   setSearchTerm(t.id);
                   setFilterStatus('all');
                 }}
-                className="flex flex-col p-4 bg-slate-50 rounded-2xl border border-slate-100 cursor-pointer active:bg-emerald-50 hover:border-emerald-200 transition-colors active:scale-[0.98] relative"
+                className={`flex flex-col p-4 bg-slate-50 rounded-2xl border-2 cursor-pointer active:scale-[0.98] transition-all shadow-sm ${
+                  t.status === 'pending'
+                    ? 'border-rose-400 hover:bg-rose-100 hover:border-rose-500'
+                    : t.status === 'in_progress' || t.status === 'on_hold'
+                    ? 'border-orange-400 hover:bg-orange-100 hover:border-orange-500'
+                    : 'border-emerald-400 hover:bg-emerald-100 hover:border-emerald-500'
+                } relative`}
               >
                 <div className="flex items-center justify-between mb-2">
                   <div className="flex items-center gap-2">
-                    <span className="text-[13px] font-mono font-bold text-slate-600 bg-white px-2 py-0.5 rounded-md border border-2 border-orange-400/70 tracking-widest shadow-sm">
+                    <span className="text-[13px] font-mono font-bold text-slate-600 bg-white px-2 py-0.5 rounded-md border border-2 border-solid border-orange-400/70 tracking-widest shadow-sm">
                       {t.id}
                     </span>
                     {t.isOutOfHours && (
-                      <span className="text-[13px] font-black text-rose-600 bg-rose-100 border border-rose-200 px-1.5 py-0.5 rounded-md animate-pulse">
+                      <span className="text-[13px] font-black text-rose-600 bg-rose-100 border border-solid border-rose-200 px-1.5 py-0.5 rounded-md animate-pulse">
                         SSC
                       </span>
                     )}
@@ -1120,9 +1128,9 @@ function MainApp({ onGoHome, initialRole }) {
                     <h4 className="text-xs font-bold text-slate-800 truncate mb-1">
                       {t.equipment}
                     </h4>
-                    <p className="text-[13px] text-slate-500 truncate flex items-center gap-1.5">
+                    <p className="text-[13px] text-orange-500 truncate flex items-center gap-1.5">
                       <AlertCircle
-                        size={10}
+                        size={15}
                         className="text-orange-500 shrink-0"
                       />{' '}
                       {t.description}
@@ -1135,11 +1143,11 @@ function MainApp({ onGoHome, initialRole }) {
                 </div>
 
                 <div className="mt-3 pt-3 border-t border-2 border-orange-400/70 flex justify-between items-center">
-                  <span className="text-[13px] font-bold text-slate-500 flex items-center gap-1.5">
-                    <User size={10} className="text-emerald-500" /> {t.reporter}
+                  <span className="text-[12px] font-bold text-emerald-500 flex items-center gap-1.5">
+                    <User size={15} className="text-emerald-500" /> {t.reporter}
                   </span>
-                  <span className="text-[13px] font-mono text-slate-500 flex items-center gap-1.5">
-                    <Clock size={10} className="text-emerald-500" />{' '}
+                  <span className="text-[12px] font-bold font-mono text-blue-500 flex items-center gap-1.5">
+                    <Clock size={15} className="text-blue-500" />{' '}
                     {new Date(t.date).toLocaleTimeString('th-TH', {
                       hour: '2-digit',
                       minute: '2-digit',
@@ -1751,7 +1759,7 @@ function MainApp({ onGoHome, initialRole }) {
                       <div className="bg-purple-50 text-purple-700 p-3 rounded-xl text-xs font-bold mb-3 flex gap-2 border border-purple-200 shadow-sm">
                         <PauseCircle size={16} className="shrink-0 mt-0.5" />{' '}
                         <div>
-                          <span className="block mb-0.5 text-purple-800">
+                          <span className="block mb-0.5 text-ROSE-800">
                             แจ้งเหตุขัดข้อง:
                           </span>
                           {String(t.holdReason)}
@@ -1811,49 +1819,51 @@ function MainApp({ onGoHome, initialRole }) {
                     )}
 
                     <div className="pt-3 border-t border-2 border-orange-400/70 flex flex-col gap-2 mt-3 text-xs text-slate-600">
-                      <div className="flex justify-between items-start gap-2">
-                        <div className="flex flex-col min-w-0 flex-1">
-                          <span className="text-[11px] font-bold text-green-500 mb-0.5">
+                      <div className="flex justify-between items-start gap-3">
+                        <div className="flex flex-col flex-1">
+                          <span className="text-[11px] font-bold text-green-600 mb-0.5">
                             ผู้แจ้งปัญหา
                           </span>
-                          <span className="font-bold text-slate-800 flex items-center gap-1.5 truncate">
-                            <User size={14} className={`shrink-0 ${isCancelled ? 'text-slate-400' : 'text-emerald-500'}`}
+                          <span className="font-bold text-slate-800 flex items-start gap-1.5 leading-tight">
+                            <User size={14}
+                              className={`shrink-0 mt-0.5 ${isCancelled ? 'text-slate-400' : 'text-emerald-500'}`}
                             />
-                            <span className="truncate">{String(t.reporter)}</span>
+                            <span className="whitespace-normal break-words">{String(t.reporter)}</span>
                           </span>
-                          <span className="text-[11px] text-slate-500 mt-1">
+                          <span className="text-[11px] text-slate-500 mt-1.5">
                             {formatDateTimeString(t.date)}
                           </span>
                         </div>
                         <a
                           href={`tel:${String(t.reporterContact).replace(/\D/g, '')}`}
-                          className="font-mono shrink-0 whitespace-nowrap text-[12px] font-bold bg-white px-2.5 py-1.5 rounded-lg border border-slate-200 shadow-sm text-emerald-600 hover:bg-emerald-50 active:scale-95 transition-all flex items-center gap-1.5 cursor-pointer"
+                          className="font-mono shrink-0 whitespace-nowrap text-[12px] font-bold bg-white px-2.5 py-1.5 rounded-lg border border-slate-200 shadow-sm text-emerald-600 hover:bg-emerald-50 active:scale-95 transition-all flex items-center gap-1.5 cursor-pointer mt-1"
                         >
                           <Phone size={12} className="text-emerald-500" />{' '}
                           {formatDisplayPhone(t.reporterContact)}
                         </a>
                       </div>
+
                       {t.techName && (
-                        <div className="flex justify-between items-center text-slate-700 bg-green-200 p-3 rounded-xl border border-orange-300 shadow-sm mt-2 gap-2">
-                          <div className="flex flex-col min-w-0 flex-1">
+                        <div className="flex justify-between items-start gap-3 mt-3 pt-3 border-t border-slate-100">
+                          <div className="flex flex-col flex-1">
                             <span className="text-[11px] font-bold text-orange-600 mb-0.5">
                               ผู้รับผิดชอบ
                             </span>
-                            <span className="flex items-center gap-1.5 font-bold text-slate-800 truncate">
-                            <User size={14} className="text-rose-500 shrink-0" />{' '}
-                              <span className="truncate">{String(t.techName)}</span>
+                            <span className="font-bold text-slate-800 flex items-start gap-1.5 leading-tight">
+                            <User size={14} className="text-orange-500 shrink-0 mt-0.5" />{' '}
+                              <span className="whitespace-normal break-words">{String(t.techName)}</span>
                             </span>
                           </div>
                           {t.techPhone && t.techPhone !== '-' && t.techPhone !== 'N/A' ? (
                             <a
                               href={`tel:${String(t.techPhone).replace(/\D/g, '')}`}
-                              className="font-mono shrink-0 whitespace-nowrap text-[12px] font-bold bg-white px-2.5 py-1.5 rounded-lg border border-orange-300 shadow-sm text-orange-600 hover:bg-orange-200 active:scale-95 transition-all flex items-center gap-1.5 cursor-pointer"
+                              className="font-mono shrink-0 whitespace-nowrap text-[12px] font-bold bg-white px-2.5 py-1.5 rounded-lg border border-orange-200 shadow-sm text-orange-600 hover:bg-orange-50 active:scale-95 transition-all flex items-center gap-1.5 cursor-pointer mt-1"
                             >
-                              <Phone size={12} className="text-orange-600" />{' '}
+                              <Phone size={12} className="text-orange-500" />{' '}
                               {formatDisplayPhone(t.techPhone)}
                             </a>
                           ) : (
-                            <span className="font-mono shrink-0 whitespace-nowrap text-[11px] text-slate-400 bg-white px-2 py-1 rounded-md border border-slate-200 shadow-sm">
+                            <span className="font-mono shrink-0 whitespace-nowrap text-[11px] text-slate-400 bg-white px-2 py-1 rounded-md border border-slate-200 shadow-sm mt-1">
                               {String(t.techPhone || 'N/A')}
                             </span>
                           )}
@@ -1979,16 +1989,16 @@ function MainApp({ onGoHome, initialRole }) {
                                   type: 'cancel',
                                 })
                               }
-                              className="flex-[1] bg-white text-rose-500 border border-rose-200 font-bold py-3.5 rounded-xl flex justify-center items-center gap-1.5 active:scale-95 text-[11px] transition-colors shadow-sm hover:bg-rose-50"
+                              className="flex-[1] bg-white text-rose-500 border border-orange-500 font-bold py-3.5 rounded-xl flex justify-center items-center gap-1.5 active:scale-95 text-[15px] transition-colors shadow-sm hover:bg-rose-50"
                             >
                               <XCircle size={14} /> ยกเลิก
                             </button>
                             <a
                               href="tel:0835293836"
-                              className="flex-[1.5] bg-gradient-to-r from-rose-500 to-red-600 text-white border border-rose-400 font-bold py-3.5 rounded-xl flex justify-center items-center gap-1.5 shadow-[0_0_15px_rgba(225,29,72,0.4)] hover:shadow-[0_0_25px_rgba(225,29,72,0.6)] active:scale-95 transition-all text-xs"
+                              className="flex-[1.5] bg-gradient-to-r from-rose-500 to-red-600 text-white border border-rose-400 text-[15px] font-bold py-4 rounded-2xl flex justify-center items-center gap-1.5 shadow-[0_0_15px_rgba(225,29,72,0.4)] hover:shadow-[0_0_25px_rgba(225,29,72,0.6)] active:scale-95 transition-all text-xs"
                             >
                               <PhoneCall size={16} className="animate-pulse" />{' '}
-                              สายด่วนตามงาน (ฝวด.)
+                              สายด่วนตามงาน
                             </a>
                           </div>
                         </div>
@@ -1997,7 +2007,7 @@ function MainApp({ onGoHome, initialRole }) {
                       {t.status === 'in_progress' &&
                         fixingMin > 5 * 24 * 60 && (
                           <div className="flex flex-col gap-2 mt-1">
-                            <div className="bg-rose-500/10 border border-rose-500/30 text-rose-400 text-[10px] font-bold px-4 py-2.5 rounded-xl flex items-center gap-2">
+                            <div className="bg-rose-500/10 border border-rose-500/30 text-rose-400 text-[13px] font-bold px-4 py-2.5 rounded-xl flex items-center gap-2">
                               <AlertTriangle
                                 size={14}
                                 className="animate-pulse shrink-0"
@@ -2198,7 +2208,7 @@ function MainApp({ onGoHome, initialRole }) {
       </div>
 
       {/* 🧭 Navigation Bar (ปรับโปร่งใส 50% ทะลุจอ และเปลี่ยนวงกลม Active เป็นสีขาว ฟันธง!) */}
-      <div className="fixed bottom-4 left-1/2 -translate-x-1/2 w-[calc(100%-2rem)] max-w-[416px] p-3 bg-slate-900/50 backdrop-blur-xl border-2 border-solid border-orange-500 rounded-2xl z-[100] shadow-[0_0_15px_rgba(249,115,22,0.4)]">
+      <div className="fixed bottom-4 left-1/2 -translate-x-1/2 w-[calc(100%-2rem)] max-w-[416px] p-3 bg-slate-900/50 backdrop-blur-xl border-2 border-solid border-orange-500 rounded-xl z-[100] shadow-[0_0_15px_rgba(249,115,22,0.4)]">
       <div className="max-w-md mx-auto flex justify-evenly items-center relative">
           {/* 🏠 ปุ่ม HOME */}
           <button
@@ -2387,15 +2397,16 @@ function LandingPage({ onStart }) {
       ></div>
 
       <div className="relative z-10 w-full max-w-md flex flex-col items-center animate-in slide-in-from-bottom-8 fade-in duration-1000">
-        {/* 🟠 บังคับเส้นสีส้มล้อมกรอบใหญ่ - ปรับกระจกให้ใสพิเศษ (35%) เพื่อโชว์ลูกโลกเต็มที่ */}
+        {/* 🟠 บังคับเส้นสีส้มล้อมกรอบใหญ่ */}
+        {/* 🌟 ฟันธงจุดที่ 1: เปลี่ยนจาก p-8 เป็น py-8 px-4 (ลดขอบซ้ายขวาด้านในลง เพื่อเพิ่มพื้นที่ตรงกลาง) */}
         <div
-          className="p-8 rounded-[1rem] shadow-[0_0_80px_rgba(0,0,0,0.6)] flex flex-col items-center text-center w-full relative backdrop-blur-[2px]"
+          className="py-8 px-4 rounded-[1.5rem] shadow-[0_0_80px_rgba(0,0,0,0.6)] flex flex-col items-center text-center w-full relative backdrop-blur-[2px]"
           style={{
-            backgroundColor: 'rgba(15, 23, 42, 0.35)', // ปรับจางลงเหลือ 35% ตามที่ท่านสั่ง
-            border: '4px solid #f97316', // เส้นส้มเข้มคงเดิมตามที่ท่านว่า OK
+            backgroundColor: 'rgba(15, 23, 42, 0.35)',
+            border: '4px solid #f97316',
           }}
         >
-          {/* โลโก้ (ลด mb ลงเพื่อให้ตัวหนังสือขยับขึ้นไปชิดด้านบนขึ้น ฟันธง!) */}
+          {/* โลโก้ */}
           <div
             className="w-24 h-24 bg-white rounded-full p-2 -mt-5 mb-2 flex items-center justify-center shadow-xl border-4 border-solid border-orange-500"
             style={{ boxShadow: 'inset 0 0 0 4px #10b981' }}
@@ -2407,7 +2418,7 @@ function LandingPage({ onStart }) {
             />
           </div>
 
-          {/* ชื่อระบบ (บีบช่องว่างระหว่างบรรทัดให้กระชับขึ้น) */}
+          {/* ชื่อระบบ */}
           <h1 className="text-3xl font-black text-white mb-1 drop-shadow-md">
             ระบบแจ้งซ่อม
           </h1>
@@ -2418,11 +2429,12 @@ function LandingPage({ onStart }) {
             สำนักปฏิบัติการดาวเทียม
           </h3>
 
-          {/* 🌟 โซนน้องมาสคอต + กล่องคำพูด (ยกขึ้นขวาบน ฟันธง!) */}
-          {/* ใช้ mt-16 ดันโซนนี้ลงมา เพื่อเว้นที่ว่างให้หัวน้องมาสคอต ไม่ทับตัวหนังสือ */}
-          <div className="relative w-full mt-20 mb-6 flex items-start justify-end min-h-[220px]">
-            {/* 👩‍🔧 น้องมาสคอต (ขยับมาซ้ายสุด และให้ฐานติดขอบล่างของโซนนี้) */}
-            <div className="absolute left-[-25px] bottom-0 z-20 w-[100%] max-w-[195px] pointer-events-none drop-shadow-[0_15px_15px_rgba(0,0,0,0.8)]">
+          {/* 🌟 โซนน้องมาสคอต + กล่องคำพูด */}
+          <div className="relative w-full mt-20 mb-6 flex items-start justify-end min-h-[180px]">
+            
+            {/* 👩‍🔧 น้องมาสคอต */}
+            {/* 🌟 ฟันธงจุดที่ 2: ดันมาสคอตไปซ้ายสุดๆ จาก -25px เป็น -35px */}
+            <div className="absolute left-[-30px] bottom-0 z-20 w-[100%] max-w-[185px] pointer-events-none drop-shadow-[0_15px_15px_rgba(0,0,0,0.8)]">
               <img
                 src="/mascot.webp"
                 alt="Mascot"
@@ -2431,9 +2443,9 @@ function LandingPage({ onStart }) {
             </div>
 
             {/* 💬 กล่องคำพูด (Speech Bubble สีขาว) */}
-            {/* 🌟 ฟันธง: เพิ่ม -mt-8 (ดึงขึ้นบน) และ -mr-2 (ดันชิดขวา) */}
-            <div className="relative z-10 w-[56%] -mt-10 -mr-4 bg-white rounded-3xl p-3.5 shadow-[0_0_30px_rgba(255,255,255,0.2)] text-left border-2 border-slate-100">
-              {/* 🔺 ติ่งลูกศรชี้ (ใช้ SVG วาดใหม่ แหลมยาวสะใจ ฟันธง!) */}
+            {/* 🌟 ฟันธงจุดที่ 3: ขยายกล่องจาก w-[56%] เป็น w-[65%] เพื่อให้ข้อความไม่ตกบรรทัด */}
+            <div className="relative z-10 w-[55%] -mt-16 -mr-1 bg-white rounded-3xl p-3.5 shadow-[0_0_30px_rgba(255,255,255,0.2)] text-left border-2 border-slate-100">
+              {/* 🔺 ติ่งลูกศรชี้ */}
               <svg
                 className="absolute -left-4 top-6 w-5 h-7 -z-10"
                 viewBox="0 0 20 28"
@@ -2450,10 +2462,11 @@ function LandingPage({ onStart }) {
               </svg>
 
               {/* ข้อความในกล่องคำพูด */}
+              {/* 🌟 ฟันธง: แก้ไขการขึ้นบรรทัดใหม่ ให้ดูเป็นธรรมชาติ */}
               <p className="text-[13px] font-bold text-slate-700 leading-relaxed relative z-20">
                 ระบบมีปัญหาใช่มั้ยคะ?
                 <br />
-                <span className="text-red-500 font-black text-[13px] mt-1 inline-block drop-shadow-sm">
+                <span className="text-red-500 font-black text-[13px] mt-1 inline-block drop-shadow-sm whitespace-nowrap">
                   กดแจ้งซ่อมได้เลย! 👇
                 </span>
               </p>
