@@ -990,7 +990,7 @@ function MainApp({ onGoHome, initialRole }) {
         </div>
 
         {(longestPendingTicket || longestFixingTicket) && (
-          <div className="bg-slate-800/60 backdrop-blur-xl p-5 rounded-[2rem] border-2 border-solid border-orange-500/80 shadow-[0_0_20px_rgba(249,115,22,0.15)] mt-6 overflow-hidden">
+          <div className="bg-slate-800/60 backdrop-blur-xl p-5 rounded-[1rem] border-2 border-solid border-orange-500/80 shadow-[0_0_20px_rgba(249,115,22,0.15)] mt-6 overflow-hidden">
             <div className="absolute -top-10 -right-10 w-32 h-32 bg-rose-500/10 rounded-full blur-2xl"></div>
             <h3 className="text-[15px] font-black text-white uppercase tracking-widest mb-4 flex items-center gap-2 relative z-10">
               <Flame size={20} className="text-emerald-500 animate-pulse" />{' '}
@@ -1068,7 +1068,7 @@ function MainApp({ onGoHome, initialRole }) {
           </div>
         )}
 
-        <div className="bg-slate-800/60 backdrop-blur-xl p-5 rounded-[2.5rem] border-2 border-solid border-orange-500/80 shadow-[0_0_20px_rgba(249,115,22,0.15)] mt-6">
+        <div className="bg-slate-800/60 backdrop-blur-xl p-5 rounded-[1rem] border-2 border-solid border-orange-500/80 shadow-[0_0_20px_rgba(249,115,22,0.15)] mt-6">
           <h3 className="text-[15px] font-black text-white uppercase  tracking-widest mb-4 flex items-center gap-2">
             <FileText
               size={20}
@@ -1181,7 +1181,7 @@ function MainApp({ onGoHome, initialRole }) {
           </div>
 
           {/* ================= กรอบที่ 1: ข้อมูลผู้แจ้งซ่อม ================= */}
-          <div className="relative bg-slate-800/60 backdrop-blur-xl border-2 border-solid border-orange-400/80 rounded-[2.5rem] p-6 pt-10 shadow-[0_0_40px_rgba(0,0,0,0.4)] text-left">
+          <div className="relative bg-slate-800/60 backdrop-blur-xl border-2 border-solid border-orange-400 rounded-[1rem] p-6 pt-10 shadow-[0_0_40px_rgba(0,0,0,0.4)] text-left">
             <div className="absolute -top-4 left-6 bg-emerald-50 text-emerald-600 px-4 py-2.5 rounded-xl font-black text-xs shadow-sm border-2 border-solid border-green-500 flex items-center gap-2 tracking-widest uppercase">
               <User size={20} className="text-orange-500"/> ข้อมูลผู้แจ้งซ่อม
             </div>
@@ -1264,7 +1264,7 @@ function MainApp({ onGoHome, initialRole }) {
           </div>
 
           {/* ================= กรอบที่ 2: รายละเอียดการแจ้งซ่อม ================= */}
-          <div className="relative bg-slate-800/60 backdrop-blur-xl border-2 border-solid border-pink-400/80 rounded-[2.5rem] p-6 pt-10 shadow-[0_0_40px_rgba(0,0,0,0.4)] text-left">
+          <div className="relative bg-slate-800/60 backdrop-blur-xl border-2 border-solid border-pink-300 rounded-[1rem] p-6 pt-10 shadow-[0_0_40px_rgba(0,0,0,0.4)] text-left">
             <div className="absolute -top-4 left-6 bg-emerald-50 text-emerald-600 px-4 py-2.5 rounded-xl font-black text-xs shadow-sm border-2 border-solid border-green-500 flex items-center gap-2 tracking-widest uppercase">
               <Wrench size={20} className="text-orange-500" />{' '}
               รายละเอียดการแจ้งซ่อม
@@ -2389,7 +2389,7 @@ function LandingPage({ onStart }) {
       <div className="relative z-10 w-full max-w-md flex flex-col items-center animate-in slide-in-from-bottom-8 fade-in duration-1000">
         {/* 🟠 บังคับเส้นสีส้มล้อมกรอบใหญ่ - ปรับกระจกให้ใสพิเศษ (35%) เพื่อโชว์ลูกโลกเต็มที่ */}
         <div
-          className="p-8 rounded-[3rem] shadow-[0_0_80px_rgba(0,0,0,0.6)] flex flex-col items-center text-center w-full relative backdrop-blur-[2px]"
+          className="p-8 rounded-[1rem] shadow-[0_0_80px_rgba(0,0,0,0.6)] flex flex-col items-center text-center w-full relative backdrop-blur-[2px]"
           style={{
             backgroundColor: 'rgba(15, 23, 42, 0.35)', // ปรับจางลงเหลือ 35% ตามที่ท่านสั่ง
             border: '4px solid #f97316', // เส้นส้มเข้มคงเดิมตามที่ท่านว่า OK
@@ -2420,9 +2420,9 @@ function LandingPage({ onStart }) {
 
           {/* 🌟 โซนน้องมาสคอต + กล่องคำพูด (ยกขึ้นขวาบน ฟันธง!) */}
           {/* ใช้ mt-16 ดันโซนนี้ลงมา เพื่อเว้นที่ว่างให้หัวน้องมาสคอต ไม่ทับตัวหนังสือ */}
-          <div className="relative w-full mt-20 mb-6 flex items-start justify-end min-h-[180px]">
+          <div className="relative w-full mt-20 mb-6 flex items-start justify-end min-h-[220px]">
             {/* 👩‍🔧 น้องมาสคอต (ขยับมาซ้ายสุด และให้ฐานติดขอบล่างของโซนนี้) */}
-            <div className="absolute left-[-25px] bottom-0 z-20 w-[100%] max-w-[175px] pointer-events-none drop-shadow-[0_15px_15px_rgba(0,0,0,0.8)]">
+            <div className="absolute left-[-25px] bottom-0 z-20 w-[100%] max-w-[195px] pointer-events-none drop-shadow-[0_15px_15px_rgba(0,0,0,0.8)]">
               <img
                 src="/mascot.webp"
                 alt="Mascot"
@@ -2432,7 +2432,7 @@ function LandingPage({ onStart }) {
 
             {/* 💬 กล่องคำพูด (Speech Bubble สีขาว) */}
             {/* 🌟 ฟันธง: เพิ่ม -mt-8 (ดึงขึ้นบน) และ -mr-2 (ดันชิดขวา) */}
-            <div className="relative z-10 w-[56%] -mt-16 -mr-3 bg-white rounded-3xl p-3.5 shadow-[0_0_30px_rgba(255,255,255,0.2)] text-left border-2 border-slate-100">
+            <div className="relative z-10 w-[56%] -mt-10 -mr-4 bg-white rounded-3xl p-3.5 shadow-[0_0_30px_rgba(255,255,255,0.2)] text-left border-2 border-slate-100">
               {/* 🔺 ติ่งลูกศรชี้ (ใช้ SVG วาดใหม่ แหลมยาวสะใจ ฟันธง!) */}
               <svg
                 className="absolute -left-4 top-6 w-5 h-7 -z-10"
@@ -2450,10 +2450,10 @@ function LandingPage({ onStart }) {
               </svg>
 
               {/* ข้อความในกล่องคำพูด */}
-              <p className="text-[12px] font-bold text-slate-700 leading-relaxed relative z-20">
+              <p className="text-[15px] font-bold text-slate-700 leading-relaxed relative z-20">
                 ระบบมีปัญหาใช่มั้ยคะ?
                 <br />
-                <span className="text-red-500 font-black text-[12px] mt-1 inline-block drop-shadow-sm">
+                <span className="text-red-500 font-black text-[15px] mt-1 inline-block drop-shadow-sm">
                   กดแจ้งซ่อมได้เลย! 👇
                 </span>
               </p>
