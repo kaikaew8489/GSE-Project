@@ -958,7 +958,7 @@ function MainApp({ onGoHome, initialRole }) {
           >
             <div className="absolute top-0 w-full h-1 bg-emerald-500"></div>
             <div className="bg-emerald-50 p-3 rounded-2xl mb-3">
-              <CheckCircle size={24} className="text-emerald-500" />
+              <CheckCircle size={24} className="text-emerald-500"/>
             </div>
             <div className="text-4xl font-black text-emerald-400 font-mono tracking-tighter leading-none">
               {stats.done}
@@ -1527,7 +1527,7 @@ function MainApp({ onGoHome, initialRole }) {
             className={`px-5 py-2.5 rounded-2xl text-xs font-bold transition-all shrink-0 ${
               filterStatus === f.id
                 ? 'bg-gradient-to-r from-orange-500 to-orange-600 text-white shadow-[0_0_15px_rgba(249,115,22,0.4)] border-transparent'
-                : 'bg-slate-800/60 text-slate-300 border border-slate-600/50 hover:bg-slate-700 active:scale-95'
+                : 'bg-slate-800/80 text-slate-200 border-2 border solid border-white-600/50 hover:bg-rose-700 active:scale-95'
             }`}
           >
             {f.label}
@@ -1599,7 +1599,7 @@ function MainApp({ onGoHome, initialRole }) {
             return (
               <div
                 key={t.dbId || t.id}
-                className={`bg-white rounded-[2rem] border-l-[6px] ${
+                className={`bg-white rounded-[1rem] border-l-[6px] ${
                   styleColor.split(' ')[0]
                 } overflow-hidden shadow-sm border-t border-r border-b border-2 border-orange-400/70 transition-all ${
                   isCancelled ? 'opacity-70' : ''
@@ -1608,11 +1608,11 @@ function MainApp({ onGoHome, initialRole }) {
                 <div className="p-5 border-b border-slate-100 bg-slate-50/50">
                   <div className="flex justify-between items-start mb-4">
                     <div className="flex items-center">
-                      <span className="text-[11px] font-mono text-emerald-600 bg-emerald-100 px-3 py-1 rounded-lg font-black tracking-widest border border-emerald-200">
+                      <span className="text-[13px] font-mono text-emerald-600 bg-emerald-100 px-3 py-1 rounded-lg font-black tracking-widest border border-emerald-200">
                         {String(t.id)}
                       </span>
                       {t.isOutOfHours && (
-                        <span className="ml-2 text-[9px] font-black text-rose-600 bg-rose-100 border border-rose-200 px-2 py-0.5 rounded-md animate-pulse">
+                        <span className="ml-2 text-[10px] font-black text-rose-600 bg-rose-100 border border-rose-200 px-2 py-0.5 rounded-md animate-pulse">
                           SSC (นอกเวลา)
                         </span>
                       )}
@@ -1647,7 +1647,7 @@ function MainApp({ onGoHome, initialRole }) {
                   </div>
 
                   {!isCancelled && (
-                    <div className="mt-5 pl-4 border-l-2 border-2 border-orange-400/70 space-y-4 py-2 relative">
+                    <div className="mt-5 pl-4 border-2 border-orange-400/70 space-y-4 py-2 relative">
                       <div className="relative">
                         <div
                           className={`absolute -left-[21px] w-2.5 h-2.5 rounded-full ${
@@ -1873,7 +1873,7 @@ function MainApp({ onGoHome, initialRole }) {
                               type: 'accept',
                             })
                           }
-                          className="w-full bg-gradient-to-r from-emerald-500 to-emerald-600 text-white border border-emerald-400 font-bold py-3.5 rounded-xl shadow-[0_0_15px_rgba(16,185,129,0.4)] hover:shadow-[0_0_25px_rgba(16,185,129,0.6)] active:scale-95 transition-all text-sm"
+                          className="w-full bg-gradient-to-r from-emerald-500 to-emerald-600 text-white border-2 border solid border-orange-300 font-bold py-4 rounded-xl shadow-[0_0_15px_rgba(16,185,129,0.4)] hover:shadow-[0_0_25px_rgba(16,185,129,0.6)] active:scale-95 transition-all text-sm"
                         >
                           รับงานซ่อม
                         </button>
@@ -2198,8 +2198,8 @@ function MainApp({ onGoHome, initialRole }) {
       </div>
 
       {/* 🧭 Navigation Bar (ปรับโปร่งใส 50% ทะลุจอ และเปลี่ยนวงกลม Active เป็นสีขาว ฟันธง!) */}
-      <div className="fixed bottom-4 left-1/2 -translate-x-1/2 w-[calc(100%-2rem)] max-w-[416px] p-3 bg-slate-900/50 backdrop-blur-xl border-2 border-solid border-orange-500 rounded-3xl z-[100] shadow-[0_0_15px_rgba(249,115,22,0.4)]">
-        <div className="max-w-md mx-auto flex justify-evenly items-end relative pb-2">
+      <div className="fixed bottom-4 left-1/2 -translate-x-1/2 w-[calc(100%-2rem)] max-w-[416px] p-3 bg-slate-900/50 backdrop-blur-xl border-2 border-solid border-orange-500 rounded-2xl z-[100] shadow-[0_0_15px_rgba(249,115,22,0.4)]">
+      <div className="max-w-md mx-auto flex justify-evenly items-center relative">
           {/* 🏠 ปุ่ม HOME */}
           <button
             onClick={onGoHome}
@@ -2224,8 +2224,8 @@ function MainApp({ onGoHome, initialRole }) {
                 onClick={() => setActiveTab('report')}
                 className={`flex flex-col items-center justify-center transition-all duration-300 w-24 group ${
                   activeTab === 'report'
-                    ? 'scale-110 -translate-y-2'
-                    : 'scale-100 hover:scale-110 hover:-translate-y-2'
+                  ? 'scale-110'
+                  : 'scale-100 hover:scale-110'
                 }`}
               >
                 <div
@@ -2260,8 +2260,8 @@ function MainApp({ onGoHome, initialRole }) {
                 onClick={() => setActiveTab('tracking')}
                 className={`flex flex-col items-center justify-center transition-all duration-300 w-24 group ${
                   activeTab === 'tracking'
-                    ? 'scale-110 -translate-y-2'
-                    : 'scale-100 hover:scale-110 hover:-translate-y-2'
+                  ? 'scale-110'
+                  : 'scale-100 hover:scale-110'
                 }`}
               >
                 <div
@@ -2301,8 +2301,8 @@ function MainApp({ onGoHome, initialRole }) {
                 onClick={() => setActiveTab('dashboard')}
                 className={`flex flex-col items-center justify-center transition-all duration-300 w-24 group ${
                   activeTab === 'dashboard'
-                    ? 'scale-110 -translate-y-2'
-                    : 'scale-100 hover:scale-110 hover:-translate-y-2'
+                  ? 'scale-110'
+                  : 'scale-100 hover:scale-110'
                 }`}
               >
                 <div
@@ -2337,8 +2337,8 @@ function MainApp({ onGoHome, initialRole }) {
                 onClick={() => setActiveTab('tracking')}
                 className={`flex flex-col items-center justify-center transition-all duration-300 w-24 group ${
                   activeTab === 'tracking'
-                    ? 'scale-110 -translate-y-2'
-                    : 'scale-100 hover:scale-110 hover:-translate-y-2'
+                  ? 'scale-110'
+                  : 'scale-100 hover:scale-110'
                 }`}
               >
                 <div
@@ -2450,10 +2450,10 @@ function LandingPage({ onStart }) {
               </svg>
 
               {/* ข้อความในกล่องคำพูด */}
-              <p className="text-[15px] font-bold text-slate-700 leading-relaxed relative z-20">
+              <p className="text-[13px] font-bold text-slate-700 leading-relaxed relative z-20">
                 ระบบมีปัญหาใช่มั้ยคะ?
                 <br />
-                <span className="text-red-500 font-black text-[15px] mt-1 inline-block drop-shadow-sm">
+                <span className="text-red-500 font-black text-[13px] mt-1 inline-block drop-shadow-sm">
                   กดแจ้งซ่อมได้เลย! 👇
                 </span>
               </p>
@@ -2461,7 +2461,7 @@ function LandingPage({ onStart }) {
           </div>
 
           {/* 4. กลุ่มปุ่มกด */}
-          <div className="w-full flex flex-col gap-4">
+          <div className="w-full flex flex-col gap-4 -mt-5 relative z-30">
             {/* 🟠 ปุ่มที่ 1 */}
             <button
               onClick={() => onStart('reporter')}
