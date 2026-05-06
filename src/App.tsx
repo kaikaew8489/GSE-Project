@@ -1811,66 +1811,68 @@ function MainApp({ onGoHome, initialRole }) {
                       </p>
                     )}
 
-                    <div className="pt-3 border-t border-2 border-orange-400/70 flex flex-col gap-2 mt-3 text-xs text-slate-600">
-                      <div className="flex justify-between items-start">
-                        <div className="flex flex-col">
-                          <span className="font-bold text-slate-800 flex items-center gap-1.5">
+<div className="pt-3 border-t border-2 border-orange-400/70 flex flex-col gap-2 mt-3 text-xs text-slate-600">
+                      
+                      {/* 🔴 โซนที่ 1: ผู้แจ้งปัญหา */}
+                      <div className="flex justify-between items-start gap-2">
+                        <div className="flex flex-col min-w-0 flex-1">
+                          {/* 🌟 เพิ่มคำว่า ผู้แจ้งปัญหา */}
+                          <span className="text-[11px] font-bold text-slate-400 mb-0.5">
+                            ผู้แจ้งปัญหา
+                          </span>
+                          {/* 🌟 ใส่ truncate เพื่อให้ชื่อยาวๆ กลายเป็น ... และไม่ดันหน้าจอ */}
+                          <span className="font-bold text-slate-800 flex items-center gap-1.5 truncate">
                             <User
                               size={14}
-                              className={
-                                isCancelled
-                                  ? 'text-slate-400'
-                                  : 'text-emerald-500'
-                              }
-                            />{' '}
-                            {String(t.reporter)}
+                              className={`shrink-0 ${isCancelled ? 'text-slate-400' : 'text-emerald-500'}`}
+                            />
+                            <span className="truncate">{String(t.reporter)}</span>
                           </span>
-                          <span className="text-[12px] text-slate-500 mt-1">
+                          <span className="text-[11px] text-slate-500 mt-1">
                             {formatDateTimeString(t.date)}
                           </span>
                         </div>
+                        {/* 🌟 ล็อคเบอร์โทรด้วย shrink-0 และย่อฟอนต์นิดนึงให้อยู่ในกรอบสวยๆ */}
                         <a
-                          href={`tel:${String(t.reporterContact).replace(
-                            /\D/g,
-                            ''
-                          )}`}
-                          className="font-mono bg-white px-2 py-1 rounded-lg border border-2 border-orange-400/70 shadow-sm text-emerald-600 hover:bg-emerald-50 active:scale-95 transition-all flex items-center gap-1.5 cursor-pointer"
+                          href={`tel:${String(t.reporterContact).replace(/\D/g, '')}`}
+                          className="font-mono shrink-0 whitespace-nowrap text-[12px] font-bold bg-white px-2.5 py-1.5 rounded-lg border border-slate-200 shadow-sm text-emerald-600 hover:bg-emerald-50 active:scale-95 transition-all flex items-center gap-1.5 cursor-pointer"
                         >
-                          <Phone size={10} className="text-emerald-500" />{' '}
+                          <Phone size={12} className="text-emerald-500" />{' '}
                           {formatDisplayPhone(t.reporterContact)}
                         </a>
                       </div>
 
+                      {/* 🔴 โซนที่ 2: ผู้รับผิดชอบ (ช่าง) */}
                       {t.techName && (
-                        <div className="flex justify-between items-center text-slate-700 bg-white p-2.5 rounded-xl border border-2 border-orange-400/70 shadow-sm mt-1">
-                          <div className="flex flex-col">
-                            <span className="text-[12px] font-bold text-slate-500 mb-0.5">
+                        {/* 🌟 ปรับสีพื้นหลังให้เข้มขึ้นเป็น bg-orange-100 และขอบ border-orange-300 */}
+                        <div className="flex justify-between items-center text-slate-700 bg-orange-100 p-3 rounded-xl border border-orange-300 shadow-sm mt-2 gap-2">
+                          <div className="flex flex-col min-w-0 flex-1">
+                            <span className="text-[11px] font-bold text-orange-700 mb-0.5">
                               ผู้รับผิดชอบ
                             </span>
-                            <span className="flex items-center gap-1.5 font-bold text-slate-800">
-                              <Wrench size={10} className="text-orange-500" />{' '}
-                              {String(t.techName)}
+                            {/* 🌟 ใส่ truncate ให้ชื่อช่างที่ยาวๆ กลายเป็น ... */}
+                            <span className="flex items-center gap-1.5 font-bold text-slate-800 truncate">
+                              <Wrench size={12} className="text-orange-500 shrink-0" />{' '}
+                              <span className="truncate">{String(t.techName)}</span>
                             </span>
                           </div>
-                          {t.techPhone &&
-                          t.techPhone !== '-' &&
-                          t.techPhone !== 'N/A' ? (
+                          {t.techPhone && t.techPhone !== '-' && t.techPhone !== 'N/A' ? (
+                            {/* 🌟 ล็อคเบอร์ช่างห้ามตกขอบเด็ดขาด */}
                             <a
-                              href={`tel:${String(t.techPhone).replace(
-                                /\D/g,
-                                ''
-                              )}`}
-                              className="font-mono bg-white px-2 py-1 rounded-lg border border-2 border-orange-400/70 shadow-sm text-orange-600 hover:bg-emerald-50 active:scale-95 transition-all flex items-center gap-1.5 cursor-pointer">
-                              <Phone size={10} className="text-orange-500" />{' '}
+                              href={`tel:${String(t.techPhone).replace(/\D/g, '')}`}
+                              className="font-mono shrink-0 whitespace-nowrap text-[12px] font-bold bg-white px-2.5 py-1.5 rounded-lg border border-orange-300 shadow-sm text-orange-600 hover:bg-orange-200 active:scale-95 transition-all flex items-center gap-1.5 cursor-pointer"
+                            >
+                              <Phone size={12} className="text-orange-500" />{' '}
                               {formatDisplayPhone(t.techPhone)}
                             </a>
                           ) : (
-                            <span className="font-mono text-[10px] text-slate-400">
+                            <span className="font-mono shrink-0 whitespace-nowrap text-[11px] text-slate-400 bg-white px-2 py-1 rounded-md border border-slate-200 shadow-sm">
                               {String(t.techPhone || 'N/A')}
                             </span>
                           )}
                         </div>
                       )}
+
                     </div>
                   </div>
 
@@ -1973,10 +1975,8 @@ function MainApp({ onGoHome, initialRole }) {
                   {/* --- REPORTER ACTIONS --- */}
                   {currentUserRole === 'reporter' && !isCancelled && (
                     <div className="flex flex-col gap-2.5">
-                      {/* ปุ่มสำหรับตอนรอดำเนินการ */}
                       {isPending && (
                         <div className="flex flex-col gap-2.5">
-                          {/* ป้ายเตือน SLA กรณีไม่มีใครรับงานเกิน 1 ชั่วโมง (60 นาที) */}
                           {waitingMin > 60 && (
                             <div className="bg-rose-500/10 border border-rose-500/30 text-rose-400 text-[10px] font-bold px-4 py-2.5 rounded-xl flex items-center gap-2 mb-1">
                               <AlertTriangle
@@ -2010,7 +2010,6 @@ function MainApp({ onGoHome, initialRole }) {
                         </div>
                       )}
 
-                      {/* ระบบ SLA Escalation กรณีช่างซ่อมค้างเกิน 5 วัน (7200 นาที) จะมีป้ายเตือนและปุ่มสายด่วนโผล่มาให้ผู้แจ้ง */}
                       {t.status === 'in_progress' &&
                         fixingMin > 5 * 24 * 60 && (
                           <div className="flex flex-col gap-2 mt-1">
