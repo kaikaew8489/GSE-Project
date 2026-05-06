@@ -1825,7 +1825,7 @@ function MainApp({ onGoHome, initialRole }) {
                             />{' '}
                             {String(t.reporter)}
                           </span>
-                          <span className="text-[10px] text-slate-500 mt-1">
+                          <span className="text-[12px] text-slate-500 mt-1">
                             {formatDateTimeString(t.date)}
                           </span>
                         </div>
@@ -1844,7 +1844,7 @@ function MainApp({ onGoHome, initialRole }) {
                       {t.techName && (
                         <div className="flex justify-between items-center text-slate-700 bg-white p-2.5 rounded-xl border border-2 border-orange-400/70 shadow-sm mt-1">
                           <div className="flex flex-col">
-                            <span className="text-[10px] font-bold text-slate-500 mb-0.5">
+                            <span className="text-[12px] font-bold text-slate-500 mb-0.5">
                               ผู้รับผิดชอบ
                             </span>
                             <span className="flex items-center gap-1.5 font-bold text-slate-800">
@@ -1860,8 +1860,7 @@ function MainApp({ onGoHome, initialRole }) {
                                 /\D/g,
                                 ''
                               )}`}
-                              className="font-mono text-[10px] text-orange-600 bg-orange-50 px-2 py-1 rounded-md border border-orange-200 active:scale-95 transition-all flex items-center gap-1 cursor-pointer"
-                            >
+                              className="font-mono bg-white px-2 py-1 rounded-lg border border-2 border-orange-400/70 shadow-sm text-orange-600 hover:bg-emerald-50 active:scale-95 transition-all flex items-center gap-1.5 cursor-pointer">
                               <Phone size={10} className="text-orange-500" />{' '}
                               {formatDisplayPhone(t.techPhone)}
                             </a>
