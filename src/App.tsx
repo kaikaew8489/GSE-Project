@@ -2190,7 +2190,6 @@ function MainApp({ onGoHome, initialRole }) {
         </div>
       </div>
       <div className="relative z-10 flex-1 overflow-y-auto overflow-x-hidden w-full scrollbar-hide pb-28">
-        >
         {activeTab === 'dashboard' &&
           currentUserRole === 'technician' &&
           renderDashboard()}
