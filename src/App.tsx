@@ -263,19 +263,19 @@ const ThaiDateFormatter = (date) => {
   return (
     <div className="flex items-center justify-center gap-4 sm:gap-6 text-base sm:text-lg whitespace-nowrap font-sans py-1">
       {/* 📅 ส่วนวันที่ (สีเขียวมรกต) */}
-      <div className="flex items-center gap-2.5 text-emerald-200">
-        <Calendar size={25} className="text-emerald-400" />
+      <div className="flex items-center gap-2.5 text-emerald-300">
+        <Calendar size={25} className="text-Orange-800" />
         <span className="font-black tracking-widest drop-shadow-sm">
           {d.getDate()} {months[d.getMonth()]} {d.getFullYear() + 543}
         </span>
       </div>
 
       {/* ⏐ เส้นแบ่งคั่นกลาง */}
-      <div className="w-[2px] h-7 bg-slate-600/50 rounded-full"></div>
+      <div className="w-[2px] h-7 bg-slate-00/80 rounded-full"></div>
 
       {/* ⏰ ส่วนเวลา (สีส้ม) */}
-      <div className="flex items-center gap-2.5 text-orange-200">
-        <Clock size={25} className="text-orange-400 animate-pulse" />
+      <div className="flex items-center gap-2.5 text-orange-300">
+        <Clock size={25} className="text-orange-500 animate-pulse" />
         <span className="font-mono font-black tracking-[0.15em] drop-shadow-[0_0_5px_rgba(249,115,22,0.6)]">
           {d.toLocaleTimeString('th-TH', { hour12: false })} น.
         </span>
