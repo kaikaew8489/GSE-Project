@@ -2493,7 +2493,7 @@ function LandingPage({ onStart }) {
             
             {/* 👩‍🔧 น้องมาสคอต */}
             {/* 🌟 ฟันธงจุดที่ 2: ดันมาสคอตไปซ้ายสุดๆ จาก -25px เป็น -35px */}
-            <div className="absolute left-[-38px] bottom-0 z-20 w-[100%] max-w-[190px] pointer-events-none drop-shadow-[0_15px_15px_rgba(0,0,0,0.8)]">
+            <div className="absolute left-[-35px] bottom-0 z-20 w-[100%] max-w-[180px] pointer-events-none drop-shadow-[0_15px_15px_rgba(0,0,0,0.8)]">
               <img
                 src="/mascot.webp"
                 alt="Mascot"
