@@ -2064,7 +2064,7 @@ function MainApp({ onGoHome, initialRole }) {
                       {isPending && (
                         <div className="flex flex-col gap-2.5">
                           {waitingMin > 60 && (
-                            <div className="bg-rose-500/10 border border-rose-500/30 text-rose-400 text-[10px] font-bold px-4 py-2.5 rounded-xl flex items-center gap-2 mb-1">
+                            <div className="bg-green-600/20 border-2 border-solid border-orange-800 text-rose-600 text-[12px] font-bold px-4 py-2.5 rounded-xl flex items-center gap-2 mb-1">
                               <AlertTriangle
                                 size={14}
                                 className="animate-pulse shrink-0"
@@ -2081,16 +2081,16 @@ function MainApp({ onGoHome, initialRole }) {
                                   type: 'cancel',
                                 })
                               }
-                              className="flex-[1] bg-white text-rose-500 border border-orange-500 font-bold py-3.5 rounded-xl flex justify-center items-center gap-1.5 active:scale-95 text-[15px] transition-colors shadow-sm hover:bg-rose-50"
+                              className="flex-[1] bg-orange text-rose-500 border border-orange-500 font-bold py-3.5 rounded-xl flex justify-center items-center gap-1.5 active:scale-95 text-[15px] transition-colors shadow-sm hover:bg-rose-50"
                             >
                               <XCircle size={14} /> ยกเลิก
                             </button>
                             <a
                               href="tel:0835293836"
-                              className="flex-[1.5] bg-gradient-to-r from-rose-500 to-red-600 text-white border border-rose-400 text-[15px] font-bold py-4 rounded-2xl flex justify-center items-center gap-1.5 shadow-[0_0_15px_rgba(225,29,72,0.4)] hover:shadow-[0_0_25px_rgba(225,29,72,0.6)] active:scale-95 transition-all text-xs"
+                              className="flex-[1.5] bg-gradient-to-r from-rose-500/80 to-orange-600 text-white border border-blue-400 text-[20px] font-bold py-4 rounded-2xl flex justify-center items-center gap-1.5 shadow-[0_0_15px_rgba(225,29,72,0.4)] hover:shadow-[0_0_25px_rgba(225,29,72,0.6)] active:scale-95 transition-all text-xs"
                             >
                               <PhoneCall size={16} className="animate-pulse" />{' '}
-                              สายด่วนตามงาน
+                              สายด่วน หน.ฝวด.
                             </a>
                           </div>
                         </div>
@@ -2108,8 +2108,8 @@ function MainApp({ onGoHome, initialRole }) {
                             </div>
                             <a
                               href="tel:0835293836"
-                              className="w-full bg-gradient-to-r from-rose-500 to-red-600 text-white border border-rose-400 font-bold py-3.5 rounded-xl flex justify-center items-center gap-1.5 shadow-[0_0_15px_rgba(225,29,72,0.4)] hover:shadow-[0_0_25px_rgba(225,29,72,0.6)] active:scale-95 transition-all text-xs"
-                            >
+                              className="flex-[1.5] bg-gradient-to-r from-rose-500/80 to-orange-600 text-white border border-blue-400 text-[20px] font-bold py-4 rounded-2xl flex justify-center items-center gap-1.5 shadow-[0_0_15px_rgba(225,29,72,0.4)] hover:shadow-[0_0_25px_rgba(225,29,72,0.6)] active:scale-95 transition-all text-xs"
+                              >
                               <PhoneCall size={16} className="animate-pulse" />{' '}
                               สายด่วนตามงาน (ฝวด.)
                             </a>
