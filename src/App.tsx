@@ -52,6 +52,9 @@ import {
   onSnapshot,
   doc,
   updateDoc,
+  query,   // <--- เพิ่มตัวนี้
+  orderBy, // <--- เพิ่มตัวนี้
+  limit    // <--- เพิ่มตัวนี้
 } from 'firebase/firestore';
 
 const firebaseConfig = {
@@ -507,9 +510,17 @@ function MainApp({ onGoHome, initialRole }) {
   // --- Data Fetching ---
   useEffect(() => {
     if (!user) return;
-    const ticketsRef = collection(db, 'tickets');
+    
+    // 🌟 ฟันธง: สร้างคำสั่ง Query เพื่อเรียงตามวันที่ล่าสุด (desc) และจำกัดแค่ 50 รายการ
+    const ticketsRef = query(
+      collection(db, 'tickets'),
+      orderBy('date', 'desc'),
+      limit(50)
+    );
+
     const unsubscribeData = onSnapshot(
       ticketsRef,
+// ...
       (snapshot) => {
         try {
           const ticketsData = [];
