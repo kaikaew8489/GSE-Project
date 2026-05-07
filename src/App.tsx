@@ -471,10 +471,16 @@ function SearchableDropdown({
 // 🌟 5. Main App Logic
 // ==========================================
 function MainApp({ onGoHome, initialRole }) {
-  // 🌟 ฟันธง: เช็คก่อนว่าถ้าเป็นช่างให้เข้า dashboard ถ้าเป็นผู้แจ้งให้เข้า report
-  const [activeTab, setActiveTab] = useState(
-    initialRole === 'technician' ? 'dashboard' : 'report'
-  );
+  // 🌟 ฟันธง: ให้จำหน้า Tab ล่าสุดที่กดค้างไว้
+  const [activeTab, setActiveTab] = useState(() => {
+    return localStorage.getItem('gse_activeTab') || (initialRole === 'technician' ? 'dashboard' : 'report');
+  });
+
+  // 🌟 ใช้ useEffect เพื่อคอยบันทึกทุกครั้งที่มีการเปลี่ยนหน้า Tab
+  useEffect(() => {
+    localStorage.setItem('gse_activeTab', activeTab);
+  }, [activeTab]);
+
   const [hoveredTab, setHoveredTab] = useState(null);
   const [sysTime, setSysTime] = useState(new Date());
   // 🌟 ฟันธง: ล็อกโหมดตามที่กดมาจากหน้า Landing Page
@@ -785,12 +791,12 @@ function MainApp({ onGoHome, initialRole }) {
       console.error("Line Notify Error:", err);
     }
 
-      setEmailNotify(`บันทึกข้อมูลและแจ้งเตือนทีมช่างเรียบร้อย`);
-      setTimeout(() => {
-        setShowSuccess(false);
-        setFilterStatus('all');
-        setActiveTab('tracking'); // เด้งไปหน้าติดตามสถานะ (เยี่ยมอยู่แล้วครับ)
-      }, 3000); // <--- ฟันธง: แก้ตรงนี้จาก 1500 เป็น 3000 (3 วินาที)
+    // 🌟 ฟันธง: โค้ดหน่วงเวลา 5 วินาที (5000ms) แล้วเด้งกลับหน้าติดตามงาน
+    setTimeout(() => {
+      setShowSuccess(false);      // 1. ปิดหน้าต่าง Success
+      setFilterStatus('all');     // 2. รีเซ็ตตัวกรองเป็น 'ทั้งหมด'
+      setActiveTab('tracking');   // 3. สั่งเด้งไปหน้า 'ติดตามสถานะ'
+    }, 5000);
     } catch (e) {
       console.error(e);
     } finally {
@@ -908,7 +914,7 @@ function MainApp({ onGoHome, initialRole }) {
         {/* 🌟 เพิ่มแถบวันที่แบบยาว เหมือนหน้าแจ้งซ่อม (ฟันธง!) */}
         {/* 🌟 ฟันธง: เปลี่ยนสีกรอบวันที่/เวลา เป็นเส้นขอบสีส้มหนา 2px พร้อมเงาเรืองแสงให้เข้าธีม */}
         {/* 🌟 แบบที่ 1: เส้นขาว เรืองแสงส้ม */}
-        <div className="bg-slate-800/60 backdrop-blur-xl border-2 border-solid border-white/80 rounded-[1rem] py-4 text-center shadow-[0_0_20px_rgba(249,115,22,0.6)] font-sans tracking-widest text-white font-bold">
+        <div className="bg-slate-800/60 backdrop-blur-xl border-2 border-solid border-white-600/80 rounded-[1rem] py-4 text-center shadow-[0_0_20px_rgba(249,115,22,0.6)] font-sans tracking-widest text-white font-bold">
           {ThaiDateFormatter(sysTime)}
         </div>
         <div className="bg-slate-800/60 backdrop-blur-xl border-2 border-solid border-white-500/80 shadow-[0_0_20px_rgba(249,115,22,0.15)] rounded-[1rem] p-6 relative overflow-hidden">
@@ -934,7 +940,7 @@ function MainApp({ onGoHome, initialRole }) {
                 <span className="text-[15px] font-black uppercase tracking-widest text-emerald-800 mb-1">
                   อัตราปิดงาน
                 </span>
-                <div className="flex items-center gap-1 text-green-600/50">
+                <div className="flex items-center gap-1 text-orange-600/90">
                   <PieChart size={20} />
                   <span className="text-[30px] font-bold font-black">
                     {completionRate}%
@@ -1201,20 +1207,37 @@ function MainApp({ onGoHome, initialRole }) {
 
   const renderReport = () => (
     <div className="p-5 pb-32 animate-in slide-in-from-right-4 duration-500 space-y-6 relative">
+      
+      {/* 🌟 ฟันธง: เติมสวิตช์ตรงนี้! */}
       {showSuccess ? (
-        <div className="flex flex-col items-center justify-center py-24 text-center animate-in fade-in duration-500">
-          <div className="w-28 h-28 bg-gradient-to-tr from-emerald-400 to-emerald-500 text-white rounded-full flex items-center justify-center mb-6 shadow-[0_0_30px_rgba(16,185,129,0.4)]">
-            <CheckCircle size={60} />
+
+        <div className="flex flex-col items-center justify-center py-24 text-center animate-in zoom-in duration-500">
+          
+          {/* 🌟 1. โซนไอคอน: เพิ่มวงแหวนเรืองแสงและเส้นประหมุนล้อมรอบ */}
+          <div className="relative mb-10 mt-8">
+            <div className="absolute inset-0 border-4 border-emerald-400 rounded-full animate-ping opacity-40"></div>
+            <div className="absolute -inset-4 border-2 border-dashed border-white-600/90 rounded-full animate-[spin_10s_linear_infinite]"></div>
+            
+            <div className="relative w-32 h-32 bg-gradient-to-tr from-emerald-400 to-orange-600 text-white rounded-full flex items-center justify-center shadow-[0_0_40px_rgba(16,185,129,0.7)] border-2 border-solid border-emerald-200/80">
+              <CheckCircle size={80} />
+            </div>
           </div>
-          <h2 className="text-3xl font-black text-emerald-400 drop-shadow-lg mb-2">
-            ส่งข้อมูลสำเร็จ!
-          </h2>
-          <p className="text-base font-bold text-slate-100 drop-shadow-md">
-            ข้อมูลถูกบันทึกเข้าระบบเรียบร้อยแล้ว
-          </p>
-        </div>
-      ) : (
-        <form onSubmit={handleSubmit} className="space-y-6">
+
+          {/* 🌟 2. โซนข้อความ: ทำพื้นหลังใสๆ พร้อมขอบสีเขียวให้ดูอวกาศไฮเทค */}
+          <div className="bg-emerald-500/30 backdrop-blur-xl border-[2px] border-solid border-white-300/80 p-8 rounded-[1rem] shadow-[0_0_30px_rgba(16,185,129,0.2)] max-w-sm w-full mx-auto">
+            <h2 className="text-4xl font-black text-emerald-400 drop-shadow-lg mb-3 tracking-wide">
+              ส่งข้อมูลสำเร็จ!
+            </h2>
+            <p className="text-[16px] font-bold text-slate-100 leading-relaxed">
+              ระบบบันทึกข้อมูล และส่งแจ้งเตือนให้ <br/>
+              <span className="border-2 border-solid border-white-200/80 text-orange-500 font-black bg-white-500/60 px-2 py-1 rounded-lg mt-1 inline-block">เจ้าหน้าที่ ฝวด.</span> รับทราบแล้ว!!
+            </p>
+            </div>
+
+            </div>
+          ) : (
+
+            <form onSubmit={handleSubmit} className="space-y-6">
           <div className="bg-slate-800/60 backdrop-blur-xl  border-2 border-solid border-white-600/50 rounded-3xl py-4 text-center shadow-[0_0_30px_rgba(0,0,0,0.3)] font-sans tracking-widest text-white font-bold">
             {ThaiDateFormatter(sysTime)}
           </div>
@@ -2577,16 +2600,32 @@ function LandingPage({ onStart }) {
 // ==========================================
 // 🚀 ส่วนควบคุมระบบ (App Component)
 // ==========================================
+// ==========================================
+// 🚀 ส่วนควบคุมระบบ (App Component)
+// ==========================================
 export default function App() {
-  const [hasStarted, setHasStarted] = useState(false);
-  const [role, setRole] = useState('reporter');
+  // 🌟 ฟันธง: ให้ดึงค่าจากความจำเบราว์เซอร์ก่อน ถ้าไม่มีค่อยตั้งค่าเริ่มต้น
+  const [hasStarted, setHasStarted] = useState(() => {
+    return localStorage.getItem('gse_hasStarted') === 'true';
+  });
+  const [role, setRole] = useState(() => {
+    return localStorage.getItem('gse_role') || 'reporter';
+  });
 
   const handleStart = (selectedRole) => {
     setRole(selectedRole);
     setHasStarted(true);
+    // 🌟 บันทึกความจำ
+    localStorage.setItem('gse_role', selectedRole);
+    localStorage.setItem('gse_hasStarted', 'true');
   };
 
-  const handleGoHome = () => setHasStarted(false);
+  const handleGoHome = () => {
+    setHasStarted(false);
+    // 🌟 ล้างความจำเมื่อกดกลับหน้าแรก
+    localStorage.removeItem('gse_hasStarted');
+    localStorage.removeItem('gse_activeTab');
+  };
 
   return (
     <ErrorBoundary>
