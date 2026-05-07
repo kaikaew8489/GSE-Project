@@ -177,33 +177,46 @@ const employeeList = [
   { name: 'นายประวุฒิ ดิษาภิรมย์', position: 'วิศวกร', department: 'ฝปด.' },
 ];
 
-const equipmentList = [
-  'Thaichote - DPF',
-  'Thaichote - STORNEXT',
-  'Thaichote - CGS',
-  'Thaichote - FDS',
-  'Thaichote - MPC',
-  'THEOS2 - IGS',
-  'THEOS2 - MGS',
-  'THEOS2 - CGS',
-  'THEOS2 - FDS',
-  'THEOS2 - GIPS',
-  'Radarsat-2 - AMS/PGS/CUDOS',
-  'Radarsat-2 - DAS/NSART/FTD',
-  'JPSS/MODIS',
-  'Cosmo-SkyMED',
-  'Satellites Receiving System',
-  'Antenna KRATOS',
-  'Antenna VIASAT',
-  'Antenna Comtech',
-  'Antenna Orbital',
-  'Antenna 7.3m.',
-  'UPS System',
-  'Precision AIR/HVAC',
-  'Generator 650kVA',
-  'Generator 350kVA',
-  'Fire Suppression System',
-];
+// 🌟 ฟันธงจัดกลุ่มใหม่ ตาม KPI 3 ภารกิจหลักของ ฝวด.
+const equipmentCategories = {
+  'ภารกิจด้านจานสายอากาศ': [
+    'Antenna-KRATOS',
+    'Antenna-VIASAT',
+    'Antenna-Comtech',
+    'Antenna-Orbital',
+    'Antenna-7.3m.',
+    'Satellites Receiving System'
+  ],
+  'ภารกิจด้านคอมพิวเตอร์แม่ข่ายและไอที': [
+    'THEOS-DPF',
+    'THEOS-STORNEXT',
+    'THEOS-CGS',
+    'THEOS-FDS',
+    'THEOS-MPC',
+    'THEOS2-IGS',
+    'THEOS2-MGS',
+    'THEOS2-CGS',
+    'THEOS2-FDS',
+    'THEOS2-GIPS',
+    'RS2-AMS/PGS/CUDOS',
+    'RS2-DAS/NSART/FTD',
+    'JPSS/MODIS',
+    'Cosmo-SkyMED'
+  ],
+  'ภารกิจด้านโครงสร้างพื้นฐานไฟฟ้า': [
+    'UPS-120kVA-VIASAT',
+    'UPS-120kVA-Building-1',
+    'UPS-120kVA-Building-2',
+    'UPS-250kVA-KRATOS',
+    'Precision-AIR/HVAC-1',
+    'Precision-AIR/HVAC-2',
+    'Generator-650kVA',
+    'Generator-350kVA',
+    'FM-200-Building-1',
+    'FM-200-Building-2',
+    'Grounding-Lightning'
+  ]
+};
 
 const buildingList = [
   'อาคารสถานีดาวเทียม',
@@ -225,7 +238,7 @@ const technicianList = [
   { name: 'นายธนกาญจน์ ไตรปิฎก', phone: '06-2463-5544' },
   { name: 'นายชุติพงษ์ ลาวงศ์เกิด', phone: '09-8938-9839' },
   { name: 'นายวิชญ์ภาส ดรบัณฑิต', phone: '-' },
-  { name: 'น.ส.จินวะรา สุรัตนกุล', phone: '-' },
+  { name: 'น.ส.จินวะรา สุรัตนกุล', phone: '08-2480-2280' },
 ];
 
 // ==========================================
@@ -710,15 +723,16 @@ function MainApp({ onGoHome, initialRole }) {
 
   const validateForm = () => {
     const errors = {};
-    if (!formData.reporter) errors.reporter = 'กรุณาระบุชื่อผู้แจ้ง';
+    if (!formData.reporter) errors.reporter = 'กรุณาระบุชื่อ-นามสกุลผู้แจ้ง';
     if (formData.reporterContact.replace(/\D/g, '').length !== 10)
-      errors.reporterContact = 'เบอร์โทรศัพท์ต้องมี 10 หลัก';
+      errors.reporterContact = 'กรุณาระบุเบอร์โทรศัพท์ 10 หลัก';
+    if (!formData.equipmentCategory) errors.equipmentCategory = 'กรุณาระบุกลุ่มงาน/ภารกิจ';
     if (!formData.equipment) errors.equipment = 'กรุณาระบุอุปกรณ์/ระบบ';
     if (!formData.building) errors.building = 'กรุณาระบุอาคาร/ตึก';
     if (!formData.room) errors.room = 'กรุณาระบุสถานที่/ห้อง';
     if (!formData.description) errors.description = 'กรุณาระบุอาการเสีย';
-    if (formData.images.length === 0)
-      errors.images = 'กรุณาแนบภาพอย่างน้อย 1 รูป';
+    if (formData.images.length === 0) errors.images = 'กรุณาแนบภาพอย่างน้อย 1 รูป';
+    
     return errors;
   };
 
@@ -734,6 +748,7 @@ function MainApp({ onGoHome, initialRole }) {
       assetNumber: '',
       building: '',
       room: '',
+      equipmentCategory: '',
       images: [],
       isSsc: false,
     });
@@ -1333,22 +1348,44 @@ function MainApp({ onGoHome, initialRole }) {
             </div>
 
             <div className="space-y-5">
+              {/* 🌟 1. Dropdown ชั้นที่ 1: เลือกกลุ่มภารกิจงาน */}
+              <SearchableDropdown
+                id="field-equipmentCategory"
+                label={
+                  <>
+                    กลุ่มงาน / ภารกิจรับผิดชอบ <span className="text-rose-500">*</span>
+                  </>
+                }
+                icon={<Activity size={12} className="text-emerald-500" />}
+                placeholder="เลือกกลุ่มภารกิจของ ฝวด."
+                options={Object.keys(equipmentCategories)} // ดึงชื่อหัวข้อมาเป็นตัวเลือก
+                value={formData.equipmentCategory}
+                onChange={(val) => {
+                  setFormData({ 
+                    ...formData, 
+                    equipmentCategory: val, 
+                    equipment: '' // 🌟 สำคัญ: ถ้าเปลี่ยนกลุ่ม ต้องล้างค่าอุปกรณ์เดิมทิ้ง
+                  });
+                  if (formErrors.equipmentCategory) setFormErrors({ ...formErrors, equipmentCategory: null });
+                }}
+                error={formErrors.equipmentCategory}
+              />
+
+              {/* 🌟 2. Dropdown ชั้นที่ 2: เลือกอุปกรณ์ (โชว์เฉพาะของกลุ่มที่เลือก) */}
               <SearchableDropdown
                 id="field-equipment"
                 label={
                   <>
-                    รายการอุปกรณ์ / ระบบ{' '}
-                    <span className="text-rose-500">*</span>
+                    รายการอุปกรณ์ / ระบบ <span className="text-rose-500">*</span>
                   </>
                 }
                 icon={<Monitor size={12} className="text-emerald-500" />}
-                placeholder="เลือกอุปกรณ์หรือพิมพ์ค้นหา"
-                options={equipmentList}
+                placeholder={formData.equipmentCategory ? "เลือกอุปกรณ์หรือพิมพ์ค้นหา" : "กรุณาเลือกกลุ่มงานก่อน"}
+                options={formData.equipmentCategory ? equipmentCategories[formData.equipmentCategory] : []} // 🌟 ฟิลเตอร์ข้อมูลตามกลุ่ม
                 value={formData.equipment}
                 onChange={(val) => {
                   setFormData({ ...formData, equipment: val });
-                  if (formErrors.equipment)
-                    setFormErrors({ ...formErrors, equipment: null });
+                  if (formErrors.equipment) setFormErrors({ ...formErrors, equipment: null });
                 }}
                 error={formErrors.equipment}
               />
