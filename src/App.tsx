@@ -765,9 +765,25 @@ function MainApp({ onGoHome, initialRole }) {
       await addDoc(collection(db, 'tickets'), newTicket);
       setShowSuccess(true);
 
-      // ---------------------------------------------------------
-      // TODO: เสียบโค้ดส่งอีเมลของจริงตรงนี้เมื่อนำระบบขึ้น Server จริง
-      // ---------------------------------------------------------
+    // 🌟 โค้ดยิงแจ้งเตือนเข้า LINE ผ่าน GAS
+    const gasUrl = "https://script.google.com/macros/s/AKfycbxBoB_e637WkWMeSuX9NP3BSKcSiE8J3dSXmlzNV9aeiq6DRUvn81bSp6w-B0nzCVA5/exec"; // <--- อย่าลืมเอา URL ยาวๆ มาวางในเครื่องหมายคำพูดนะครับ
+      
+    try {
+      fetch(gasUrl, {
+        method: 'POST',
+        mode: 'no-cors',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          ticketId: newId,
+          equipment: formData.equipment,
+          description: formData.description,
+          reporter: formData.reporter,
+          phone: formData.reporterContact
+        })
+      });
+    } catch (err) {
+      console.error("Line Notify Error:", err);
+    }
 
       setEmailNotify(`บันทึกข้อมูลและแจ้งเตือนทีมช่างเรียบร้อย`);
       setTimeout(() => {
@@ -2407,6 +2423,7 @@ function MainApp({ onGoHome, initialRole }) {
 // 🌟 Landing Page - ฉบับบังคับสี Hex (เส้นส้มต้องมา!)
 // ==========================================
 function LandingPage({ onStart }) {
+  const [showManual, setShowManual] = useState(false); // 🌟 เพิ่มบรรทัดนี้
   return (
     <div className="relative min-h-screen flex flex-col items-center justify-center p-6 overflow-hidden bg-slate-900 font-sans">
       {/* 1. ภาพพื้นหลังลูกโลก - คมชัด 60% */}
@@ -2514,12 +2531,10 @@ function LandingPage({ onStart }) {
 
             {/* ⚪ ปุ่มคู่มือ */}
             <button
-              onClick={() =>
-                alert('ฟังก์ชันคู่มือการใช้งาน PDF จะมาในเร็วๆ นี้ครับ!')
-              }
-              className="w-full bg-rose-600/40 hover:bg-slate-500/60 text-white text-[18px] font-bold py-4 rounded-2xl border-2 border-white-500/40 flex items-center justify-center gap-3 shadow-sm"
+            onClick={() => setShowManual(true)} 
+            className="w-full bg-rose-600/40 hover:bg-slate-500/60 text-white text-[18px] font-bold py-4 rounded-2xl border-2 border-white-500/40 flex items-center justify-center gap-3 shadow-sm"
             >
-              <FileText size={20} /> คู่มือการใช้งานเบื้องต้น
+            <FileText size={20} /> คู่มือการใช้งานเบื้องต้น
             </button>
           </div>
         </div>
@@ -2537,6 +2552,24 @@ function LandingPage({ onStart }) {
           </p>
         </div>
       </div>
+      {/* 🌟 หน้าต่าง Popup คู่มือ */}
+      {showManual && (
+        <div className="fixed inset-0 z-[200] bg-slate-900/90 flex flex-col items-center justify-center p-4 backdrop-blur-sm animate-in fade-in">
+          <div className="w-full max-w-lg bg-slate-800 border-2 border-orange-500 rounded-2xl overflow-hidden shadow-2xl flex flex-col max-h-[85vh]">
+            <div className="p-4 bg-slate-900 flex justify-between items-center border-b border-slate-700">
+              <h3 className="text-white font-bold tracking-widest">คู่มือการใช้งาน</h3>
+              <button onClick={() => setShowManual(false)} className="text-rose-500 hover:text-rose-400 bg-rose-500/10 p-1.5 rounded-full">
+                <X size={20} />
+              </button>
+            </div>
+            <div className="p-4 overflow-y-auto space-y-4">
+              {/* เปลี่ยนชื่อไฟล์รูปตรง src ให้ตรงกับของท่าน */}
+              <img src="/manual-1.png" alt="คู่มือผู้แจ้ง" className="w-full rounded-xl shadow-md border border-slate-600" />
+              <img src="/manual-2.png" alt="คู่มือช่าง" className="w-full rounded-xl shadow-md border border-slate-600" />
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
