@@ -1749,89 +1749,97 @@ function MainApp({ onGoHome, initialRole }) {
                   </div>
 
                   {!isCancelled && (
-                    <div className="mt-5 pl-4 border-2 border-orange-400/70 space-y-4 py-2 relative">
-                      <div className="relative">
-                        <div
-                          className={`absolute -left-[21px] w-2.5 h-2.5 rounded-full ${
-                            t.acceptedAt || isFixing || isDone
-                              ? 'bg-emerald-500 ring-4 ring-emerald-100'
-                              : 'bg-rose-500 ring-4 ring-rose-100 animate-pulse'
-                          }`}
-                        ></div>
-                        <div className="flex justify-between items-center pl-2">
-                          <span className="text-[13px] font-bold text-rose-500 font-black">
-                            เวลารอคอย
-                          </span>
-                          <span className={`text-[13px] font-bold font-mono tracking-tighter ${isPending ? 'text-rose-500' : 'text-slate-700'}`}
-                          >
-                            {getLiveStopwatch(t.date, t.acceptedAt, sysTime)}
-                          </span>
-                        </div>
-                      </div>
-                      <div className="relative">
-                        <div
-                          className={`absolute -left-[21px] w-2.5 h-2.5 rounded-full ${
-                            isDone
-                              ? 'bg-emerald-500 ring-4 ring-emerald-100'
-                              : isFixing
-                              ? 'bg-orange-500 ring-4 ring-orange-100 animate-pulse'
-                              : 'bg-slate-200'
-                          }`}
-                        ></div>
-                        <div className="flex justify-between items-center pl-2">
-                          <span className="text-[13px] font-bold text-orange-500 font-black">
-                            เวลาปฏิบัติงาน
-                          </span>
-                          <span
-                            className={`text-[13px] font-bold font-mono tracking-tighter ${
-                              isFixing && t.status !== 'on_hold'
-                                ? 'text-orange-600'
-                                : 'text-slate-400'
+                      <div className="mt-5 pl-4 border-2 border-orange-400/70 space-y-4 py-2 relative">
+                        
+                        {/* 🌟 1. เวลารอคอย (Active เฉพาะตอน isPending) */}
+                        <div className="relative">
+                          <div
+                            className={`absolute -left-[21px] w-2.5 h-2.5 rounded-full ${
+                              isPending
+                                ? 'bg-rose-500 ring-4 ring-rose-100 animate-pulse'
+                                : 'bg-slate-300'
                             }`}
-                          >
-                            {t.startedAt
-                              ? getLiveStopwatch(
-                                  t.startedAt,
-                                  t.completedAt,
-                                  sysTime,
-                                  t.totalPauseMs || 0,
-                                  t.status === 'on_hold',
-                                  t.lastHoldAt
-                                )
-                              : '00:00:00'}
-                          </span>
+                          ></div>
+                          <div className="flex justify-between items-center pl-2">
+                            <span className={`text-[13px] font-black ${isPending ? 'text-rose-500' : 'text-slate-400'}`}>
+                              เวลารอคอย
+                            </span>
+                            <span
+                              className={`text-[13px] font-bold font-mono tracking-tighter ${
+                                isPending ? 'text-rose-600' : 'text-slate-400'
+                              }`}
+                            >
+                              {getLiveStopwatch(t.date, t.acceptedAt, sysTime)}
+                            </span>
+                          </div>
                         </div>
-                      </div>
-                      <div className="relative">
-                        <div
-                          className={`absolute -left-[21px] w-2.5 h-2.5 rounded-full ${
-                            isDone
-                              ? 'bg-emerald-500 ring-4 ring-emerald-100'
-                              : 'bg-slate-200'
-                          }`}
-                        ></div>
-                        <div className="flex justify-between items-center pl-2">
-                          <span className="text-[13px] font-bold text-emerald-600 font-black">
-                            เวลารวม
-                          </span>
-                          <span
-                            className={`text-[13px] font-bold font-mono tracking-tighter ${
-                              isDone ? 'text-emerald-600' : 'text-slate-400'
+
+                        {/* 🌟 2. เวลาปฏิบัติงาน (Active เฉพาะตอน isFixing) */}
+                        <div className="relative">
+                          <div
+                            className={`absolute -left-[21px] w-2.5 h-2.5 rounded-full ${
+                              isFixing
+                                ? 'bg-orange-500 ring-4 ring-orange-100 animate-pulse'
+                                : 'bg-slate-300'
                             }`}
-                          >
-                            {getLiveStopwatch(
-                              t.date,
-                              t.completedAt,
-                              sysTime,
-                              t.totalPauseMs || 0,
-                              t.status === 'on_hold',
-                              t.lastHoldAt
-                            )}
-                          </span>
+                          ></div>
+                          <div className="flex justify-between items-center pl-2">
+                            <span className={`text-[13px] font-black ${isFixing ? 'text-orange-500' : 'text-slate-400'}`}>
+                              เวลาปฏิบัติงาน
+                            </span>
+                            <span
+                              className={`text-[13px] font-bold font-mono tracking-tighter ${
+                                isFixing && t.status !== 'on_hold'
+                                  ? 'text-orange-600'
+                                  : 'text-slate-400'
+                              }`}
+                            >
+                              {t.startedAt
+                                ? getLiveStopwatch(
+                                    t.startedAt,
+                                    t.completedAt,
+                                    sysTime,
+                                    t.totalPauseMs || 0,
+                                    t.status === 'on_hold',
+                                    t.lastHoldAt
+                                  )
+                                : '00:00:00'}
+                            </span>
+                          </div>
                         </div>
+
+                        {/* 🌟 3. เวลารวม (Active เฉพาะตอน isDone) */}
+                        <div className="relative">
+                          <div
+                            className={`absolute -left-[21px] w-2.5 h-2.5 rounded-full ${
+                              isDone
+                                ? 'bg-emerald-500 ring-4 ring-emerald-100'
+                                : 'bg-slate-300'
+                            }`}
+                          ></div>
+                          <div className="flex justify-between items-center pl-2">
+                            <span className={`text-[13px] font-black ${isDone ? 'text-emerald-500' : 'text-slate-400'}`}>
+                              เวลารวม
+                            </span>
+                            <span
+                              className={`text-[13px] font-bold font-mono tracking-tighter ${
+                                isDone ? 'text-emerald-600' : 'text-slate-400'
+                              }`}
+                            >
+                              {getLiveStopwatch(
+                                t.date,
+                                t.completedAt,
+                                sysTime,
+                                t.totalPauseMs || 0,
+                                t.status === 'on_hold',
+                                t.lastHoldAt
+                              )}
+                            </span>
+                          </div>
+                        </div>
+
                       </div>
-                    </div>
-                  )}
+                    )}
                 </div>
                 <div className="p-5 space-y-4">
                   <div className="bg-slate-50 p-4 rounded-2xl border-2 border-solid border-slate-400 shadow-inner relative">
