@@ -2405,20 +2405,24 @@ function MainApp({ onGoHome, initialRole }) {
         </div>
       )}
 
-      {/* 🚀 Dynamic Header (ปรับมุมมน + ขอบส้ม + สีพื้นหลังอวกาศ) */}
-      <div className="bg-slate-900/50 backdrop-blur-xl px-6 py-4 flex items-center justify-between sticky top-4 z-50 border-2 border-solid border-orange-500 rounded-2xl mx-4 mt-4 shadow-[0_0_15px_rgba(249,115,22,0.4)]">
-        <div className="flex items-center gap-3.5">
-          <div className="bg-white p-2 rounded-xl shadow-sm text-orange-500 border border-orange-200/50">
+      {/* 🚀 Dynamic Header (อัปเกรด: แบนเนอร์พร้อมน้องมาสคอต 3D ด้านขวา) */}
+      <div className="bg-slate-900/50 backdrop-blur-xl pl-5 pr-4 py-3 flex items-center justify-between sticky top-4 z-50 border-2 border-solid border-orange-500 rounded-2xl mx-4 mt-4 shadow-[0_0_15px_rgba(249,115,22,0.4)]">
+        
+        {/* 🌟 โซนซ้าย: ไอคอนทางการ และ ชื่อหน้า */}
+        <div className="flex items-center gap-3.5 z-10">
+          <div className="bg-white w-14 h-14 rounded-2xl shadow-md text-orange-500 border-2 border-solid border-orange-300 flex items-center justify-center shrink-0">
             {activeTab === 'dashboard' ? (
-              <LayoutDashboard size={20} />
+              <LayoutDashboard size={32} strokeWidth={2.5} />
             ) : activeTab === 'report' ? (
-              <PlusCircle size={20} />
+              <PlusCircle size={32} strokeWidth={2.5} />
+            ) : currentUserRole === 'technician' ? (
+              <Wrench size={32} strokeWidth={2.5} />
             ) : (
-              <ClipboardCheck size={20} />
+              <ClipboardCheck size={32} strokeWidth={2.5} />
             )}
           </div>
           <div>
-            <h1 className="font-black text-orange-600 text-2xl tracking-tight leading-none drop-shadow-sm py-1">
+            <h1 className="font-black text-orange-600 text-3xl tracking-tight leading-none drop-shadow-sm py-1 whitespace-nowrap">
               {activeTab === 'dashboard'
                 ? 'แผงควบคุม'
                 : activeTab === 'report'
@@ -2429,7 +2433,26 @@ function MainApp({ onGoHome, initialRole }) {
             </h1>
           </div>
         </div>
+
+        {/* 🌟 โซนขวา: น้องมาสคอต GISTDA แอบมอง (3D Peeking Effect) */}
+        <div className="relative w-12 h-14 shrink-0 z-0 pointer-events-none">
+           {/* 💡 ทริค: ถ้าอนาคตท่านมีรูปมาสคอตหลายท่าทาง 
+             สามารถใส่เงื่อนไขแบบด้านล่างนี้ได้เลยครับ ตอนนี้ใช้รูป /mascot.webp ไปก่อน 
+           */}
+           <img 
+             src={
+               activeTab === 'dashboard' ? "/mascot.webp" :
+               activeTab === 'report' ? "/mascot.webp" : // อนาคตเปลี่ยนเป็น /mascot-report.webp ได้
+               "/mascot.webp"
+             }
+             alt="GSE Mascot" 
+             // ดันรูปให้ทะลุกรอบออกมานิดนึง เกิดเป็นเอฟเฟกต์ 3 มิติ
+             className="absolute bottom-[-15px] right-[-10px] w-[85px] max-w-none h-auto object-contain drop-shadow-[0_5px_5px_rgba(0,0,0,0.4)]"
+           />
+        </div>
+
       </div>
+
       <div className="relative z-10 flex-1 overflow-y-auto overflow-x-hidden w-full scrollbar-hide pb-28">
         {activeTab === 'dashboard' &&
           currentUserRole === 'technician' &&
