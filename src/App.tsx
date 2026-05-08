@@ -1736,30 +1736,37 @@ function MainApp({ onGoHome, initialRole }) {
 
   const renderTracking = () => (
     <div className="p-4 space-y-6 pb-32 animate-in slide-in-from-left-4 duration-500 text-left">
-      <div className="flex overflow-x-auto gap-3 pb-2 scrollbar-hide font-sans px-1">
-        {[
-          { id: 'all', label: 'ทั้งหมด' },
-          { id: 'pending', label: 'รอดำเนินการ' },
-          { id: 'fixing', label: 'กำลังซ่อม' },
-          { id: 'completed', label: 'เสร็จสิ้น' },
-          { id: 'cancelled', label: 'ยกเลิก' },
-        ].map((f) => (
-          <button
-            key={f.id}
-            onClick={() => {
-              setFilterStatus(f.id);
-              setSearchTerm('');
-            }}
-            className={`px-5 py-2.5 rounded-2xl text-xs font-bold transition-all shrink-0 ${
-              filterStatus === f.id
-                ? 'bg-gradient-to-r from-orange-500 to-orange-600 text-white shadow-[0_0_15px_rgba(249,115,22,0.4)] border-transparent'
-                : 'bg-slate-800/80 text-slate-200 border-2 border solid border-white-600/50 hover:bg-rose-700 active:scale-95'
-            }`}
-          >
-            {f.label}
-          </button>
-        ))}
+      {/* 🌟 1. สวิตช์กรองสถานะงาน (แยกร่างกล่อง แก้ปัญหา Scrollbar ทับเส้นขอบ) */}
+      <div className="bg-slate-500/50 rounded-2xl border-2 border-solid border-orange-500/80 shadow-inner mb-4">
+        
+        {/* 🌟 กล่องด้านในทำหน้าที่เลื่อน (Scroll) สังเกต pt-3 pb-4 จะเพิ่มช่องว่างให้ Scrollbar ถอยห่างจากปุ่มครับ */}
+        <div className="flex gap-2.5 overflow-x-auto pt-3 pb-4 px-3 snap-x">
+          {[
+            { id: 'all', label: 'ทั้งหมด' },
+            { id: 'pending', label: 'รอดำเนินการ' },
+            { id: 'fixing', label: 'กำลังซ่อม' },
+            { id: 'completed', label: 'เสร็จสิ้น' },
+            { id: 'cancelled', label: 'ยกเลิก' },
+          ].map((f) => (
+            <button
+              key={f.id}
+              onClick={() => {
+                setFilterStatus(f.id);
+                setSearchTerm('');
+              }}
+              className={`flex-1 min-w-[95px] shrink-0 text-[13px] font-black py-2.5 rounded-xl transition-all duration-300 snap-center ${
+                filterStatus === f.id
+                  ? 'bg-gradient-to-r from-orange-500 to-amber-500 text-white border-2 border-orange-300 shadow-[0_0_15px_rgba(249,115,22,0.8)] scale-105 z-10' // ปุ่มที่กด (สีส้ม)
+                  : 'bg-slate-700/60 text-white border-2 border-white/80 hover:border-white hover:bg-slate-600 shadow-sm' // ปุ่มปกติ (ขอบขาว)
+              }`}
+            >
+              {f.label}
+            </button>
+          ))}
+        </div>
+
       </div>
+
       <div className="relative sticky top-0 z-20 py-2">
         <Search
           size={18}
@@ -2601,7 +2608,7 @@ function MainApp({ onGoHome, initialRole }) {
                       : 'text-slate-300 font-bold group-hover:text-white group-hover:drop-shadow-[0_0_5px_rgba(255,255,255,0.8)]'
                   }`}
                 >
-                  จัดการซ่อม
+                  จัดการงาน
                 </span>
               </button>
             </>
