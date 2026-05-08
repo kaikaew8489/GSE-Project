@@ -470,6 +470,28 @@ function SearchableDropdown({
     </div>
   );
 }
+// 🌟 ฟันธง: ฟังก์ชันคำนวณความต่างของเวลา ออกมาเป็น วัน/ชม./นาที
+const calculateDuration = (start, end, holdMs = 0) => {
+  if (!start || !end) return "รอดำเนินการ...";
+  
+  const startTime = new Date(start).getTime();
+  const endTime = new Date(end).getTime();
+  
+  // ลบเวลารออะไหล่ (Hold Time) ออกจากเวลาทั้งหมด
+  let durationMs = endTime - startTime - (holdMs || 0);
+  if (durationMs < 0) durationMs = 0;
+
+  const days = Math.floor(durationMs / (1000 * 60 * 60 * 24));
+  const hours = Math.floor((durationMs % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+  const minutes = Math.floor((durationMs % (1000 * 60 * 60)) / (1000 * 60));
+
+  let result = [];
+  if (days > 0) result.push(`${days} วัน`);
+  if (hours > 0) result.push(`${hours} ชม.`);
+  if (minutes > 0) result.push(`${minutes} นาที`);
+  
+  return result.length > 0 ? result.join(' ') : "น้อยกว่า 1 นาที";
+};
 
 // ==========================================
 // 🌟 5. Main App Logic
@@ -2421,8 +2443,14 @@ function MainApp({ onGoHome, initialRole }) {
               <ClipboardCheck size={32} strokeWidth={2.5} />
             )}
           </div>
+          
+          {/* 🌟 2. ข้อความหัวข้อ (ลดขนาดลง และเปลี่ยนสีให้สว่างสบายตา) */}
           <div>
-            <h1 className="font-black text-orange-600 text-3xl tracking-tight leading-none drop-shadow-sm py-1 whitespace-nowrap">
+            {/* 💡 ฟันธงจุดที่แก้ไข:
+               1. เปลี่ยน text-orange-600 -> เป็น text-white (สีขาวสว่าง) หรือ text-orange-400 (สีส้มทองอ่อนๆ)
+               2. เปลี่ยน text-3xl -> เป็น text-2xl (เล็กลง 1 สเต็ปให้พอดีกรอบ)
+            */}
+            <h1 className="font-black text-white text-2xl tracking-widest leading-none drop-shadow-[0_2px_2px_rgba(0,0,0,0.5)] py-1 whitespace-nowrap">
               {activeTab === 'dashboard'
                 ? 'แผงควบคุม'
                 : activeTab === 'report'
@@ -2446,8 +2474,9 @@ function MainApp({ onGoHome, initialRole }) {
                "/mascot.webp"
              }
              alt="GSE Mascot" 
+
              // ดันรูปให้ทะลุกรอบออกมานิดนึง เกิดเป็นเอฟเฟกต์ 3 มิติ
-             className="absolute bottom-[-15px] right-[-10px] w-[85px] max-w-none h-auto object-contain drop-shadow-[0_5px_5px_rgba(0,0,0,0.4)]"
+             className="absolute bottom-[-10px] right-[-10px] w-[65px] max-w-none h-auto object-contain drop-shadow-[0_5px_5px_rgba(0,0,0,0.4)]"
            />
         </div>
 
