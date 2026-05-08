@@ -1737,7 +1737,7 @@ function MainApp({ onGoHome, initialRole }) {
   const renderTracking = () => (
     <div className="p-4 space-y-6 pb-32 animate-in slide-in-from-left-4 duration-500 text-left">
       {/* 🌟 1. สวิตช์กรองสถานะงาน (แยกร่างกล่อง แก้ปัญหา Scrollbar ทับเส้นขอบ) */}
-      <div className="bg-slate-500/50 rounded-2xl border-2 border-solid border-orange-500/80 shadow-inner mb-4">
+      <div className="bg-slate-800/60 rounded-2xl border-2 border-solid border-orange-500/80 shadow-inner mb-4">
         
         {/* 🌟 กล่องด้านในทำหน้าที่เลื่อน (Scroll) สังเกต pt-3 pb-4 จะเพิ่มช่องว่างให้ Scrollbar ถอยห่างจากปุ่มครับ */}
         <div className="flex gap-2.5 overflow-x-auto pt-3 pb-4 px-3 snap-x">
