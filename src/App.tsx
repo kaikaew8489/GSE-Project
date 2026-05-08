@@ -2220,15 +2220,15 @@ function MainApp({ onGoHome, initialRole }) {
                                   type: 'cancel',
                                 })
                               }
-                              className="flex-[1] bg-orange text-rose-500 border border-orange-500 font-bold py-3.5 rounded-xl flex justify-center items-center gap-1.5 active:scale-95 text-[15px] transition-colors shadow-sm hover:bg-rose-50"
+                              className="flex-[1] bg-orange text-rose-500 border border-orange-500 font-bold py-3.5 rounded-xl flex justify-center items-center gap-1.5 active:scale-95 text-[18px] transition-colors shadow-sm hover:bg-rose-50"
                             >
-                              <XCircle size={14} /> ยกเลิก
+                              <XCircle size={20} /> ยกเลิก
                             </button>
                             <a
                               href="tel:0835293836"
-                              className="flex-[1.5] bg-gradient-to-r from-rose-500/80 to-orange-600 text-white border border-blue-400 text-[20px] font-bold py-4 rounded-2xl flex justify-center items-center gap-1.5 shadow-[0_0_15px_rgba(225,29,72,0.4)] hover:shadow-[0_0_25px_rgba(225,29,72,0.6)] active:scale-95 transition-all text-xs"
+                              className="flex-[1.5] bg-gradient-to-r from-rose-500/80 to-orange-600 text-white border border-blue-400 text-[18px] font-bold py-4 rounded-2xl flex justify-center items-center gap-1.5 shadow-[0_0_15px_rgba(225,29,72,0.4)] hover:shadow-[0_0_25px_rgba(225,29,72,0.6)] active:scale-95 transition-all text-xs"
                             >
-                              <PhoneCall size={16} className="animate-pulse" />{' '}
+                              <PhoneCall size={18} className="animate-pulse" />{' '}
                               สายด่วน หน.ฝวด.
                             </a>
                           </div>
