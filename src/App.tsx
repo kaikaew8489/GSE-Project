@@ -246,37 +246,28 @@ const technicianList = [
 // ==========================================
 const ThaiDateFormatter = (date) => {
   const months = [
-    'ม.ค.',
-    'ก.พ.',
-    'มี.ค.',
-    'เม.ย.',
-    'พ.ค.',
-    'มิ.ย.',
-    'ก.ค.',
-    'ส.ค.',
-    'ก.ย.',
-    'ต.ค.',
-    'พ.ย.',
-    'ธ.ค.',
+    'ม.ค.', 'ก.พ.', 'มี.ค.', 'เม.ย.', 'พ.ค.', 'มิ.ย.',
+    'ก.ค.', 'ส.ค.', 'ก.ย.', 'ต.ค.', 'พ.ย.', 'ธ.ค.',
   ];
   const d = new Date(date);
   return (
-    <div className="flex items-center justify-center gap-4 sm:gap-6 text-base sm:text-lg whitespace-nowrap font-sans py-1">
+    // 🌟 อัปเกรด: ลด gap-4 เหลือ gap-3 และเพิ่ม px-2 เพื่อบีบให้มันขยับเข้าหากันตรงกลาง
+    <div className="flex items-center justify-center gap-3 sm:gap-5 text-[15px] sm:text-[17px] whitespace-nowrap font-sans py-1 px-2">
       {/* 📅 ส่วนวันที่ (สีเขียวมรกต) */}
-      <div className="flex items-center gap-2.5 text-emerald-300">
-        <Calendar size={25} className="text-Orange-800" />
+      <div className="flex items-center gap-2 text-emerald-300 shrink-0">
+        <Calendar size={22} className="text-emerald-400" />
         <span className="font-black tracking-widest drop-shadow-sm">
           {d.getDate()} {months[d.getMonth()]} {d.getFullYear() + 543}
         </span>
       </div>
 
       {/* ⏐ เส้นแบ่งคั่นกลาง */}
-      <div className="w-[2px] h-7 bg-slate-00/80 rounded-full"></div>
+      <div className="w-[2px] h-6 bg-slate-500/50 rounded-full shrink-0"></div>
 
       {/* ⏰ ส่วนเวลา (สีส้ม) */}
-      <div className="flex items-center gap-2.5 text-orange-300">
-        <Clock size={25} className="text-orange-500 animate-pulse" />
-        <span className="font-mono font-black tracking-[0.15em] drop-shadow-[0_0_5px_rgba(249,115,22,0.6)]">
+      <div className="flex items-center gap-2 text-orange-300 shrink-0">
+        <Clock size={22} className="text-orange-500 animate-pulse" />
+        <span className="font-mono font-black tracking-[0.1em] drop-shadow-[0_0_5px_rgba(249,115,22,0.6)]">
           {d.toLocaleTimeString('th-TH', { hour12: false })} น.
         </span>
       </div>
@@ -996,9 +987,8 @@ function MainApp({ onGoHome, initialRole }) {
           {ThaiDateFormatter(sysTime)}
         </div>
 
-       {/* 🔘 2. สวิตช์เลือกกรอบเวลา + ปุ่มปฏิทินซ่อนรูป 📅 */}
-        {/* 🌟 อัปเกรด: เพิ่ม gap-2 ให้ปุ่มห่างกัน และขยาย padding (p-2) */}
-        <div className="flex gap-2 bg-slate-800/80 p-2 rounded-2xl border-2 border-solid border-white-600/80 shadow-inner mt-4">
+       {/* 🔘 2. สวิตช์เลือกกรอบเวลา (อัปเกรดเป็นแบบปัดเลื่อนซ้ายขวาได้ ไม่ตกบรรทัด) */}
+       <div className="flex gap-2 bg-slate-800/80 p-2 rounded-2xl border-2 border-solid border-white-500/80 shadow-inner mt-4 overflow-x-auto scrollbar-hide snap-x">
           {[
             { id: 'today', label: 'วันนี้' },
             { id: 'week', label: 'สัปดาห์นี้' },
@@ -1007,18 +997,19 @@ function MainApp({ onGoHome, initialRole }) {
             <button
               key={tf.id}
               onClick={() => setDashTimeframe(tf.id)}
-              className={`flex-1 text-[13px] font-black py-2.5 rounded-xl transition-all duration-300 ${
+              // 🌟 เพิ่ม min-w-[75px] และ shrink-0 เพื่อไม่ให้ปุ่มโดนบีบจนข้อความเบียดกัน
+              className={`flex-1 min-w-[75px] shrink-0 text-[13px] font-black py-2.5 rounded-xl transition-all duration-300 snap-center ${
                 dashTimeframe === tf.id
-                  ? 'bg-gradient-to-r from-orange-500 to-amber-500 text-white border-2 border-solid border-white-500 shadow-[0_0_15px_rgba(249,115,22,0.8)] scale-105 z-10' // 🌟 ปุ่มที่กด: สว่างวาบ ขยายใหญ่ขึ้นนิดนึง
-                  : 'text-slate-100 bg-slate-700/60 border border-slate-500/50 hover:bg-slate-600 hover:text-white' // 🌟 ปุ่มที่ยังไม่กด: ข้อความสีขาวสว่างขึ้น มีกรอบปุ่มชัดเจน
+                  ? 'bg-gradient-to-r from-orange-500 to-amber-500 text-white border border-orange-300 shadow-[0_0_15px_rgba(249,115,22,0.8)] scale-105 z-10' 
+                  : 'text-slate-100 bg-slate-700/60 border border-slate-500/50 hover:bg-slate-600 hover:text-white' 
               }`}
             >
               {tf.label}
             </button>
           ))}
           
-          {/* 🌟 ไอคอนปฏิทิน (คลิกแล้วเด้ง Date Picker ของมือถือ) */}
-          <div className="relative flex-1 flex justify-center">
+          {/* 🌟 ไอคอนปฏิทิน ระบุเดือน */}
+          <div className="relative flex-1 min-w-[95px] shrink-0 flex justify-center snap-center">
              <input 
                type="month"
                className="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-20"
@@ -1032,12 +1023,12 @@ function MainApp({ onGoHome, initialRole }) {
              />
              <button className={`w-full relative z-10 text-[13px] font-black py-2.5 rounded-xl transition-all duration-300 flex items-center justify-center gap-1.5 ${
                dashTimeframe === 'custom' 
-                 ? 'bg-gradient-to-r from-orange-500 to-amber-500 text-white border-2 border-solid border-orange-300 shadow-[0_0_15px_rgba(249,115,22,0.8)] scale-105' // 🌟 ปุ่มที่กด: สว่างวาบ
-                 : 'text-slate-100 bg-slate-700/60 border-2 border-solid border-orange-500/80 hover:bg-slate-600 hover:text-white' // 🌟 ปุ่มที่ยังไม่กด: สว่างขึ้น
+                 ? 'bg-gradient-to-r from-orange-500 to-amber-500 text-white border border-orange-300 shadow-[0_0_15px_rgba(249,115,22,0.8)] scale-105' 
+                 : 'text-slate-100 bg-slate-700/60 border border-slate-500/50 hover:bg-slate-600 hover:text-white' 
              }`}>
-               {/* 🌟 ไอคอนปฏิทินเปลี่ยนเป็นสีเขียวมรกตให้เด่นๆ ครับ */}
                <Calendar size={16} className={dashTimeframe === 'custom' ? 'text-white' : 'text-emerald-400'} /> 
-               <span>ระบุเดือน</span>
+               {/* 🌟 บังคับข้อความไม่ให้ขึ้นบรรทัดใหม่ */}
+               <span className="whitespace-nowrap">ระบุเดือน</span>
              </button>
           </div>
         </div>
@@ -1665,7 +1656,7 @@ function MainApp({ onGoHome, initialRole }) {
                 {/* ถ้ามีรูปแล้ว: จะหดตัวเป็นกล่องสี่เหลี่ยมจัตุรัสเล็กๆ ไปต่อท้ายรูป */}
                 {formData.images.length < 6 && (
                   <label 
-                    className={`border-2 border-dashed border-slate-400/50 bg-slate-800/40 hover:bg-slate-700/50 hover:border-orange-500 rounded-2xl flex flex-col items-center justify-center transition-all cursor-pointer shadow-sm active:scale-95 group
+                    className={`border-2 border-dashed border-slate-100/80 bg-slate-800/40 hover:bg-slate-700/50 hover:border-orange-500 rounded-2xl flex flex-col items-center justify-center transition-all cursor-pointer shadow-sm active:scale-95 group
                     ${formData.images.length === 0 ? 'w-full h-36' : 'aspect-square'}`}
                   >
                     <input
