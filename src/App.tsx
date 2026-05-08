@@ -484,18 +484,21 @@ function SearchableDropdown({
 // 🌟 5. Main App Logic
 // ==========================================
 function MainApp({ onGoHome, initialRole }) {
-  // 🌟 ฟันธง: ให้จำหน้า Tab ล่าสุดที่กดค้างไว้
   const [activeTab, setActiveTab] = useState(() => {
     return localStorage.getItem('gse_activeTab') || (initialRole === 'technician' ? 'dashboard' : 'report');
   });
 
-  // 🌟 ใช้ useEffect เพื่อคอยบันทึกทุกครั้งที่มีการเปลี่ยนหน้า Tab
   useEffect(() => {
     localStorage.setItem('gse_activeTab', activeTab);
   }, [activeTab]);
 
+  // 🌟🌟🌟 จุดที่ 1: เติมบรรทัดนี้ลงไป! (สำคัญมาก ถ้าไม่มีระบบจะพัง) 🌟🌟🌟
+  const [dashTimeframe, setDashTimeframe] = useState('month');
+
   const [hoveredTab, setHoveredTab] = useState(null);
+  // ... โค้ดเดิมของท่าน ...
   const [sysTime, setSysTime] = useState(new Date());
+  // ... โค้ดเดิมของท่าน ...
   // 🌟 ฟันธง: ล็อกโหมดตามที่กดมาจากหน้า Landing Page
   const [currentUserRole, setCurrentUserRole] = useState(
     initialRole || 'reporter'
@@ -724,14 +727,21 @@ function MainApp({ onGoHome, initialRole }) {
   const validateForm = () => {
     const errors = {};
     if (!formData.reporter) errors.reporter = 'กรุณาระบุชื่อ-นามสกุลผู้แจ้ง';
-    if (formData.reporterContact.replace(/\D/g, '').length !== 10)
-      errors.reporterContact = 'กรุณาระบุเบอร์โทรศัพท์ 10 หลัก';
+    
+    // 🌟 1. เกราะป้องกันเบอร์โทร (แก้บั๊กบรรทัด 410 เดิม)
+    const phone = formData.reporterContact ? String(formData.reporterContact).replace(/\D/g, '') : '';
+    if (phone.length !== 10) errors.reporterContact = 'กรุณาระบุเบอร์โทรศัพท์ 10 หลัก';
+    
     if (!formData.equipmentCategory) errors.equipmentCategory = 'กรุณาระบุกลุ่มงาน/ภารกิจ';
     if (!formData.equipment) errors.equipment = 'กรุณาระบุอุปกรณ์/ระบบ';
     if (!formData.building) errors.building = 'กรุณาระบุอาคาร/ตึก';
     if (!formData.room) errors.room = 'กรุณาระบุสถานที่/ห้อง';
     if (!formData.description) errors.description = 'กรุณาระบุอาการเสีย';
-    if (formData.images.length === 0) errors.images = 'กรุณาแนบภาพอย่างน้อย 1 รูป';
+    
+    // 🌟 2. เกราะป้องกันรูปภาพ
+    if (!formData.images || formData.images.length === 0) {
+      errors.images = 'กรุณาแนบภาพอย่างน้อย 1 รูป';
+    }
     
     return errors;
   };
@@ -869,19 +879,42 @@ function MainApp({ onGoHome, initialRole }) {
     setSelectedTech('');
   };
 
-  const stats = useMemo(
-    () => ({
-      total: tickets.length,
-      pending: tickets.filter((t) => t.status === 'pending').length,
-      fixing: tickets.filter((t) =>
-        ['acknowledged', 'in_progress', 'on_hold'].includes(t.status)
-      ).length,
-      done: tickets.filter((t) => ['completed', 'verified'].includes(t.status))
-        .length,
-      cancelled: tickets.filter((t) => t.status === 'cancelled').length,
-    }),
-    [tickets]
-  );
+  // 🌟🌟🌟 จุดที่ 2: ตัวคำนวณสถิติพร้อมเกราะป้องกันแครช 100% 🌟🌟🌟
+  const stats = useMemo(() => {
+    try {
+      const now = new Date();
+      
+      const filteredByTime = tickets.filter(t => {
+        if (dashTimeframe === 'all') return true;
+        if (!t.date) return false; // กันพังกรณีข้อมูลวันที่หาย
+        
+        const tDate = new Date(t.date);
+        if (dashTimeframe === 'today') {
+          return tDate.toDateString() === now.toDateString();
+        }
+        if (dashTimeframe === 'week') {
+          const firstDayOfWeek = new Date(now);
+          firstDayOfWeek.setDate(now.getDate() - now.getDay()); // หาวันอาทิตย์
+          return tDate >= firstDayOfWeek;
+        }
+        if (dashTimeframe === 'month') {
+          return tDate.getMonth() === now.getMonth() && tDate.getFullYear() === now.getFullYear();
+        }
+        return true;
+      });
+
+      return {
+        total: filteredByTime.length,
+        pending: filteredByTime.filter((t) => t.status === 'pending').length,
+        fixing: filteredByTime.filter((t) => ['acknowledged', 'in_progress', 'on_hold'].includes(t.status)).length,
+        done: filteredByTime.filter((t) => ['completed', 'verified'].includes(t.status)).length,
+        cancelled: filteredByTime.filter((t) => t.status === 'cancelled').length,
+      };
+    } catch (err) {
+      console.error("Stats Error:", err);
+      return { total: 0, pending: 0, fixing: 0, done: 0, cancelled: 0 };
+    }
+  }, [tickets, dashTimeframe]) || { total: 0, pending: 0, fixing: 0, done: 0, cancelled: 0 };
 
   const filteredTickets = useMemo(() => {
     return tickets.filter((t) => {
@@ -906,15 +939,14 @@ function MainApp({ onGoHome, initialRole }) {
   // 🎨 Views Rendering
   // ==========================================
 
+  // 🌟🌟🌟 จุดที่ 3: วางทับ renderDashboard จนถึงก่อนบรรทัด grid grid-cols-2 🌟🌟🌟
   const renderDashboard = () => {
     const completionRate =
       stats.total > 0 ? Math.round((stats.done / stats.total) * 100) : 0;
 
     const longestPendingTicket = tickets
       .filter((t) => t.status === 'pending')
-      .sort(
-        (a, b) => new Date(a.date).getTime() - new Date(b.date).getTime()
-      )[0];
+      .sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime())[0];
 
     const longestFixingTicket = tickets
       .filter((t) => t.status === 'in_progress' || t.status === 'on_hold')
@@ -924,23 +956,68 @@ function MainApp({ onGoHome, initialRole }) {
         return timeA - timeB;
       })[0];
 
+    // 🌟 ฟังก์ชันอัจฉริยะ: แปลงปุ่มที่กดเป็นข้อความวันที่ให้ผู้บริหารดูง่ายๆ
+    const getTimeframeLabel = () => {
+      const now = new Date(sysTime);
+      const monthsFull = ['มกราคม', 'กุมภาพันธ์', 'มีนาคม', 'เมษายน', 'พฤษภาคม', 'มิถุนายน', 'กรกฎาคม', 'สิงหาคม', 'กันยายน', 'ตุลาคม', 'พฤศจิกายน', 'ธันวาคม'];
+      const monthsShort = ['ม.ค.', 'ก.พ.', 'มี.ค.', 'เม.ย.', 'พ.ค.', 'มิ.ย.', 'ก.ค.', 'ส.ค.', 'ก.ย.', 'ต.ค.', 'พ.ย.', 'ธ.ค.'];
+
+      if (dashTimeframe === 'today') return `วันที่ ${now.getDate()} ${monthsFull[now.getMonth()]} ${now.getFullYear() + 543}`;
+      if (dashTimeframe === 'week') {
+        const first = new Date(now);
+        first.setDate(now.getDate() - now.getDay());
+        const last = new Date(now);
+        last.setDate(now.getDate() - now.getDay() + 6);
+        return `${first.getDate()} ${monthsShort[first.getMonth()]} - ${last.getDate()} ${monthsShort[last.getMonth()]} ${last.getFullYear() + 543}`;
+      }
+      if (dashTimeframe === 'month') return `เดือน ${monthsFull[now.getMonth()]} ${now.getFullYear() + 543}`;
+      return 'ตั้งแต่เริ่มระบบ (All Time)';
+    };
+
     return (
       <div className="px-5 pb-5 pt-2 space-y-5 animate-in fade-in duration-500 pb-32">
-        {/* 🌟 เพิ่มแถบวันที่แบบยาว เหมือนหน้าแจ้งซ่อม (ฟันธง!) */}
-        {/* 🌟 ฟันธง: เปลี่ยนสีกรอบวันที่/เวลา เป็นเส้นขอบสีส้มหนา 2px พร้อมเงาเรืองแสงให้เข้าธีม */}
-        {/* 🌟 แบบที่ 1: เส้นขาว เรืองแสงส้ม */}
+        {/* แถบวันที่แบบยาว */}
         <div className="bg-slate-800/60 backdrop-blur-xl border-2 border-solid border-white-600/80 rounded-[1rem] py-4 text-center shadow-[0_0_20px_rgba(249,115,22,0.6)] font-sans tracking-widest text-white font-bold">
           {ThaiDateFormatter(sysTime)}
         </div>
+
+        {/* สวิตช์เลือกกรอบเวลา (Time Filter) */}
+        <div className="flex bg-slate-800/80 p-1.5 rounded-2xl border border-slate-600/50 shadow-inner mt-4 mx-2">
+          {[
+            { id: 'today', label: 'วันนี้' },
+            { id: 'week', label: 'สัปดาห์นี้' },
+            { id: 'month', label: 'เดือนนี้' },
+            { id: 'all', label: 'ทั้งหมด' },
+          ].map((tf) => (
+            <button
+              key={tf.id}
+              onClick={() => setDashTimeframe(tf.id)}
+              className={`flex-1 text-[12px] font-bold py-2 rounded-xl transition-all duration-300 ${
+                dashTimeframe === tf.id
+                  ? 'bg-orange-500 text-white shadow-[0_0_10px_rgba(249,115,22,0.4)]'
+                  : 'text-slate-400 hover:text-slate-200'
+              }`}
+            >
+              {tf.label}
+            </button>
+          ))}
+        </div>
+
+        {/* กล่องแสดงตัวเลขรวม + ป้ายชื่ออัจฉริยะ */}
         <div className="bg-slate-800/60 backdrop-blur-xl border-2 border-solid border-white-500/80 shadow-[0_0_20px_rgba(249,115,22,0.15)] rounded-[1rem] p-6 relative overflow-hidden">
           <div className="absolute top-0 right-0 w-40 h-40 bg-white/60 rounded-full blur-3xl -mr-10 -mt-10 pointer-events-none"></div>
 
           <div className="relative z-10">
-            <div className="flex justify-between items-end">
+            <div className="flex justify-between items-start">
               <div>
-                <p className="text-white-500 text-[15px] font-bold uppercase tracking-widest mb-2">
+                <p className="text-white-500 text-[15px] font-bold uppercase tracking-widest mb-1">
                   จำนวนงานทั้งหมด
                 </p>
+                {/* 🌟 ป้ายบอกช่วงเวลา ใส่ให้แล้วครับ! */}
+                <div className="bg-orange-500/20 border border-orange-500/30 text-orange-300 text-[11px] font-bold px-2.5 py-0.5 rounded-md inline-block mb-3 backdrop-blur-sm">
+                  {getTimeframeLabel()}
+                </div>
+                
                 <div className="flex items-baseline gap-2">
                   <span className="text-6xl font-black font-mono tracking-tighter leading-none text-orange-500 drop-shadow-sm">
                     {String(stats.total).padStart(2, '0')}
@@ -951,7 +1028,7 @@ function MainApp({ onGoHome, initialRole }) {
                 </div>
               </div>
 
-              <div className="bg-white/80 backdrop-blur-md border-2 Border-solid border-orange-200 px-3 py-2 rounded-2xl flex flex-col items-center shadow-sm">
+              <div className="bg-white/80 backdrop-blur-md border-2 border-solid border-orange-200 px-3 py-2 rounded-2xl flex flex-col items-center shadow-sm">
                 <span className="text-[15px] font-black uppercase tracking-widest text-emerald-800 mb-1">
                   อัตราปิดงาน
                 </span>
@@ -965,6 +1042,8 @@ function MainApp({ onGoHome, initialRole }) {
             </div>
           </div>
         </div>
+
+        {/* <div className="grid grid-cols-2 gap-4"> ... โค้ดล่างลงไปปล่อยไว้เหมือนเดิมครับ ... */}
 
         <div className="grid grid-cols-2 gap-4">
           <div
@@ -1042,7 +1121,7 @@ function MainApp({ onGoHome, initialRole }) {
               {stats.cancelled}
             </div>
             <div className="text-[13px] font-bold text-slate-300 uppercase mt-2 tracking-widest">
-              ยกเลิกแล้ว
+              ยกเลิก
             </div>
           </div>
         </div>
@@ -1253,7 +1332,7 @@ function MainApp({ onGoHome, initialRole }) {
           ) : (
 
             <form onSubmit={handleSubmit} className="space-y-6">
-          <div className="bg-slate-800/60 backdrop-blur-xl  border-2 border-solid border-white-600/50 rounded-3xl py-4 text-center shadow-[0_0_30px_rgba(0,0,0,0.3)] font-sans tracking-widest text-white font-bold">
+          <div className="bg-slate-800/60 backdrop-blur-xl  border-2 border-solid border-white-600/50 rounded-[1rem] py-4 text-center shadow-[0_0_30px_rgba(0,0,0,0.3)] font-sans tracking-widest text-white font-bold">
             {ThaiDateFormatter(sysTime)}
           </div>
 
