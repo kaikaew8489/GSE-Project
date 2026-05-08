@@ -494,6 +494,7 @@ function MainApp({ onGoHome, initialRole }) {
 
   // 🌟🌟🌟 จุดที่ 1: เติมบรรทัดนี้ลงไป! (สำคัญมาก ถ้าไม่มีระบบจะพัง) 🌟🌟🌟
   const [dashTimeframe, setDashTimeframe] = useState('month');
+  const [customMonth, setCustomMonth] = useState(''); // 🌟 เติมบรรทัดนี้เพื่อเก็บค่าปฏิทิน
 
   const [hoveredTab, setHoveredTab] = useState(null);
   // ... โค้ดเดิมของท่าน ...
@@ -533,11 +534,11 @@ function MainApp({ onGoHome, initialRole }) {
   useEffect(() => {
     if (!user) return;
     
-    // 🌟 ฟันธง: สร้างคำสั่ง Query เพื่อเรียงตามวันที่ล่าสุด (desc) และจำกัดแค่ 50 รายการ
+    // 🌟 ฟันธง: สร้างคำสั่ง Query เพื่อเรียงตามวันที่ล่าสุด (desc) และจำกัดแค่ 500 รายการ
     const ticketsRef = query(
       collection(db, 'tickets'),
       orderBy('date', 'desc'),
-      limit(50)
+      limit(500) // 🌟 เปลี่ยนเป็น 500 เพื่อเก็บประวัติให้ดูย้อนหลังผ่านปฏิทินได้สบายๆ
     );
 
     const unsubscribeData = onSnapshot(
@@ -879,28 +880,29 @@ function MainApp({ onGoHome, initialRole }) {
     setSelectedTech('');
   };
 
-  // 🌟🌟🌟 จุดที่ 2: ตัวคำนวณสถิติพร้อมเกราะป้องกันแครช 100% 🌟🌟🌟
+  // 🌟 ฟันธง: ตัวคำนวณสถิติที่รองรับปฏิทินย้อนหลังแบบ 100%
   const stats = useMemo(() => {
     try {
       const now = new Date();
       
       const filteredByTime = tickets.filter(t => {
-        if (dashTimeframe === 'all') return true;
-        if (!t.date) return false; // กันพังกรณีข้อมูลวันที่หาย
-        
+        if (!t.date) return false;
         const tDate = new Date(t.date);
-        if (dashTimeframe === 'today') {
-          return tDate.toDateString() === now.toDateString();
+
+        // 📅 กรณีหัวหน้ากดเลือกปฏิทินเดือนย้อนหลัง
+        if (dashTimeframe === 'custom' && customMonth) {
+          const [year, month] = customMonth.split('-');
+          return tDate.getFullYear() === parseInt(year) && (tDate.getMonth() + 1) === parseInt(month);
         }
+
+        if (dashTimeframe === 'all') return true;
+        if (dashTimeframe === 'today') return tDate.toDateString() === now.toDateString();
         if (dashTimeframe === 'week') {
-          // 🌟 บังคับให้วันจันทร์เป็นวันเริ่มต้นสัปดาห์
-          const currentDay = now.getDay();
-          const diffToMonday = currentDay === 0 ? -6 : 1 - currentDay; // ถ้าเป็นวันอาทิตย์ (0) ให้ถอยหลัง 6 วัน
-          
           const firstDayOfWeek = new Date(now);
-          firstDayOfWeek.setHours(0, 0, 0, 0); // รีเซ็ตเวลาเป็นเที่ยงคืน
+          const currentDay = now.getDay();
+          const diffToMonday = currentDay === 0 ? -6 : 1 - currentDay; // บังคับเริ่มวันจันทร์
           firstDayOfWeek.setDate(now.getDate() + diffToMonday);
-          
+          firstDayOfWeek.setHours(0, 0, 0, 0);
           return tDate >= firstDayOfWeek;
         }
         if (dashTimeframe === 'month') {
@@ -920,7 +922,7 @@ function MainApp({ onGoHome, initialRole }) {
       console.error("Stats Error:", err);
       return { total: 0, pending: 0, fixing: 0, done: 0, cancelled: 0 };
     }
-  }, [tickets, dashTimeframe]) || { total: 0, pending: 0, fixing: 0, done: 0, cancelled: 0 };
+  }, [tickets, dashTimeframe, customMonth]); // 🌟 อัปเดตทันทีที่เลือกปฏิทิน
 
   const filteredTickets = useMemo(() => {
     return tickets.filter((t) => {
@@ -962,24 +964,24 @@ function MainApp({ onGoHome, initialRole }) {
         return timeA - timeB;
       })[0];
 
-    // 🌟 ฟังก์ชันอัจฉริยะ: แปลงปุ่มที่กดเป็นข้อความวันที่ให้ผู้บริหารดูง่ายๆ
+    // 🌟 ฟังก์ชันอัจฉริยะแปลงป้ายวันที่ (รองรับปฏิทินย้อนหลัง)
     const getTimeframeLabel = () => {
       const now = new Date(sysTime);
       const monthsFull = ['มกราคม', 'กุมภาพันธ์', 'มีนาคม', 'เมษายน', 'พฤษภาคม', 'มิถุนายน', 'กรกฎาคม', 'สิงหาคม', 'กันยายน', 'ตุลาคม', 'พฤศจิกายน', 'ธันวาคม'];
       const monthsShort = ['ม.ค.', 'ก.พ.', 'มี.ค.', 'เม.ย.', 'พ.ค.', 'มิ.ย.', 'ก.ค.', 'ส.ค.', 'ก.ย.', 'ต.ค.', 'พ.ย.', 'ธ.ค.'];
 
+      if (dashTimeframe === 'custom' && customMonth) {
+        const [year, month] = customMonth.split('-');
+        return `ผลงานเดือน ${monthsFull[parseInt(month) - 1]} ${parseInt(year) + 543}`;
+      }
       if (dashTimeframe === 'today') return `วันที่ ${now.getDate()} ${monthsFull[now.getMonth()]} ${now.getFullYear() + 543}`;
       if (dashTimeframe === 'week') {
-        // 🌟 บังคับให้ป้ายโชว์ วันจันทร์ - วันอาทิตย์
         const day = now.getDay();
         const diffToMonday = day === 0 ? -6 : 1 - day;
-        
         const first = new Date(now);
-        first.setDate(now.getDate() + diffToMonday); // วันจันทร์
-        
+        first.setDate(now.getDate() + diffToMonday); // จันทร์
         const last = new Date(first);
-        last.setDate(first.getDate() + 6); // วันอาทิตย์
-        
+        last.setDate(first.getDate() + 6); // อาทิตย์
         return `${first.getDate()} ${monthsShort[first.getMonth()]} - ${last.getDate()} ${monthsShort[last.getMonth()]} ${last.getFullYear() + 543}`;
       }
       if (dashTimeframe === 'month') return `เดือน ${monthsFull[now.getMonth()]} ${now.getFullYear() + 543}`;
@@ -987,77 +989,98 @@ function MainApp({ onGoHome, initialRole }) {
     };
 
     return (
+      <div className="px-5 pb-5 pt-2 space-y-5 animate-in fade-in duration-500 pb-32">
+        
+        {/* 📅 1. แถบวันที่แบบยาว */}
+        <div className="bg-slate-800/60 backdrop-blur-xl border-2 border-solid border-orange-500/50 rounded-[1rem] py-4 text-center shadow-[0_0_20px_rgba(249,115,22,0.4)] font-sans tracking-widest text-white font-bold">
+          {ThaiDateFormatter(sysTime)}
+        </div>
 
-        <div className="px-5 pb-5 pt-2 space-y-5 animate-in fade-in duration-500 pb-32">
-          {/* 📅 1. แถบวันที่แบบยาว (ปรับขอบส้มเรืองแสงให้คมขึ้น) */}
-          <div className="bg-slate-800/80 backdrop-blur-xl border-2 border-solid border-solid border-orange-500/80 rounded-[1rem] py-4 text-center shadow-[0_0_20px_rgba(249,115,22,0.4)] font-sans tracking-widest text-white font-bold">
-            {ThaiDateFormatter(sysTime)}
+        {/* 🔘 2. สวิตช์เลือกกรอบเวลา + ปุ่มปฏิทินซ่อนรูป 📅 */}
+        <div className="flex bg-slate-800/80 p-1.5 rounded-2xl border-2 border-slate-600/50 shadow-inner mt-4">
+          {[
+            { id: 'today', label: 'วันนี้' },
+            { id: 'week', label: 'สัปดาห์นี้' },
+            { id: 'month', label: 'เดือนนี้' },
+          ].map((tf) => (
+            <button
+              key={tf.id}
+              onClick={() => setDashTimeframe(tf.id)}
+              className={`flex-1 text-[13px] font-black py-2.5 rounded-xl transition-all duration-300 ${
+                dashTimeframe === tf.id
+                  ? 'bg-gradient-to-r from-orange-400 to-orange-600 text-white shadow-[0_0_15px_rgba(249,115,22,0.5)]'
+                  : 'text-slate-400 hover:text-slate-100 hover:bg-slate-700/50'
+              }`}
+            >
+              {tf.label}
+            </button>
+          ))}
+          
+          {/* 🌟 ไอคอนปฏิทิน (คลิกแล้วเด้ง Date Picker ของมือถือ) */}
+          <div className="relative flex-1 flex justify-center">
+             <input 
+               type="month"
+               className="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-20"
+               value={customMonth}
+               onChange={(e) => {
+                 if(e.target.value) {
+                   setCustomMonth(e.target.value);
+                   setDashTimeframe('custom');
+                 }
+               }}
+             />
+             <button className={`w-full relative z-10 text-[13px] font-black py-2.5 rounded-xl transition-all duration-300 flex items-center justify-center gap-1.5 ${
+               dashTimeframe === 'custom' 
+                 ? 'bg-gradient-to-r from-orange-400 to-orange-600 text-white shadow-[0_0_15px_rgba(249,115,22,0.5)]'
+                 : 'text-slate-400 hover:text-slate-100 hover:bg-slate-700/50'
+             }`}>
+               <Calendar size={16} /> <span>ระบุเดือน</span>
+             </button>
           </div>
+        </div>
 
-        {/* ✅ โค้ดใหม่ (ลบ mx-2 ทิ้ง): */}
-           <div className="flex bg-slate-800/80 p-1.5 rounded-2xl border-2 border-solid border-white-600/50 shadow-inner mt-4">
-            {[
-              { id: 'today', label: 'วันนี้' },
-              { id: 'week', label: 'สัปดาห์นี้' },
-              { id: 'month', label: 'เดือนนี้' },
-              { id: 'all', label: 'ทั้งหมด' },
-            ].map((tf) => (
-              <button
-                key={tf.id}
-                onClick={() => setDashTimeframe(tf.id)}
-                className={`flex-1 text-[13px] font-black py-2.5 rounded-xl transition-all duration-300 ${
-                  dashTimeframe === tf.id
-                    ? 'bg-gradient-to-r from-orange-400 to-orange-600 text-white shadow-[0_0_15px_rgba(249,115,22,0.5)]'
-                    : 'text-slate-400 hover:text-slate-100 hover:bg-slate-700/50'
-                }`}
-              >
-                {tf.label}
-              </button>
-            ))}
-          </div>
-  
-          {/* 📊 3. กล่องแสดงตัวเลขรวม (ขยายตัวหนังสือ + ปรับกรอบ) */}
-          <div className="bg-slate-800/60 backdrop-blur-xl border-2 border-solid border-orange-500/80 shadow-[0_0_25px_rgba(249,115,22,0.2)] rounded-[1.5rem] p-6 relative overflow-hidden">
-            <div className="absolute top-0 right-0 w-40 h-40 bg-white/50 rounded-full blur-3xl -mr-10 -mt-10 pointer-events-none"></div>
-  
-            <div className="relative z-10">
-              <div className="flex justify-between items-start">
-                <div>
-                  <p className="text-slate-300 text-[16px] font-black uppercase tracking-widest mb-2 drop-shadow-sm">
-                    จำนวนงานทั้งหมด
-                  </p>
-                  
-                  {/* 🌟 ป้ายบอกช่วงเวลา (อัปเกรดให้ใหญ่และเรืองแสง) */}
-                  <div className="bg-orange-500/20 border-2 border-orange-400/50 text-orange-300 text-[12px] font-black px-3 py-1 rounded-lg inline-block mb-4 shadow-[0_0_15px_rgba(249,115,22,0.3)] backdrop-blur-md">
-                    {getTimeframeLabel()}
-                  </div>
-                  
-                  {/* 🌟 ตัวเลข (ขยายเป็น text-7xl ให้เบิ้มๆ) */}
-                  <div className="flex items-baseline gap-2">
-                    <span className="text-7xl font-black font-mono tracking-tighter leading-none text-orange-500 drop-shadow-[0_4px_4px_rgba(0,0,0,0.4)]">
-                      {String(stats.total).padStart(2, '0')}
-                    </span>
-                    <span className="text-slate-300 text-[16px] font-bold tracking-widest ml-1">
-                      รายการ
-                    </span>
-                  </div>
+        {/* 📊 3. กล่องแสดงตัวเลขรวม (ขยายตัวหนังสือ + ปรับกรอบ) */}
+        <div className="bg-slate-800/60 backdrop-blur-xl border-2 border-solid border-orange-500/30 shadow-[0_0_25px_rgba(249,115,22,0.2)] rounded-[1.5rem] p-6 relative overflow-hidden">
+          <div className="absolute top-0 right-0 w-40 h-40 bg-white/50 rounded-full blur-3xl -mr-10 -mt-10 pointer-events-none"></div>
+
+          <div className="relative z-10">
+            <div className="flex justify-between items-start">
+              <div>
+                <p className="text-slate-300 text-[16px] font-black uppercase tracking-widest mb-2 drop-shadow-sm">
+                  จำนวนงานทั้งหมด
+                </p>
+                
+                {/* 🌟 ป้ายบอกช่วงเวลา (อัปเกรดให้ใหญ่และเรืองแสง) */}
+                <div className="bg-orange-500/20 border-2 border-orange-400/50 text-orange-300 text-[13px] font-black px-3 py-1 rounded-lg inline-block mb-4 shadow-[0_0_15px_rgba(249,115,22,0.3)] backdrop-blur-md">
+                  {getTimeframeLabel()}
                 </div>
-  
-                {/* 🌟 วงกลม % อัตราปิดงาน (ขยายกรอบให้สมดุล) */}
-                <div className="bg-white/90 backdrop-blur-md border-[3px] border-solid border-emerald-400/50 px-4 py-3 rounded-2xl flex flex-col items-center shadow-lg mt-1">
-                  <span className="text-[14px] font-black uppercase tracking-widest text-emerald-800 mb-1">
-                    อัตราปิดงาน
+                
+                {/* 🌟 ตัวเลข (ขยายเป็น text-7xl ให้เบิ้มๆ) */}
+                <div className="flex items-baseline gap-2">
+                  <span className="text-7xl font-black font-mono tracking-tighter leading-none text-orange-500 drop-shadow-[0_4px_4px_rgba(0,0,0,0.4)]">
+                    {String(stats.total).padStart(2, '0')}
                   </span>
-                  <div className="flex items-center gap-1.5 text-orange-600">
-                    <PieChart size={24} className="animate-pulse" />
-                    <span className="text-[34px] font-black drop-shadow-sm">
-                      {completionRate}%
-                    </span>
-                  </div>
+                  <span className="text-slate-300 text-[16px] font-bold tracking-widest ml-1">
+                    รายการ
+                  </span>
+                </div>
+              </div>
+
+              {/* 🌟 วงกลม % อัตราปิดงาน (ขยายกรอบให้สมดุล) */}
+              <div className="bg-white/90 backdrop-blur-md border-[3px] border-solid border-emerald-400/50 px-4 py-3 rounded-2xl flex flex-col items-center shadow-lg mt-1">
+                <span className="text-[14px] font-black uppercase tracking-widest text-emerald-800 mb-1">
+                  อัตราปิดงาน
+                </span>
+                <div className="flex items-center gap-1.5 text-orange-600">
+                  <PieChart size={24} className="animate-pulse" />
+                  <span className="text-[34px] font-black drop-shadow-sm">
+                    {completionRate}%
+                  </span>
                 </div>
               </div>
             </div>
           </div>
+        </div>
   
           {/* <div className="grid grid-cols-2 gap-4"> ... โค้ดส่วนล่าง (ปุ่มแดงส้มเขียวเทา) ปล่อยไว้เหมือนเดิมครับ ... */}
 
