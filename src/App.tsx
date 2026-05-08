@@ -1961,6 +1961,7 @@ function MainApp({ onGoHome, initialRole }) {
                           </div>
                         </div>
 
+
                         {/* 🌟 3. เวลารวม (Active เฉพาะตอน isDone) */}
                         <div className="relative">
                           <div
@@ -1994,6 +1995,80 @@ function MainApp({ onGoHome, initialRole }) {
                       </div>
                     )}
                 </div>
+{/* ================= กล่องสรุปเวลาปฏิบัติงาน (SLA Summary) แบบอัจฉริยะ ================= */}
+{t.status === 'completed' || t.status === 'verified' ? (
+              <div className="bg-emerald-50 border-2 border-emerald-500/30 rounded-2xl p-4 mt-4 mb-4 shadow-sm">
+                
+                {/* 🌟 ฟันธง: ส่วนประมวลผล SLA อัตโนมัติ (ซ่อนไว้ประมวลผล ไม่โชว์บนหน้าจอ) */}
+                {(() => {
+                   const startMs = new Date(t.date).getTime();
+                   const endMs = new Date(t.completedAt).getTime();
+                   let netDurationMs = endMs - startMs - (t.holdDuration || 0);
+                   
+                   // 💡 ตั้งค่าสมมติเกณฑ์ SLA ตรงนี้ครับ (ปัจจุบันตั้งไว้ที่ 4 ชั่วโมง)
+                   const slaLimitHours = 4; 
+                   const slaLimitMs = slaLimitHours * 60 * 60 * 1000; 
+                   
+                   const isSLAPassed = netDurationMs <= slaLimitMs; // ประเมินผลว่าผ่านหรือไม่
+
+                   return (
+                     <>
+                        {/* ส่วนหัว และ ป้ายผ่าน/ไม่ผ่าน */}
+                        <div className="flex items-center justify-between mb-3 border-b border-emerald-500/20 pb-3">
+                          <div className="flex items-center gap-2">
+                            <Clock size={18} className="text-emerald-600" />
+                            <span className="text-[14px] font-black text-emerald-800 uppercase tracking-widest">สรุป SLA</span>
+                          </div>
+                          
+                          {/* 🎯 ป้ายประเมินอัตโนมัติ (เขียว = ผ่าน, แดง = ไม่ผ่าน) */}
+                          <div className={`px-3 py-1 rounded-full text-[12px] font-black tracking-wide shadow-sm border ${
+                            isSLAPassed 
+                              ? 'bg-emerald-500 text-white border-emerald-600' 
+                              : 'bg-rose-500 text-white border-rose-600'
+                          }`}>
+                            {isSLAPassed ? '✅ ผ่านเกณฑ์' : '❌ เกินเวลา SLA'}
+                          </div>
+                        </div>
+                        
+                        <div className="space-y-2 text-[13px]">
+                          <div className="flex justify-between items-center">
+                            <span className="text-emerald-800/80 font-semibold">เริ่มแจ้งซ่อมเมื่อ:</span>
+                            <span className="text-slate-800 font-black">{new Date(t.date).toLocaleString('th-TH')}</span>
+                          </div>
+                          <div className="flex justify-between items-center">
+                            <span className="text-emerald-800/80 font-semibold">ซ่อมเสร็จสิ้นเมื่อ:</span>
+                            <span className="text-emerald-700 font-black">
+                               {t.completedAt ? new Date(t.completedAt).toLocaleString('th-TH') : '-'}
+                            </span>
+                          </div>
+                          
+                          <div className="flex justify-between items-baseline pt-2 mt-2 border-t border-emerald-500/20">
+                            <span className="text-emerald-900 font-black">ระยะเวลาที่ใช้จริง:</span>
+                            {/* สีตัวเลขเปลี่ยนตามผลประเมิน (ผ่าน=เขียว, ไม่ผ่าน=แดง) */}
+                            <span className={`text-[18px] font-black drop-shadow-sm ${isSLAPassed ? 'text-emerald-600' : 'text-rose-600'}`}>
+                              {calculateDuration(t.date, t.completedAt, t.holdDuration || 0)}
+                            </span>
+                          </div>
+                          
+                          {/* หมายเหตุโชว์เกณฑ์ที่ใช้ประเมิน */}
+                          <div className="text-right text-[11px] text-slate-500 font-bold">
+                            * ประเมินจากเกณฑ์ชั่วคราว: ภายใน {slaLimitHours} ชั่วโมง
+                          </div>
+                          
+                          {t.holdDuration > 0 && (
+                            <div className="mt-2 bg-rose-50 border border-rose-200 p-2 rounded-lg flex justify-between items-center">
+                               <span className="text-rose-600 text-[11px] font-bold">⚠️ หักเวลารออะไหล่:</span>
+                               <span className="text-rose-700 text-[12px] font-mono font-bold">{Math.floor(t.holdDuration / (1000 * 60 * 60))} ชม.</span>
+                            </div>
+                          )}
+                        </div>
+                     </>
+                   );
+                })()}
+              </div>
+            ) : null}
+            {/* ================= จบกล่องสรุป SLA ================= */}
+
                 <div className="p-5 space-y-4">
                   <div className="bg-slate-50 p-4 rounded-2xl border-2 border-solid border-slate-400 shadow-inner relative">
                     {t.status === 'cancelled' && t.cancelReason && (
