@@ -412,11 +412,11 @@ function SearchableDropdown({
         {icon} {label}
       </label>
       <div
-        className={`w-full bg-white border ${
+        className={`w-full bg-white border-2 border-solid ${
           error
             ? 'border-rose-500 ring-1 ring-rose-500/50'
-            : 'border-orange-200 focus-within:border-orange-500 focus-within:ring-1 focus-within:ring-orange-500/30'
-        } rounded-2xl px-5 py-4 flex items-center justify-between cursor-pointer shadow-sm hover:border-orange-300 transition-all`}
+            : 'border-orange-500 hover:border-orange-600 focus-within:border-orange-600 focus-within:ring-2 focus-within:ring-orange-500/30'
+        } rounded-2xl px-5 py-4 flex items-center justify-between cursor-pointer shadow-sm transition-all`}
         onClick={() => {
           setIsOpen(!isOpen);
           setSearchTerm('');
@@ -688,7 +688,7 @@ function MainApp({ onGoHome, initialRole }) {
   const handleImageUpload = async (e) => {
     const files = Array.from(e.target.files);
     if (files.length === 0) return;
-    const remainingSlots = 5 - formData.images.length;
+    const remainingSlots = 6 - formData.images.length;
     const filesToProcess = files.slice(0, remainingSlots);
 
     const promises = filesToProcess.map((file) => {
@@ -992,12 +992,13 @@ function MainApp({ onGoHome, initialRole }) {
       <div className="px-5 pb-5 pt-2 space-y-5 animate-in fade-in duration-500 pb-32">
         
         {/* 📅 1. แถบวันที่แบบยาว */}
-        <div className="bg-slate-800/60 backdrop-blur-xl border-2 border-solid border-orange-500/50 rounded-[1rem] py-4 text-center shadow-[0_0_20px_rgba(249,115,22,0.4)] font-sans tracking-widest text-white font-bold">
+        <div className="bg-slate-800/60 backdrop-blur-xl border-2 border-solid border-orange-500/80 rounded-[1rem] py-4 text-center shadow-[0_0_20px_rgba(249,115,22,0.4)] font-sans tracking-widest text-white font-bold">
           {ThaiDateFormatter(sysTime)}
         </div>
 
-        {/* 🔘 2. สวิตช์เลือกกรอบเวลา + ปุ่มปฏิทินซ่อนรูป 📅 */}
-        <div className="flex bg-slate-800/80 p-1.5 rounded-2xl border-2 border-slate-600/50 shadow-inner mt-4">
+       {/* 🔘 2. สวิตช์เลือกกรอบเวลา + ปุ่มปฏิทินซ่อนรูป 📅 */}
+        {/* 🌟 อัปเกรด: เพิ่ม gap-2 ให้ปุ่มห่างกัน และขยาย padding (p-2) */}
+        <div className="flex gap-2 bg-slate-800/80 p-2 rounded-2xl border-2 border-solid border-white-600/80 shadow-inner mt-4">
           {[
             { id: 'today', label: 'วันนี้' },
             { id: 'week', label: 'สัปดาห์นี้' },
@@ -1008,8 +1009,8 @@ function MainApp({ onGoHome, initialRole }) {
               onClick={() => setDashTimeframe(tf.id)}
               className={`flex-1 text-[13px] font-black py-2.5 rounded-xl transition-all duration-300 ${
                 dashTimeframe === tf.id
-                  ? 'bg-gradient-to-r from-orange-400 to-orange-600 text-white shadow-[0_0_15px_rgba(249,115,22,0.5)]'
-                  : 'text-slate-400 hover:text-slate-100 hover:bg-slate-700/50'
+                  ? 'bg-gradient-to-r from-orange-500 to-amber-500 text-white border-2 border-solid border-white-500 shadow-[0_0_15px_rgba(249,115,22,0.8)] scale-105 z-10' // 🌟 ปุ่มที่กด: สว่างวาบ ขยายใหญ่ขึ้นนิดนึง
+                  : 'text-slate-100 bg-slate-700/60 border border-slate-500/50 hover:bg-slate-600 hover:text-white' // 🌟 ปุ่มที่ยังไม่กด: ข้อความสีขาวสว่างขึ้น มีกรอบปุ่มชัดเจน
               }`}
             >
               {tf.label}
@@ -1031,16 +1032,18 @@ function MainApp({ onGoHome, initialRole }) {
              />
              <button className={`w-full relative z-10 text-[13px] font-black py-2.5 rounded-xl transition-all duration-300 flex items-center justify-center gap-1.5 ${
                dashTimeframe === 'custom' 
-                 ? 'bg-gradient-to-r from-orange-400 to-orange-600 text-white shadow-[0_0_15px_rgba(249,115,22,0.5)]'
-                 : 'text-slate-400 hover:text-slate-100 hover:bg-slate-700/50'
+                 ? 'bg-gradient-to-r from-orange-500 to-amber-500 text-white border-2 border-solid border-orange-300 shadow-[0_0_15px_rgba(249,115,22,0.8)] scale-105' // 🌟 ปุ่มที่กด: สว่างวาบ
+                 : 'text-slate-100 bg-slate-700/60 border-2 border-solid border-orange-500/80 hover:bg-slate-600 hover:text-white' // 🌟 ปุ่มที่ยังไม่กด: สว่างขึ้น
              }`}>
-               <Calendar size={16} /> <span>ระบุเดือน</span>
+               {/* 🌟 ไอคอนปฏิทินเปลี่ยนเป็นสีเขียวมรกตให้เด่นๆ ครับ */}
+               <Calendar size={16} className={dashTimeframe === 'custom' ? 'text-white' : 'text-emerald-400'} /> 
+               <span>ระบุเดือน</span>
              </button>
           </div>
         </div>
 
         {/* 📊 3. กล่องแสดงตัวเลขรวม (ขยายตัวหนังสือ + ปรับกรอบ) */}
-        <div className="bg-slate-800/60 backdrop-blur-xl border-2 border-solid border-orange-500/30 shadow-[0_0_25px_rgba(249,115,22,0.2)] rounded-[1.5rem] p-6 relative overflow-hidden">
+        <div className="bg-slate-800/60 backdrop-blur-xl border-2 border-solid border-orange-500/80 shadow-[0_0_25px_rgba(249,115,22,0.2)] rounded-[1.5rem] p-6 relative overflow-hidden">
           <div className="absolute top-0 right-0 w-40 h-40 bg-white/50 rounded-full blur-3xl -mr-10 -mt-10 pointer-events-none"></div>
 
           <div className="relative z-10">
@@ -1459,7 +1462,7 @@ function MainApp({ onGoHome, initialRole }) {
           </div>
 
           {/* ================= กรอบที่ 2: รายละเอียดการแจ้งซ่อม ================= */}
-          <div className="relative bg-slate-800/60 backdrop-blur-xl border-2 border-solid border-pink-300 rounded-[1rem] p-6 pt-10 shadow-[0_0_40px_rgba(0,0,0,0.4)] text-left">
+          <div className="relative bg-slate-800/60 backdrop-blur-xl border-2 border-solid border-white-500/80 rounded-[1rem] p-6 pt-10 shadow-[0_0_40px_rgba(0,0,0,0.4)] text-left">
             <div className="absolute -top-4 left-6 bg-emerald-50 text-emerald-600 px-4 py-2.5 rounded-xl font-black text-xs shadow-sm border-2 border-solid border-green-500 flex items-center gap-2 tracking-widest uppercase">
               <Wrench size={20} className="text-orange-500" />{' '}
               รายละเอียดการแจ้งซ่อม
@@ -1616,63 +1619,75 @@ function MainApp({ onGoHome, initialRole }) {
                 </div>
               </div>
 
-              <div
-                className="space-y-3 pt-4 border-t border-slate-100"
-                id="field-images"
-              >
-                <label className="text-[13px] font-black text-slate-200 uppercase tracking-[0.2em] flex justify-between items-center ml-1">
-                  <span className="flex items-center gap-1.5">
-                    <Camera size={12} className="text-emerald-500" />{' '}
-                    แนบรูปภาพประกอบ <span className="text-rose-500">*</span>
-                  </span>
-                  <span className="text-slate-400 font-mono text-[13px] tracking-widest">
-                    {formData.images.length}/5
-                  </span>
+              {/* ================= จุดที่ให้วางทับ เริ่มตั้งแต่บรรทัดนี้ ================= */}
+            <div
+              className="space-y-4 pt-5 border-t border-slate-600/50"
+              id="field-images"
+            >
+              {/* 🌟 1. ส่วนหัวข้อและตัวนับ 0/6 รูป */}
+              <div className="flex justify-between items-center ml-1 mb-2">
+                <label className="text-[13px] font-black text-slate-200 uppercase tracking-[0.2em] flex items-center gap-1.5">
+                  <Camera size={14} className="text-emerald-500" />{' '}
+                  แนบรูปภาพประกอบ <span className="text-rose-500">*</span>
                 </label>
-                <div className="grid grid-cols-3 gap-3">
-                  {formData.images.map((img, i) => (
-                    <div
-                      key={i}
-                      className="relative aspect-square rounded-2xl overflow-hidden border border-2 border-orange-400/70 shadow-sm"
-                    >
-                      <img src={img} className="w-full h-full object-cover" />
-                      <button
-                        type="button"
-                        onClick={() =>
-                          setFormData({
-                            ...formData,
-                            images: formData.images.filter(
-                              (_, idx) => idx !== i
-                            ),
-                          })
-                        }
-                        className="absolute top-1 right-1 bg-rose-500 text-white p-1.5 rounded-full shadow-lg transition-transform active:scale-75 hover:bg-rose-600"
-                      >
-                        <X size={12} />
-                      </button>
-                    </div>
-                  ))}
-                  {/* 🌟 ฟันธงข้อ 3: ใส่ col-start-2 ให้อยู่ตรงกลางเมื่อยังไม่มีรูป */}
-                  {formData.images.length < 5 && (
-                    <label className={`aspect-square border-2 border-dashed border-white-400/50 bg-slate-800/40 hover:bg-slate-500/30 rounded-2xl flex flex-col items-center justify-center transition-all cursor-pointer shadow-sm active:scale-95 ${formData.images.length === 0 ? 'col-start-2' : ''}`}>
-                      <input
-                        type="file"
-                        accept="image/*"
-                        multiple
-                        onChange={handleImageUpload}
-                        className="hidden"
-                      />
-                      <Camera size={40} className="text-emerald-400 mb-1.5" />
-                      <span className="text-[11px] font-bold text-emerald-500 tracking-widest">
-                        เพิ่มรูป
-                      </span>
-                    </label>
-                  )}
+                <div className="bg-orange-500/20 border border-orange-400/50 text-orange-300 text-[12px] font-black px-3 py-1 rounded-lg shadow-[0_0_10px_rgba(249,115,22,0.4)] backdrop-blur-sm">
+                  {formData.images.length} / 6 รูป
                 </div>
               </div>
+
+              {/* 🌟 2. โซนแสดงรูปและกรอบเส้นปะ */}
+              <div className={formData.images.length === 0 ? "flex w-full" : "grid grid-cols-3 gap-3"}>
+                
+                {/* 🖼️ รูปที่ถูกเลือกแล้วจะมาเรียงตรงนี้ */}
+                {formData.images.map((img, i) => (
+                  <div
+                    key={i}
+                    className="relative aspect-square rounded-2xl overflow-hidden border-2 border-orange-400/70 shadow-sm"
+                  >
+                    <img src={img} className="w-full h-full object-cover" />
+                    <button
+                      type="button"
+                      onClick={() =>
+                        setFormData({
+                          ...formData,
+                          images: formData.images.filter((_, idx) => idx !== i),
+                        })
+                      }
+                      className="absolute top-1 right-1 bg-rose-500 text-white p-1.5 rounded-full shadow-lg transition-transform active:scale-75 hover:bg-rose-600"
+                    >
+                      <X size={12} />
+                    </button>
+                  </div>
+                ))}
+
+                {/* 🎯 3. กรอบเส้นปะ (ลูกเล่นอัจฉริยะ) */}
+                {/* ถ้ายังไม่มีรูป: จะกางเป็นกล่องใหญ่ กว้างเต็มจออยู่ตรงกลาง */}
+                {/* ถ้ามีรูปแล้ว: จะหดตัวเป็นกล่องสี่เหลี่ยมจัตุรัสเล็กๆ ไปต่อท้ายรูป */}
+                {formData.images.length < 6 && (
+                  <label 
+                    className={`border-2 border-dashed border-slate-400/50 bg-slate-800/40 hover:bg-slate-700/50 hover:border-orange-500 rounded-2xl flex flex-col items-center justify-center transition-all cursor-pointer shadow-sm active:scale-95 group
+                    ${formData.images.length === 0 ? 'w-full h-36' : 'aspect-square'}`}
+                  >
+                    <input
+                      type="file"
+                      accept="image/*"
+                      multiple
+                      onChange={handleImageUpload}
+                      className="hidden"
+                    />
+                    <Camera size={formData.images.length === 0 ? 40 : 28} className="text-emerald-400 mb-2 group-hover:text-orange-400 transition-colors" />
+                    <span className={`font-bold tracking-widest transition-colors ${formData.images.length === 0 ? 'text-[13px] text-slate-300 group-hover:text-orange-300' : 'text-[11px] text-emerald-500 group-hover:text-orange-400'}`}>
+                      {formData.images.length === 0 ? 'คลิกเพื่อเพิ่มรูปภาพ' : 'เพิ่มรูป'}
+                    </span>
+                  </label>
+                )}
+              </div>
+            </div>
+            {/* ================= จบจุดที่ให้วางทับตรงนี้ ================= */}
+
+
             </div>
           </div>
-
           <div className="pt-6 px-2 flex flex-col items-center text-center">
             <button
               type="submit"
