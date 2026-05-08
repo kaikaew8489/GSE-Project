@@ -506,7 +506,9 @@ function MainApp({ onGoHome, initialRole }) {
   }, [activeTab]);
 
   // 🌟🌟🌟 จุดที่ 1: เติมบรรทัดนี้ลงไป! (สำคัญมาก ถ้าไม่มีระบบจะพัง) 🌟🌟🌟
-  const [dashTimeframe, setDashTimeframe] = useState('month');
+  // ของเดิมอาจจะเป็น: const [dashTimeframe, setDashTimeframe] = useState('month');
+  // ✅ แก้เป็นแบบนี้ครับ:
+  const [dashTimeframe, setDashTimeframe] = useState('today');
   const [customMonth, setCustomMonth] = useState(''); // 🌟 เติมบรรทัดนี้เพื่อเก็บค่าปฏิทิน
 
   const [hoveredTab, setHoveredTab] = useState(null);
@@ -1890,17 +1892,26 @@ function MainApp({ onGoHome, initialRole }) {
                   >
                     {String(t.equipment)}
                   </h3>
-                  <div className="flex items-center gap-1.5 text-[14px] font-bold text-indigo-600">
-                    <Building
-                      size={14}
-                      className={
-                        isCancelled ? 'text-slate-300' : 'text-emerald-500'
-                      }
-                    />{' '}
-                    {t.building || t.location || 'ไม่ระบุ'}{' '}
-                    {t.room ? `(${t.room})` : ''}
-                  </div>
-
+                  {/* 🌟 แยกอาคารกับห้องออกเป็น 2 บรรทัด (แก้ปัญหาล้นจอมือถือ) */}
+      <div className="flex flex-col gap-1 mt-1.5 mb-3 bg-indigo-50/50 p-2 rounded-lg border border-indigo-100">
+        
+        {/* บรรทัดที่ 1: ชื่ออาคาร */}
+        <div className="flex items-start gap-1.5 text--700">
+          <Building size={18} className="shrink-0 mt-0.5" />
+          <span className="text-[18px] font-bold leading-snug">
+            {t.building || 'ไม่ระบุอาคาร'}
+          </span>
+        </div>
+        
+        {/* บรรทัดที่ 2: ชื่อห้อง (เยื้องขวาเข้ามานิดนึงให้ดูสวย) */}
+        <div className="flex items-start gap-1.5 text-indigo-500/90 ml-1">
+          <MapPin size={18} className="shrink-0 mt-0.5" />
+          <span className="text-[15px] font-bold  leading-snug">
+            ห้อง: {t.room || 'ไม่ระบุห้อง'}
+          </span>
+        </div>
+        
+      </div>
                   {!isCancelled && (
                       <div className="mt-5 pl-4 border-2 border-orange-400/70 space-y-4 py-2 relative">
                         
@@ -2017,7 +2028,7 @@ function MainApp({ onGoHome, initialRole }) {
                         <div className="flex items-center justify-between mb-3 border-b border-emerald-500/20 pb-3">
                           <div className="flex items-center gap-2">
                             <Clock size={18} className="text-emerald-600" />
-                            <span className="text-[14px] font-black text-emerald-800 uppercase tracking-widest">สรุป SLA</span>
+                            <span className="text-[14px] font-black text-orange-500 uppercase tracking-widest">สรุป SLA</span>
                           </div>
                           
                           {/* 🎯 ป้ายประเมินอัตโนมัติ (เขียว = ผ่าน, แดง = ไม่ผ่าน) */}
@@ -2051,7 +2062,7 @@ function MainApp({ onGoHome, initialRole }) {
                           </div>
                           
                           {/* หมายเหตุโชว์เกณฑ์ที่ใช้ประเมิน */}
-                          <div className="text-right text-[11px] text-slate-500 font-bold">
+                          <div className="text-right text-[11px] text-yellow-800 font-bold">
                             * ประเมินจากเกณฑ์ชั่วคราว: ภายใน {slaLimitHours} ชั่วโมง
                           </div>
                           
@@ -2147,29 +2158,40 @@ function MainApp({ onGoHome, initialRole }) {
                     )}
 
                     <div className="pt-3 border-t border-2 border-orange-400/70 flex flex-col gap-2 mt-3 text-xs text-slate-600">
-                      <div className="flex justify-between items-start gap-3">
-                        <div className="flex flex-col flex-1">
-                          <span className="text-[11px] font-bold text-green-600 mb-2">
-                            ผู้แจ้งปัญหา
-                          </span>
-                          <span className="font-bold text-orange-800 flex items-start gap-1.5 leading-tight">
-                            <User size={14}
-                              className={`shrink-0 mt-0.5 ${isCancelled ? 'text-slate-400' : 'text-emerald-500'}`}
-                            />
-                            <span className="whitespace-normal break-words">{String(t.reporter)}</span>
-                          </span>
-                          <span className="text-[12px] font-bold text-blue-600 mt-2">
-                            {formatDateTimeString(t.date)}
-                          </span>
-                        </div>
-                        <a
-                          href={`tel:${String(t.reporterContact).replace(/\D/g, '')}`}
-                          className="font-mono shrink-0 whitespace-nowrap text-[12px] font-bold bg-emerald-50 px-2.5 py-1.5 rounded-lg border-2 border-solid border emerald-300 shadow-sm text-emerald-600 hover:bg-emerald-50 active:scale-95 transition-all flex items-center gap-1.5 cursor-pointer mt-1"
-                        >
-                          <Phone size={12} className="text-emerald-500" />{' '}
-                          {formatDisplayPhone(t.reporterContact)}
-                        </a>
-                      </div>
+                      {/* ================= ลากคลุมดำวางทับตั้งแต่บรรทัดที่ 2162 ถึง 2184 ================= */}
+          <div className="flex justify-between items-start gap-3">
+            
+            {/* 🌟 คาถาสำคัญ: ใส่ min-w-0 ต่อท้าย flex-1 เพื่อบังคับให้กล่องนี้ยอมตัดคำเมื่อชนขอบ */}
+            <div className="flex flex-col flex-1 min-w-0">
+              
+              <span className="text-[11px] font-bold text-green-600 mb-1">
+                ผู้แจ้งปัญหา
+              </span>
+              
+              <span className="font-bold text-orange-800 flex items-start gap-1.5 leading-tight mb-1">
+                <User size={14} className={`shrink-0 mt-0.5 ${isCancelled ? 'text-slate-400' : 'text-emerald-500'}`} />
+                {/* 🌟 เมื่อกล่องแม่มี min-w-0 แล้ว คำสั่ง break-words ตรงนี้จะทำงานพับบรรทัดให้ทันที! */}
+                <span className="whitespace-normal break-words leading-snug">
+                  {String(t.reporter)}
+                </span>
+              </span>
+              
+              <span className="text-[12px] font-bold text-blue-600 mt-1">
+                {formatDateTimeString(t.date)}
+              </span>
+            </div>
+
+            {/* โซนปุ่มโทรศัพท์ (shrink-0 คือคาถาสั่งห้ามหดตัวเด็ดขาด) */}
+            <a
+              href={`tel:${String(t.reporterContact).replace(/\D/g, '')}`}
+              className="font-mono shrink-0 whitespace-nowrap text-[12px] font-bold bg-emerald-50 px-2.5 py-1.5 rounded-lg flex items-center gap-1.5 text-emerald-700 border border-emerald-200 mt-4"
+            >
+              <Phone size={12} className="text-emerald-500" />
+              {formatDisplayPhone(t.reporterContact)}
+            </a>
+            
+          </div>
+          {/* ================= จบส่วนวางทับ ================= */}
 
                       {t.techName && (
                         <div className="flex justify-between items-start gap-3 mt-3 pt-3 border-t border-slate-100">
