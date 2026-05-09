@@ -1096,7 +1096,7 @@ function MainApp({ onGoHome, initialRole }) {
           
 
 
-          {/* 🌟 ไอคอนปฏิทิน ระบุวัน (อัปเกรดเป็น Custom UI ระดับ Enterprise!) */}
+          {/* 🌟 ไอคอนปฏิทิน ระบุวัน (อัปเกรด UI สมบูรณ์แบบตามหลักสากล) */}
           <div className="relative flex-1 min-w-[95px] shrink-0 flex justify-center snap-center">
              <button 
                onClick={() => setShowDatePicker(true)}
@@ -1115,9 +1115,9 @@ function MainApp({ onGoHome, initialRole }) {
                 
                 <div className="relative bg-slate-900 border-[2px] border-solid border-white rounded-[2rem] shadow-[0_0_50px_rgba(0,0,0,0.8)] w-full max-w-[340px] p-6 text-center animate-in zoom-in-95 overflow-hidden" onClick={(e) => e.stopPropagation()}>
                   
-                  {/* แสง Flare อลังการ */}
-                  <div className="absolute -top-20 -right-20 w-60 h-60 bg-orange-500/70 rounded-full blur-[60px] pointer-events-none z-0"></div>
-                  <div className="absolute -bottom-20 -left-20 w-60 h-60 bg-orange-600/50 rounded-full blur-[60px] pointer-events-none z-0"></div>
+                  {/* 🌟 1. ย้ายแสง Flare ไปหลบมุม (บนซ้าย-ล่างขวา) ไม่ให้กวนสายตาตรงกลาง */}
+                  <div className="absolute -top-10 -left-10 w-32 h-32 bg-emerald-500/30 rounded-full blur-[40px] pointer-events-none z-0"></div>
+                  <div className="absolute -bottom-10 -right-10 w-32 h-32 bg-orange-500/30 rounded-full blur-[40px] pointer-events-none z-0"></div>
 
                   {/* โซนหัว: เลื่อนเดือน และ พ.ศ. */}
                   <div className="relative z-10 flex justify-between items-center mb-4 pb-4 border-b border-white/20">
@@ -1164,6 +1164,7 @@ function MainApp({ onGoHome, initialRole }) {
                         const isSelected = customDate === dateString;
                         const isToday = new Date().toISOString().split('T')[0] === dateString;
 
+                        // 🌟 2 & 3. ลำดับความสำคัญของสีปุ่ม (Hierarchy)
                         return (
                           <button
                             key={day}
@@ -1174,10 +1175,13 @@ function MainApp({ onGoHome, initialRole }) {
                             }}
                             className={`aspect-square flex items-center justify-center rounded-xl text-[14px] font-black transition-all active:scale-95 ${
                               isSelected 
-                                ? 'bg-orange-500 text-white shadow-[0_0_20px_rgba(249,115,22,0.9)] border-2 border-white scale-110 z-10' 
+                                /* วันที่ถูกจิ้มเลือก: สีส้มทึบ ขอบขาว เด้งใหญ่สุด */
+                                ? 'bg-orange-500 text-white shadow-[0_0_20px_rgba(249,115,22,0.9)] border-2 border-white scale-110 z-20' 
                                 : isToday
-                                ? 'bg-slate-700 text-emerald-400 border-2 border-emerald-500 hover:bg-emerald-500 hover:text-white'
-                                : 'bg-slate-800/80 text-slate-100 hover:bg-orange-500/40 border border-white/40 hover:border-white hover:shadow-[0_0_15px_rgba(255,255,255,0.6)]'
+                                /* วันนี้: สีครามเข้มทึบ เรืองแสง รองลงมา */
+                                ? 'bg-emerald-500 text-white shadow-[0_0_15px_rgba(16,185,129,0.8)] border border-emerald-300 z-10'
+                                /* วันอื่นๆ (อดีต/อนาคต): พื้นใส ขอบเทาบางๆ ไม่แย่งซีน */
+                                : 'bg-transparent text-slate-300 hover:bg-slate-700/80 border border-slate-600/50 hover:border-slate-400'
                             }`}
                           >
                             {day}
@@ -1198,7 +1202,6 @@ function MainApp({ onGoHome, initialRole }) {
               </div>
             )}
           </div>
-
 
 
           {/* 🌟 ไอคอนปฏิทิน ระบุเดือน (อัปเกรดเป็น Custom UI แบบ Popup กลางจอหนีบั๊ก!) */}
