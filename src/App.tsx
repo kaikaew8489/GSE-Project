@@ -497,13 +497,11 @@ const calculateDuration = (start, end, holdMs = 0) => {
 // 🌟 5. Main App Logic
 // ==========================================
 function MainApp({ onGoHome, initialRole }) {
-  const [activeTab, setActiveTab] = useState(() => {
-    return localStorage.getItem('gse_activeTab') || (initialRole === 'technician' ? 'dashboard' : 'report');
-  });
-
-  useEffect(() => {
-    localStorage.setItem('gse_activeTab', activeTab);
-  }, [activeTab]);
+  // 🌟 ฟันธง: ลบระบบจำหน้าเก่าทิ้ง! ให้ตั้งต้นใหม่ตาม Role ที่เลือกเสมอ
+  const [activeTab, setActiveTab] = useState(
+    initialRole === 'technician' ? 'dashboard' : 'report'
+  );
+  // (ลบ useEffect ที่เซฟลง localStorage ออกไปแล้ว)
 
   // 🌟🌟🌟 จุดที่ 1: เติมบรรทัดนี้ลงไป! (สำคัญมาก ถ้าไม่มีระบบจะพัง) 🌟🌟🌟
   // ของเดิมอาจจะเป็น: const [dashTimeframe, setDashTimeframe] = useState('month');
@@ -1183,6 +1181,7 @@ function MainApp({ onGoHome, initialRole }) {
           </div>
         </div>
 
+        {/* ================= เริ่มกล่อง: งานที่รอเกินกำหนด ================= */}
         {(longestPendingTicket || longestFixingTicket) && (
           <div className="bg-slate-800/60 backdrop-blur-xl p-5 rounded-[1rem] border-2 border-solid border-orange-500/80 shadow-[0_0_20px_rgba(249,115,22,0.15)] mt-6 overflow-hidden">
             <div className="absolute -top-10 -right-10 w-32 h-32 bg-rose-500/10 rounded-full blur-2xl"></div>
@@ -1191,6 +1190,7 @@ function MainApp({ onGoHome, initialRole }) {
               งานที่รอเกินระยะเวลากำหนด
             </h3>
             <div className="grid grid-cols-1 gap-3 relative z-10">
+              
               {longestPendingTicket && (
                 <div
                   onClick={() => {
@@ -1216,12 +1216,17 @@ function MainApp({ onGoHome, initialRole }) {
                   <h4 className="text-sm font-black text-rose-800 truncate mb-1">
                     {longestPendingTicket.equipment}
                   </h4>
-                  <p className="text-[12px] font-bold text-orange-500 flex items-center gap-1.5">
-                    <User size={15} className="text-orange-400" />{' '}
-                    {longestPendingTicket.reporter}
-                  </p>
+                  {/* 🌟 ป้ายกำกับ ผู้แจ้งปัญหา */}
+                  <div className="flex flex-col gap-0.5 mt-2">
+                    <span className="text-[10px] font-bold text-slate-400 tracking-widest">ผู้แจ้งปัญหา:</span>
+                    <p className="text-[12px] font-bold text-orange-600 flex items-center gap-1.5">
+                      <User size={14} className="text-orange-500" />
+                      {longestPendingTicket.reporter}
+                    </p>
+                  </div>
                 </div>
               )}
+              
               {longestFixingTicket && (
                 <div
                   onClick={() => {
@@ -1242,21 +1247,25 @@ function MainApp({ onGoHome, initialRole }) {
                     </div>
                     <span className="text-xs font-mono font-black text-orange-600 bg-orange-50 px-2 py-0.5 rounded-md border border-orange-100">
                     {formatMinutesToText(getMinutesDiff(longestFixingTicket.startedAt || longestFixingTicket.date, sysTime))}
-                    
                     </span>
                   </div>
                   <h4 className="text-sm font-black text-rose-800 truncate mb-1">
                     {longestFixingTicket.equipment}
                   </h4>
-                  <p className="text-[12px] font-bold text-green-500 flex items-center gap-1.5">
-                  <User size={15} className="text-green-400" />{' '}
-                    {longestFixingTicket.techName || 'กำลังดำเนินการ'}
-                  </p>
+                  {/* 🌟 ป้ายกำกับ ผู้รับผิดชอบ (ช่าง) */}
+                  <div className="flex flex-col gap-0.5 mt-2">
+                    <span className="text-[10px] font-bold text-slate-400 tracking-widest">ผู้รับผิดชอบ:</span>
+                    <p className="text-[12px] font-bold text-emerald-600 flex items-center gap-1.5">
+                      <Wrench size={14} className="text-emerald-500" />
+                      {longestFixingTicket.techName || 'กำลังดำเนินการ'}
+                    </p>
+                  </div>
                 </div>
               )}
             </div>
           </div>
         )}
+        {/* ================= จบกล่อง: งานที่รอเกินกำหนด ================= */}
 
         <div className="bg-slate-800/60 backdrop-blur-xl p-5 rounded-[1rem] border-2 border-solid border-orange-500/80 shadow-[0_0_20px_rgba(249,115,22,0.15)] mt-6 hover:shadow-[0_0_20px_rgba(249,115,22,0.3)]">
           <h3 className="text-[15px] font-black text-white uppercase  tracking-widest mb-4 flex items-center gap-2">
@@ -1334,17 +1343,36 @@ function MainApp({ onGoHome, initialRole }) {
                   />
                 </div>
 
-                <div className="mt-3 pt-3 border-t border-2 border-orange-400/70 flex justify-between items-center">
-                  <span className="text-[12px] font-bold text-emerald-500 flex items-center gap-1.5">
-                    <User size={15} className="text-emerald-500" /> {t.reporter}
-                  </span>
-                  <span className="text-[12px] font-bold font-mono text-blue-500 flex items-center gap-1.5">
-                    <Clock size={15} className="text-blue-500" />{' '}
-                    {new Date(t.date).toLocaleTimeString('th-TH', {
-                      hour: '2-digit',
-                      minute: '2-digit',
-                    })}{' '}
-                    น.
+                {/* 🌟 อัปเกรด: โซนระบุชื่อผู้แจ้งและช่างแบบชัดเจน (แยกบรรทัดตามมาตรฐาน) */}
+                <div className="mt-3 pt-3 border-t border-2 border-orange-400/70 flex justify-between items-end">
+                  <div className="flex flex-col gap-2.5">
+                    
+                    {/* 👤 ข้อมูลผู้แจ้ง (มีเสมอ) */}
+                    <div className="flex flex-col gap-0.5">
+                      <span className="text-[10px] font-bold text-slate-400 tracking-widest">ผู้แจ้งปัญหา:</span>
+                      <span className="text-[11px] font-bold text-emerald-600 flex items-center gap-1.5">
+                        <User size={13} className="text-emerald-500 shrink-0" />
+                        <span className="truncate max-w-[140px]">{t.reporter}</span>
+                      </span>
+                    </div>
+                    
+                    {/* 🔧 ข้อมูลช่าง (โชว์เฉพาะเมื่องานถูกรับไปแล้ว) */}
+                    {t.techName && (
+                      <div className="flex flex-col gap-0.5">
+                        <span className="text-[10px] font-bold text-slate-400 tracking-widest">ผู้รับผิดชอบ:</span>
+                        <span className="text-[11px] font-bold text-orange-600 flex items-center gap-1.5">
+                          <Wrench size={13} className="text-orange-500 shrink-0" />
+                          <span className="truncate max-w-[140px]">{t.techName}</span>
+                        </span>
+                      </div>
+                    )}
+
+                  </div>
+                  
+                  {/* เวลาที่แจ้ง */}
+                  <span className="text-[11px] font-bold font-mono text-blue-500 flex items-center gap-1 shrink-0 mb-0.5">
+                    <Clock size={12} className="text-blue-500" /> 
+                    {new Date(t.date).toLocaleTimeString('th-TH', { hour: '2-digit', minute: '2-digit' })} น.
                   </span>
                 </div>
               </div>
@@ -2969,31 +2997,19 @@ function LandingPage({ onStart }) {
 // ==========================================
 // 🚀 ส่วนควบคุมระบบ (App Component)
 // ==========================================
-// ==========================================
-// 🚀 ส่วนควบคุมระบบ (App Component)
-// ==========================================
 export default function App() {
-  // 🌟 ฟันธง: ให้ดึงค่าจากความจำเบราว์เซอร์ก่อน ถ้าไม่มีค่อยตั้งค่าเริ่มต้น
-  const [hasStarted, setHasStarted] = useState(() => {
-    return localStorage.getItem('gse_hasStarted') === 'true';
-  });
-  const [role, setRole] = useState(() => {
-    return localStorage.getItem('gse_role') || 'reporter';
-  });
+  // 🌟 ฟันธง: ลบความจำเบราว์เซอร์ออก กำหนดค่าเริ่มต้นเป็น false เสมอ 
+  // เปิดแอปใหม่ปุ๊บ จะต้องเห็นหน้า Landing Page ทุกครั้ง 1,000,000%
+  const [hasStarted, setHasStarted] = useState(false);
+  const [role, setRole] = useState('reporter');
 
   const handleStart = (selectedRole) => {
     setRole(selectedRole);
     setHasStarted(true);
-    // 🌟 บันทึกความจำ
-    localStorage.setItem('gse_role', selectedRole);
-    localStorage.setItem('gse_hasStarted', 'true');
   };
 
   const handleGoHome = () => {
     setHasStarted(false);
-    // 🌟 ล้างความจำเมื่อกดกลับหน้าแรก
-    localStorage.removeItem('gse_hasStarted');
-    localStorage.removeItem('gse_activeTab');
   };
 
   return (
