@@ -1058,21 +1058,20 @@ function MainApp({ onGoHome, initialRole }) {
             {showMonthPicker && (
               <div className="fixed inset-0 z-[200] bg-slate-900/80 backdrop-blur-md flex items-center justify-center p-4 animate-in fade-in" onClick={() => setShowMonthPicker(false)}>
                 
-                {/* 🌟 4. แก้กรอบปฏิทินเป็นสีขาวสว่าง (border-white/80) ตัดกับจอดำ */}
-                <div className="relative bg-slate-900 border-2 border-white/80 rounded-[2rem] shadow-[0_0_50px_rgba(249,115,22,0.6)] w-full max-w-[340px] p-7 text-center animate-in zoom-in-95 overflow-hidden" onClick={(e) => e.stopPropagation()}>
+                {/* 👇 🌟 จุดแก้ที่ 1: บังคับกรอบปฏิทินเป็นสีขาวล้วนเส้นทึบ (border-[2px] border-solid border-white) */}
+                <div className="relative bg-slate-900 border-[2px] border-solid border-white rounded-[2rem] shadow-[0_0_50px_rgba(0,0,0,0.8)] w-full max-w-[340px] p-7 text-center animate-in zoom-in-95 overflow-hidden" onClick={(e) => e.stopPropagation()}>
                   
-                  {/* 🌟 2. แสง Flare สีส้มสว่างเด่นๆ อลังการสุดๆ (ขยายไซส์และอัดความสว่าง 70%) */}
-                  <div className="absolute -top-20 -right-20 w-60 h-60 bg-orange-500/70 rounded-full blur-[60px] pointer-events-none z-0"></div>
-                  <div className="absolute -bottom-20 -left-20 w-60 h-60 bg-orange-600/50 rounded-full blur-[60px] pointer-events-none z-0"></div>
+                  {/* 👇 🌟 จุดแก้ที่ 2: ดรอปแสง Flare หลังกล่องกลับไปเป็นแบบเดิม (สว่าง 30% ขนาด 40) ดูหรูหราไม่เลอะเทอะ */}
+                  <div className="absolute -top-20 -right-20 w-40 h-40 bg-orange-500/30 rounded-full blur-[50px] pointer-events-none z-0"></div>
+                  <div className="absolute -bottom-20 -left-20 w-40 h-40 bg-emerald-500/20 rounded-full blur-[50px] pointer-events-none z-0"></div>
 
                   {/* โซนหัว: เลื่อนปี พ.ศ. */}
                   <div className="relative z-10 flex justify-between items-center mb-6 pb-5 border-b border-white/20">
-                    {/* 🌟 4. (ต่อ) ปุ่มลูกศรซ้ายขวาให้เข้มขึ้น (bg-slate-800) */}
                     <button onClick={() => setPickerYear(y => y - 1)} className="p-2.5 bg-slate-800 text-white rounded-xl hover:bg-orange-500 transition-colors active:scale-95 shadow-inner border border-slate-600">
                       <ChevronDown size={22} className="rotate-90" />
                     </button>
                     <div className="flex flex-col">
-                      <span className="text-[12px] font-black text-orange-400 tracking-widest uppercase mb-0.5 drop-shadow-sm">เลือกปี พ.ศ.</span>
+                      <span className="text-[10px] font-black text-orange-400 tracking-widest uppercase mb-0.5 drop-shadow-sm">เลือกปี พ.ศ.</span>
                       <span className="text-2xl font-black text-white tracking-widest drop-shadow-[0_0_10px_rgba(255,255,255,0.8)]">
                         {pickerYear + 543}
                       </span>
@@ -1097,9 +1096,7 @@ function MainApp({ onGoHome, initialRole }) {
                           }}
                           className={`py-3.5 rounded-xl text-[15px] font-black transition-all duration-300 active:scale-95 ${
                             isSelected 
-                              /* เดือนที่เลือก (สีส้มสว่างทะลุตา) */
                               ? 'bg-orange-500 text-white shadow-[0_0_20px_rgba(249,115,22,0.9)] border-2 border-white scale-110 z-10' 
-                              /* 🌟 1. สีกรอบล้อมเดือนที่ยังไม่เลือก ให้ขาวสว่าง (border-white/50) */
                               : 'bg-slate-800/80 text-slate-100 hover:bg-orange-500/40 border border-white/50 hover:border-white hover:shadow-[0_0_15px_rgba(255,255,255,0.6)]'
                           }`}
                         >
@@ -1109,7 +1106,7 @@ function MainApp({ onGoHome, initialRole }) {
                     })}
                   </div>
 
-                  {/* 🌟 3. ปุ่มยกเลิกสีส้ม และ Hover เป็นสีแดง/ชมพู (Rose) */}
+                  {/* ปุ่มยกเลิก */}
                   <button 
                     onClick={() => setShowMonthPicker(false)}
                     className="relative z-10 mt-7 w-full py-4 rounded-xl font-black text-white bg-orange-500 hover:bg-rose-500 border-2 border-orange-400 hover:border-rose-400 shadow-[0_0_20px_rgba(249,115,22,0.7)] hover:shadow-[0_0_25px_rgba(225,29,72,0.9)] transition-all duration-300 active:scale-95 tracking-widest uppercase"
