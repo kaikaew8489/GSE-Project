@@ -1062,8 +1062,8 @@ function MainApp({ onGoHome, initialRole }) {
                 <div className="relative bg-slate-900/80 backdrop-blur-2xl border-2 border-orange-500/80 rounded-[2rem] shadow-[0_0_50px_rgba(249,115,22,0.4)] w-full max-w-[340px] p-7 text-center animate-in zoom-in-95 overflow-hidden" onClick={(e) => e.stopPropagation()}>
                   
                   {/* ✨ แสง Flare ซ่อนหลังกล่อง (เพิ่มความอลังการ) */}
-                  <div className="absolute -top-20 -right-20 w-40 h-40 bg-orange-500/30 rounded-full blur-[50px] pointer-events-none"></div>
-                  <div className="absolute -bottom-20 -left-20 w-40 h-40 bg-emerald-500/20 rounded-full blur-[50px] pointer-events-none"></div>
+                  <div className="absolute -top-20 -right-20 w-60 h-60 bg-orange-500/80 rounded-full blur-[50px] pointer-events-none"></div>
+                  <div className="absolute -bottom-20 -left-20 w-60 h-60 bg-emerald-500/20 rounded-full blur-[50px] pointer-events-none"></div>
 
                   {/* 📅 โซนหัว: เลื่อนปี พ.ศ. */}
                   <div className="relative flex justify-between items-center mb-6 pb-5 border-b border-slate-700/80 z-10">
@@ -1095,9 +1095,11 @@ function MainApp({ onGoHome, initialRole }) {
                             setShowMonthPicker(false);
                           }}
                           className={`py-3.5 rounded-xl text-[15px] font-black transition-all duration-300 active:scale-95 ${
+                            /* 🌟 ถ้าถูกเลือก (Active) ให้แก้ตรงบรรทัดนี้ครับ: */
                             isSelected 
-                              ? 'bg-gradient-to-br from-orange-400 to-orange-600 text-white shadow-[0_0_20px_rgba(249,115,22,0.8)] border-2 border-white/60 scale-110 z-10' 
-                              : 'bg-slate-800/80 text-slate-400 hover:bg-orange-500/20 hover:text-orange-300 hover:border-orange-500/60 hover:shadow-[0_0_15px_rgba(249,115,22,0.4)] border-2 border-slate-700/80'
+                              ? 'bg-orange-500 text-white shadow-[0_0_15px_rgba(249,115,22,0.8)] scale-105 z-10 border border-orange-400' 
+                              /* 🌟 ถ้ายังไม่เลือก (Normal / Hover) ให้แก้ตรงบรรทัดนี้ครับ: */
+                              : 'bg-slate-800/80 text-slate-400 hover:bg-orange-500/20 hover:text-orange-300 hover:border-orange-500/60 hover:shadow-[0_0_15px_rgba(249,115,22,0.5)] border border-slate-700/80'
                           }`}
                         >
                           {m}
