@@ -1157,12 +1157,20 @@ function MainApp({ onGoHome, initialRole }) {
                       {Array.from({ length: new Date(calYear, calMonth, 1).getDay() }).map((_, i) => (
                         <div key={`empty-${i}`} />
                       ))}
+
+
+
                       {/* สร้างปุ่มวันที่ */}
                       {Array.from({ length: new Date(calYear, calMonth + 1, 0).getDate() }).map((_, i) => {
                         const day = i + 1;
                         const dateString = `${calYear}-${String(calMonth + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
                         const isSelected = customDate === dateString;
-                        const isToday = new Date().toISOString().split('T')[0] === dateString;
+                        
+                        // 👇 🌟 ฟันธงจุดที่แก้: เปลี่ยนมาเช็ควันที่จากเวลาท้องถิ่น (Local Time) แทนเวลาโลก (UTC)
+                        const todayLocal = new Date(sysTime); // อิงเวลาจากระบบหลัก
+                        const isToday = todayLocal.getFullYear() === calYear && 
+                                        todayLocal.getMonth() === calMonth && 
+                                        todayLocal.getDate() === day;
 
                         // 🌟 2 & 3. ลำดับความสำคัญของสีปุ่ม (Hierarchy)
                         return (
@@ -1190,6 +1198,7 @@ function MainApp({ onGoHome, initialRole }) {
                       })}
                     </div>
                   </div>
+
 
                   {/* ปุ่มยกเลิก */}
                   <button 
