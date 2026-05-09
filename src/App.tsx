@@ -511,6 +511,7 @@ function MainApp({ onGoHome, initialRole }) {
   const [showMonthPicker, setShowMonthPicker] = useState(false); // ควบคุมการเปิด/ปิดป๊อปอัป
   const [pickerYear, setPickerYear] = useState(new Date().getFullYear()); // พ.ศ. ที่กำลังเลือกดู
   const [customDate, setCustomDate] = useState(''); // 🌟 เพิ่มตัวแปรเก็บค่าระบุวันที่
+  const dateInputRef = useRef(null); // 🌟🌟 เพิ่มสายลับเอาไว้เปิดปฏิทินใน PC
 
   const [hoveredTab, setHoveredTab] = useState(null);
   // ... โค้ดเดิมของท่าน ...
@@ -905,24 +906,21 @@ function MainApp({ onGoHome, initialRole }) {
         if (!t.date) return false;
         const tDate = new Date(t.date);
 
-        // 📅 กรณีหัวหน้ากดเลือกปฏิทินเดือนย้อนหลัง
+        // 📅 1. กรณีหัวหน้ากดเลือก "ระบุเดือน"
         if (dashTimeframe === 'custom' && customMonth) {
-  
-          // 🌟 แทรกโค้ดคัดกรองระบุวันที่ตรงนี้
+          const [year, month] = customMonth.split('-');
+          return tDate.getFullYear() === parseInt(year) && (tDate.getMonth() + 1) === parseInt(month);
+        }
+
+        // 📅 2. กรณีหัวหน้ากดเลือก "ระบุวัน"
         if (dashTimeframe === 'custom_date' && customDate) {
           const selectedD = new Date(customDate);
           return tDate.getFullYear() === selectedD.getFullYear() && 
                  tDate.getMonth() === selectedD.getMonth() && 
                  tDate.getDate() === selectedD.getDate();
         }
-      if (dashTimeframe === 'custom_date' && customDate) {
-        const d = new Date(customDate);
-        return `ผลงานวันที่ ${d.getDate()} ${monthsFull[d.getMonth()]} ${d.getFullYear() + 543}`;
-      }
-          const [year, month] = customMonth.split('-');
-          return tDate.getFullYear() === parseInt(year) && (tDate.getMonth() + 1) === parseInt(month);
-        }
 
+        // 📅 3. กรณีอื่นๆ
         if (dashTimeframe === 'all') return true;
         if (dashTimeframe === 'today') return tDate.toDateString() === now.toDateString();
         if (dashTimeframe === 'week') {
@@ -950,7 +948,7 @@ function MainApp({ onGoHome, initialRole }) {
       console.error("Stats Error:", err);
       return { total: 0, pending: 0, fixing: 0, done: 0, cancelled: 0 };
     }
-  }, [tickets, dashTimeframe, customMonth]); // 🌟 อัปเดตทันทีที่เลือกปฏิทิน
+  }, [tickets, dashTimeframe, customMonth, customDate]); // 🌟 อัปเดตทันทีที่เลือกปฏิทินและวัน
 
   const filteredTickets = useMemo(() => {
     return tickets.filter((t) => {
@@ -1004,10 +1002,18 @@ function MainApp({ onGoHome, initialRole }) {
       const monthsFull = ['มกราคม', 'กุมภาพันธ์', 'มีนาคม', 'เมษายน', 'พฤษภาคม', 'มิถุนายน', 'กรกฎาคม', 'สิงหาคม', 'กันยายน', 'ตุลาคม', 'พฤศจิกายน', 'ธันวาคม'];
       const monthsShort = ['ม.ค.', 'ก.พ.', 'มี.ค.', 'เม.ย.', 'พ.ค.', 'มิ.ย.', 'ก.ค.', 'ส.ค.', 'ก.ย.', 'ต.ค.', 'พ.ย.', 'ธ.ค.'];
 
+      // ถ้าเลือกระบุเดือน
       if (dashTimeframe === 'custom' && customMonth) {
         const [year, month] = customMonth.split('-');
         return `ผลงานเดือน ${monthsFull[parseInt(month) - 1]} ${parseInt(year) + 543}`;
       }
+      
+      // ถ้าเลือกระบุวัน
+      if (dashTimeframe === 'custom_date' && customDate) {
+        const d = new Date(customDate);
+        return `ผลงานวันที่ ${d.getDate()} ${monthsFull[d.getMonth()]} ${d.getFullYear() + 543}`;
+      }
+
       if (dashTimeframe === 'today') return `วันที่ ${now.getDate()} ${monthsFull[now.getMonth()]} ${now.getFullYear() + 543}`;
       if (dashTimeframe === 'week') {
         const day = now.getDay();
@@ -1051,12 +1057,12 @@ function MainApp({ onGoHome, initialRole }) {
             </button>
           ))}
           
-          {/* 🌟 ไอคอนปฏิทิน ระบุเดือน */}
-          {/* 🌟 ไอคอนปฏิทิน ระบุวัน (เพิ่มใหม่ล่าสุด!) */}
+          {/* 🌟 ไอคอนปฏิทิน ระบุวัน (อัปเกรดให้ PC กดเด้งได้) */}
           <div className="relative flex-1 min-w-[95px] shrink-0 flex justify-center snap-center group">
              <input 
                type="date"
-               className="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-20"
+               ref={dateInputRef} 
+               className="absolute w-0 h-0 opacity-0 pointer-events-none"
                value={customDate}
                onChange={(e) => {
                  if(e.target.value) {
@@ -1065,15 +1071,28 @@ function MainApp({ onGoHome, initialRole }) {
                  }
                }}
              />
-             <button className={`w-full relative z-10 text-[13px] font-black py-2.5 rounded-xl transition-all duration-300 flex items-center justify-center gap-1.5 ${
-               dashTimeframe === 'custom_date' 
-                 ? 'bg-gradient-to-r from-orange-500 to-amber-500 text-white border-2 border-solid border-white/80 shadow-[0_0_15px_rgba(249,115,22,0.8)] scale-105' 
-                 : 'text-slate-100 bg-emerald-600/60 border-2 border-solid border-white/50 group-hover:bg-rose-600 group-hover:text-white group-hover:shadow-[0_0_15px_rgba(255,255,255,0.4)] group-hover:-translate-y-1' 
-             }`}>
+             <button 
+               onClick={() => {
+                 // 🌟 บังคับบราวเซอร์ PC ให้เปิดปฏิทิน
+                 if (dateInputRef.current) {
+                   try {
+                     dateInputRef.current.showPicker();
+                   } catch (err) {
+                     dateInputRef.current.focus();
+                   }
+                 }
+               }}
+               className={`w-full relative z-10 text-[13px] font-black py-2.5 rounded-xl transition-all duration-300 flex items-center justify-center gap-1.5 ${
+                 dashTimeframe === 'custom_date' 
+                   ? 'bg-gradient-to-r from-orange-500 to-amber-500 text-white border-2 border-solid border-white/80 shadow-[0_0_15px_rgba(249,115,22,0.8)] scale-105' 
+                   : 'text-slate-100 bg-emerald-600/60 border-2 border-solid border-white/50 group-hover:bg-rose-600 group-hover:text-white group-hover:shadow-[0_0_15px_rgba(255,255,255,0.4)] group-hover:-translate-y-1' 
+               }`}>
                <Calendar size={16} className={dashTimeframe === 'custom_date' ? 'text-white' : 'text-emerald-300'} /> 
                <span className="whitespace-nowrap">ระบุวัน</span>
              </button>
           </div>
+
+
           {/* 🌟 ไอคอนปฏิทิน ระบุเดือน (อัปเกรดเป็น Custom UI แบบ Popup กลางจอหนีบั๊ก!) */}
           <div className="relative flex-1 min-w-[95px] shrink-0 flex justify-center snap-center">
             {/* ปุ่มกดเพื่อเปิดป๊อปอัป */}
