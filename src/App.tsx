@@ -1300,13 +1300,17 @@ function MainApp({ onGoHome, initialRole }) {
                         ? 'bg-rose-100 text-rose-600'
                         : t.status === 'in_progress' || t.status === 'on_hold'
                         ? 'bg-orange-100 text-orange-600'
+                        : t.status === 'verified'
+                        ? 'bg-emerald-500 text-white shadow-sm' 
                         : 'bg-emerald-100 text-emerald-600'
                     }`}
                   >
                     {t.status === 'pending'
                       ? 'รอดำเนินการ'
-                      : t.status === 'completed' || t.status === 'verified'
-                      ? 'เสร็จสิ้น'
+                      : t.status === 'verified'
+                      ? 'เสร็จสิ้นสมบูรณ์'
+                      : t.status === 'completed'
+                      ? 'รอผู้แจ้งยืนยัน'
                       : 'กำลังซ่อม'}
                   </span>
                 </div>
@@ -1846,7 +1850,7 @@ function MainApp({ onGoHome, initialRole }) {
               : t.status === 'on_hold'
               ? 'border-purple-500 text-purple-600 bg-purple-50'
               : 'border-orange-500 text-orange-600 bg-orange-50';
-            const statusLabel = isPending
+              const statusLabel = isPending
               ? 'รอดำเนินการ'
               : t.status === 'acknowledged'
               ? 'รับทราบแล้ว'
@@ -1856,7 +1860,9 @@ function MainApp({ onGoHome, initialRole }) {
               ? 'แจ้งขัดข้อง'
               : isCancelled
               ? 'ยกเลิกแล้ว'
-              : 'ซ่อมเสร็จ';
+              : t.status === 'verified'
+              ? '✅ เสร็จสิ้นสมบูรณ์'
+              : '⏳ รอผู้แจ้งยืนยัน';
 
             return (
               <div
@@ -2029,20 +2035,31 @@ function MainApp({ onGoHome, initialRole }) {
 
                    return (
                      <>
+                        {/* 🎯 ป้ายประเมินอัตโนมัติ (อัปเกรดความคมชัด + ไอคอนเรืองแสง) เปลี่ยนสีและตัวอักษรและปุ่ม */}
                         {/* ส่วนหัว และ ป้ายผ่าน/ไม่ผ่าน */}
-                        <div className="flex items-center justify-between mb-3 border-b border-emerald-500/20 pb-3">
-                          <div className="flex items-center gap-2">
+                        <div className="flex items-start justify-between mb-3 border-b border-emerald-500/20 pb-4">
+                          <div className="flex items-center gap-2 mt-1">
                             <Clock size={18} className="text-emerald-600" />
-                            <span className="text-[15px] font-black text-orange-500 uppercase tracking-widest">สรุป SLA</span>
+                            <span className="text-[14px] font-black text-orange-500 uppercase tracking-widest">สรุป SLA</span>
                           </div>
                           
-                          {/* 🎯 ป้ายประเมินอัตโนมัติ (เขียว = ผ่าน, แดง = ไม่ผ่าน) */}
-                          <div className={`px-3 py-1 rounded-full text-[12px] font-black tracking-wide shadow-sm border ${
+                          {/* 🎯 ป้ายประเมินอัตโนมัติ (ฟันธง: ดันป้ายขึ้นด้วย -mt-1 และลดความอ้วนลงนิดนึง) */}
+                          <div className={`px-2.5 py-1 rounded-full text-[11px] font-black tracking-widest flex items-center gap-1.5 border-2 shadow-lg -mt-1 ${
                             isSLAPassed 
-                              ? 'bg-emerald-600 text-white border-rose-500' 
-                              : 'bg-rose-500 text-white border-rose-600'
+                              ? 'bg-gradient-to-r from-emerald-500 to-teal-500 text-white border-emerald-300 shadow-emerald-500/40' 
+                              : 'bg-gradient-to-r from-rose-500 to-red-500 text-white border-rose-300 shadow-rose-500/40'
                           }`}>
-                            {isSLAPassed ? '✅ ผ่านเกณฑ์' : '❌ เกินเวลา SLA'}
+                            {isSLAPassed ? (
+                              <>
+                                <CheckCircle size={14} className="text-white drop-shadow-md" strokeWidth={3} />
+                                <span className="drop-shadow-sm mt-0.5">ผ่านเกณฑ์</span>
+                              </>
+                            ) : (
+                              <>
+                                <XCircle size={14} className="text-white animate-pulse drop-shadow-md" strokeWidth={3} />
+                                <span className="drop-shadow-sm mt-0.5">เกินเวลา SLA</span>
+                              </>
+                            )}
                           </div>
                         </div>
                         
@@ -2150,13 +2167,17 @@ function MainApp({ onGoHome, initialRole }) {
                           </div>
                         )}
                         
-                        <p
-                          className={`text-[16px] font-black mt-2 leading-relaxed ${
+                        {/* 🌟 ฟันธง: เพิ่มหัวข้อให้รู้ว่านี่คืออาการเสีย */}
+                        <div className="mt-4 mb-1">
+                          <span className="text-[11px] font-black text-slate-400 uppercase tracking-widest flex items-center gap-1.5">
+                            <AlertCircle size={12} className="text-rose-400" /> อาการเสียที่แจ้ง:
+                          </span>
+                          <p className={`text-[16px] font-black mt-1.5 leading-relaxed pl-1 ${
                             isCancelled ? 'text-slate-400 line-through' : 'text-rose-600 drop-shadow-sm'
-                          }`}
-                        >
-                          "{String(t.description)}"
-                        </p>
+                          }`}>
+                            "{String(t.description)}"
+                          </p>
+                        </div>
                         
                         {t.assetNumber && (
                           <p className="text-[12px] text-slate-500 font-mono mt-3">
@@ -2320,11 +2341,28 @@ function MainApp({ onGoHome, initialRole }) {
                                 className="flex-[1.5] bg-gradient-to-r from-emerald-500 to-emerald-600 text-white border border-emerald-400 font-bold py-3.5 rounded-xl shadow-[0_0_15px_rgba(16,185,129,0.4)] hover:shadow-[0_0_25px_rgba(16,185,129,0.6)] active:scale-95 transition-all text-[15px] hover:shadow-[0_0_25px_rgba(16,185,129,0.8)] hover:brightness-110 hover:-translate-y-1"
                               >
                                 ปิดงานซ่อม
-                              </button>
+                                </button>
                             </div>
                           )}
+
+                          {/* 🌟🌟 ฟันธง: แทรกปุ่มดึงงานกลับ (Undo) ตรงนี้ครับ 🌟🌟 */}
+                          {t.status === 'completed' && (
+                            <button
+                              onClick={() => updateTicketStatus(t.id, { 
+                                status: 'in_progress', 
+                                completedAt: null, 
+                                cause: null 
+                              })}
+                              className="w-full bg-orange-100 text-orange-800 border-2 border-orange-400 font-bold py-3.5 rounded-xl hover:bg-orange-100 hover:text-orange-800 active:scale-95 transition-all text-[15px] shadow-sm flex justify-center items-center gap-2 mt-3 hover:shadow-[0_0_15px_rgba(249,115,22,0.4)]"
+                            >
+                              <RotateCcw size={18} className="animate-spin-slow" /> ดึงงานกลับมาแก้ไขผลการซ่อม
+                            </button>
+                          )}
+
                         </div>
                       )}
+
+                      {/* ================= โซนปุ่มกด (ผู้แจ้ง) ================= */}
 
                       {/* ================= โซนปุ่มกด (ผู้แจ้ง) ================= */}
                       {currentUserRole === 'reporter' && !isCancelled && (
