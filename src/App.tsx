@@ -2579,8 +2579,8 @@ function MainApp({ onGoHome, initialRole }) {
         {activeTab === 'tracking' && renderTracking()}
       </div>
 
-      {/* 🧭 Navigation Bar (ปรับโปร่งใส 50% ทะลุจอ และเปลี่ยนวงกลม Active เป็นสีขาว ฟันธง!) */}
-      <div className="fixed bottom-4 left-1/2 -translate-x-1/2 w-[calc(100%-2rem)] md:max-w-2xl max-w-[416px] p-3 bg-slate-900/50 backdrop-blur-xl border-2 border-solid border-orange-500 rounded-xl z-[100] shadow-[0_0_15px_rgba(249,115,22,0.4)]">
+      {/* 🧭 Navigation Bar (ฟันธง: ขยายกรอบให้กว้างเท่า Header ด้านบนเฉพาะจอ PC) */}
+      <div className="fixed bottom-4 left-1/2 -translate-x-1/2 w-[calc(100%-2rem)] md:max-w-[992px] max-w-[416px] p-3 bg-slate-900/50 backdrop-blur-xl border-2 border-solid border-orange-500 rounded-xl z-[100] shadow-[0_0_15px_rgba(249,115,22,0.4)]">
       <div className="max-w-md mx-auto flex justify-evenly items-center relative">
           {/* 🏠 ปุ่ม HOME */}
           <button
