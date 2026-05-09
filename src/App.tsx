@@ -947,12 +947,18 @@ function MainApp({ onGoHome, initialRole }) {
         String(t.reporter).toLowerCase().includes(searchStr) ||
         (t.techName && String(t.techName).toLowerCase().includes(searchStr));
       if (!match) return false;
+      
       if (filterStatus === 'all') return true;
       if (filterStatus === 'fixing')
-        return ['acknowledged', 'in_progress', 'on_hold'].includes(t.status);
+        return ['acknowledged', 'in_progress'].includes(t.status); // 🌟 ดึง on_hold ออกไป
+      if (filterStatus === 'on_hold')
+        return t.status === 'on_hold'; // 🌟 แท็บใหม่: แจ้งขัดข้อง
+      if (filterStatus === 'verify')
+        return t.status === 'completed'; // 🌟 แท็บใหม่: รอยืนยัน
       if (filterStatus === 'completed')
-        return ['completed', 'verified'].includes(t.status);
-      return t.status === filterStatus;
+        return t.status === 'verified'; // 🌟 เปลี่ยนเป็น: เสร็จสมบูรณ์จริงๆ เท่านั้น
+        
+      return t.status === filterStatus; // สำหรับ pending, cancelled
     });
   }, [tickets, searchTerm, filterStatus]);
 
@@ -1031,7 +1037,8 @@ function MainApp({ onGoHome, initialRole }) {
           ))}
           
           {/* 🌟 ไอคอนปฏิทิน ระบุเดือน */}
-          <div className="relative flex-1 min-w-[95px] shrink-0 flex justify-center snap-center">
+          {/* 🌟 ฟันธงแก้บั๊ก Hover: เติมคลาส "group" ไว้ที่กล่องแม่ตรงนี้ครับ 👇 */}
+          <div className="relative flex-1 min-w-[95px] shrink-0 flex justify-center snap-center group">
              <input 
                type="month"
                className="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-20"
@@ -1046,7 +1053,9 @@ function MainApp({ onGoHome, initialRole }) {
              <button className={`w-full relative z-10 text-[13px] font-black py-2.5 rounded-xl transition-all duration-300 flex items-center justify-center gap-1.5 ${
                dashTimeframe === 'custom' 
                  ? 'bg-gradient-to-r from-orange-500 to-amber-500 text-white border-2 border-solid border-orange-300 shadow-[0_0_15px_rgba(249,115,22,0.8)] scale-105' 
-                 : 'text-slate-100 bg-slate-600/60 border-2 border-solid border-white-500/50 hover:bg-rose-600 hover:text-white hover:shadow-[0_0_15px_rgba(255,255,255,0.4)] hover:-translate-y-1' 
+                 // 🌟 ฟันธงจุดที่ 1: เปลี่ยนสีเทาเป็นสีเขียว bg-emerald-600/60 และแก้ border-white-500 เป็น border-white/50
+                 // 🌟 ฟันธงจุดที่ 2: เปลี่ยนคำว่า hover: เป็น group-hover: ทั้งหมด เพื่อรับคำสั่งทะลุ input
+                 : 'text-slate-100 bg-emerald-600/60 border-2 border-solid border-white/50 group-hover:bg-rose-600 group-hover:text-white group-hover:shadow-[0_0_15px_rgba(255,255,255,0.4)] group-hover:-translate-y-1' 
              }`}>
                <Calendar size={16} className={dashTimeframe === 'custom' ? 'text-white' : 'text-emerald-300'} /> 
                {/* 🌟 บังคับข้อความไม่ให้ขึ้นบรรทัดใหม่ */}
@@ -1737,21 +1746,23 @@ function MainApp({ onGoHome, initialRole }) {
             </div>
           </div>
           <div className="pt-6 px-2 flex flex-col items-center text-center">
-            <button
+          <button
               type="submit"
               disabled={isSubmitting}
-              className="group w-full bg-gradient-to-r from-orange-500 to-amber-500 hover:from-orange-400 hover:to-yellow-400 hover:shadow-[0_0_25px_rgba(249,115,22,0.8)] hover:-translate-y-1 text-white font-black text-xl py-4 rounded-[1rem] shadow-xl shadow-orange-500/30 active:scale-95 transition-all duration-300 flex justify-center items-center gap-3 disabled:grayscale disabled:opacity-50 border-2 border-solid border-white-500/50 over:from-orange-400 hover:to-yellow-400 hover:shadow-[0_0_25px_rgba(249,115,22,0.8)] hover:-translate-y-1"
+              className="group w-full bg-gradient-to-r from-orange-500 to-amber-500 hover:from-orange-400 hover:to-yellow-400 hover:shadow-[0_0_25px_rgba(249,115,22,0.8)] hover:-translate-y-1 text-white font-black text-xl py-4 rounded-[1rem] shadow-xl shadow-orange-500/30 active:scale-95 transition-all duration-300 flex justify-center items-center gap-3 disabled:grayscale disabled:opacity-50 border-2 border-solid border-white/50"
             >
               <Send size={24} />{' '}
               <span className="tracking-wide">ยืนยันแจ้งซ่อม</span>
             </button>
+
             <button
               type="button"
               onClick={handleResetForm}
-              className="mt-4 w-full bg-emerald-600 text-white-300 hover:bg-rose-600 hover:text-white hover:shadow-[0_0_20px_rgba(244,63,94,0.6)] font-bold text-[15px] py-3.5 rounded-2xl flex items-center justify-center gap-2 border-2 border-solid border-white-500/50 active:scale-95 shadow-sm hover:bg-rose-500 hover:text-white hover:shadow-[0_0_15px_rgba(244,63,94,0.6)] hover:-translate-y-1"
+              className="mt-4 w-full bg-emerald-600 text-white hover:bg-rose-500 hover:text-white hover:shadow-[0_0_15px_rgba(244,63,94,0.6)] hover:-translate-y-1 font-bold text-[15px] py-3.5 rounded-2xl flex items-center justify-center gap-2 border-2 border-solid border-white/50 active:scale-95 shadow-sm transition-all"
             >
               <RotateCcw size={16} /> ล้างข้อมูลฟอร์ม
             </button>
+
           </div>
         </form>
       )}
@@ -1792,17 +1803,19 @@ function MainApp({ onGoHome, initialRole }) {
       )}
     </div>
   );
-
+//เพิ่มปุ่ม แจ้งเหตุขัดข้อง รอยืนยัน
   const renderTracking = () => (
     <div className="p-4 space-y-6 pb-32 animate-in slide-in-from-left-4 duration-500 text-left">
       {/* 🌟 1. สวิตช์กรองสถานะงาน (แยกร่างกล่อง แก้ปัญหา Scrollbar ทับเส้นขอบ) */}
       <div className="bg-slate-800/60 rounded-2xl border-2 border-solid border-orange-500/80 shadow-inner mb-4">
 
         <div className="flex gap-2.5 overflow-x-auto pt-3 pb-4 px-3 snap-x">
-          {[
+        {[
             { id: 'all', label: 'ทั้งหมด' },
             { id: 'pending', label: 'รอดำเนินการ' },
             { id: 'fixing', label: 'กำลังซ่อม' },
+            { id: 'on_hold', label: 'แจ้งขัดข้อง' },
+            { id: 'verify', label: 'รอยืนยัน' },
             { id: 'completed', label: 'เสร็จสิ้น' },
             { id: 'cancelled', label: 'ยกเลิก' },
           ].map((f) => (
@@ -1914,7 +1927,7 @@ function MainApp({ onGoHome, initialRole }) {
                       )}
                     </div>
                     <div
-                      className={`px-3 py-1 rounded-lg text-[15px] font-bold border border-2 border-solid border-orgeen-400 shadow-sm flex items-center gap-1.5 ${styleColor}`}
+                      className={`px-3 py-1 rounded-lg text-[15px] font-bold border border-2 border-solid shadow-sm flex items-center gap-1.5 ${styleColor}`}
                     >
                       {isPending && (
                         <div className="w-1.5 h-1.5 rounded-full bg-rose-500 animate-pulse"></div>
@@ -1977,17 +1990,17 @@ function MainApp({ onGoHome, initialRole }) {
                           </div>
                         </div>
 
-                        {/* 🌟 2. เวลาปฏิบัติงาน (Active เฉพาะตอน isFixing) */}
+                        {/* 🌟 2. เวลาปฏิบัติงาน (Active เฉพาะตอนกำลังซ่อม และไม่ได้กดหยุดรออะไหล่) */}
                         <div className="relative">
                           <div
                             className={`absolute -left-[21px] w-2.5 h-2.5 rounded-full ${
-                              isFixing
+                              isFixing && t.status !== 'on_hold' // 🌟 ฟันธง: ดับไฟส้มถ้าติดสถานะ on_hold
                                 ? 'bg-orange-500 ring-4 ring-orange-100 animate-pulse'
                                 : 'bg-slate-300'
                             }`}
                           ></div>
                           <div className="flex justify-between items-center pl-2">
-                            <span className={`text-[13px] font-black ${isFixing ? 'text-orange-500' : 'text-slate-400'}`}>
+                            <span className={`text-[13px] font-black ${isFixing && t.status !== 'on_hold' ? 'text-orange-500' : 'text-slate-400'}`}>
                               เวลาปฏิบัติงาน
                             </span>
                             <span
@@ -2010,7 +2023,51 @@ function MainApp({ onGoHome, initialRole }) {
                             </span>
                           </div>
                         </div>
+{/* 🌟 2.5 เวลาเหตุขัดข้อง/รออะไหล่ (โชว์อัตโนมัติเมื่อมีการหยุดเวลา) */}
+{(() => {
+                          const currentHoldMs = t.status === 'on_hold' && t.lastHoldAt
+                            ? sysTime.getTime() - new Date(t.lastHoldAt).getTime()
+                            : 0;
+                          const totalHoldMs = (t.totalPauseMs || 0) + currentHoldMs;
+                          
+                          if (totalHoldMs > 0) {
+                            const isHolding = t.status === 'on_hold'; // 🌟 เช็คสถานะปัจจุบัน
+                            
+                            // คำนวณเวลาเพื่อแสดงผล
+                            const hrs = Math.floor(totalHoldMs / 3600000);
+                            const days = Math.floor(hrs / 24);
+                            const remainHrs = hrs % 24;
+                            const mins = Math.floor((totalHoldMs % 3600000) / 60000);
+                            const secs = Math.floor((totalHoldMs % 60000) / 1000);
+                            const timeStr = `${String(remainHrs).padStart(2, '0')}:${String(mins).padStart(2, '0')}:${String(secs).padStart(2, '0')}`;
+                            const displayTime = days > 0 ? `${days} วัน ${timeStr}` : timeStr;
 
+                            return (
+                              <div className="relative">
+                                <div
+                                  className={`absolute -left-[21px] w-2.5 h-2.5 rounded-full ${
+                                    isHolding
+                                      ? 'bg-purple-500 ring-4 ring-purple-100 animate-pulse'
+                                      : 'bg-slate-300' // 🌟 ฟันธง: ถ้าไม่ได้ขัดข้องอยู่ ให้ดับไฟเป็นสีเทา
+                                  }`}
+                                ></div>
+                                <div className="flex justify-between items-center pl-2">
+                                  <span className={`text-[13px] font-black ${isHolding ? 'text-purple-600' : 'text-slate-400'}`}>
+                                    เวลาเหตุขัดข้อง
+                                  </span>
+                                  <span
+                                    className={`text-[13px] font-bold font-mono tracking-tighter ${
+                                      isHolding ? 'text-purple-600' : 'text-slate-400'
+                                    }`}
+                                  >
+                                    {displayTime}
+                                  </span>
+                                </div>
+                              </div>
+                            );
+                          }
+                          return null;
+                        })()}
 
                         {/* 🌟 3. เวลารวม (Active เฉพาะตอน isDone) */}
                         <div className="relative">
@@ -2046,89 +2103,107 @@ function MainApp({ onGoHome, initialRole }) {
                     )}
                 </div>
 {/* ================= กล่องสรุปเวลาปฏิบัติงาน (SLA Summary) แบบอัจฉริยะ เปลี่ยนสีตัวอักษรภายในกรอบ SLA ================= */}
+{/* ================= กล่องสรุปเวลาปฏิบัติงาน (SLA Summary) อัปเกรดจัดเต็ม ================= */}
 {t.status === 'completed' || t.status === 'verified' ? (
-              <div className="bg-emerald-50 border-2 border-emerald-500/30 rounded-2xl p-4 mt-4 mb-4 shadow-sm">
-                
-                {/* 🌟 ฟันธง: ส่วนประมวลผล SLA อัตโนมัติ (ซ่อนไว้ประมวลผล ไม่โชว์บนหน้าจอ) */}
-                {(() => {
-                   const startMs = new Date(t.date).getTime();
-                   const endMs = new Date(t.completedAt).getTime();
-                   let netDurationMs = endMs - startMs - (t.holdDuration || 0);
-                   
-                   // 💡 ตั้งค่าสมมติเกณฑ์ SLA ตรงนี้ครับ (ปัจจุบันตั้งไว้ที่ 4 ชั่วโมง)
-                   const slaLimitHours = 4; 
-                   const slaLimitMs = slaLimitHours * 60 * 60 * 1000; 
-                   
-                   const isSLAPassed = netDurationMs <= slaLimitMs; // ประเมินผลว่าผ่านหรือไม่
+                          <div className="bg-emerald-50 border-2 border-emerald-500/30 rounded-2xl p-4 mt-4 mb-4 shadow-sm">
+                            
+                            {/* 🌟 ฟันธง: ส่วนประมวลผล SLA อัตโนมัติแบบแม่นยำ */}
+                            {(() => {
+                              const startMs = new Date(t.date).getTime();
+                              const endMs = new Date(t.completedAt).getTime();
+                              
+                              // ดึงเวลารออะไหล่ (Hold Time) ที่ระบบบันทึกไว้
+                              const holdMs = t.totalPauseMs || 0; 
+                              
+                              // เวลาสุทธิ = เวลาทั้งหมด - เวลารออะไหล่
+                              let netDurationMs = endMs - startMs - holdMs;
+                              if (netDurationMs < 0) netDurationMs = 0;
+                              
+                              const slaLimitHours = 4; 
+                              const slaLimitMs = slaLimitHours * 60 * 60 * 1000; 
+                              const isSLAPassed = netDurationMs <= slaLimitMs;
 
-                   return (
-                     <>
-                        {/* 🎯 ป้ายประเมินอัตโนมัติ (อัปเกรดความคมชัด + ไอคอนเรืองแสง) เปลี่ยนสีและตัวอักษรและปุ่ม */}
-                        {/* ส่วนหัว และ ป้ายผ่าน/ไม่ผ่าน */}
-                        <div className="flex items-start justify-between mb-3 border-b border-emerald-500/20 pb-4">
-                          <div className="flex items-center gap-2 mt-1">
-                            <Clock size={18} className="text-emerald-600" />
-                            <span className="text-[14px] font-black text-orange-500 uppercase tracking-widest">สรุป SLA</span>
+                              // ฟังก์ชันแปลเวลา MS เป็น วัน/ชม/นาที ให้มนุษย์อ่านง่าย
+                              const msToText = (ms) => {
+                                if(ms === 0) return "-";
+                                const d = Math.floor(ms / (1000 * 60 * 60 * 24));
+                                const h = Math.floor((ms % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+                                const m = Math.floor((ms % (1000 * 60 * 60)) / (1000 * 60));
+                                let res = [];
+                                if(d>0) res.push(`${d} วัน`);
+                                if(h>0) res.push(`${h} ชม.`);
+                                if(m>0) res.push(`${m} นาที`);
+                                return res.length > 0 ? res.join(' ') : "น้อยกว่า 1 นาที";
+                              };
+
+                              return (
+                                <>
+                                  {/* ส่วนหัว และ ป้ายผ่าน/ไม่ผ่าน */}
+                                  <div className="flex items-start justify-between mb-3 border-b border-emerald-500/20 pb-4">
+                                    <div className="flex items-center gap-2 mt-1">
+                                      <Clock size={18} className="text-emerald-600" />
+                                      <span className="text-[14px] font-black text-orange-500 uppercase tracking-widest">สรุป SLA</span>
+                                    </div>
+                                    
+                                    <div className={`px-3 py-1.5 rounded-full text-[12px] font-black tracking-widest flex items-center gap-1.5 border-2 shadow-lg -mt-1 ${
+                                      isSLAPassed 
+                                        ? 'bg-gradient-to-r from-emerald-500 to-teal-500 text-white border-emerald-300 shadow-emerald-500/40' 
+                                        : 'bg-gradient-to-r from-rose-500 to-red-500 text-white border-rose-300 shadow-rose-500/40'
+                                    }`}>
+                                      {isSLAPassed ? (
+                                        <>
+                                          <CheckCircle size={16} className="text-white drop-shadow-md" strokeWidth={3} />
+                                          <span className="drop-shadow-sm mt-0.5">ผ่านเกณฑ์</span>
+                                        </>
+                                      ) : (
+                                        <>
+                                          <XCircle size={16} className="text-white animate-pulse drop-shadow-md" strokeWidth={3} />
+                                          <span className="drop-shadow-sm mt-0.5">เกินเวลา SLA</span>
+                                        </>
+                                      )}
+                                    </div>
+                                  </div>
+                                  
+                                  <div className="space-y-2.5 text-[13px]">
+                                    <div className="flex justify-between items-center">
+                                      <span className="text-slate-600 font-bold">แจ้งซ่อมเมื่อ:</span>
+                                      <span className="text-slate-800 font-black">{new Date(t.date).toLocaleString('th-TH')}</span>
+                                    </div>
+                                    <div className="flex justify-between items-center">
+                                      <span className="text-slate-600 font-bold">ซ่อมเสร็จเมื่อ:</span>
+                                      <span className="text-slate-800 font-black">
+                                          {t.completedAt ? new Date(t.completedAt).toLocaleString('th-TH') : '-'}
+                                      </span>
+                                    </div>
+                                    
+                                    {/* 🌟 ฟันธง: บรรทัดแสดงเวลารออะไหล่ (ถ้ามีการกดแจ้งขัดข้อง จะโชว์บรรทัดนี้อัตโนมัติ) */}
+                                    {holdMs > 0 && (
+                                      <div className="flex justify-between items-center bg-purple-100/60 p-2 rounded-lg border border-purple-200 mt-1">
+                                        <span className="text-purple-700 font-bold flex items-center gap-1.5">
+                                          <PauseCircle size={14} className="animate-pulse"/> หักเวลารออะไหล่/ขัดข้อง:
+                                        </span>
+                                        <span className="text-purple-800 font-black">{msToText(holdMs)}</span>
+                                      </div>
+                                    )}
+                                    
+                                    <div className="flex justify-between items-baseline pt-2 mt-2 border-t border-emerald-500/20">
+                                      <span className="text-emerald-900 font-black">ใช้เวลาซ่อมสุทธิ:</span>
+                                      <span className={`text-[18px] font-black drop-shadow-sm ${isSLAPassed ? 'text-emerald-600' : 'text-rose-600'}`}>
+                                        {msToText(netDurationMs)}
+                                      </span>
+                                    </div>
+                                    
+                                    {/* หมายเหตุโชว์เกณฑ์ที่ใช้ประเมิน */}
+                                    <div className="text-right text-[11px] text-rose-800/80 font-bold mt-1">
+                                      * ประเมินจากเกณฑ์ชั่วคราว: ภายใน {slaLimitHours} ชั่วโมง
+                                    </div>
+                                  </div>
+                                </>
+                              );
+                            })()}
                           </div>
-                          
-                          {/* 🎯 ป้ายประเมินอัตโนมัติ (ฟันธง: ดันป้ายขึ้นด้วย -mt-1 และลดความอ้วนลงนิดนึง) */}
-                          <div className={`px-2.5 py-1 rounded-full text-[11px] font-black tracking-widest flex items-center gap-1.5 border-2 shadow-lg -mt-1 ${
-                            isSLAPassed 
-                              ? 'bg-gradient-to-r from-emerald-500 to-teal-500 text-white border-emerald-300 shadow-emerald-500/40' 
-                              : 'bg-gradient-to-r from-rose-500 to-red-500 text-white border-rose-300 shadow-rose-500/40'
-                          }`}>
-                            {isSLAPassed ? (
-                              <>
-                                <CheckCircle size={14} className="text-white drop-shadow-md" strokeWidth={3} />
-                                <span className="drop-shadow-sm mt-0.5">ผ่านเกณฑ์</span>
-                              </>
-                            ) : (
-                              <>
-                                <XCircle size={14} className="text-white animate-pulse drop-shadow-md" strokeWidth={3} />
-                                <span className="drop-shadow-sm mt-0.5">เกินเวลา SLA</span>
-                              </>
-                            )}
-                          </div>
-                        </div>
-                        
-                        <div className="space-y-2 text-[13px]">
-                          <div className="flex justify-between items-center">
-                            <span className="text-rose-800/90 font-semibold">เริ่มแจ้งซ่อมเมื่อ:</span>
-                            <span className="text-rose-800/90 font-black">{new Date(t.date).toLocaleString('th-TH')}</span>
-                          </div>
-                          <div className="flex justify-between items-center">
-                            <span className="text-emerald-800/90 font-semibold">ซ่อมเสร็จสิ้นเมื่อ:</span>
-                            <span className="text-emerald-800/90 font-black">
-                               {t.completedAt ? new Date(t.completedAt).toLocaleString('th-TH') : '-'}
-                            </span>
-                          </div>
-                          
-                          <div className="flex justify-between items-baseline pt-2 mt-2 border-t border-emerald-500/20">
-                            <span className="text-emerald-900 font-black">ระยะเวลาที่ใช้จริง:</span>
-                            {/* สีตัวเลขเปลี่ยนตามผลประเมิน (ผ่าน=เขียว, ไม่ผ่าน=แดง) */}
-                            <span className={`text-[18px] font-black drop-shadow-sm ${isSLAPassed ? 'text-emerald-600' : 'text-rose-600'}`}>
-                              {calculateDuration(t.date, t.completedAt, t.holdDuration || 0)}
-                            </span>
-                          </div>
-                          
-                          {/* หมายเหตุโชว์เกณฑ์ที่ใช้ประเมิน */}
-                          <div className="text-right text-[12px] text-rose-800 font-bold">
-                            * ประเมินจากเกณฑ์ชั่วคราว: ภายใน {slaLimitHours} ชั่วโมง
-                          </div>
-                          
-                          {t.holdDuration > 0 && (
-                            <div className="mt-2 bg-rose-50 border border-rose-200 p-2 rounded-lg flex justify-between items-center">
-                               <span className="text-rose-600 text-[11px] font-bold">⚠️ หักเวลารออะไหล่:</span>
-                               <span className="text-rose-700 text-[12px] font-mono font-bold">{Math.floor(t.holdDuration / (1000 * 60 * 60))} ชม.</span>
-                            </div>
-                          )}
-                        </div>
-                     </>
-                   );
-                })()}
-              </div>
-            ) : null}
-            {/* ================= จบกล่องสรุป SLA ================= */}
+                        ) : null}
+                        {/* ================= จบกล่องสรุป SLA ================= */}
 
                {/* ================= ลากคลุมดำวางทับตั้งแต่บรรทัดนี้ ================= */}
                <div className="p-5 space-y-4">
@@ -2943,7 +3018,7 @@ function LandingPage({ onStart }) {
             {/* 🟢 ปุ่มวิศวกร/ทีมช่าง */}
             <button
               onClick={() => onStart('technician')}
-              className="w-full bg-green-600/40 hover:bg-orange-500/60 text-yellow-300 font-black text-lg py-4 rounded-2xl border-2 border-white-500/50 flex items-center justify-center gap-3 shadow-lg active:scale-95 transition-all"
+              className="w-full bg-green-600/40 hover:bg-orange-500/60 text-yellow-300 font-black text-lg py-4 rounded-2xl border-2 border-white/50 flex items-center justify-center gap-3 shadow-lg active:scale-95 transition-all"
             >
               <Settings size={25} className="text-emerald-500" />{' '}
               สำหรับเจ้าหน้าที่ ฝวด.
@@ -2952,7 +3027,7 @@ function LandingPage({ onStart }) {
             {/* ⚪ ปุ่มคู่มือ */}
             <button
             onClick={() => setShowManual(true)} 
-            className="w-full bg-rose-600/40 hover:bg-slate-500/60 text-white text-[18px] font-bold py-4 rounded-2xl border-2 border-white-500/40 flex items-center justify-center gap-3 shadow-sm"
+            className="w-full bg-rose-600/40 hover:bg-slate-500/60 text-white text-[18px] font-bold py-4 rounded-2xl border-2 border-border-white/40 flex items-center justify-center gap-3 shadow-sm"
             >
             <FileText size={20} /> คู่มือการใช้งานเบื้องต้น
             </button>
