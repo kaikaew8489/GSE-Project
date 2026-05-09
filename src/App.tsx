@@ -1677,10 +1677,10 @@ function MainApp({ onGoHome, initialRole }) {
 
                 {/* 🎯 3. กรอบเส้นปะ (ลูกเล่นอัจฉริยะ) */}
                 {/* ถ้ายังไม่มีรูป: จะกางเป็นกล่องใหญ่ กว้างเต็มจออยู่ตรงกลาง */}
-                {/* ถ้ามีรูปแล้ว: จะหดตัวเป็นกล่องสี่เหลี่ยมจัตุรัสเล็กๆ ไปต่อท้ายรูป */}
+                {/* ถ้ามีรูปแล้ว: จะหดตัวเป็นกล่องสี่เหลี่ยมจัตุรัสเล็กๆ ไปต่อท้ายรูป และเปลี่ยนสีกรอบเส้นประ ตัวอักษร*/}
                 {formData.images.length < 6 && (
                   <label 
-                    className={`border-2 border-dashed border-slate-100/80 bg-slate-800/40 hover:bg-slate-700/50 hover:border-orange-500 rounded-2xl flex flex-col items-center justify-center transition-all cursor-pointer shadow-sm active:scale-95 group hover:border-orange-500 hover:bg-orange-500/10 hover:shadow-[0_0_20px_rgba(249,115,22,0.3)]
+                    className={`border-2 border-dashed border-slate-100/80 bg-slate-800/40 hover:bg-slate-500/50 hover:border-orange-500 rounded-2xl flex flex-col items-center justify-center transition-all cursor-pointer shadow-sm active:scale-95 group hover:border-orange-500 hover:bg-orange-500/10 hover:shadow-[0_0_20px_rgba(249,115,22,0.3)]
                     ${formData.images.length === 0 ? 'w-full h-36' : 'aspect-square'}`}
                   >
                     <input
@@ -1690,8 +1690,8 @@ function MainApp({ onGoHome, initialRole }) {
                       onChange={handleImageUpload}
                       className="hidden"
                     />
-                    <Camera size={formData.images.length === 0 ? 40 : 28} className="text-emerald-400 mb-2 group-hover:text-orange-400 transition-colors" />
-                    <span className={`font-bold tracking-widest transition-colors ${formData.images.length === 0 ? 'text-[13px] text-slate-300 group-hover:text-orange-300' : 'text-[11px] text-emerald-500 group-hover:text-orange-400'}`}>
+                    <Camera size={formData.images.length === 0 ? 50 : 38} className="text-emerald-400 mb-2 group-hover:text-orange-400 transition-colors" />
+                    <span className={`font-bold tracking-widest transition-colors ${formData.images.length === 0 ? 'text-[15px] text-slate-300 group-hover:text-orange-300' : 'text-[11px] text-emerald-500 group-hover:text-orange-400'}`}>
                       {formData.images.length === 0 ? 'คลิกเพื่อเพิ่มรูปภาพ' : 'เพิ่มรูป'}
                     </span>
                   </label>
@@ -1708,7 +1708,7 @@ function MainApp({ onGoHome, initialRole }) {
             <button
               type="submit"
               disabled={isSubmitting}
-              className="group w-full bg-gradient-to-r from-orange-500 to-amber-500 hover:from-orange-400 hover:to-yellow-400 hover:shadow-[0_0_25px_rgba(249,115,22,0.8)] hover:-translate-y-1 text-white font-black text-xl py-4 rounded-[1rem] shadow-xl shadow-orange-500/30 active:scale-95 transition-all duration-300 flex justify-center items-center gap-3 disabled:grayscale disabled:opacity-50 border-2 border-solid border-white-500/50"
+              className="group w-full bg-gradient-to-r from-orange-500 to-amber-500 hover:from-orange-400 hover:to-yellow-400 hover:shadow-[0_0_25px_rgba(249,115,22,0.8)] hover:-translate-y-1 text-white font-black text-xl py-4 rounded-[1rem] shadow-xl shadow-orange-500/30 active:scale-95 transition-all duration-300 flex justify-center items-center gap-3 disabled:grayscale disabled:opacity-50 border-2 border-solid border-white-500/50 over:from-orange-400 hover:to-yellow-400 hover:shadow-[0_0_25px_rgba(249,115,22,0.8)] hover:-translate-y-1"
             >
               <Send size={24} />{' '}
               <span className="tracking-wide">ยืนยันแจ้งซ่อม</span>
@@ -1716,7 +1716,7 @@ function MainApp({ onGoHome, initialRole }) {
             <button
               type="button"
               onClick={handleResetForm}
-              className="mt-4 w-full bg-rose-50 text-rose-500 hover:bg-rose-100 hover:bg-emerald-600 hover:text-white hover:shadow-[0_0_20px_rgba(244,63,94,0.6)] font-bold text-sm py-3.5 rounded-2xl transition-all flex items-center justify-center gap-2 border-2 border-solid border-white-500/50 active:scale-95 shadow-sm"
+              className="mt-4 w-full bg-emerald-600 text-white-300 hover:bg-rose-600 hover:text-white hover:shadow-[0_0_20px_rgba(244,63,94,0.6)] font-bold text-[15px] py-3.5 rounded-2xl flex items-center justify-center gap-2 border-2 border-solid border-white-500/50 active:scale-95 shadow-sm hover:bg-rose-500 hover:text-white hover:shadow-[0_0_15px_rgba(244,63,94,0.6)] hover:-translate-y-1"
             >
               <RotateCcw size={16} /> ล้างข้อมูลฟอร์ม
             </button>
