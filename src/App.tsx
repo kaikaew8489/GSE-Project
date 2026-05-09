@@ -1804,7 +1804,7 @@ function MainApp({ onGoHome, initialRole }) {
         />
       </div>
 
-      <div className="space-y-5 font-sans">
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-5 font-sans">
         {isDataLoading ? (
           <div className="flex flex-col items-center justify-center py-20 text-slate-400 opacity-80">
             <Loader2 size={40} className="animate-spin mb-4" />
@@ -2043,8 +2043,8 @@ function MainApp({ onGoHome, initialRole }) {
                         
                         <div className="space-y-2 text-[13px]">
                           <div className="flex justify-between items-center">
-                            <span className="text-emerald-800/80 font-semibold">เริ่มแจ้งซ่อมเมื่อ:</span>
-                            <span className="text-slate-800 font-black">{new Date(t.date).toLocaleString('th-TH')}</span>
+                            <span className="text-rose-800/80 font-semibold">เริ่มแจ้งซ่อมเมื่อ:</span>
+                            <span className="text-rose-800 font-black">{new Date(t.date).toLocaleString('th-TH')}</span>
                           </div>
                           <div className="flex justify-between items-center">
                             <span className="text-emerald-800/80 font-semibold">ซ่อมเสร็จสิ้นเมื่อ:</span>
@@ -2062,7 +2062,7 @@ function MainApp({ onGoHome, initialRole }) {
                           </div>
                           
                           {/* หมายเหตุโชว์เกณฑ์ที่ใช้ประเมิน */}
-                          <div className="text-right text-[11px] text-yellow-800 font-bold">
+                          <div className="text-right text-[12px] text-rose-800 font-bold">
                             * ประเมินจากเกณฑ์ชั่วคราว: ภายใน {slaLimitHours} ชั่วโมง
                           </div>
                           
@@ -2080,323 +2080,315 @@ function MainApp({ onGoHome, initialRole }) {
             ) : null}
             {/* ================= จบกล่องสรุป SLA ================= */}
 
-                <div className="p-5 space-y-4">
-                  <div className="bg-slate-50 p-4 rounded-2xl border-2 border-solid border-slate-400 shadow-inner relative">
-                    {t.status === 'cancelled' && t.cancelReason && (
-                      <div className="bg-rose-50 text-rose-700 p-3 rounded-xl text-xs font-bold mb-3 flex gap-2 border border-rose-200 shadow-sm">
-                        <XCircle size={16} className="shrink-0 mt-0.5" />{' '}
-                        <div>
-                          <span className="block mb-0.5 text-rose-800">
-                            เหตุผลที่ยกเลิก:
-                          </span>
-                          {String(t.cancelReason)}
-                        </div>
-                      </div>
-                    )}
-                    {t.holdReason && (
-                      <div className="bg-purple-50 text-purple-700 p-3 rounded-xl text-xs font-bold mb-3 flex gap-2 border border-purple-200 shadow-sm">
-                        <PauseCircle size={16} className="shrink-0 mt-0.5" />{' '}
-                        <div>
-                          <span className="block mb-0.5 text-ROSE-800">
-                            แจ้งเหตุขัดข้อง:
-                          </span>
-                          {String(t.holdReason)}
-                        </div>
-                      </div>
-                    )}
-                    {t.cause && (
-                      <div className="bg-emerald-50 text-emerald-700 p-3 rounded-xl text-xs font-bold mb-3 flex gap-2 border-2 border-solid border-emerald-400 shadow-sm">
-                        <CheckSquare size={16} className="shrink-0 mt-0.5" />{' '}
-                        <div>
-                          <span className="block mb-0.5 text-emerald-800">
-                            สรุปผลและข้อแนะนำ:
-                          </span>
-                          {String(t.cause)}
-                        </div>
-                      </div>
-                    )}
-
-                    {t.sscNote && (
-                      <div className="bg-rose-50 text-rose-700 p-3 rounded-xl text-xs font-bold mb-3 flex gap-2 border border-rose-200 shadow-sm">
-                        <Wrench size={16} className="shrink-0 mt-0.5" />{' '}
-                        <div>
-                          <span className="block mb-0.5 text-rose-800 uppercase tracking-widest text-[10px]">
-                            บันทึกการแก้ไขเบื้องต้น (เวร SSC):
-                          </span>
-                          {String(t.sscNote)}
-                        </div>
-                      </div>
-                    )}
-
-                    {t.images && t.images.length > 0 && (
-                      <div className="flex gap-2 overflow-x-auto mb-3 pb-2 scrollbar-hide">
-                        {t.images.map((img, i) => (
-                          <img
-                            key={i}
-                            src={img}
-                            onClick={() => setLightboxImg(img)}
-                            className="w-16 h-16 object-cover rounded-xl border border-2 border-orange-400/70 shrink-0 cursor-pointer shadow-sm"
-                          />
-                        ))}
-                      </div>
-                    )}
-                    {/* 🌟 ฟันธง: อัปไซส์เป็น 16px ตัวหนาเตอะ (font-black) และเปลี่ยนสีเป็นแดง (text-rose-600) ให้ช่างเห็นชัดๆ */}
-                    <p
-                      className={`text-[16px] font-black mt-2 leading-relaxed ${
-                      isCancelled ? 'text-slate-400 line-through' : 'text-rose-600 drop-shadow-sm'
-                      }`}
-                      >
-                      "{String(t.description)}"
-                      </p>
-                    {t.assetNumber && (
-                      <p className="text-[12px] text-slate-500 font-mono mt-3">
-                        <span className="font-bold text-slate-400">
-                          Asset No:
-                        </span>{' '}
-                        {t.assetNumber}
-                      </p>
-                    )}
-
-                    <div className="pt-3 border-t border-2 border-orange-400/70 flex flex-col gap-2 mt-3 text-xs text-slate-600">
-                      {/* ================= ลากคลุมดำวางทับตั้งแต่บรรทัดที่ 2162 ถึง 2184 ================= */}
-          <div className="flex justify-between items-start gap-3">
-            
-            {/* 🌟 คาถาสำคัญ: ใส่ min-w-0 ต่อท้าย flex-1 เพื่อบังคับให้กล่องนี้ยอมตัดคำเมื่อชนขอบ */}
-            <div className="flex flex-col flex-1 min-w-0">
-              
-              <span className="text-[11px] font-bold text-green-600 mb-1">
-                ผู้แจ้งปัญหา
-              </span>
-              
-              <span className="font-bold text-orange-800 flex items-start gap-1.5 leading-tight mb-1">
-                <User size={14} className={`shrink-0 mt-0.5 ${isCancelled ? 'text-slate-400' : 'text-emerald-500'}`} />
-                {/* 🌟 เมื่อกล่องแม่มี min-w-0 แล้ว คำสั่ง break-words ตรงนี้จะทำงานพับบรรทัดให้ทันที! */}
-                <span className="whitespace-normal break-words leading-snug">
-                  {String(t.reporter)}
-                </span>
-              </span>
-              
-              <span className="text-[12px] font-bold text-blue-600 mt-1">
-                {formatDateTimeString(t.date)}
-              </span>
-            </div>
-
-            {/* โซนปุ่มโทรศัพท์ (shrink-0 คือคาถาสั่งห้ามหดตัวเด็ดขาด) */}
-            <a
-              href={`tel:${String(t.reporterContact).replace(/\D/g, '')}`}
-              className="font-mono shrink-0 whitespace-nowrap text-[12px] font-bold bg-emerald-50 px-2.5 py-1.5 rounded-lg flex items-center gap-1.5 text-emerald-700 border border-emerald-200 mt-4"
-            >
-              <Phone size={12} className="text-emerald-500" />
-              {formatDisplayPhone(t.reporterContact)}
-            </a>
-            
-          </div>
-          {/* ================= จบส่วนวางทับ ================= */}
-
-                      {t.techName && (
-                        <div className="flex justify-between items-start gap-3 mt-3 pt-3 border-t border-slate-100">
-                          <div className="flex flex-col flex-1">
-                            <span className="text-[11px] font-bold text-orange-600 mb-2">
-                              ผู้รับผิดชอบ
-                            </span>
-                            <span className="font-bold text-indigo-600 flex items-start gap-1.5 leading-tight">
-                            <User size={14} className="text-orange-500 shrink-0 mt-0.5" />{' '}
-                              <span className="whitespace-normal break-words">{String(t.techName)}</span>
-                            </span>
+               {/* ================= ลากคลุมดำวางทับตั้งแต่บรรทัดนี้ ================= */}
+               <div className="p-5 space-y-4">
+                      <div className="bg-slate-50 p-4 rounded-2xl border-2 border-solid border-slate-400 shadow-inner relative">
+                        
+                        {t.status === 'cancelled' && t.cancelReason && (
+                          <div className="bg-rose-50 text-rose-700 p-3 rounded-xl text-xs font-bold mb-3 flex gap-2 border border-rose-200 shadow-sm">
+                            <XCircle size={16} className="shrink-0 mt-0.5" />
+                            <div>
+                              <span className="block mb-0.5 text-rose-800">
+                                เหตุผลที่ยกเลิก:
+                              </span>
+                              {String(t.cancelReason)}
+                            </div>
                           </div>
-                          {t.techPhone && t.techPhone !== '-' && t.techPhone !== 'N/A' ? (
-                            <a
-                              href={`tel:${String(t.techPhone).replace(/\D/g, '')}`}
-                              className="font-mono shrink-0 whitespace-nowrap text-[12px] font-bold bg-orange-50 px-2.5 py-1.5 rounded-lg border-2 border-solid border-orange-300 shadow-sm text-orange-600 hover:bg-orange-50 active:scale-95 transition-all flex items-center gap-1.5 cursor-pointer mt-1"
-                            >
-                              <Phone size={12} className="text-orange-500" />{' '}
-                              {formatDisplayPhone(t.techPhone)}
-                            </a>
-                          ) : (
-                            <span className="font-mono shrink-0 whitespace-nowrap text-[11px] text-slate-400 bg-white px-2 py-1 rounded-md border border-slate-200 shadow-sm mt-1">
-                              {String(t.techPhone || 'N/A')}
-                            </span>
-                          )}
-                        </div>
-                      )}
-                    </div>
-                  </div>
-
-                  {currentUserRole === 'technician' && !isCancelled && (
-                    <div className="flex flex-col gap-2.5">
-                      {isPending && (
-                        <button
-                          onClick={() =>
-                            setActionModal({
-                              isOpen: true,
-                              ticketId: t.id,
-                              type: 'accept',
-                            })
-                          }
-                          className="w-full bg-gradient-to-r from-emerald-500 to-emerald-600 text-white border-2 border solid border-orange-300 font-bold py-4 rounded-xl shadow-[0_0_15px_rgba(16,185,129,0.4)] hover:shadow-[0_0_25px_rgba(16,185,129,0.6)] active:scale-95 transition-all text-sm"
-                        >
-                          รับงานซ่อม
-                        </button>
-                      )}
-
-                      {(t.status === 'pending' ||
-                        t.status === 'acknowledged') &&
-                        t.isOutOfHours &&
-                        !t.sscNote && (
-                          <button
-                            onClick={() =>
-                              setActionModal({
-                                isOpen: true,
-                                ticketId: t.id,
-                                type: 'ssc',
-                              })
-                            }
-                            className="w-full bg-gradient-to-r from-orange-400 to-orange-500 text-white border border-orange-300 font-bold py-3.5 rounded-xl shadow-[0_0_15px_rgba(249,115,22,0.4)] hover:shadow-[0_0_25px_rgba(249,115,22,0.6)] active:scale-95 transition-all text-sm"
-                          >
-                            บันทึกเวร SSC
-                          </button>
+                        )}
+                        
+                        {t.holdReason && (
+                          <div className="bg-purple-50 text-purple-700 p-3 rounded-xl text-xs font-bold mb-3 flex gap-2 border border-purple-200 shadow-sm">
+                            <PauseCircle size={16} className="shrink-0 mt-0.5" />
+                            <div>
+                              <span className="block mb-0.5 text-purple-800">
+                                แจ้งเหตุขัดข้อง:
+                              </span>
+                              {String(t.holdReason)}
+                            </div>
+                          </div>
+                        )}
+                        
+                        {t.cause && (
+                          <div className="bg-emerald-50 text-emerald-700 p-3 rounded-xl text-xs font-bold mb-3 flex gap-2 border-2 border-solid border-emerald-400 shadow-sm">
+                            <CheckSquare size={16} className="shrink-0 mt-0.5" />
+                            <div>
+                              <span className="block mb-0.5 text-emerald-800">
+                                สรุปผลและข้อแนะนำ:
+                              </span>
+                              {String(t.cause)}
+                            </div>
+                          </div>
                         )}
 
-                      {t.status === 'acknowledged' && (
-                        <button
-                          onClick={() =>
-                            updateTicketStatus(t.id, {
-                              status: 'in_progress',
-                              startedAt: new Date().toISOString(),
-                            })
-                          }
-                          className="w-full bg-gradient-to-r from-emerald-500 to-emerald-600 text-white border border-emerald-400 font-bold py-3.5 rounded-xl shadow-[0_0_15px_rgba(16,185,129,0.4)] hover:shadow-[0_0_25px_rgba(16,185,129,0.6)] active:scale-95 transition-all text-sm"
+                        {t.sscNote && (
+                          <div className="bg-rose-50 text-rose-700 p-3 rounded-xl text-xs font-bold mb-3 flex gap-2 border border-rose-200 shadow-sm">
+                            <Wrench size={16} className="shrink-0 mt-0.5" />
+                            <div>
+                              <span className="block mb-0.5 text-rose-800 uppercase tracking-widest text-[10px]">
+                                บันทึกการแก้ไขเบื้องต้น (เวร SSC):
+                              </span>
+                              {String(t.sscNote)}
+                            </div>
+                          </div>
+                        )}
+
+                        {t.images && t.images.length > 0 && (
+                          <div className="flex gap-2 overflow-x-auto mb-3 pb-2 scrollbar-hide">
+                            {t.images.map((img, i) => (
+                              <img
+                                key={i}
+                                src={img}
+                                onClick={() => setLightboxImg(img)}
+                                className="w-16 h-16 object-cover rounded-xl border border-2 border-orange-400/70 shrink-0 cursor-pointer shadow-sm"
+                              />
+                            ))}
+                          </div>
+                        )}
+                        
+                        <p
+                          className={`text-[16px] font-black mt-2 leading-relaxed ${
+                            isCancelled ? 'text-slate-400 line-through' : 'text-rose-600 drop-shadow-sm'
+                          }`}
                         >
-                          เริ่มดำเนินการซ่อม
-                        </button>
-                      )}
+                          "{String(t.description)}"
+                        </p>
+                        
+                        {t.assetNumber && (
+                          <p className="text-[12px] text-slate-500 font-mono mt-3">
+                            <span className="font-bold text-slate-400">
+                              Asset No:
+                            </span>{' '}
+                            {t.assetNumber}
+                          </p>
+                        )}
 
-                      {(t.status === 'in_progress' ||
-                        t.status === 'on_hold') && (
-                        <div className="flex gap-2.5">
-                          <button
-                            onClick={() => {
-                              if (t.status === 'on_hold') {
-                                const pauseDurationMs =
-                                  new Date().getTime() -
-                                  new Date(t.lastHoldAt).getTime();
-                                updateTicketStatus(t.id, {
-                                  status: 'in_progress',
-                                  totalPauseMs:
-                                    (t.totalPauseMs || 0) + pauseDurationMs,
-                                  lastHoldAt: null,
-                                });
-                              } else {
-                                setActionModal({
-                                  isOpen: true,
-                                  ticketId: t.id,
-                                  type: 'hold',
-                                });
-                              }
-                            }}
-                            className={`flex-1 bg-gradient-to-r from-orange-400 to-orange-500 text-white border border-orange-300 font-bold py-3.5 rounded-xl shadow-[0_0_15px_rgba(249,115,22,0.4)] hover:shadow-[0_0_25px_rgba(249,115,22,0.6)] active:scale-95 transition-all text-xs`}
-                          >
-                            {t.status === 'on_hold'
-                              ? 'ดำเนินการต่อ'
-                              : 'แจ้งขัดข้อง'}
-                          </button>
-                          <button
-                            onClick={() =>
-                              setActionModal({
-                                isOpen: true,
-                                ticketId: t.id,
-                                type: 'finish',
-                              })
-                            }
-                            className="flex-[1.5] bg-gradient-to-r from-emerald-500 to-emerald-600 text-white border border-emerald-400 font-bold py-3.5 rounded-xl shadow-[0_0_15px_rgba(16,185,129,0.4)] hover:shadow-[0_0_25px_rgba(16,185,129,0.6)] active:scale-95 transition-all text-sm"
-                          >
-                            ปิดงานซ่อม
-                          </button>
-                        </div>
-                      )}
-                    </div>
-                  )}
+                        {/* ================= โซนชื่อผู้แจ้ง และ ผู้รับผิดชอบ ================= */}
+                        <div className="pt-3 border-t border-2 border-orange-400/70 flex flex-col gap-2 mt-3 text-xs text-slate-600">
+                          
+                          <div className="flex justify-between items-start gap-3">
+                            <div className="flex flex-col flex-1 min-w-0">
+                              <span className="text-[11px] font-bold text-green-600 mb-1">
+                                ผู้แจ้งปัญหา
+                              </span>
+                              <span className="font-bold text-orange-800 flex items-start gap-1.5 leading-tight mb-1">
+                                <User size={14} className={`shrink-0 mt-0.5 ${isCancelled ? 'text-slate-400' : 'text-emerald-500'}`} />
+                                <span className="whitespace-normal break-words leading-snug">
+                                  {String(t.reporter)}
+                                </span>
+                              </span>
+                              <span className="text-[12px] font-bold text-blue-600 mt-1">
+                                {formatDateTimeString(t.date)}
+                              </span>
+                            </div>
+                            <a
+                              href={`tel:${String(t.reporterContact).replace(/\D/g, '')}`}
+                              className="font-mono shrink-0 whitespace-nowrap text-[12px] font-bold bg-emerald-50 px-2.5 py-1.5 rounded-lg flex items-center gap-1.5 text-emerald-700 border border-emerald-200 mt-4"
+                            >
+                              <Phone size={12} className="text-emerald-500" />
+                              {formatDisplayPhone(t.reporterContact)}
+                            </a>
+                          </div>
 
-                  {currentUserRole === 'reporter' && !isCancelled && (
-                    <div className="flex flex-col gap-2.5">
-                      {isPending && (
-                        <div className="flex flex-col gap-2.5">
-                          {waitingMin > 60 && (
-                            <div className="bg-green-600/20 border-2 border-solid border-orange-800 text-rose-600 text-[12px] font-bold px-4 py-2.5 rounded-xl flex items-center gap-2 mb-1">
-                              <AlertTriangle
-                                size={14}
-                                className="animate-pulse shrink-0"
-                              />{' '}
-                              รอดำเนินการเกิน 1 ชั่วโมง (SLA Breach)
+                          {t.techName && (
+                            <div className="flex justify-between items-start gap-3 mt-3 pt-3 border-t border-slate-100">
+                              <div className="flex flex-col flex-1 min-w-0">
+                                <span className="text-[11px] font-bold text-orange-600 mb-2">
+                                  ผู้รับผิดชอบ
+                                </span>
+                                <span className="font-bold text-indigo-600 flex items-start gap-1.5 leading-tight">
+                                  <User size={14} className="text-orange-500 shrink-0 mt-0.5" />
+                                  <span className="whitespace-normal break-words">
+                                    {String(t.techName)}
+                                  </span>
+                                </span>
+                              </div>
+                              {t.techPhone && t.techPhone !== '-' && t.techPhone !== 'N/A' ? (
+                                <a
+                                  href={`tel:${String(t.techPhone).replace(/\D/g, '')}`}
+                                  className="font-mono shrink-0 whitespace-nowrap text-[12px] font-bold bg-orange-50 px-2.5 py-1.5 rounded-lg flex items-center gap-1.5 text-orange-700 border border-orange-200 mt-4"
+                                >
+                                  <Phone size={12} className="text-orange-500" />
+                                  {formatDisplayPhone(t.techPhone)}
+                                </a>
+                              ) : (
+                                <span className="font-mono shrink-0 whitespace-nowrap text-[11px] text-slate-400 bg-white px-2 py-1 rounded border border-slate-200 mt-4">
+                                  {String(t.techPhone || 'N/A')}
+                                </span>
+                              )}
                             </div>
                           )}
-                          <div className="flex gap-2">
+                        </div>
+                        {/* ================= จบโซนชื่อ ================= */}
+
+                      </div>
+
+                      {/* ================= โซนปุ่มกด (ช่าง) ================= */}
+                      {currentUserRole === 'technician' && !isCancelled && (
+                        <div className="flex flex-col gap-2.5">
+                          {isPending && (
                             <button
                               onClick={() =>
                                 setActionModal({
                                   isOpen: true,
                                   ticketId: t.id,
-                                  type: 'cancel',
+                                  type: 'accept',
                                 })
                               }
-                              className="flex-[1] bg-orange text-rose-500 border border-orange-500 font-bold py-3.5 rounded-xl flex justify-center items-center gap-1.5 active:scale-95 text-[18px] transition-colors shadow-sm hover:bg-rose-50"
+                              className="w-full bg-gradient-to-r from-emerald-500 to-emerald-600 text-white border-2 border-solid border-orange-300 font-bold py-4 rounded-xl shadow-[0_0_15px_rgba(16,185,129,0.4)] hover:shadow-[0_0_25px_rgba(16,185,129,0.6)] active:scale-95 transition-all text-sm"
                             >
-                              <XCircle size={20} /> ยกเลิก
+                              รับงานซ่อม
                             </button>
-                            <a
-                              href="tel:0835293836"
-                              className="flex-[1.5] bg-gradient-to-r from-rose-500/80 to-orange-600 text-white border border-blue-400 text-[18px] font-bold py-4 rounded-2xl flex justify-center items-center gap-1.5 shadow-[0_0_15px_rgba(225,29,72,0.4)] hover:shadow-[0_0_25px_rgba(225,29,72,0.6)] active:scale-95 transition-all text-xs"
-                            >
-                              <PhoneCall size={18} className="animate-pulse" />{' '}
-                              สายด่วน หน.ฝวด.
-                            </a>
-                          </div>
-                        </div>
-                      )}
+                          )}
 
-                      {t.status === 'in_progress' &&
-                        fixingMin > 5 * 24 * 60 && (
-                          <div className="flex flex-col gap-2 mt-1">
-                            <div className="bg-rose-500/10 border border-rose-500/30 text-rose-400 text-[13px] font-bold px-4 py-2.5 rounded-xl flex items-center gap-2">
-                              <AlertTriangle
-                                size={14}
-                                className="animate-pulse shrink-0"
-                              />{' '}
-                              ดำเนินการซ่อมเกินกำหนด 5 วัน (SLA Breach)
-                            </div>
-                            <a
-                              href="tel:0835293836"
-                              className="flex-[1.5] bg-gradient-to-r from-rose-500/80 to-orange-600 text-white border border-blue-400 text-[20px] font-bold py-4 rounded-2xl flex justify-center items-center gap-1.5 shadow-[0_0_15px_rgba(225,29,72,0.4)] hover:shadow-[0_0_25px_rgba(225,29,72,0.6)] active:scale-95 transition-all text-xs"
+                          {(t.status === 'pending' || t.status === 'acknowledged') &&
+                            t.isOutOfHours &&
+                            !t.sscNote && (
+                              <button
+                                onClick={() =>
+                                  setActionModal({
+                                    isOpen: true,
+                                    ticketId: t.id,
+                                    type: 'ssc',
+                                  })
+                                }
+                                className="w-full bg-gradient-to-r from-orange-400 to-orange-500 text-white border border-orange-300 font-bold py-3.5 rounded-xl shadow-[0_0_15px_rgba(249,115,22,0.4)] hover:shadow-[0_0_25px_rgba(249,115,22,0.6)] active:scale-95 transition-all text-sm"
                               >
-                              <PhoneCall size={16} className="animate-pulse" />{' '}
-                              สายด่วนตามงาน (ฝวด.)
-                            </a>
-                          </div>
-                        )}
+                                บันทึกเวร SSC
+                              </button>
+                            )}
 
-                      {t.status === 'completed' && (
-                        <button
-                          onClick={() =>
-                            updateTicketStatus(t.id, { status: 'verified' })
-                          }
-                          className="w-full bg-gradient-to-r from-emerald-500 to-emerald-600 text-white border border-emerald-400 font-bold py-4 rounded-xl flex justify-center items-center gap-2 shadow-[0_0_15px_rgba(16,185,129,0.4)] hover:shadow-[0_0_25px_rgba(16,185,129,0.6)] active:scale-95 transition-all"
-                        >
-                          <ThumbsUp size={18} /> ยืนยันผลการซ่อมบำรุง
-                        </button>
-                      )}
-                      {t.status === 'verified' && (
-                        <div className="w-full bg-emerald-50 border border-emerald-200 py-3.5 rounded-xl flex justify-center items-center gap-2 text-emerald-600 font-bold text-xs shadow-inner">
-                          <CheckCircle size={16} /> เสร็จสิ้นสมบูรณ์
+                          {t.status === 'acknowledged' && (
+                            <button
+                              onClick={() =>
+                                updateTicketStatus(t.id, {
+                                  status: 'in_progress',
+                                  startedAt: new Date().toISOString(),
+                                })
+                              }
+                              className="w-full bg-gradient-to-r from-emerald-500 to-emerald-600 text-white border border-emerald-400 font-bold py-3.5 rounded-xl shadow-[0_0_15px_rgba(16,185,129,0.4)] hover:shadow-[0_0_25px_rgba(16,185,129,0.6)] active:scale-95 transition-all text-sm"
+                            >
+                              เริ่มดำเนินการซ่อม
+                            </button>
+                          )}
+
+                          {(t.status === 'in_progress' || t.status === 'on_hold') && (
+                            <div className="flex gap-2.5">
+                              <button
+                                onClick={() => {
+                                  if (t.status === 'on_hold') {
+                                    const pauseDurationMs =
+                                      new Date().getTime() -
+                                      new Date(t.lastHoldAt).getTime();
+                                    updateTicketStatus(t.id, {
+                                      status: 'in_progress',
+                                      totalPauseMs:
+                                        (t.totalPauseMs || 0) + pauseDurationMs,
+                                      lastHoldAt: null,
+                                    });
+                                  } else {
+                                    setActionModal({
+                                      isOpen: true,
+                                      ticketId: t.id,
+                                      type: 'hold',
+                                    });
+                                  }
+                                }}
+                                className="flex-1 bg-gradient-to-r from-orange-400 to-orange-500 text-white border border-orange-300 font-bold py-3.5 rounded-xl shadow-[0_0_15px_rgba(249,115,22,0.4)] hover:shadow-[0_0_25px_rgba(249,115,22,0.6)] active:scale-95 transition-all text-xs"
+                              >
+                                {t.status === 'on_hold' ? 'ดำเนินการต่อ' : 'แจ้งขัดข้อง'}
+                              </button>
+                              <button
+                                onClick={() =>
+                                  setActionModal({
+                                    isOpen: true,
+                                    ticketId: t.id,
+                                    type: 'finish',
+                                  })
+                                }
+                                className="flex-[1.5] bg-gradient-to-r from-emerald-500 to-emerald-600 text-white border border-emerald-400 font-bold py-3.5 rounded-xl shadow-[0_0_15px_rgba(16,185,129,0.4)] hover:shadow-[0_0_25px_rgba(16,185,129,0.6)] active:scale-95 transition-all text-sm"
+                              >
+                                ปิดงานซ่อม
+                              </button>
+                            </div>
+                          )}
                         </div>
                       )}
+
+                      {/* ================= โซนปุ่มกด (ผู้แจ้ง) ================= */}
+                      {currentUserRole === 'reporter' && !isCancelled && (
+                        <div className="flex flex-col gap-2.5">
+                          {isPending && (
+                            <div className="flex flex-col gap-2.5">
+                              {waitingMin > 60 && (
+                                <div className="bg-green-600/20 border-2 border-solid border-orange-800 text-rose-600 text-[12px] font-bold px-4 py-2.5 rounded-xl flex items-center gap-2 mb-1">
+                                  <AlertTriangle size={14} className="animate-pulse shrink-0" />
+                                  รอดำเนินการเกิน 1 ชั่วโมง (SLA Breach)
+                                </div>
+                              )}
+                              <div className="flex gap-2">
+                                <button
+                                  onClick={() =>
+                                    setActionModal({
+                                      isOpen: true,
+                                      ticketId: t.id,
+                                      type: 'cancel',
+                                    })
+                                  }
+                                  className="flex-[1] bg-orange text-rose-500 border border-orange-500 font-bold py-3.5 rounded-xl flex justify-center items-center gap-1.5 active:scale-95 text-[18px] transition-colors shadow-sm hover:bg-rose-50"
+                                >
+                                  <XCircle size={20} /> ยกเลิก
+                                </button>
+                                <a
+                                  href="tel:0835293836"
+                                  className="flex-[1.5] bg-gradient-to-r from-rose-500/80 to-orange-600 text-white border border-blue-400 text-[18px] font-bold py-4 rounded-2xl flex justify-center items-center gap-1.5 shadow-[0_0_15px_rgba(225,29,72,0.4)] hover:shadow-[0_0_25px_rgba(225,29,72,0.6)] active:scale-95 transition-all text-xs"
+                                >
+                                  <PhoneCall size={18} className="animate-pulse" />
+                                  สายด่วน หน.ฝวด.
+                                </a>
+                              </div>
+                            </div>
+                          )}
+
+                          {t.status === 'in_progress' && fixingMin > 5 * 24 * 60 && (
+                            <div className="flex flex-col gap-2 mt-1">
+                              <div className="bg-rose-500/10 border border-rose-500/30 text-rose-400 text-[13px] font-bold px-4 py-2.5 rounded-xl flex items-center gap-2">
+                                <AlertTriangle size={14} className="animate-pulse shrink-0" />
+                                ดำเนินการซ่อมเกินกำหนด 5 วัน (SLA Breach)
+                              </div>
+                              <a
+                                href="tel:0835293836"
+                                className="flex-[1.5] bg-gradient-to-r from-rose-500/80 to-orange-600 text-white border border-blue-400 text-[20px] font-bold py-4 rounded-2xl flex justify-center items-center gap-1.5 shadow-[0_0_15px_rgba(225,29,72,0.4)] hover:shadow-[0_0_25px_rgba(225,29,72,0.6)] active:scale-95 transition-all text-xs"
+                              >
+                                <PhoneCall size={16} className="animate-pulse" />
+                                สายด่วนตามงาน (ฝวด.)
+                              </a>
+                            </div>
+                          )}
+
+                          {t.status === 'completed' && (
+                            <button
+                              onClick={() => updateTicketStatus(t.id, { status: 'verified' })}
+                              className="w-full bg-gradient-to-r from-emerald-500 to-emerald-600 text-white border border-emerald-400 font-bold py-4 rounded-xl flex justify-center items-center gap-2 shadow-[0_0_15px_rgba(16,185,129,0.4)] hover:shadow-[0_0_25px_rgba(16,185,129,0.6)] active:scale-95 transition-all"
+                            >
+                              <ThumbsUp size={18} /> ยืนยันผลการซ่อมบำรุง
+                            </button>
+                          )}
+                          
+                          {t.status === 'verified' && (
+                            <div className="w-full bg-emerald-50 border border-emerald-200 py-3.5 rounded-xl flex justify-center items-center gap-2 text-emerald-600 font-bold text-xs shadow-inner">
+                              <CheckCircle size={16} /> เสร็จสิ้นสมบูรณ์
+                            </div>
+                          )}
+                        </div>
+                      )}
+
                     </div>
-                  )}
-                </div>
-              </div>
-            );
-          })
-        )}
-      </div>
+                  </div>
+                );
+              })
+            )}
+          </div>
+          {/* ================= สิ้นสุดการวางทับ ================= */}
 
       {/* 🛠️ Action Modals */}
       {actionModal.isOpen && (
@@ -2482,7 +2474,7 @@ function MainApp({ onGoHome, initialRole }) {
   );
 
   return (
-    <div className="flex flex-col h-screen bg-slate-900 max-w-md mx-auto relative overflow-hidden text-slate-100 font-sans shadow-2xl border-x border-slate-800 select-none">
+    <div className="flex flex-col h-screen bg-slate-900 md:max-w-5xl max-w-md mx-auto relative overflow-hidden text-slate-100 font-sans shadow-2xl border-x border-slate-800 select-none">
       <div
         className="absolute inset-0 z-0 bg-cover bg-center bg-no-repeat opacity-20 mix-blend-screen"
         style={{ backgroundImage: "url('/bg-earth.webp')" }}
@@ -2588,7 +2580,7 @@ function MainApp({ onGoHome, initialRole }) {
       </div>
 
       {/* 🧭 Navigation Bar (ปรับโปร่งใส 50% ทะลุจอ และเปลี่ยนวงกลม Active เป็นสีขาว ฟันธง!) */}
-      <div className="fixed bottom-4 left-1/2 -translate-x-1/2 w-[calc(100%-2rem)] max-w-[416px] p-3 bg-slate-900/50 backdrop-blur-xl border-2 border-solid border-orange-500 rounded-xl z-[100] shadow-[0_0_15px_rgba(249,115,22,0.4)]">
+      <div className="fixed bottom-4 left-1/2 -translate-x-1/2 w-[calc(100%-2rem)] md:max-w-2xl max-w-[416px] p-3 bg-slate-900/50 backdrop-blur-xl border-2 border-solid border-orange-500 rounded-xl z-[100] shadow-[0_0_15px_rgba(249,115,22,0.4)]">
       <div className="max-w-md mx-auto flex justify-evenly items-center relative">
           {/* 🏠 ปุ่ม HOME */}
           <button
