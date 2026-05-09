@@ -507,7 +507,7 @@ function MainApp({ onGoHome, initialRole }) {
   // ของเดิมอาจจะเป็น: const [dashTimeframe, setDashTimeframe] = useState('month');
   // ✅ แก้เป็นแบบนี้ครับ:
   const [dashTimeframe, setDashTimeframe] = useState('today');
-  const [customMonth, setCustomMonth] = useState(''); // เก็บค่า YYYY-MM
+ const [customMonth, setCustomMonth] = useState(''); // เก็บค่า YYYY-MM
   const [showMonthPicker, setShowMonthPicker] = useState(false); // ควบคุมการเปิด/ปิดป๊อปอัป
   const [pickerYear, setPickerYear] = useState(new Date().getFullYear()); // พ.ศ. ที่กำลังเลือกดู
 
@@ -1038,11 +1038,12 @@ function MainApp({ onGoHome, initialRole }) {
             </button>
           ))}
           
-          {/* 🌟 ไอคอนปฏิทิน ระบุเดือน (อัปเกรดเป็น Custom UI ภาษาไทย + พ.ศ.) */}
+          {/* 🌟 ไอคอนปฏิทิน ระบุเดือน */}
+          {/* 🌟 ไอคอนปฏิทิน ระบุเดือน (อัปเกรดเป็น Custom UI แบบ Popup กลางจอหนีบั๊ก!) */}
           <div className="relative flex-1 min-w-[95px] shrink-0 flex justify-center snap-center">
             {/* ปุ่มกดเพื่อเปิดป๊อปอัป */}
             <button 
-              onClick={() => setShowMonthPicker(!showMonthPicker)}
+              onClick={() => setShowMonthPicker(true)}
               className={`w-full relative z-10 text-[13px] font-black py-2.5 rounded-xl transition-all duration-300 flex items-center justify-center gap-1.5 ${
                 dashTimeframe === 'custom' 
                   ? 'bg-gradient-to-r from-orange-500 to-amber-500 text-white border-2 border-solid border-orange-300 shadow-[0_0_15px_rgba(249,115,22,0.8)] scale-105' 
@@ -1053,29 +1054,28 @@ function MainApp({ onGoHome, initialRole }) {
               <span className="whitespace-nowrap">ระบุเดือน</span>
             </button>
 
-            {/* 🌟 กล่องป๊อปอัปเลือกเดือนแบบ Custom (โชว์เมื่อกดปุ่ม) */}
+            {/* 🌟 กล่องป๊อปอัปเลือกเดือน (เด้งกลางจอ หนีข้อจำกัดหน้าจอ) */}
             {showMonthPicker && (
-              <>
-                {/* ฉากหลังใสๆ กดพื้นที่ว่างเพื่อปิด */}
-                <div className="fixed inset-0 z-40" onClick={() => setShowMonthPicker(false)}></div>
+              <div className="fixed inset-0 z-[200] bg-slate-900/80 backdrop-blur-sm flex items-center justify-center p-4 animate-in fade-in" onClick={() => setShowMonthPicker(false)}>
                 
-                <div className="absolute top-[115%] right-0 sm:left-1/2 sm:-translate-x-1/2 w-64 bg-slate-800 border-2 border-orange-500 rounded-2xl shadow-[0_10px_40px_rgba(0,0,0,0.6)] z-50 p-4 animate-in fade-in zoom-in-95">
+                {/* หยุดการคลิกทะลุไปปิด Popup */}
+                <div className="bg-slate-800 border-2 border-orange-500 rounded-[2rem] shadow-[0_0_40px_rgba(249,115,22,0.3)] w-full max-w-[320px] p-6 text-center animate-in zoom-in-95" onClick={(e) => e.stopPropagation()}>
                   
-                  {/* โซนเลื่อนเปลี่ยน พ.ศ. */}
-                  <div className="flex justify-between items-center mb-4 pb-3 border-b border-slate-600">
-                    <button onClick={() => setPickerYear(y => y - 1)} className="p-1.5 bg-slate-700 text-slate-300 rounded-lg hover:bg-orange-500 hover:text-white transition-colors">
-                      <ChevronDown size={18} className="rotate-90" />
+                  {/* โซนหัว: เลื่อนปี พ.ศ. */}
+                  <div className="flex justify-between items-center mb-6 pb-4 border-b border-slate-600">
+                    <button onClick={() => setPickerYear(y => y - 1)} className="p-2 bg-slate-700 text-slate-300 rounded-xl hover:bg-orange-500 hover:text-white transition-colors active:scale-95 shadow-inner">
+                      <ChevronDown size={20} className="rotate-90" />
                     </button>
-                    <span className="text-[16px] font-black text-white tracking-widest">
+                    <span className="text-xl font-black text-white tracking-widest drop-shadow-md">
                       พ.ศ. {pickerYear + 543}
                     </span>
-                    <button onClick={() => setPickerYear(y => y + 1)} className="p-1.5 bg-slate-700 text-slate-300 rounded-lg hover:bg-orange-500 hover:text-white transition-colors">
-                      <ChevronDown size={18} className="-rotate-90" />
+                    <button onClick={() => setPickerYear(y => y + 1)} className="p-2 bg-slate-700 text-slate-300 rounded-xl hover:bg-orange-500 hover:text-white transition-colors active:scale-95 shadow-inner">
+                      <ChevronDown size={20} className="-rotate-90" />
                     </button>
                   </div>
 
-                  {/* โซนกดเลือกเดือน 12 เดือน */}
-                  <div className="grid grid-cols-3 gap-2.5">
+                  {/* โซนเนื้อหา: เลือกเดือน 12 เดือน */}
+                  <div className="grid grid-cols-3 gap-3">
                     {['ม.ค.', 'ก.พ.', 'มี.ค.', 'เม.ย.', 'พ.ค.', 'มิ.ย.', 'ก.ค.', 'ส.ค.', 'ก.ย.', 'ต.ค.', 'พ.ย.', 'ธ.ค.'].map((m, i) => {
                       const monthValue = `${pickerYear}-${String(i + 1).padStart(2, '0')}`;
                       const isSelected = customMonth === monthValue;
@@ -1085,12 +1085,12 @@ function MainApp({ onGoHome, initialRole }) {
                           onClick={() => {
                             setCustomMonth(monthValue);
                             setDashTimeframe('custom');
-                            setShowMonthPicker(false); // เลือกเสร็จแล้วปิดป๊อปอัป
+                            setShowMonthPicker(false);
                           }}
-                          className={`py-2 rounded-xl text-[13px] font-bold transition-all active:scale-95 ${
+                          className={`py-3 rounded-xl text-[15px] font-bold transition-all active:scale-95 ${
                             isSelected 
-                              ? 'bg-gradient-to-r from-orange-500 to-amber-500 text-white shadow-md shadow-orange-500/40' 
-                              : 'bg-slate-700 text-slate-300 hover:bg-slate-600 hover:text-white'
+                              ? 'bg-gradient-to-r from-orange-500 to-amber-500 text-white shadow-[0_0_15px_rgba(249,115,22,0.6)] border border-orange-300' 
+                              : 'bg-slate-700/50 text-slate-300 hover:bg-slate-600 hover:text-white border border-slate-600/50'
                           }`}
                         >
                           {m}
@@ -1098,8 +1098,16 @@ function MainApp({ onGoHome, initialRole }) {
                       )
                     })}
                   </div>
+
+                  {/* โซนท้าย: ปิดป๊อปอัป */}
+                  <button 
+                    onClick={() => setShowMonthPicker(false)}
+                    className="mt-6 w-full py-3.5 rounded-xl font-bold text-rose-400 bg-rose-500/10 hover:bg-rose-500 hover:text-white border border-rose-500/30 transition-colors active:scale-95"
+                  >
+                    ยกเลิก
+                  </button>
                 </div>
-              </>
+              </div>
             )}
           </div>
         </div>
