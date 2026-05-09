@@ -507,9 +507,10 @@ function MainApp({ onGoHome, initialRole }) {
   // ของเดิมอาจจะเป็น: const [dashTimeframe, setDashTimeframe] = useState('month');
   // ✅ แก้เป็นแบบนี้ครับ:
   const [dashTimeframe, setDashTimeframe] = useState('today');
- const [customMonth, setCustomMonth] = useState(''); // เก็บค่า YYYY-MM
+  const [customMonth, setCustomMonth] = useState(''); // เก็บค่า YYYY-MM
   const [showMonthPicker, setShowMonthPicker] = useState(false); // ควบคุมการเปิด/ปิดป๊อปอัป
   const [pickerYear, setPickerYear] = useState(new Date().getFullYear()); // พ.ศ. ที่กำลังเลือกดู
+  const [customDate, setCustomDate] = useState(''); // 🌟 เพิ่มตัวแปรเก็บค่าระบุวันที่
 
   const [hoveredTab, setHoveredTab] = useState(null);
   // ... โค้ดเดิมของท่าน ...
@@ -906,6 +907,18 @@ function MainApp({ onGoHome, initialRole }) {
 
         // 📅 กรณีหัวหน้ากดเลือกปฏิทินเดือนย้อนหลัง
         if (dashTimeframe === 'custom' && customMonth) {
+  
+          // 🌟 แทรกโค้ดคัดกรองระบุวันที่ตรงนี้
+        if (dashTimeframe === 'custom_date' && customDate) {
+          const selectedD = new Date(customDate);
+          return tDate.getFullYear() === selectedD.getFullYear() && 
+                 tDate.getMonth() === selectedD.getMonth() && 
+                 tDate.getDate() === selectedD.getDate();
+        }
+      if (dashTimeframe === 'custom_date' && customDate) {
+        const d = new Date(customDate);
+        return `ผลงานวันที่ ${d.getDate()} ${monthsFull[d.getMonth()]} ${d.getFullYear() + 543}`;
+      }
           const [year, month] = customMonth.split('-');
           return tDate.getFullYear() === parseInt(year) && (tDate.getMonth() + 1) === parseInt(month);
         }
@@ -1039,6 +1052,28 @@ function MainApp({ onGoHome, initialRole }) {
           ))}
           
           {/* 🌟 ไอคอนปฏิทิน ระบุเดือน */}
+          {/* 🌟 ไอคอนปฏิทิน ระบุวัน (เพิ่มใหม่ล่าสุด!) */}
+          <div className="relative flex-1 min-w-[95px] shrink-0 flex justify-center snap-center group">
+             <input 
+               type="date"
+               className="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-20"
+               value={customDate}
+               onChange={(e) => {
+                 if(e.target.value) {
+                   setCustomDate(e.target.value);
+                   setDashTimeframe('custom_date');
+                 }
+               }}
+             />
+             <button className={`w-full relative z-10 text-[13px] font-black py-2.5 rounded-xl transition-all duration-300 flex items-center justify-center gap-1.5 ${
+               dashTimeframe === 'custom_date' 
+                 ? 'bg-gradient-to-r from-orange-500 to-amber-500 text-white border-2 border-solid border-white/80 shadow-[0_0_15px_rgba(249,115,22,0.8)] scale-105' 
+                 : 'text-slate-100 bg-emerald-600/60 border-2 border-solid border-white/50 group-hover:bg-rose-600 group-hover:text-white group-hover:shadow-[0_0_15px_rgba(255,255,255,0.4)] group-hover:-translate-y-1' 
+             }`}>
+               <Calendar size={16} className={dashTimeframe === 'custom_date' ? 'text-white' : 'text-emerald-300'} /> 
+               <span className="whitespace-nowrap">ระบุวัน</span>
+             </button>
+          </div>
           {/* 🌟 ไอคอนปฏิทิน ระบุเดือน (อัปเกรดเป็น Custom UI แบบ Popup กลางจอหนีบั๊ก!) */}
           <div className="relative flex-1 min-w-[95px] shrink-0 flex justify-center snap-center">
             {/* ปุ่มกดเพื่อเปิดป๊อปอัป */}
@@ -1071,7 +1106,7 @@ function MainApp({ onGoHome, initialRole }) {
                       <ChevronDown size={22} className="rotate-90" />
                     </button>
                     <div className="flex flex-col">
-                      <span className="text-[10px] font-black text-orange-400 tracking-widest uppercase mb-0.5 drop-shadow-sm">เลือกปี พ.ศ.</span>
+                      <span className="text-[12px] font-black text-orange-400 tracking-widest uppercase mb-0.5 drop-shadow-sm">เลือกปี พ.ศ.</span>
                       <span className="text-2xl font-black text-white tracking-widest drop-shadow-[0_0_10px_rgba(255,255,255,0.8)]">
                         {pickerYear + 543}
                       </span>
@@ -1109,13 +1144,15 @@ function MainApp({ onGoHome, initialRole }) {
                   {/* ปุ่มยกเลิก */}
                   <button 
                     onClick={() => setShowMonthPicker(false)}
-                    className="relative z-10 mt-7 w-full py-4 rounded-xl font-black text-white bg-orange-500 hover:bg-rose-500 border-2 border-orange-400 hover:border-rose-400 shadow-[0_0_20px_rgba(249,115,22,0.7)] hover:shadow-[0_0_25px_rgba(225,29,72,0.9)] transition-all duration-300 active:scale-95 tracking-widest uppercase"
+                    className="relative z-10 mt-7 w-full py-4 rounded-xl font-black text-white bg-orange-500 hover:bg-rose-500 border-[2px] border-solid border-white shadow-[0_0_20px_rgba(249,115,22,0.7)] hover:shadow-[0_0_25px_rgba(225,29,72,0.9)] transition-all duration-300 active:scale-95 tracking-widest uppercase"
                   >
                     ยกเลิก
                   </button>
                 </div>
               </div>
             )}
+
+
           </div>
         </div>
 
