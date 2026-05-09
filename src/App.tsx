@@ -1388,7 +1388,7 @@ function MainApp({ onGoHome, initialRole }) {
             </div>
           ) : (
 
-            <form onSubmit={handleSubmit} className="space-y-6">
+            <form onSubmit={handleSubmit} className="space-y-6 md:max-w-2xl md:mx-auto">
           <div className="bg-slate-800/60 backdrop-blur-xl  border-2 border-solid border-white-600/50 rounded-[1rem] py-4 text-center shadow-[0_0_30px_rgba(0,0,0,0.3)] font-sans tracking-widest text-white font-bold">
             {ThaiDateFormatter(sysTime)}
           </div>
