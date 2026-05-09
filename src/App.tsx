@@ -1058,31 +1058,32 @@ function MainApp({ onGoHome, initialRole }) {
             {showMonthPicker && (
               <div className="fixed inset-0 z-[200] bg-slate-900/80 backdrop-blur-md flex items-center justify-center p-4 animate-in fade-in" onClick={() => setShowMonthPicker(false)}>
                 
-                {/* 🌟 ฟันธง: อัปเกรด Glassmorphism พื้นหลังใสเรืองแสงมิติซ้อนมิติ */}
-                <div className="relative bg-slate-900/80 backdrop-blur-2xl border-2 border-orange-500/80 rounded-[2rem] shadow-[0_0_50px_rgba(249,115,22,0.4)] w-full max-w-[340px] p-7 text-center animate-in zoom-in-95 overflow-hidden" onClick={(e) => e.stopPropagation()}>
+                {/* 🌟 4. แก้กรอบปฏิทินเป็นสีขาวสว่าง (border-white/80) ตัดกับจอดำ */}
+                <div className="relative bg-slate-900 border-2 border-white/80 rounded-[2rem] shadow-[0_0_50px_rgba(249,115,22,0.6)] w-full max-w-[340px] p-7 text-center animate-in zoom-in-95 overflow-hidden" onClick={(e) => e.stopPropagation()}>
                   
-                  {/* ✨ แสง Flare ซ่อนหลังกล่อง (เพิ่มความอลังการ) */}
-                  <div className="absolute -top-20 -right-20 w-40 h-40 bg-orange-500/30 rounded-full blur-[50px] pointer-events-none"></div>
-                  <div className="absolute -bottom-20 -left-20 w-40 h-40 bg-emerald-500/20 rounded-full blur-[50px] pointer-events-none"></div>
+                  {/* 🌟 2. แสง Flare สีส้มสว่างเด่นๆ อลังการสุดๆ (ขยายไซส์และอัดความสว่าง 70%) */}
+                  <div className="absolute -top-20 -right-20 w-60 h-60 bg-orange-500/70 rounded-full blur-[60px] pointer-events-none z-0"></div>
+                  <div className="absolute -bottom-20 -left-20 w-60 h-60 bg-orange-600/50 rounded-full blur-[60px] pointer-events-none z-0"></div>
 
-                  {/* 📅 โซนหัว: เลื่อนปี พ.ศ. */}
-                  <div className="relative flex justify-between items-center mb-6 pb-5 border-b border-slate-700/80 z-10">
-                    <button onClick={() => setPickerYear(y => y - 1)} className="p-2.5 bg-slate-800 text-slate-300 rounded-xl hover:bg-gradient-to-r hover:from-orange-500 hover:to-amber-500 hover:text-white hover:shadow-[0_0_15px_rgba(249,115,22,0.6)] transition-all active:scale-95 border border-slate-700">
+                  {/* โซนหัว: เลื่อนปี พ.ศ. */}
+                  <div className="relative z-10 flex justify-between items-center mb-6 pb-5 border-b border-white/20">
+                    {/* 🌟 4. (ต่อ) ปุ่มลูกศรซ้ายขวาให้เข้มขึ้น (bg-slate-800) */}
+                    <button onClick={() => setPickerYear(y => y - 1)} className="p-2.5 bg-slate-800 text-white rounded-xl hover:bg-orange-500 transition-colors active:scale-95 shadow-inner border border-slate-600">
                       <ChevronDown size={22} className="rotate-90" />
                     </button>
                     <div className="flex flex-col">
-                      <span className="text-[10px] font-black text-orange-400 tracking-widest uppercase mb-0.5 drop-shadow-sm">เลือกปี พ.ศ.</span>
-                      <span className="text-2xl font-black text-white tracking-widest drop-shadow-[0_0_10px_rgba(255,255,255,0.4)]">
+                      <span className="text-[12px] font-black text-orange-400 tracking-widest uppercase mb-0.5 drop-shadow-sm">เลือกปี พ.ศ.</span>
+                      <span className="text-2xl font-black text-white tracking-widest drop-shadow-[0_0_10px_rgba(255,255,255,0.8)]">
                         {pickerYear + 543}
                       </span>
                     </div>
-                    <button onClick={() => setPickerYear(y => y + 1)} className="p-2.5 bg-slate-800 text-slate-300 rounded-xl hover:bg-gradient-to-l hover:from-orange-500 hover:to-amber-500 hover:text-white hover:shadow-[0_0_15px_rgba(249,115,22,0.6)] transition-all active:scale-95 border border-slate-700">
+                    <button onClick={() => setPickerYear(y => y + 1)} className="p-2.5 bg-slate-800 text-white rounded-xl hover:bg-orange-500 transition-colors active:scale-95 shadow-inner border border-slate-600">
                       <ChevronDown size={22} className="-rotate-90" />
                     </button>
                   </div>
 
-                  {/* 🗓️ โซนเนื้อหา: เลือกเดือน 12 เดือน */}
-                  <div className="relative grid grid-cols-3 gap-3 z-10">
+                  {/* โซนเนื้อหา: เลือกเดือน 12 เดือน */}
+                  <div className="relative z-10 grid grid-cols-3 gap-3">
                     {['ม.ค.', 'ก.พ.', 'มี.ค.', 'เม.ย.', 'พ.ค.', 'มิ.ย.', 'ก.ค.', 'ส.ค.', 'ก.ย.', 'ต.ค.', 'พ.ย.', 'ธ.ค.'].map((m, i) => {
                       const monthValue = `${pickerYear}-${String(i + 1).padStart(2, '0')}`;
                       const isSelected = customMonth === monthValue;
@@ -1096,8 +1097,10 @@ function MainApp({ onGoHome, initialRole }) {
                           }}
                           className={`py-3.5 rounded-xl text-[15px] font-black transition-all duration-300 active:scale-95 ${
                             isSelected 
-                              ? 'bg-gradient-to-br from-orange-400 to-orange-600 text-white shadow-[0_0_20px_rgba(249,115,22,0.8)] border-2 border-white/60 scale-110 z-10' 
-                              : 'bg-slate-800/80 text-slate-400 hover:bg-orange-500/20 hover:text-orange-300 hover:border-orange-500/60 hover:shadow-[0_0_15px_rgba(249,115,22,0.4)] border-2 border-slate-700/80'
+                              /* เดือนที่เลือก (สีส้มสว่างทะลุตา) */
+                              ? 'bg-orange-500 text-white shadow-[0_0_20px_rgba(249,115,22,0.9)] border-2 border-white scale-110 z-10' 
+                              /* 🌟 1. สีกรอบล้อมเดือนที่ยังไม่เลือก ให้ขาวสว่าง (border-white/50) */
+                              : 'bg-slate-800/80 text-slate-100 hover:bg-orange-500/40 border border-white/50 hover:border-white hover:shadow-[0_0_15px_rgba(255,255,255,0.6)]'
                           }`}
                         >
                           {m}
@@ -1106,10 +1109,10 @@ function MainApp({ onGoHome, initialRole }) {
                     })}
                   </div>
 
-                  {/* ❌ โซนท้าย: ปิดป๊อปอัป */}
+                  {/* 🌟 3. ปุ่มยกเลิกสีส้ม และ Hover เป็นสีแดง/ชมพู (Rose) */}
                   <button 
                     onClick={() => setShowMonthPicker(false)}
-                    className="relative z-10 mt-7 w-full py-4 rounded-xl font-black text-rose-400 bg-rose-500/10 hover:bg-gradient-to-r hover:from-rose-500 hover:to-red-600 hover:text-white border-2 border-rose-500/30 hover:border-rose-400 hover:shadow-[0_0_20px_rgba(225,29,72,0.6)] transition-all active:scale-95 tracking-widest uppercase"
+                    className="relative z-10 mt-7 w-full py-4 rounded-xl font-black text-white bg-orange-500 hover:bg-rose-500 border-2 border-orange-400 hover:border-rose-400 shadow-[0_0_20px_rgba(249,115,22,0.7)] hover:shadow-[0_0_25px_rgba(225,29,72,0.9)] transition-all duration-300 active:scale-95 tracking-widest uppercase"
                   >
                     ยกเลิก
                   </button>
