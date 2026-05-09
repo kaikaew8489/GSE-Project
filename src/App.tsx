@@ -1056,26 +1056,33 @@ function MainApp({ onGoHome, initialRole }) {
 
             {/* 🌟 กล่องป๊อปอัปเลือกเดือน (เด้งกลางจอ หนีข้อจำกัดหน้าจอ) */}
             {showMonthPicker && (
-              <div className="fixed inset-0 z-[200] bg-slate-900/80 backdrop-blur-sm flex items-center justify-center p-4 animate-in fade-in" onClick={() => setShowMonthPicker(false)}>
+              <div className="fixed inset-0 z-[200] bg-slate-900/80 backdrop-blur-md flex items-center justify-center p-4 animate-in fade-in" onClick={() => setShowMonthPicker(false)}>
                 
-                {/* หยุดการคลิกทะลุไปปิด Popup */}
-                <div className="bg-slate-800 border-2 border-orange-500 rounded-[2rem] shadow-[0_0_40px_rgba(249,115,22,0.3)] w-full max-w-[320px] p-6 text-center animate-in zoom-in-95" onClick={(e) => e.stopPropagation()}>
+                {/* 🌟 ฟันธง: อัปเกรด Glassmorphism พื้นหลังใสเรืองแสงมิติซ้อนมิติ */}
+                <div className="relative bg-slate-900/80 backdrop-blur-2xl border-2 border-orange-500/80 rounded-[2rem] shadow-[0_0_50px_rgba(249,115,22,0.4)] w-full max-w-[340px] p-7 text-center animate-in zoom-in-95 overflow-hidden" onClick={(e) => e.stopPropagation()}>
                   
-                  {/* โซนหัว: เลื่อนปี พ.ศ. */}
-                  <div className="flex justify-between items-center mb-6 pb-4 border-b border-slate-600">
-                    <button onClick={() => setPickerYear(y => y - 1)} className="p-2 bg-slate-700 text-slate-300 rounded-xl hover:bg-orange-500 hover:text-white transition-colors active:scale-95 shadow-inner">
-                      <ChevronDown size={20} className="rotate-90" />
+                  {/* ✨ แสง Flare ซ่อนหลังกล่อง (เพิ่มความอลังการ) */}
+                  <div className="absolute -top-20 -right-20 w-40 h-40 bg-orange-500/30 rounded-full blur-[50px] pointer-events-none"></div>
+                  <div className="absolute -bottom-20 -left-20 w-40 h-40 bg-emerald-500/20 rounded-full blur-[50px] pointer-events-none"></div>
+
+                  {/* 📅 โซนหัว: เลื่อนปี พ.ศ. */}
+                  <div className="relative flex justify-between items-center mb-6 pb-5 border-b border-slate-700/80 z-10">
+                    <button onClick={() => setPickerYear(y => y - 1)} className="p-2.5 bg-slate-800 text-slate-300 rounded-xl hover:bg-gradient-to-r hover:from-orange-500 hover:to-amber-500 hover:text-white hover:shadow-[0_0_15px_rgba(249,115,22,0.6)] transition-all active:scale-95 border border-slate-700">
+                      <ChevronDown size={22} className="rotate-90" />
                     </button>
-                    <span className="text-xl font-black text-white tracking-widest drop-shadow-md">
-                      พ.ศ. {pickerYear + 543}
-                    </span>
-                    <button onClick={() => setPickerYear(y => y + 1)} className="p-2 bg-slate-700 text-slate-300 rounded-xl hover:bg-orange-500 hover:text-white transition-colors active:scale-95 shadow-inner">
-                      <ChevronDown size={20} className="-rotate-90" />
+                    <div className="flex flex-col">
+                      <span className="text-[10px] font-black text-orange-400 tracking-widest uppercase mb-0.5 drop-shadow-sm">เลือกปี พ.ศ.</span>
+                      <span className="text-2xl font-black text-white tracking-widest drop-shadow-[0_0_10px_rgba(255,255,255,0.4)]">
+                        {pickerYear + 543}
+                      </span>
+                    </div>
+                    <button onClick={() => setPickerYear(y => y + 1)} className="p-2.5 bg-slate-800 text-slate-300 rounded-xl hover:bg-gradient-to-l hover:from-orange-500 hover:to-amber-500 hover:text-white hover:shadow-[0_0_15px_rgba(249,115,22,0.6)] transition-all active:scale-95 border border-slate-700">
+                      <ChevronDown size={22} className="-rotate-90" />
                     </button>
                   </div>
 
-                  {/* โซนเนื้อหา: เลือกเดือน 12 เดือน */}
-                  <div className="grid grid-cols-3 gap-3">
+                  {/* 🗓️ โซนเนื้อหา: เลือกเดือน 12 เดือน */}
+                  <div className="relative grid grid-cols-3 gap-3 z-10">
                     {['ม.ค.', 'ก.พ.', 'มี.ค.', 'เม.ย.', 'พ.ค.', 'มิ.ย.', 'ก.ค.', 'ส.ค.', 'ก.ย.', 'ต.ค.', 'พ.ย.', 'ธ.ค.'].map((m, i) => {
                       const monthValue = `${pickerYear}-${String(i + 1).padStart(2, '0')}`;
                       const isSelected = customMonth === monthValue;
@@ -1087,10 +1094,10 @@ function MainApp({ onGoHome, initialRole }) {
                             setDashTimeframe('custom');
                             setShowMonthPicker(false);
                           }}
-                          className={`py-3 rounded-xl text-[15px] font-bold transition-all active:scale-95 ${
+                          className={`py-3.5 rounded-xl text-[15px] font-black transition-all duration-300 active:scale-95 ${
                             isSelected 
-                              ? 'bg-gradient-to-r from-orange-500 to-amber-500 text-white shadow-[0_0_15px_rgba(249,115,22,0.6)] border border-orange-300' 
-                              : 'bg-slate-700/50 text-slate-300 hover:bg-slate-600 hover:text-white border border-slate-600/50'
+                              ? 'bg-gradient-to-br from-orange-400 to-orange-600 text-white shadow-[0_0_20px_rgba(249,115,22,0.8)] border-2 border-white/60 scale-110 z-10' 
+                              : 'bg-slate-800/80 text-slate-400 hover:bg-orange-500/20 hover:text-orange-300 hover:border-orange-500/60 hover:shadow-[0_0_15px_rgba(249,115,22,0.4)] border-2 border-slate-700/80'
                           }`}
                         >
                           {m}
@@ -1099,10 +1106,10 @@ function MainApp({ onGoHome, initialRole }) {
                     })}
                   </div>
 
-                  {/* โซนท้าย: ปิดป๊อปอัป */}
+                  {/* ❌ โซนท้าย: ปิดป๊อปอัป */}
                   <button 
                     onClick={() => setShowMonthPicker(false)}
-                    className="mt-6 w-full py-3.5 rounded-xl font-bold text-rose-400 bg-rose-500/10 hover:bg-rose-500 hover:text-white border border-rose-500/30 transition-colors active:scale-95"
+                    className="relative z-10 mt-7 w-full py-4 rounded-xl font-black text-rose-400 bg-rose-500/10 hover:bg-gradient-to-r hover:from-rose-500 hover:to-red-600 hover:text-white border-2 border-rose-500/30 hover:border-rose-400 hover:shadow-[0_0_20px_rgba(225,29,72,0.6)] transition-all active:scale-95 tracking-widest uppercase"
                   >
                     ยกเลิก
                   </button>
