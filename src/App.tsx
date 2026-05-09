@@ -2167,27 +2167,31 @@ function MainApp({ onGoHome, initialRole }) {
                           </p>
                         )}
 
-                        {/* ================= โซนชื่อผู้แจ้ง และ ผู้รับผิดชอบ ================= */}
+                        {/* ================= โซนชื่อผู้แจ้ง และ ผู้รับผิดชอบ (อัปเกรดรีดพื้นที่ขั้นสุด) ================= */}
                         <div className="pt-3 border-t border-2 border-orange-400/70 flex flex-col gap-2 mt-3 text-xs text-slate-600">
                           
-                          <div className="flex justify-between items-start gap-3">
-                            <div className="flex flex-col flex-1 min-w-0">
+                          {/* 🌟 1. ดึงขอบซ้ายขวาให้ชิดขึ้นด้วย -mx-1 และลดช่องว่างตรงกลางเหลือ gap-1 */}
+                          <div className="flex justify-between items-start gap-1 -mx-1 sm:mx-0">
+                            <div className="flex flex-col flex-1 min-w-0 pl-1">
                               <span className="text-[11px] font-bold text-green-600 mb-1">
                                 ผู้แจ้งปัญหา
                               </span>
-                              <span className="font-bold text-orange-800 flex items-start gap-1.5 leading-tight mb-1">
+                              <span className="font-bold text-orange-800 flex items-start gap-1 leading-tight mb-1">
                                 <User size={14} className={`shrink-0 mt-0.5 ${isCancelled ? 'text-slate-400' : 'text-emerald-500'}`} />
-                                <span className="whitespace-normal break-words leading-snug">
+                                {/* 🌟 ใช้ tracking-tight ช่วยบีบช่องไฟตัวอักษรนิดนึง */}
+                                <span className="whitespace-normal break-words leading-snug tracking-tight">
                                   {String(t.reporter)}
                                 </span>
                               </span>
-                              <span className="text-[12px] font-bold text-blue-600 mt-1">
+                              <span className="text-[12px] font-bold text-blue-600 mt-1 pl-1">
                                 {formatDateTimeString(t.date)}
                               </span>
                             </div>
+                            
+                            {/* 🌟 บีบปุ่มโทรศัพท์ให้บางลง (px-1.5) และบีบตัวเลขให้ชิดกัน (tracking-tighter) */}
                             <a
                               href={`tel:${String(t.reporterContact).replace(/\D/g, '')}`}
-                              className="font-mono shrink-0 whitespace-nowrap text-[12px] font-bold bg-emerald-50 px-2.5 py-1.5 rounded-lg flex items-center gap-1.5 text-emerald-700 border border-emerald-200 mt-4"
+                              className="font-mono shrink-0 whitespace-nowrap text-[11px] sm:text-[12px] font-bold bg-emerald-50 px-1.5 py-1.5 rounded-lg flex items-center gap-1 text-emerald-700 border border-emerald-200 mt-4 tracking-tighter"
                             >
                               <Phone size={12} className="text-emerald-500" />
                               {formatDisplayPhone(t.reporterContact)}
@@ -2195,14 +2199,14 @@ function MainApp({ onGoHome, initialRole }) {
                           </div>
 
                           {t.techName && (
-                            <div className="flex justify-between items-start gap-3 mt-3 pt-3 border-t border-slate-100">
-                              <div className="flex flex-col flex-1 min-w-0">
+                            <div className="flex justify-between items-start gap-1 mt-2 pt-2 border-t border-slate-100 -mx-1 sm:mx-0">
+                              <div className="flex flex-col flex-1 min-w-0 pl-1">
                                 <span className="text-[11px] font-bold text-orange-600 mb-2">
                                   ผู้รับผิดชอบ
                                 </span>
-                                <span className="font-bold text-indigo-600 flex items-start gap-1.5 leading-tight">
+                                <span className="font-bold text-indigo-600 flex items-start gap-1 leading-tight">
                                   <User size={14} className="text-orange-500 shrink-0 mt-0.5" />
-                                  <span className="whitespace-normal break-words">
+                                  <span className="whitespace-normal break-words tracking-tight">
                                     {String(t.techName)}
                                   </span>
                                 </span>
@@ -2210,13 +2214,13 @@ function MainApp({ onGoHome, initialRole }) {
                               {t.techPhone && t.techPhone !== '-' && t.techPhone !== 'N/A' ? (
                                 <a
                                   href={`tel:${String(t.techPhone).replace(/\D/g, '')}`}
-                                  className="font-mono shrink-0 whitespace-nowrap text-[12px] font-bold bg-orange-50 px-2.5 py-1.5 rounded-lg flex items-center gap-1.5 text-orange-700 border border-orange-200 mt-4"
+                                  className="font-mono shrink-0 whitespace-nowrap text-[11px] sm:text-[12px] font-bold bg-orange-50 px-1.5 py-1.5 rounded-lg flex items-center gap-1 text-orange-700 border border-orange-200 mt-4 tracking-tighter"
                                 >
                                   <Phone size={12} className="text-orange-500" />
                                   {formatDisplayPhone(t.techPhone)}
                                 </a>
                               ) : (
-                                <span className="font-mono shrink-0 whitespace-nowrap text-[11px] text-slate-400 bg-white px-2 py-1 rounded border border-slate-200 mt-4">
+                                <span className="font-mono shrink-0 whitespace-nowrap text-[11px] text-slate-400 bg-white px-1.5 py-1 rounded border border-slate-200 mt-4">
                                   {String(t.techPhone || 'N/A')}
                                 </span>
                               )}
@@ -2224,10 +2228,10 @@ function MainApp({ onGoHome, initialRole }) {
                           )}
                         </div>
                         {/* ================= จบโซนชื่อ ================= */}
-
                       </div>
 
                       {/* ================= โซนปุ่มกด (ช่าง) เปลี่ยนสีปุ่มรับงานซ่อม ================= */}
+
                       {currentUserRole === 'technician' && !isCancelled && (
                         <div className="flex flex-col gap-2.5">
                           {isPending && (
