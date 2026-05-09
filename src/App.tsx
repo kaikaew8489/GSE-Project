@@ -507,8 +507,9 @@ function MainApp({ onGoHome, initialRole }) {
   // ของเดิมอาจจะเป็น: const [dashTimeframe, setDashTimeframe] = useState('month');
   // ✅ แก้เป็นแบบนี้ครับ:
   const [dashTimeframe, setDashTimeframe] = useState('today');
-  const [customMonth, setCustomMonth] = useState(''); // 🌟 เติมบรรทัดนี้เพื่อเก็บค่าปฏิทิน
-  const monthInputRef = useRef(null); // 🌟🌟 ฟันธง: เติมบรรทัดนี้ลงไป เพื่อทำสายลับไปสั่งเปิดปฏิทิน!
+  const [customMonth, setCustomMonth] = useState(''); // เก็บค่า YYYY-MM
+  const [showMonthPicker, setShowMonthPicker] = useState(false); // ควบคุมการเปิด/ปิดป๊อปอัป
+  const [pickerYear, setPickerYear] = useState(new Date().getFullYear()); // พ.ศ. ที่กำลังเลือกดู
 
   const [hoveredTab, setHoveredTab] = useState(null);
   // ... โค้ดเดิมของท่าน ...
@@ -1037,43 +1038,69 @@ function MainApp({ onGoHome, initialRole }) {
             </button>
           ))}
           
-          {/* 🌟 ไอคอนปฏิทิน ระบุเดือน */}
-          {/* 🌟 ฟันธงแก้บั๊ก Hover: เติมคลาส "group" ไว้ที่กล่องแม่ตรงนี้ครับ 👇 */}
-          <div className="relative flex-1 min-w-[95px] shrink-0 flex justify-center snap-center group">
-             {/* 🌟 1. ซ่อน Input ให้มิด และผูกสายลับ (ref) เข้าไป */}
-             <input 
-               type="month"
-               ref={monthInputRef}
-               className="absolute w-0 h-0 opacity-0 pointer-events-none" 
-               value={customMonth}
-               onChange={(e) => {
-                 if(e.target.value) {
-                   setCustomMonth(e.target.value);
-                   setDashTimeframe('custom');
-                 }
-               }}
-             />
-             
-             {/* 🌟 2. ใช้คำสั่ง showPicker() เพื่อบังคับบราวเซอร์เปิดปฏิทินทันทีเมื่อกดปุ่ม (ย้ายคอมเมนต์มาไว้ตรงนี้!) */}
-             <button 
-               onClick={() => {
-                 if (monthInputRef.current) {
-                   try {
-                     monthInputRef.current.showPicker();
-                   } catch (error) {
-                     monthInputRef.current.focus(); // แผนสำรองสำหรับบราวเซอร์เก่ามาก
-                   }
-                 }
-               }}
-               className={`w-full relative z-10 text-[13px] font-black py-2.5 rounded-xl transition-all duration-300 flex items-center justify-center gap-1.5 ${
-                 dashTimeframe === 'custom' 
-                   ? 'bg-gradient-to-r from-orange-500 to-amber-500 text-white border-2 border-solid border-orange-300 shadow-[0_0_15px_rgba(249,115,22,0.8)] scale-105' 
-                   : 'text-slate-100 bg-emerald-600/60 border-2 border-solid border-white/50 group-hover:bg-rose-600 group-hover:text-white group-hover:shadow-[0_0_15px_rgba(255,255,255,0.4)] group-hover:-translate-y-1' 
-               }`}>
-               <Calendar size={16} className={dashTimeframe === 'custom' ? 'text-white' : 'text-emerald-300'} /> 
-               {/* 🌟 บังคับข้อความไม่ให้ขึ้นบรรทัดใหม่ */}
-               <span className="whitespace-nowrap">ระบุเดือน</span>
-             </button>
+          {/* 🌟 ไอคอนปฏิทิน ระบุเดือน (อัปเกรดเป็น Custom UI ภาษาไทย + พ.ศ.) */}
+          <div className="relative flex-1 min-w-[95px] shrink-0 flex justify-center snap-center">
+            {/* ปุ่มกดเพื่อเปิดป๊อปอัป */}
+            <button 
+              onClick={() => setShowMonthPicker(!showMonthPicker)}
+              className={`w-full relative z-10 text-[13px] font-black py-2.5 rounded-xl transition-all duration-300 flex items-center justify-center gap-1.5 ${
+                dashTimeframe === 'custom' 
+                  ? 'bg-gradient-to-r from-orange-500 to-amber-500 text-white border-2 border-solid border-orange-300 shadow-[0_0_15px_rgba(249,115,22,0.8)] scale-105' 
+                  : 'text-slate-100 bg-emerald-600/60 border-2 border-solid border-white/50 hover:bg-rose-600 hover:text-white hover:shadow-[0_0_15px_rgba(255,255,255,0.4)] hover:-translate-y-1' 
+              }`}
+            >
+              <Calendar size={16} className={dashTimeframe === 'custom' ? 'text-white' : 'text-emerald-300'} /> 
+              <span className="whitespace-nowrap">ระบุเดือน</span>
+            </button>
+
+            {/* 🌟 กล่องป๊อปอัปเลือกเดือนแบบ Custom (โชว์เมื่อกดปุ่ม) */}
+            {showMonthPicker && (
+              <>
+                {/* ฉากหลังใสๆ กดพื้นที่ว่างเพื่อปิด */}
+                <div className="fixed inset-0 z-40" onClick={() => setShowMonthPicker(false)}></div>
+                
+                <div className="absolute top-[115%] right-0 sm:left-1/2 sm:-translate-x-1/2 w-64 bg-slate-800 border-2 border-orange-500 rounded-2xl shadow-[0_10px_40px_rgba(0,0,0,0.6)] z-50 p-4 animate-in fade-in zoom-in-95">
+                  
+                  {/* โซนเลื่อนเปลี่ยน พ.ศ. */}
+                  <div className="flex justify-between items-center mb-4 pb-3 border-b border-slate-600">
+                    <button onClick={() => setPickerYear(y => y - 1)} className="p-1.5 bg-slate-700 text-slate-300 rounded-lg hover:bg-orange-500 hover:text-white transition-colors">
+                      <ChevronDown size={18} className="rotate-90" />
+                    </button>
+                    <span className="text-[16px] font-black text-white tracking-widest">
+                      พ.ศ. {pickerYear + 543}
+                    </span>
+                    <button onClick={() => setPickerYear(y => y + 1)} className="p-1.5 bg-slate-700 text-slate-300 rounded-lg hover:bg-orange-500 hover:text-white transition-colors">
+                      <ChevronDown size={18} className="-rotate-90" />
+                    </button>
+                  </div>
+
+                  {/* โซนกดเลือกเดือน 12 เดือน */}
+                  <div className="grid grid-cols-3 gap-2.5">
+                    {['ม.ค.', 'ก.พ.', 'มี.ค.', 'เม.ย.', 'พ.ค.', 'มิ.ย.', 'ก.ค.', 'ส.ค.', 'ก.ย.', 'ต.ค.', 'พ.ย.', 'ธ.ค.'].map((m, i) => {
+                      const monthValue = `${pickerYear}-${String(i + 1).padStart(2, '0')}`;
+                      const isSelected = customMonth === monthValue;
+                      return (
+                        <button
+                          key={m}
+                          onClick={() => {
+                            setCustomMonth(monthValue);
+                            setDashTimeframe('custom');
+                            setShowMonthPicker(false); // เลือกเสร็จแล้วปิดป๊อปอัป
+                          }}
+                          className={`py-2 rounded-xl text-[13px] font-bold transition-all active:scale-95 ${
+                            isSelected 
+                              ? 'bg-gradient-to-r from-orange-500 to-amber-500 text-white shadow-md shadow-orange-500/40' 
+                              : 'bg-slate-700 text-slate-300 hover:bg-slate-600 hover:text-white'
+                          }`}
+                        >
+                          {m}
+                        </button>
+                      )
+                    })}
+                  </div>
+                </div>
+              </>
+            )}
           </div>
         </div>
 
