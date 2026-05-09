@@ -1012,7 +1012,7 @@ function MainApp({ onGoHome, initialRole }) {
         </div>
 
        {/* 🔘 2. สวิตช์เลือกกรอบเวลา (อัปเกรดเป็นแบบปัดเลื่อนซ้ายขวาได้ ไม่ตกบรรทัด) */}
-       <div className="flex gap-2 bg-slate-800/80 p-2 rounded-2xl border-2 border-solid border-white-500/80 shadow-inner mt-4 overflow-x-auto scrollbar-hide snap-x">
+       <div className="flex gap-2 bg-slate-600/80 p-2 rounded-2xl border-2 border-solid border-white-500/80 shadow-inner mt-4 overflow-x-auto scrollbar-hide snap-x">
           {[
             { id: 'today', label: 'วันนี้' },
             { id: 'week', label: 'สัปดาห์นี้' },
@@ -1021,11 +1021,11 @@ function MainApp({ onGoHome, initialRole }) {
             <button
               key={tf.id}
               onClick={() => setDashTimeframe(tf.id)}
-              // 🌟 เพิ่ม min-w-[75px] และ shrink-0 เพื่อไม่ให้ปุ่มโดนบีบจนข้อความเบียดกัน
+              // 🌟 เพิ่ม min-w-[75px] และ shrink-0 เพื่อไม่ให้ปุ่มโดนบีบจนข้อความเบียดกัน-เปลี่ยนสีปุ่มและกรอบ วันนี้ สัปดาห์นี้ เดือนนี้
               className={`flex-1 min-w-[75px] shrink-0 text-[13px] font-black py-2.5 rounded-xl transition-all duration-300 snap-center ${
                 dashTimeframe === tf.id
-                  ? 'bg-gradient-to-r from-orange-500 to-amber-500 text-white border border-orange-300 shadow-[0_0_15px_rgba(249,115,22,0.8)] scale-105 z-10' 
-                  : 'text-slate-100 bg-slate-700/60 border border-slate-500/50 hover:bg-slate-600 hover:text-white' 
+                  ? 'bg-gradient-to-r from-orange-500 to-amber-500 text-white border-2 border-solid border-white-300 shadow-[0_0_15px_rgba(249,115,22,0.8)] scale-105 z-10' 
+                  : 'text-slate-100 bg-emerald-600/60 border-2 border-solid border-white-500/50 hover:bg-rose-600 hover:text-white hover:shadow-[0_0_15px_rgba(255,255,255,0.4)] hover:-translate-y-1' 
               }`}
             >
               {tf.label}
@@ -1047,10 +1047,10 @@ function MainApp({ onGoHome, initialRole }) {
              />
              <button className={`w-full relative z-10 text-[13px] font-black py-2.5 rounded-xl transition-all duration-300 flex items-center justify-center gap-1.5 ${
                dashTimeframe === 'custom' 
-                 ? 'bg-gradient-to-r from-orange-500 to-amber-500 text-white border border-orange-300 shadow-[0_0_15px_rgba(249,115,22,0.8)] scale-105' 
-                 : 'text-slate-100 bg-slate-700/60 border border-slate-500/50 hover:bg-slate-600 hover:text-white' 
+                 ? 'bg-gradient-to-r from-orange-500 to-amber-500 text-white border-2 border-solid border-orange-300 shadow-[0_0_15px_rgba(249,115,22,0.8)] scale-105' 
+                 : 'text-slate-100 bg-slate-600/60 border-2 border-solid border-white-500/50 hover:bg-rose-600 hover:text-white hover:shadow-[0_0_15px_rgba(255,255,255,0.4)] hover:-translate-y-1' 
              }`}>
-               <Calendar size={16} className={dashTimeframe === 'custom' ? 'text-white' : 'text-emerald-400'} /> 
+               <Calendar size={16} className={dashTimeframe === 'custom' ? 'text-white' : 'text-emerald-300'} /> 
                {/* 🌟 บังคับข้อความไม่ให้ขึ้นบรรทัดใหม่ */}
                <span className="whitespace-nowrap">ระบุเดือน</span>
              </button>
@@ -1109,7 +1109,7 @@ function MainApp({ onGoHome, initialRole }) {
               setFilterStatus('pending');
               setSearchTerm('');
             }}
-            className="bg-slate-800/40 backdrop-blur-xl p-5 rounded-[2rem] border-[2px] border-solid border-rose-500 hover:bg-slate-700/50 flex flex-col items-center shadow-lg active:scale-95 transition-all cursor-pointer relative overflow-hidden"
+            className="bg-slate-800/40 backdrop-blur-xl p-5 rounded-[1.5rem] border-[2px] border-solid border-rose-500 hover:bg-slate-700/50 flex flex-col items-center shadow-lg active:scale-95 transition-all cursor-pointer relative overflow-hidden hover:shadow-[0_0_25px_rgba(244,63,94,0.5)] hover:-translate-y-1 hover:border-rose-400"
           >
             <div className="absolute top-0 w-full h-1 bg-rose-500"></div>
             <div className="bg-rose-50 p-3 rounded-2xl mb-3">
@@ -1128,7 +1128,7 @@ function MainApp({ onGoHome, initialRole }) {
               setFilterStatus('fixing');
               setSearchTerm('');
             }}
-            className="bg-slate-800/40 backdrop-blur-xl p-5 rounded-[2rem] border-[2px] border-solid border-orange-500 hover:bg-slate-700/50 flex flex-col items-center shadow-lg active:scale-95 transition-all cursor-pointer relative overflow-hidden"
+            className="bg-slate-800/40 backdrop-blur-xl p-5 rounded-[1.5rem] border-[2px] border-solid border-orange-500 hover:bg-slate-700/50 flex flex-col items-center shadow-lg active:scale-95 transition-all cursor-pointer relative overflow-hidden hover:shadow-[0_0_25px_rgba(249,115,22,0.5)] hover:-translate-y-1 hover:border-orange-400"
           >
             <div className="absolute top-0 w-full h-1 bg-orange-400"></div>
             <div className="bg-orange-50 p-3 rounded-2xl mb-3">
@@ -1148,7 +1148,7 @@ function MainApp({ onGoHome, initialRole }) {
               setFilterStatus('completed');
               setSearchTerm('');
             }}
-            className="bg-slate-800/40 backdrop-blur-xl p-5 rounded-[2rem] border-[2px] border-solid border-emerald-500 hover:bg-slate-700/50 flex flex-col items-center shadow-lg active:scale-95 transition-all cursor-pointer relative overflow-hidden"
+            className="bg-slate-800/40 backdrop-blur-xl p-5 rounded-[1.5rem] border-[2px] border-solid border-emerald-500 hover:bg-slate-700/50 flex flex-col items-center shadow-lg active:scale-95 transition-all cursor-pointer relative overflow-hidden hover:shadow-[0_0_25px_rgba(16,185,129,0.5)] hover:-translate-y-1 hover:border-emerald-400"
           >
             <div className="absolute top-0 w-full h-1 bg-emerald-500"></div>
             <div className="bg-emerald-50 p-3 rounded-2xl mb-3">
@@ -1168,7 +1168,7 @@ function MainApp({ onGoHome, initialRole }) {
               setFilterStatus('cancelled');
               setSearchTerm('');
             }}
-            className="bg-slate-800/40 backdrop-blur-xl p-5 rounded-[2rem] border-[2px] border-solid border-slate-500 hover:bg-slate-700/50 flex flex-col items-center shadow-lg active:scale-95 transition-all cursor-pointer relative overflow-hidden"
+            className="bg-slate-800/40 backdrop-blur-xl p-5 rounded-[1.5rem] border-[2px] border-solid border-slate-500 hover:bg-slate-700/50 flex flex-col items-center shadow-lg active:scale-95 transition-all cursor-pointer relative overflow-hidden hover:shadow-[0_0_20px_rgba(255,255,255,0.2)] hover:-translate-y-1 hover:border-slate-400"
           >
             <div className="absolute top-0 w-full h-1 bg-slate-400"></div>
             <div className="bg-slate-50 p-3 rounded-2xl mb-3">
@@ -1198,7 +1198,7 @@ function MainApp({ onGoHome, initialRole }) {
                     setSearchTerm(longestPendingTicket.id);
                     setFilterStatus('all');
                   }}
-                  className="bg-white p-4 rounded-2xl border-2 border-solid border-orange-800 shadow-[0_4px_10px_rgba(225,29,72,0.1)] cursor-pointer hover:border-rose-500 hover:bg-rose-100 hover:shadow-md transition-all active:scale-[0.98]"
+                  className="bg-white p-4 rounded-2xl border-2 border-solid border-orange-800 shadow-[0_4px_10px_rgba(225,29,72,0.1)] cursor-pointer hover:border-rose-500 hover:bg-rose-100 hover:shadow-[0_0_20px_rgba(249,115,22,0.3)] transition-all active:scale-[0.98]"
                 >
                   <div className="flex justify-between items-start mb-2">
                     <div className="flex items-center gap-2">
@@ -1258,7 +1258,7 @@ function MainApp({ onGoHome, initialRole }) {
           </div>
         )}
 
-        <div className="bg-slate-800/60 backdrop-blur-xl p-5 rounded-[1rem] border-2 border-solid border-orange-500/80 shadow-[0_0_20px_rgba(249,115,22,0.15)] mt-6">
+        <div className="bg-slate-800/60 backdrop-blur-xl p-5 rounded-[1rem] border-2 border-solid border-orange-500/80 shadow-[0_0_20px_rgba(249,115,22,0.15)] mt-6 hover:shadow-[0_0_20px_rgba(249,115,22,0.3)]">
           <h3 className="text-[15px] font-black text-white uppercase  tracking-widest mb-4 flex items-center gap-2">
             <FileText
               size={20}
@@ -1680,7 +1680,7 @@ function MainApp({ onGoHome, initialRole }) {
                 {/* ถ้ามีรูปแล้ว: จะหดตัวเป็นกล่องสี่เหลี่ยมจัตุรัสเล็กๆ ไปต่อท้ายรูป */}
                 {formData.images.length < 6 && (
                   <label 
-                    className={`border-2 border-dashed border-slate-100/80 bg-slate-800/40 hover:bg-slate-700/50 hover:border-orange-500 rounded-2xl flex flex-col items-center justify-center transition-all cursor-pointer shadow-sm active:scale-95 group
+                    className={`border-2 border-dashed border-slate-100/80 bg-slate-800/40 hover:bg-slate-700/50 hover:border-orange-500 rounded-2xl flex flex-col items-center justify-center transition-all cursor-pointer shadow-sm active:scale-95 group hover:border-orange-500 hover:bg-orange-500/10 hover:shadow-[0_0_20px_rgba(249,115,22,0.3)]
                     ${formData.images.length === 0 ? 'w-full h-36' : 'aspect-square'}`}
                   >
                     <input
@@ -1701,13 +1701,14 @@ function MainApp({ onGoHome, initialRole }) {
             {/* ================= จบจุดที่ให้วางทับตรงนี้ ================= */}
 
 
+            {/* ================= เปลี่ยนสีปุ่มและเรืองแสง ของปุ่มสีส้มยื่นยันแจ้งซ่อม และปุ่มล้างข้อมูลฟอร์ม================= */}
             </div>
           </div>
           <div className="pt-6 px-2 flex flex-col items-center text-center">
             <button
               type="submit"
               disabled={isSubmitting}
-              className="group w-full bg-gradient-to-r from-orange-500 to-amber-500 text-white font-black text-xl py-4 rounded-[1rem] shadow-xl shadow-orange-500/30 active:scale-95 transition-all duration-300 flex justify-center items-center gap-3 disabled:grayscale disabled:opacity-50 border-2 border-solid border-white-500/50"
+              className="group w-full bg-gradient-to-r from-orange-500 to-amber-500 hover:from-orange-400 hover:to-yellow-400 hover:shadow-[0_0_25px_rgba(249,115,22,0.8)] hover:-translate-y-1 text-white font-black text-xl py-4 rounded-[1rem] shadow-xl shadow-orange-500/30 active:scale-95 transition-all duration-300 flex justify-center items-center gap-3 disabled:grayscale disabled:opacity-50 border-2 border-solid border-white-500/50"
             >
               <Send size={24} />{' '}
               <span className="tracking-wide">ยืนยันแจ้งซ่อม</span>
@@ -1715,13 +1716,15 @@ function MainApp({ onGoHome, initialRole }) {
             <button
               type="button"
               onClick={handleResetForm}
-              className="mt-4 w-full bg-rose-50 text-rose-500 hover:bg-rose-100 font-bold text-sm py-3.5 rounded-2xl transition-all flex items-center justify-center gap-2 border-2 border-solid border-rose-500/50 active:scale-95 shadow-sm"
+              className="mt-4 w-full bg-rose-50 text-rose-500 hover:bg-rose-100 hover:bg-emerald-600 hover:text-white hover:shadow-[0_0_20px_rgba(244,63,94,0.6)] font-bold text-sm py-3.5 rounded-2xl transition-all flex items-center justify-center gap-2 border-2 border-solid border-white-500/50 active:scale-95 shadow-sm"
             >
               <RotateCcw size={16} /> ล้างข้อมูลฟอร์ม
             </button>
           </div>
         </form>
       )}
+      {/* ================= จบการแก้สีปุ่มยืนยันแจ้งซ่อมกับปุ่มล้างข้อมูลฟอร์มตรงนี้ ================= */}
+
 
       {confirmSubmitModal && (
         <div className="fixed inset-0 z-[120] flex items-center justify-center bg-slate-900/60 backdrop-blur-sm p-6 animate-in fade-in">
@@ -1762,8 +1765,7 @@ function MainApp({ onGoHome, initialRole }) {
     <div className="p-4 space-y-6 pb-32 animate-in slide-in-from-left-4 duration-500 text-left">
       {/* 🌟 1. สวิตช์กรองสถานะงาน (แยกร่างกล่อง แก้ปัญหา Scrollbar ทับเส้นขอบ) */}
       <div className="bg-slate-800/60 rounded-2xl border-2 border-solid border-orange-500/80 shadow-inner mb-4">
-        
-        {/* 🌟 กล่องด้านในทำหน้าที่เลื่อน (Scroll) สังเกต pt-3 pb-4 จะเพิ่มช่องว่างให้ Scrollbar ถอยห่างจากปุ่มครับ */}
+
         <div className="flex gap-2.5 overflow-x-auto pt-3 pb-4 px-3 snap-x">
           {[
             { id: 'all', label: 'ทั้งหมด' },
@@ -1780,8 +1782,11 @@ function MainApp({ onGoHome, initialRole }) {
               }}
               className={`flex-1 min-w-[95px] shrink-0 text-[13px] font-black py-2.5 rounded-xl transition-all duration-300 snap-center ${
                 filterStatus === f.id
+
+                //🌟 เปลี่ยนสีปุ่มกดและเรืองแสงทั้งหมด รอดำเนินการ กำลังซ่อม หน้าติดตามสถานะ/จัดการงาน
+
                   ? 'bg-gradient-to-r from-orange-500 to-amber-500 text-white border-2 border-orange-300 shadow-[0_0_15px_rgba(249,115,22,0.8)] scale-105 z-10' // ปุ่มที่กด (สีส้ม)
-                  : 'bg-slate-700/60 text-white border-2 border-white/80 hover:border-white hover:bg-slate-600 shadow-sm' // ปุ่มปกติ (ขอบขาว)
+                  : 'bg-rose-500/60 text-white border-2 border-white/80 hover:border-white hover:bg-emerald-800 shadow-sm hover:shadow-[0_0_15px_rgba(255,255,255,0.4)] hover:-translate-y-1' // ปุ่มปกติ (ขอบขาว)
               }`}
             >
               {f.label}
@@ -1895,8 +1900,8 @@ function MainApp({ onGoHome, initialRole }) {
                   {/* 🌟 แยกอาคารกับห้องออกเป็น 2 บรรทัด (แก้ปัญหาล้นจอมือถือ) */}
       <div className="flex flex-col gap-1 mt-1.5 mb-3 bg-indigo-50/50 p-2 rounded-lg border border-indigo-100">
         
-        {/* บรรทัดที่ 1: ชื่ออาคาร */}
-        <div className="flex items-start gap-1.5 text--700">
+        {/* บรรทัดที่ 1: ชื่ออาคาร เปลี่ยนสีตัวอักษร*/}
+        <div className="flex items-start gap-1.5 text-orange-600/90">
           <Building size={18} className="shrink-0 mt-0.5" />
           <span className="text-[18px] font-bold leading-snug">
             {t.building || 'ไม่ระบุอาคาร'}
@@ -1904,7 +1909,7 @@ function MainApp({ onGoHome, initialRole }) {
         </div>
         
         {/* บรรทัดที่ 2: ชื่อห้อง (เยื้องขวาเข้ามานิดนึงให้ดูสวย) */}
-        <div className="flex items-start gap-1.5 text-indigo-500/90 ml-1">
+        <div className="flex items-start gap-1.5 text-indigo-500/90">
           <MapPin size={18} className="shrink-0 mt-0.5" />
           <span className="text-[15px] font-bold  leading-snug">
             ห้อง: {t.room || 'ไม่ระบุห้อง'}
@@ -2006,7 +2011,7 @@ function MainApp({ onGoHome, initialRole }) {
                       </div>
                     )}
                 </div>
-{/* ================= กล่องสรุปเวลาปฏิบัติงาน (SLA Summary) แบบอัจฉริยะ ================= */}
+{/* ================= กล่องสรุปเวลาปฏิบัติงาน (SLA Summary) แบบอัจฉริยะ เปลี่ยนสีตัวอักษรภายในกรอบ SLA ================= */}
 {t.status === 'completed' || t.status === 'verified' ? (
               <div className="bg-emerald-50 border-2 border-emerald-500/30 rounded-2xl p-4 mt-4 mb-4 shadow-sm">
                 
@@ -2028,13 +2033,13 @@ function MainApp({ onGoHome, initialRole }) {
                         <div className="flex items-center justify-between mb-3 border-b border-emerald-500/20 pb-3">
                           <div className="flex items-center gap-2">
                             <Clock size={18} className="text-emerald-600" />
-                            <span className="text-[14px] font-black text-orange-500 uppercase tracking-widest">สรุป SLA</span>
+                            <span className="text-[15px] font-black text-orange-500 uppercase tracking-widest">สรุป SLA</span>
                           </div>
                           
                           {/* 🎯 ป้ายประเมินอัตโนมัติ (เขียว = ผ่าน, แดง = ไม่ผ่าน) */}
                           <div className={`px-3 py-1 rounded-full text-[12px] font-black tracking-wide shadow-sm border ${
                             isSLAPassed 
-                              ? 'bg-emerald-500 text-white border-emerald-600' 
+                              ? 'bg-emerald-600 text-white border-rose-500' 
                               : 'bg-rose-500 text-white border-rose-600'
                           }`}>
                             {isSLAPassed ? '✅ ผ่านเกณฑ์' : '❌ เกินเวลา SLA'}
@@ -2043,12 +2048,12 @@ function MainApp({ onGoHome, initialRole }) {
                         
                         <div className="space-y-2 text-[13px]">
                           <div className="flex justify-between items-center">
-                            <span className="text-rose-800/80 font-semibold">เริ่มแจ้งซ่อมเมื่อ:</span>
-                            <span className="text-rose-800 font-black">{new Date(t.date).toLocaleString('th-TH')}</span>
+                            <span className="text-rose-800/90 font-semibold">เริ่มแจ้งซ่อมเมื่อ:</span>
+                            <span className="text-rose-800/90 font-black">{new Date(t.date).toLocaleString('th-TH')}</span>
                           </div>
                           <div className="flex justify-between items-center">
-                            <span className="text-emerald-800/80 font-semibold">ซ่อมเสร็จสิ้นเมื่อ:</span>
-                            <span className="text-emerald-700 font-black">
+                            <span className="text-emerald-800/90 font-semibold">ซ่อมเสร็จสิ้นเมื่อ:</span>
+                            <span className="text-emerald-800/90 font-black">
                                {t.completedAt ? new Date(t.completedAt).toLocaleString('th-TH') : '-'}
                             </span>
                           </div>
@@ -2222,7 +2227,7 @@ function MainApp({ onGoHome, initialRole }) {
 
                       </div>
 
-                      {/* ================= โซนปุ่มกด (ช่าง) ================= */}
+                      {/* ================= โซนปุ่มกด (ช่าง) เปลี่ยนสีปุ่มรับงานซ่อม ================= */}
                       {currentUserRole === 'technician' && !isCancelled && (
                         <div className="flex flex-col gap-2.5">
                           {isPending && (
@@ -2234,7 +2239,7 @@ function MainApp({ onGoHome, initialRole }) {
                                   type: 'accept',
                                 })
                               }
-                              className="w-full bg-gradient-to-r from-emerald-500 to-emerald-600 text-white border-2 border-solid border-orange-300 font-bold py-4 rounded-xl shadow-[0_0_15px_rgba(16,185,129,0.4)] hover:shadow-[0_0_25px_rgba(16,185,129,0.6)] active:scale-95 transition-all text-sm"
+                              className="w-full bg-gradient-to-r from-emerald-400 to-emerald-800 text-white border-2 border-solid border-orange-500 font-bold py-4 rounded-xl shadow-[0_0_15px_rgba(16,185,129,0.4)] hover:shadow-[0_0_25px_rgba(16,185,129,0.6)] active:scale-95 transition-all text-[22px] hover:shadow-[0_0_25px_rgba(16,185,129,0.8)] hover:brightness-110 hover:-translate-y-1"
                             >
                               รับงานซ่อม
                             </button>
@@ -2264,8 +2269,9 @@ function MainApp({ onGoHome, initialRole }) {
                                   status: 'in_progress',
                                   startedAt: new Date().toISOString(),
                                 })
+                                //เปลี่ยนสีปุ่มและตัวอักษรปุ่มเริ่มดำเนินการซ่อม
                               }
-                              className="w-full bg-gradient-to-r from-emerald-500 to-emerald-600 text-white border border-emerald-400 font-bold py-3.5 rounded-xl shadow-[0_0_15px_rgba(16,185,129,0.4)] hover:shadow-[0_0_25px_rgba(16,185,129,0.6)] active:scale-95 transition-all text-sm"
+                              className="w-full bg-gradient-to-r from-emerald-500 to-emerald-600 text-white border border-emerald-400 font-bold py-3.5 rounded-xl shadow-[0_0_15px_rgba(16,185,129,0.4)] hover:shadow-[0_0_25px_rgba(16,185,129,0.6)] active:scale-95 transition-all text-[15px] hover:shadow-[0_0_25px_rgba(16,185,129,0.8)] hover:brightness-110 hover:-translate-y-1"
                             >
                               เริ่มดำเนินการซ่อม
                             </button>
@@ -2293,7 +2299,9 @@ function MainApp({ onGoHome, initialRole }) {
                                     });
                                   }
                                 }}
-                                className="flex-1 bg-gradient-to-r from-orange-400 to-orange-500 text-white border border-orange-300 font-bold py-3.5 rounded-xl shadow-[0_0_15px_rgba(249,115,22,0.4)] hover:shadow-[0_0_25px_rgba(249,115,22,0.6)] active:scale-95 transition-all text-xs"
+
+                                //เปลี่ยนสีปุ่ม ขนาดตัวอักษรแจ้งขัดข้อง
+                                className="flex-1 bg-gradient-to-r from-orange-400 to-orange-500 text-white border border-orange-300 font-bold py-3.5 rounded-xl shadow-[0_0_15px_rgba(249,115,22,0.4)] hover:shadow-[0_0_25px_rgba(249,115,22,0.6)] active:scale-95 transition-all text-[15px] hover:shadow-[0_0_25px_rgba(249,115,22,0.8)] hover:brightness-110 hover:-translate-y-1"
                               >
                                 {t.status === 'on_hold' ? 'ดำเนินการต่อ' : 'แจ้งขัดข้อง'}
                               </button>
@@ -2305,7 +2313,7 @@ function MainApp({ onGoHome, initialRole }) {
                                     type: 'finish',
                                   })
                                 }
-                                className="flex-[1.5] bg-gradient-to-r from-emerald-500 to-emerald-600 text-white border border-emerald-400 font-bold py-3.5 rounded-xl shadow-[0_0_15px_rgba(16,185,129,0.4)] hover:shadow-[0_0_25px_rgba(16,185,129,0.6)] active:scale-95 transition-all text-sm"
+                                className="flex-[1.5] bg-gradient-to-r from-emerald-500 to-emerald-600 text-white border border-emerald-400 font-bold py-3.5 rounded-xl shadow-[0_0_15px_rgba(16,185,129,0.4)] hover:shadow-[0_0_25px_rgba(16,185,129,0.6)] active:scale-95 transition-all text-[15px] hover:shadow-[0_0_25px_rgba(16,185,129,0.8)] hover:brightness-110 hover:-translate-y-1"
                               >
                                 ปิดงานซ่อม
                               </button>
@@ -2517,7 +2525,8 @@ function MainApp({ onGoHome, initialRole }) {
       )}
 
       {/* 🚀 Dynamic Header (อัปเกรด: แบนเนอร์พร้อมน้องมาสคอต 3D ด้านขวา) */}
-      <div className="bg-slate-900/50 backdrop-blur-xl pl-5 pr-4 py-3 flex items-center justify-between sticky top-4 z-50 border-2 border-solid border-orange-500 rounded-2xl mx-4 mt-4 shadow-[0_0_15px_rgba(249,115,22,0.4)]">
+      {/* 🚀 Dynamic Header (อัปเกรด: แบนเนอร์พร้อมน้องมาสคอต ยืดหดอัจฉริยะ) */}
+      <div className={`bg-slate-900/50 backdrop-blur-xl pl-5 pr-4 py-3 flex items-center justify-between sticky top-4 z-50 border-2 border-solid border-orange-500 rounded-2xl mt-4 transition-all duration-500 shadow-[0_0_15px_rgba(249,115,22,0.4)] ${activeTab === 'report' ? 'mx-auto w-[calc(100%-2rem)] md:max-w-2xl' : 'mx-4'}`}>
         
         {/* 🌟 โซนซ้าย: ไอคอนทางการ และ ชื่อหน้า */}
         <div className="flex items-center gap-3.5 z-10">
@@ -2580,7 +2589,8 @@ function MainApp({ onGoHome, initialRole }) {
       </div>
 
       {/* 🧭 Navigation Bar (ฟันธง: ขยายกรอบให้กว้างเท่า Header ด้านบนเฉพาะจอ PC) */}
-      <div className="fixed bottom-4 left-1/2 -translate-x-1/2 w-[calc(100%-2rem)] md:max-w-[992px] max-w-[416px] p-3 bg-slate-900/50 backdrop-blur-xl border-2 border-solid border-orange-500 rounded-xl z-[100] shadow-[0_0_15px_rgba(249,115,22,0.4)]">
+      {/* 🧭 Navigation Bar (ฟันธง: ขยายและหดกรอบอัจฉริยะตามหน้าจอที่เปิดใช้งาน) */}
+      <div className={`fixed bottom-4 left-1/2 -translate-x-1/2 w-[calc(100%-2rem)] max-w-[416px] p-3 bg-slate-900/50 backdrop-blur-xl border-2 border-solid border-orange-500 rounded-xl z-[100] transition-all duration-500 shadow-[0_0_15px_rgba(249,115,22,0.4)] ${activeTab === 'report' ? 'md:max-w-2xl' : 'md:max-w-[992px]'}`}>
       <div className="max-w-md mx-auto flex justify-evenly items-center relative">
           {/* 🏠 ปุ่ม HOME */}
           <button
