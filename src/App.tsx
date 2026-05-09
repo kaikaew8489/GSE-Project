@@ -957,38 +957,10 @@ function MainApp({ onGoHome, initialRole }) {
 
 
   
+  // 🌟 ลิสต์รายการงานสำหรับหน้า "ติดตามสถานะ/จัดการงาน" (แยกสมองอิสระ ไม่เกี่ยวกับเวลาในแผงควบคุม)
   const filteredTickets = useMemo(() => {
-    const now = new Date(); // ดึงเวลาปัจจุบันมาใช้คำนวณ
-
     return tickets.filter((t) => {
-      // 🌟 1. กรองตาม "เวลา/วันที่" (ลอกสมองกลมาจาก Stats ให้ตรงกันเป๊ะ!)
-      let timeMatch = true;
-      if (t.date) {
-        const tDate = new Date(t.date);
-        if (dashTimeframe === 'custom' && customMonth) {
-          const [year, month] = customMonth.split('-');
-          timeMatch = tDate.getFullYear() === parseInt(year) && (tDate.getMonth() + 1) === parseInt(month);
-        } else if (dashTimeframe === 'custom_date' && customDate) {
-          const selectedD = new Date(customDate);
-          timeMatch = tDate.getFullYear() === selectedD.getFullYear() && 
-                      tDate.getMonth() === selectedD.getMonth() && 
-                      tDate.getDate() === selectedD.getDate();
-        } else if (dashTimeframe === 'today') {
-          timeMatch = tDate.toDateString() === now.toDateString();
-        } else if (dashTimeframe === 'week') {
-          const firstDayOfWeek = new Date(now);
-          const currentDay = now.getDay();
-          const diffToMonday = currentDay === 0 ? -6 : 1 - currentDay;
-          firstDayOfWeek.setDate(now.getDate() + diffToMonday);
-          firstDayOfWeek.setHours(0, 0, 0, 0);
-          timeMatch = tDate >= firstDayOfWeek;
-        } else if (dashTimeframe === 'month') {
-          timeMatch = tDate.getMonth() === now.getMonth() && tDate.getFullYear() === now.getFullYear();
-        }
-      }
-      if (!timeMatch) return false; // 🚫 ถ้าวันที่ไม่ตรง เตะออกทันที! ไม่ต้องเอามาโชว์ในลิสต์
-
-      // 🌟 2. กรองตาม "คำค้นหา (Search)"
+      // 🌟 1. กรองตาม "คำค้นหา (Search)" อย่างเดียว
       const searchStr = searchTerm.toLowerCase();
       const matchSearch =
         !searchTerm ||
@@ -998,18 +970,16 @@ function MainApp({ onGoHome, initialRole }) {
         (t.techName && String(t.techName).toLowerCase().includes(searchStr));
       if (!matchSearch) return false;
       
-      // 🌟 3. กรองตาม "สถานะ (Tab)"
+      // 🌟 2. กรองตามปุ่ม "สถานะ (Tab)" ด้านบน
       if (filterStatus === 'all') return true;
       if (filterStatus === 'fixing') return ['acknowledged', 'in_progress'].includes(t.status);
       if (filterStatus === 'on_hold') return t.status === 'on_hold';
       if (filterStatus === 'verify') return t.status === 'completed';
       if (filterStatus === 'completed') return t.status === 'verified';
         
-      return t.status === filterStatus;
+      return t.status === filterStatus; // สำหรับ pending, cancelled
     });
-  }, [tickets, searchTerm, filterStatus, dashTimeframe, customMonth, customDate]); // 🌟 ยัดตัวแปรเวลาใส่สมองให้มันจำด้วย
-
-
+  }, [tickets, searchTerm, filterStatus]); // 🌟 ฟันธง: เอาตัวแปรเวลาออกให้เกลี้ยง!
 
 
   // ==========================================
@@ -1074,7 +1044,7 @@ function MainApp({ onGoHome, initialRole }) {
         </div>
 
        {/* 🔘 2. สวิตช์เลือกกรอบเวลา (อัปเกรดเป็นแบบปัดเลื่อนซ้ายขวาได้ ไม่ตกบรรทัด) */}
-       <div className="flex gap-2 bg-slate-600/80 p-2 rounded-2xl border-2 border-solid border-white-500/80 shadow-inner mt-4 overflow-x-auto scrollbar-hide snap-x">
+       <div className="flex gap-2 bg-slate-600/80 p-2 rounded-2xl border-2 border-solid border-white-/80 shadow-inner mt-4 overflow-x-auto scrollbar-hide snap-x">
           {[
             { id: 'today', label: 'วันนี้' },
             { id: 'week', label: 'สัปดาห์นี้' },
@@ -2936,25 +2906,35 @@ function MainApp({ onGoHome, initialRole }) {
           </div>
         </div>
 
-        {/* 🌟 โซนขวา: น้องมาสคอต GISTDA แอบมอง (3D Peeking Effect) */}
-        <div className="relative w-12 h-14 shrink-0 z-0 pointer-events-none">
-           {/* 💡 ทริค: ถ้าอนาคตท่านมีรูปมาสคอตหลายท่าทาง 
-             สามารถใส่เงื่อนไขแบบด้านล่างนี้ได้เลยครับ ตอนนี้ใช้รูป /mascot.webp ไปก่อน 
-           */}
+
+{/* 🌟 โซนขวา: น้องมาสคอต GISTDA แอบมอง (3D Peeking Effect) เปลี่ยน 4 ท่าทาง! */}
+<div className="relative w-12 h-14 shrink-0 z-0 pointer-events-none">
            <img 
              src={
-               activeTab === 'dashboard' ? "/mascot.webp" :
-               activeTab === 'report' ? "/mascot.webp" : // อนาคตเปลี่ยนเป็น /mascot-report.webp ได้
-               "/mascot.webp"
+               /* 1. เมนูแผงควบคุม */
+               activeTab === 'dashboard' 
+                 ? "/mascot-dashboard.webp" 
+                 
+               /* 2. เมนูแจ้งซ่อม */
+               : activeTab === 'report' 
+                 ? "/mascot-report.webp" 
+                 
+               /* 3. เมนูจัดการงานซ่อม (หน้า Tracking + โหมดช่าง) */
+               : (activeTab === 'tracking' && currentUserRole === 'technician')
+                 ? "/mascot-tech.webp" 
+                 
+               /* 4. เมนูติดตามสถานะ (หน้า Tracking + โหมดผู้แจ้ง) */
+                 : "/mascot-track.webp" 
              }
+             key={activeTab + currentUserRole} /* 🌟 ทริค: ใส่ key ให้รูปกระตุกเปลี่ยนแบบมีอนิเมชัน */
              alt="GSE Mascot" 
-
              // ดันรูปให้ทะลุกรอบออกมานิดนึง เกิดเป็นเอฟเฟกต์ 3 มิติ
-             className="absolute bottom-[-10px] right-[-10px] w-[65px] max-w-none h-auto object-contain drop-shadow-[0_5px_5px_rgba(0,0,0,0.4)]"
+             className="absolute bottom-[-10px] right-[-10px] w-[65px] max-w-none h-auto object-contain drop-shadow-[0_5px_5px_rgba(0,0,0,0.4)] animate-in slide-in-from-right-4 fade-in duration-500"
            />
         </div>
 
       </div>
+
 
       <div className="relative z-10 flex-1 overflow-y-auto overflow-x-hidden w-full scrollbar-hide pb-28">
         {activeTab === 'dashboard' &&
@@ -2963,6 +2943,9 @@ function MainApp({ onGoHome, initialRole }) {
         {activeTab === 'report' && renderReport()}
         {activeTab === 'tracking' && renderTracking()}
       </div>
+
+
+
 
       {/* 🧭 Navigation Bar (ฟันธง: ขยายกรอบให้กว้างเท่า Header ด้านบนเฉพาะจอ PC) */}
       {/* 🧭 Navigation Bar (ฟันธง: ขยายและหดกรอบอัจฉริยะตามหน้าจอที่เปิดใช้งาน) */}
@@ -3258,7 +3241,7 @@ function LandingPage({ onStart }) {
             {/* ⚪ ปุ่มคู่มือ */}
             <button
             onClick={() => setShowManual(true)} 
-            className="w-full bg-rose-600/40 hover:bg-slate-500/60 text-white text-[18px] font-bold py-4 rounded-2xl border-2 border-border-white/40 flex items-center justify-center gap-3 shadow-sm"
+            className="w-full bg-rose-600/40 hover:bg-slate-500/60 text-white text-[18px] font-bold py-4 rounded-2xl border-2 border-2 border-solid border-white/40 flex items-center justify-center gap-3 shadow-sm"
             >
             <FileText size={20} /> คู่มือการใช้งานเบื้องต้น
             </button>
