@@ -493,6 +493,7 @@ const calculateDuration = (start, end, holdMs = 0) => {
   return result.length > 0 ? result.join(' ') : "น้อยกว่า 1 นาที";
 };
 
+
 // ==========================================
 // 🌟 5. Main App Logic
 // ==========================================
@@ -2964,6 +2965,8 @@ const renderTracking = () => (
           currentUserRole === 'technician' ? 'bg-teal-500' : 'bg-amber-500'
         }`}
       ></div>
+
+
       {lightboxImg && (
         <div
           className="fixed inset-0 z-[200] bg-slate-900/90 flex items-center justify-center p-4 backdrop-blur-sm animate-in fade-in"
@@ -3269,7 +3272,7 @@ function LandingPage({ onStart }) {
           className="py-8 px-4 md:py-14 md:px-10 rounded-[1.5rem] md:rounded-[3rem] shadow-[0_0_80px_rgba(0,0,0,0.6)] flex flex-col items-center text-center w-full relative backdrop-blur-[2px] transition-all duration-500"
           style={{
             backgroundColor: 'rgba(15, 23, 42, 0.35)',
-            border: '4px solid #f97316',
+            border: '4px solid #FF4500',
           }}
         >
           {/* โลโก้ */}
@@ -3288,18 +3291,19 @@ function LandingPage({ onStart }) {
           <h1 className="text-3xl md:text-5xl font-black text-white mb-2 md:mb-4 drop-shadow-md transition-all duration-500">
             ระบบแจ้งซ่อม
           </h1>
-          <h2 className="text-[15px] md:text-[22px] font-bold text-orange-300 uppercase mb-1 md:mb-2 transition-all duration-500">
+          <h2 className="text-[15px] md:text-[28px] font-bold text-orange-500 uppercase mb-1 md:mb-2 transition-all duration-500">
             ฝ่ายวิศวกรรมระบบปฏิบัติการดาวเทียม
           </h2>
-          <h3 className="text-xs md:text-[16px] font-bold text-slate-100 tracking-widest transition-all duration-500">
+          <h3 className="text-xs md:text-[18px] font-bold text-slate-100 tracking-widest transition-all duration-500">
             สำนักปฏิบัติการดาวเทียม
           </h3>
 
           {/* 🌟 3. โซนน้องมาสคอต + กล่องคำพูด */}
           <div className="relative w-full mt-20 md:mt-32 mb-6 md:mb-12 flex items-start justify-end min-h-[180px] md:min-h-[260px] transition-all duration-500">
             
+
             {/* 👩‍🔧 น้องมาสคอตทะลุกรอบ */}
-            <div className="absolute left-[-70px] bottom-[-20px] z-20 w-[120%] max-w-[220px] pointer-events-none drop-shadow-[0_15px_15px_rgba(0,0,0,0.8)] transition-all duration-500">
+            <div className="absolute md:left-[-120px] bottom-[-20px] z-20 w-[120%] md:max-w-[300px] pointer-events-none drop-shadow-[0_15px_15px_rgba(0,0,0,0.8)] transition-all duration-500 md:max-w-[300px]">
               <img
                 src="/mascot.webp"
                 alt="Mascot"
@@ -3307,8 +3311,9 @@ function LandingPage({ onStart }) {
               />
             </div>
 
+
             {/* 💬 กล่องคำพูด */}
-            <div className="relative z-10 w-[60%] md:w-[65%] -mt-16 md:-mt-24 -mr-1 md:mr-4 bg-white rounded-3xl md:rounded-[2rem] p-3.5 md:p-6 shadow-[0_0_30px_rgba(255,255,255,0.2)] text-left border-2 border-slate-100 transition-all duration-500">
+            <div className="relative z-10 w-[60%] md:w-[50%] -mt-16 md:-mt-24 -mr-1 md:mr-4 bg-white rounded-3xl md:rounded-[2rem] p-3.5 md:p-6 shadow-[0_0_30px_rgba(255,255,255,0.2)] text-left border-2 border-slate-100 transition-all duration-500">
               <svg
                 className="absolute -left-4 md:-left-6 top-6 md:top-8 w-5 h-7 md:w-8 md:h-10 -z-10 transition-all duration-500"
                 viewBox="0 0 20 28" fill="none" xmlns="http://www.w3.org/2000/svg"
@@ -3354,13 +3359,13 @@ function LandingPage({ onStart }) {
 
         {/* 5. Footer */}
         <div className="mt-8 md:mt-12 text-center opacity-80 transition-all duration-500">
-          <p className="text-[10px] md:text-[14px] font-mono text-white tracking-widest font-bold normal-case">
+          <p className="text-[10px] md:text-[18px] font-mono text-white tracking-widest font-bold normal-case">
             ©2026 Ground System Engineering Division: GSE
           </p>
-          <p className="text-[9px] md:text-[12px] font-bold text-white mt-1 md:mt-2 text-center normal-case">
+          <p className="text-[9px] md:text-[15px] font-bold text-white mt-1 md:mt-2 text-center normal-case">
             Satellite Operation Office: SOO
           </p>
-          <p className="text-[9px] md:text-[12px] font-bold text-white mt-1 text-center normal-case">
+          <p className="text-[9px] md:text-[15px] font-bold text-white mt-1 text-center normal-case">
             Geo-Informatics and Space Technology Development Agency: GISTDA
           </p>
         </div>
