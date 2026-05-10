@@ -3228,7 +3228,7 @@ function LandingPage({ onStart }) {
           }}
         >
           {/* โลโก้ (ฟันธง: ถอดกรอบขาวออก ให้โลโก้ลอยตัวแบบ 3D พรีเมียมสุดๆ) */}
-          <div className="w-36 h-36 md:w-48 md:h-48 -mt-8 md:mt-4 mb-4 md:mb-8 flex items-center justify-center transition-all duration-500">
+          <div className="w-36 h-36 md:w-48 md:h-48 -mt-8 md:mt-8 -mb-1 md:mb-8 flex items-center justify-center transition-all duration-500">
             <img
               src="/GSE-logo.webp" /* 🌟 ตรวจสอบชื่อไฟล์โลโก้ของท่านให้ตรงด้วยนะครับ */
               alt="Logo"
@@ -3237,7 +3237,7 @@ function LandingPage({ onStart }) {
           </div>
 
           {/* ชื่อระบบ */}
-          <h1 className="text-3xl md:text-5xl font-black text-white mb-2 md:mb-4 drop-shadow-md transition-all duration-500">
+          <h1 className="text-3xl md:text-5xl font-black text-white -mb-4 md:mb-4 drop-shadow-md transition-all duration-500">
             ระบบแจ้งซ่อม
           </h1>
 
@@ -3276,7 +3276,7 @@ function LandingPage({ onStart }) {
             {/* ปุ่ม 1: ส้ม-ทอง (Primary Action) */}
             <button
               onClick={() => onStart('reporter')}
-              className="w-full pt-10 md:pt-14 pb-5 md:pb-7 bg-gradient-to-r from-orange-500 to-amber-500 text-white font-black text-[19px] md:text-[28px] rounded-2xl md:rounded-[1.5rem] flex items-center justify-center gap-3 md:gap-5 border-[2px] border-solid border-white/80 shadow-[0_15px_30px_rgba(249,115,22,0.5)] hover:shadow-[0_15px_35px_rgba(249,115,22,0.8)] active:scale-95 transition-all"
+              className="w-full pt-4 md:pt-14 pb-5 md:pb-7 bg-gradient-to-r from-orange-500 to-amber-500 text-white font-black text-[19px] md:text-[28px] rounded-2xl md:rounded-[1.5rem] flex items-center justify-center gap-3 md:gap-5 border-[2px] border-solid border-white/80 shadow-[0_15px_30px_rgba(249,115,22,0.5)] hover:shadow-[0_15px_35px_rgba(249,115,22,0.8)] active:scale-95 transition-all"
             >
               <Wrench size={28} className="drop-shadow-md md:w-9 md:h-9" />{' '}
               แจ้งซ่อมระบบ/อุปกรณ์
@@ -3300,7 +3300,7 @@ function LandingPage({ onStart }) {
             </button>
           </div>
 
-          <h2 className="text-[18px] md:text-[30px] font-bold text-orange-400 uppercase mt-5 md:mt-16 mb-1.5 md:mb-2 transition-all duration-500">
+          <h2 className="text-[15px] md:text-[30px] font-bold text-orange-400 uppercase mt-5 md:mt-16 mb-1.5 md:mb-2 transition-all duration-500">
             ฝ่ายวิศวกรรมระบบปฏิบัติการดาวเทียม
           </h2>
           <h3 className="text-xs md:text-[20px] font-bold text-slate-100 tracking-widest mt-1 mb-2 transition-all duration-500">
