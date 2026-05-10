@@ -501,13 +501,13 @@ const calculateDuration = (start, end, holdMs = 0) => {
 // 👇 🌟🌟 ฟันธง: บรรทัดนี้ของท่านหายไปครับ! เติมกลับเข้าไปด่วน ไม่งั้นแอปพังทั้งระบบ!
 function MainApp({ onGoHome, initialRole }) {
 
-  // 🌟 ฟันธงแก้: จำหน้า Tab ปัจจุบันไว้ในเครื่อง กันรีเฟรชแล้วเด้งกลับ
-  const [activeTab, setActiveTab] = useState(
-    () => localStorage.getItem('activeTab') || (initialRole === 'technician' ? 'dashboard' : 'report')
-  );
+ // 🌟 ฟันธงแก้: เปลี่ยนเป็น sessionStorage (จำเฉพาะตอนเปิดแอป ปิดแอปปุ๊บลืมทันที!)
+ const [activeTab, setActiveTab] = useState(
+  () => sessionStorage.getItem('activeTab') || (initialRole === 'technician' ? 'dashboard' : 'report')
+);
 
 useEffect(() => {
-  localStorage.setItem('activeTab', activeTab);
+  sessionStorage.setItem('activeTab', activeTab);
 }, [activeTab]);
 
 
@@ -3215,10 +3215,9 @@ function LandingPage({ onStart }) {
       <div className="absolute inset-0 z-0 bg-cover bg-center bg-no-repeat opacity-45 pointer-events-none" style={{ backgroundImage: "url('/bg-earth.webp')" }}></div>
       <div className="relative z-10 w-full max-w-md md:max-w-xl lg:max-w-2xl flex flex-col items-center animate-in slide-in-from-bottom-8 fade-in duration-1000">
         <div className="py-8 px-4 md:py-14 md:px-10 rounded-[1.5rem] md:rounded-[3rem] shadow-[0_0_80px_rgba(249,115,22,0.4)] flex flex-col items-center text-center w-full relative backdrop-blur-[2px] transition-all duration-500" style={{ backgroundColor: 'rgba(15, 23, 42, 0.35)', border: '4px solid #FF6A00' }}>
-         
-          {/* โลโก้ (ดันให้ชิดขอบวงกลมส้ม ไร้ขอบขาว) */}
-          <div
-            className="w-24 h-24 md:w-32 md:h-32 bg-white rounded-full -mt-5 md:-mt-8 mb-3 md:mb-6 flex items-center justify-center shadow-xl border-[4px] border-solid border-orange-500 transition-all duration-500 overflow-hidden"
+         {/* โลโก้ (ขยายขนาดวงกลมส้มให้ใหญ่ขึ้นตามสั่ง!) */}
+         <div
+            className="w-32 h-32 md:w-44 md:h-44 bg-white rounded-full -mt-8 md:-mt-12 mb-3 md:mb-6 flex items-center justify-center shadow-xl border-[4px] border-solid border-orange-500 transition-all duration-500 overflow-hidden"
           >
             <img
               src="/GSE-logo.webp"
@@ -3230,8 +3229,8 @@ function LandingPage({ onStart }) {
           <h1 className="text-3xl md:text-5xl font-black text-white mb-2 md:mb-4 drop-shadow-md transition-all duration-500">ระบบแจ้งซ่อม</h1>
           <div className="relative w-full mt-20 md:mt-32 mb-6 md:mb-12 flex items-start justify-end min-h-[180px] md:min-h-[260px] transition-all duration-500">
 
-           {/* น้องมาสคอต (ล็อกมือถือให้เล็ก ไม่บังปุ่ม / PC ขยายใหญ่) */}
-           <div className="absolute left-[-20px] md:left-[-120px] bottom-[0px] md:bottom-[-20px] z-20 w-[45%] md:w-[120%] max-w-[140px] md:max-w-[300px] pointer-events-none drop-shadow-[0_15px_15px_rgba(0,0,0,0.8)] transition-all duration-500">
+        {/* น้องมาสคอต (อัปเกรด: ขยายขนาดเวอร์ชันมือถือให้ใหญ่ขึ้น!) */}
+        <div className="absolute left-[-25px] md:left-[-120px] bottom-[0px] md:bottom-[-20px] z-20 w-[60%] md:w-[120%] max-w-[200px] md:max-w-[300px] pointer-events-none drop-shadow-[0_15px_15px_rgba(0,0,0,0.8)] transition-all duration-500">
               <img
                 src="/mascot.webp"
                 alt="Mascot"
@@ -3257,7 +3256,6 @@ function LandingPage({ onStart }) {
           <h3 className="text-xs md:text-[18px] font-bold text-slate-100 tracking-widest mt-2 mb-6 transition-all duration-500">
             สำนักปฏิบัติการดาวเทียม
           </h3>
-
           
         </div>
         <div className="mt-8 md:mt-12 text-center opacity-80 transition-all duration-500">
@@ -3288,18 +3286,30 @@ function LandingPage({ onStart }) {
 // 🚀 ส่วนควบคุมระบบ (App Component)
 // ==========================================
 export default function App() {
-  const [hasStarted, setHasStarted] = useState(() => localStorage.getItem('hasStarted') === 'true');
-  const [role, setRole] = useState(() => localStorage.getItem('role') || 'reporter');
+  // 🌟 เปลี่ยนจาก localStorage เป็น sessionStorage ทั้งหมด!
+  const [hasStarted, setHasStarted] = useState(() => sessionStorage.getItem('hasStarted') === 'true');
+  const [role, setRole] = useState(() => sessionStorage.getItem('role') || 'reporter');
+
   const handleStart = (selectedRole) => {
-    setRole(selectedRole); setHasStarted(true);
-    localStorage.setItem('role', selectedRole); localStorage.setItem('hasStarted', 'true');
+    setRole(selectedRole);
+    setHasStarted(true);
+    sessionStorage.setItem('role', selectedRole);
+    sessionStorage.setItem('hasStarted', 'true');
   };
+
   const handleGoHome = () => {
-    setHasStarted(false); localStorage.removeItem('hasStarted'); localStorage.removeItem('activeTab');
+    setHasStarted(false);
+    sessionStorage.removeItem('hasStarted');
+    sessionStorage.removeItem('activeTab');
   };
+
   return (
     <ErrorBoundary>
-      {hasStarted ? <MainApp onGoHome={handleGoHome} initialRole={role} /> : <LandingPage onStart={handleStart} />}
+      {hasStarted ? (
+        <MainApp onGoHome={handleGoHome} initialRole={role} />
+      ) : (
+        <LandingPage onStart={handleStart} />
+      )}
     </ErrorBoundary>
   );
 }
