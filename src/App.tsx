@@ -2989,7 +2989,7 @@ const renderTracking = () => (
         </div>
       )}
 
-      {/* 🚀 Dynamic Header (อัปเกรด: แบนเนอร์พร้อมน้องมาสคอต 3D ด้านขวา) */}
+  
       {/* 🚀 Dynamic Header (อัปเกรด: แบนเนอร์พร้อมน้องมาสคอต ยืดหดอัจฉริยะ) */}
       <div className={`bg-slate-900/50 backdrop-blur-xl pl-5 pr-4 py-3 flex items-center justify-between sticky top-4 z-50 border-2 border-solid border-orange-500 rounded-2xl mt-4 transition-all duration-500 shadow-[0_0_15px_rgba(249,115,22,0.4)] ${activeTab === 'report' ? 'mx-auto w-[calc(100%-2rem)] md:max-w-2xl' : 'mx-4'}`}>
         
@@ -3251,19 +3251,18 @@ const renderTracking = () => (
 
 
 // ==========================================
-// 🌟 Landing Page - ฉบับอัปเกรด (ขยายร่างเต็มตาบน PC แต่พอดีเป๊ะบนมือถือ!)
+// 🌟 Landing Page - ฉบับสมบูรณ์ ไร้ Error 100%
 // ==========================================
 function LandingPage({ onStart }) {
   const [showManual, setShowManual] = useState(false); 
   return (
     <div className="relative min-h-screen flex flex-col items-center justify-center p-6 md:p-12 overflow-hidden bg-slate-900 font-sans">
-      {/* 1. ภาพพื้นหลังลูกโลก */}
+      {/* 1. ภาพพื้นหลังลูกโลก (สว่างขึ้นเป็น opacity-45) */}
       <div
-        className="absolute inset-0 z-0 bg-cover bg-center bg-no-repeat opacity-30 pointer-events-none"
+        className="absolute inset-0 z-0 bg-cover bg-center bg-no-repeat opacity-45 pointer-events-none"
         style={{ backgroundImage: "url('/bg-earth.webp')" }}
       ></div>
 
-      {/* 🌟 ฟันธง: เพิ่ม md:max-w-xl และ lg:max-w-2xl เพื่อให้กล่องขยายใหญ่ขึ้นเมื่ออยู่บนจอคอม */}
       <div className="relative z-10 w-full max-w-md md:max-w-xl lg:max-w-2xl flex flex-col items-center animate-in slide-in-from-bottom-8 fade-in duration-1000">
         
         <div
@@ -3273,7 +3272,7 @@ function LandingPage({ onStart }) {
             border: '4px solid #f97316',
           }}
         >
-          {/* โลโก้ (ขยายจาก 24 เป็น 32 บน PC) */}
+          {/* โลโก้ */}
           <div
             className="w-24 h-24 md:w-32 md:h-32 bg-white rounded-full p-2 -mt-5 md:-mt-8 mb-3 md:mb-6 flex items-center justify-center shadow-xl border-4 border-solid border-orange-500 transition-all duration-500"
             style={{ boxShadow: 'inset 0 0 0 4px #10b981' }}
@@ -3285,22 +3284,22 @@ function LandingPage({ onStart }) {
             />
           </div>
 
-          {/* ชื่อระบบ (ขยายฟอนต์จาก 3xl เป็น 5xl บน PC) */}
+          {/* ชื่อระบบ */}
           <h1 className="text-3xl md:text-5xl font-black text-white mb-2 md:mb-4 drop-shadow-md transition-all duration-500">
             ระบบแจ้งซ่อม
           </h1>
-          <h2 className="text-[15px] md:text-[22px] font-bold text-orange-400 uppercase mb-1 md:mb-2 transition-all duration-500">
+          <h2 className="text-[15px] md:text-[22px] font-bold text-orange-300 uppercase mb-1 md:mb-2 transition-all duration-500">
             ฝ่ายวิศวกรรมระบบปฏิบัติการดาวเทียม
           </h2>
-          <h3 className="text-xs md:text-[16px] font-bold text-slate-300 tracking-widest transition-all duration-500">
+          <h3 className="text-xs md:text-[16px] font-bold text-slate-100 tracking-widest transition-all duration-500">
             สำนักปฏิบัติการดาวเทียม
           </h3>
 
-          {/* 🌟 โซนน้องมาสคอต + กล่องคำพูด (ปรับสมดุลสัดส่วนใหม่) */}
+          {/* 🌟 3. โซนน้องมาสคอต + กล่องคำพูด */}
           <div className="relative w-full mt-20 md:mt-32 mb-6 md:mb-12 flex items-start justify-end min-h-[180px] md:min-h-[260px] transition-all duration-500">
             
-            {/* 👩‍🔧 น้องมาสคอต (ขยับออกซ้าย และใหญ่ขึ้นบน PC) */}
-            <div className="absolute left-[-35px] md:left-[-70px] lg:left-[-90px] bottom-0 z-20 w-[100%] max-w-[180px] md:max-w-[260px] pointer-events-none drop-shadow-[0_15px_15px_rgba(0,0,0,0.8)] transition-all duration-500">
+            {/* 👩‍🔧 น้องมาสคอตทะลุกรอบ */}
+            <div className="absolute left-[-70px] bottom-[-20px] z-20 w-[120%] max-w-[220px] pointer-events-none drop-shadow-[0_15px_15px_rgba(0,0,0,0.8)] transition-all duration-500">
               <img
                 src="/mascot.webp"
                 alt="Mascot"
@@ -3308,7 +3307,7 @@ function LandingPage({ onStart }) {
               />
             </div>
 
-            {/* 💬 กล่องคำพูด (ปรับให้กว้างขึ้นและตัวหนังสือใหญ่ขึ้นบน PC) */}
+            {/* 💬 กล่องคำพูด */}
             <div className="relative z-10 w-[60%] md:w-[65%] -mt-16 md:-mt-24 -mr-1 md:mr-4 bg-white rounded-3xl md:rounded-[2rem] p-3.5 md:p-6 shadow-[0_0_30px_rgba(255,255,255,0.2)] text-left border-2 border-slate-100 transition-all duration-500">
               <svg
                 className="absolute -left-4 md:-left-6 top-6 md:top-8 w-5 h-7 md:w-8 md:h-10 -z-10 transition-all duration-500"
@@ -3316,19 +3315,18 @@ function LandingPage({ onStart }) {
               >
                 <path d="M20 1 L2 14 L20 27" fill="#ffffff" stroke="#f1f5f9" strokeWidth="2" strokeLinejoin="round" />
               </svg>
-              <p className="text-[13px] md:text-[18px] font-bold text-slate-700 leading-relaxed relative z-20 transition-all duration-500">
+              <p className="text-[13px] md:text-[18px] font-bold text-slate-700 leading-relaxed relative z-20 transition-all duration-500 shadow-none">
                 ระบบมีปัญหาใช่มั้ยคะ?
                 <br />
-                <span className="text-red-500 font-black text-[13px] md:text-[20px] mt-1 md:mt-2 inline-block drop-shadow-sm whitespace-nowrap">
+                <span className="text-red-500 font-black text-[14px] md:text-[20px] mt-1 md:mt-2 inline-block drop-shadow-sm whitespace-nowrap">
                   กดแจ้งซ่อมได้เลย! 👇
                 </span>
               </p>
             </div>
           </div>
 
-          {/* 4. กลุ่มปุ่มกด (ขยายขนาดปุ่มและตัวอักษร) */}
+          {/* 4. กลุ่มปุ่มกด */}
           <div className="w-full flex flex-col gap-4 md:gap-6 -mt-5 relative z-30 transition-all duration-500">
-            {/* 🟠 ปุ่มที่ 1 */}
             <button
               onClick={() => onStart('reporter')}
               className="w-full bg-gradient-to-r from-orange-500 to-amber-500 text-white font-black text-[19px] md:text-[28px] py-5 md:py-7 rounded-2xl md:rounded-[1.5rem] flex items-center justify-center gap-3 md:gap-5 border-2 border-white shadow-xl shadow-orange-500/30 active:scale-95 transition-all"
@@ -3337,7 +3335,6 @@ function LandingPage({ onStart }) {
               แจ้งซ่อมระบบ/อุปกรณ์
             </button>
 
-            {/* 🟢 ปุ่มวิศวกร/ทีมช่าง */}
             <button
               onClick={() => onStart('technician')}
               className="w-full bg-green-600/40 hover:bg-orange-500/60 text-yellow-300 font-black text-lg md:text-[22px] py-4 md:py-6 rounded-2xl md:rounded-[1.5rem] border-2 border-white/50 flex items-center justify-center gap-3 shadow-lg active:scale-95 transition-all"
@@ -3346,7 +3343,6 @@ function LandingPage({ onStart }) {
               สำหรับเจ้าหน้าที่ ฝวด.
             </button>
 
-            {/* ⚪ ปุ่มคู่มือ */}
             <button
             onClick={() => setShowManual(true)} 
             className="w-full bg-rose-600/40 hover:bg-slate-500/60 text-white text-[18px] md:text-[20px] font-bold py-4 md:py-5 rounded-2xl md:rounded-[1.5rem] border-2 border-white/40 flex items-center justify-center gap-3 shadow-sm transition-all"
@@ -3356,7 +3352,7 @@ function LandingPage({ onStart }) {
           </div>
         </div>
 
-        {/* 5. Footer (ขยายฟอนต์ให้ชัดขึ้นบน PC) */}
+        {/* 5. Footer */}
         <div className="mt-8 md:mt-12 text-center opacity-80 transition-all duration-500">
           <p className="text-[10px] md:text-[14px] font-mono text-white tracking-widest font-bold normal-case">
             ©2026 Ground System Engineering Division: GSE
@@ -3370,7 +3366,7 @@ function LandingPage({ onStart }) {
         </div>
       </div>
 
-      {/* 🌟 หน้าต่าง Popup คู่มือ (อัปเกรดให้รองรับจอคอม) */}
+      {/* 🌟 หน้าต่าง Popup คู่มือ */}
       {showManual && (
         <div className="fixed inset-0 z-[200] bg-slate-900/90 flex flex-col items-center justify-center p-4 backdrop-blur-sm animate-in fade-in">
           <div className="w-full max-w-lg md:max-w-4xl bg-slate-800 border-2 border-orange-500 rounded-2xl md:rounded-[2rem] overflow-hidden shadow-2xl flex flex-col max-h-[85vh] transition-all">
@@ -3395,7 +3391,6 @@ function LandingPage({ onStart }) {
 // 🚀 ส่วนควบคุมระบบ (App Component)
 // ==========================================
 export default function App() {
-  // 🌟 ฟันธงกู้คืน: ใช้ localStorage จำค่าการเข้าสู่ระบบ กันรีเฟรชหลุด!
   const [hasStarted, setHasStarted] = useState(() => localStorage.getItem('hasStarted') === 'true');
   const [role, setRole] = useState(() => localStorage.getItem('role') || 'reporter');
 
