@@ -2008,20 +2008,7 @@ function MainApp({ onGoHome, initialRole }) {
 
       </div>
 
-      {/* 🌟 ฟันธงข้อ 2: ป้ายบอกสถานะเวลาที่กำลังดูอยู่ (แทรกตรงนี้) */}
-      <div className="flex items-center gap-2 px-1 pb-1 animate-in fade-in">
-          <Clock size={16} className="text-orange-500" />
-          <span className="text-[13px] font-black text-slate-300 tracking-widest">
-            {trackTimeframe === 'custom_date' && trackDate 
-              ? `แสดงข้อมูลเฉพาะวันที่: ${parseInt(trackDate.split('-')[2])} ${['ม.ค.','ก.พ.','มี.ค.','เม.ย.','พ.ค.','มิ.ย.','ก.ค.','ส.ค.','ก.ย.','ต.ค.','พ.ย.','ธ.ค.'][parseInt(trackDate.split('-')[1])-1]} ${parseInt(trackDate.split('-')[0]) + 543}` 
-            : trackTimeframe === 'custom_month' && trackMonth 
-              ? `แสดงข้อมูลเฉพาะเดือน: ${['มกราคม','กุมภาพันธ์','มีนาคม','เมษายน','พฤษภาคม','มิถุนายน','กรกฎาคม','สิงหาคม','กันยายน','ตุลาคม','พฤศจิกายน','ธันวาคม'][parseInt(trackMonth.split('-')[1])-1]} ${parseInt(trackMonth.split('-')[0]) + 543}` 
-            : 'แสดงข้อมูล: ทั้งหมด (ทุกวัน)'}
-          </span>
-        </div>
-        {/* ------------------------------------- */}
-
-        
+      
 
       {/* 🌟 โซนค้นหา และ กรองเวลา (อัปเกรดให้หน้าติดตามสถานะ!) */}
       <div className="relative sticky top-0 z-30 py-2 space-y-3 bg-slate-900/90 backdrop-blur-md pb-3 border-b border-slate-700/50 mb-4">
@@ -2121,7 +2108,20 @@ function MainApp({ onGoHome, initialRole }) {
         </div>
       </div>
 
+{/* 🌟 ฟันธงข้อ 2: ป้ายบอกสถานะเวลาที่กำลังดูอยู่ (แทรกตรงนี้) */}
+<div className="flex items-center gap-2 px-1 pb-1 animate-in fade-in">
+          <Clock size={16} className="text-orange-500" />
+          <span className="text-[13px] font-black text-slate-300 tracking-widest">
+            {trackTimeframe === 'custom_date' && trackDate 
+              ? `แสดงข้อมูลเฉพาะวันที่: ${parseInt(trackDate.split('-')[2])} ${['ม.ค.','ก.พ.','มี.ค.','เม.ย.','พ.ค.','มิ.ย.','ก.ค.','ส.ค.','ก.ย.','ต.ค.','พ.ย.','ธ.ค.'][parseInt(trackDate.split('-')[1])-1]} ${parseInt(trackDate.split('-')[0]) + 543}` 
+            : trackTimeframe === 'custom_month' && trackMonth 
+              ? `แสดงข้อมูลเฉพาะเดือน: ${['มกราคม','กุมภาพันธ์','มีนาคม','เมษายน','พฤษภาคม','มิถุนายน','กรกฎาคม','สิงหาคม','กันยายน','ตุลาคม','พฤศจิกายน','ธันวาคม'][parseInt(trackMonth.split('-')[1])-1]} ${parseInt(trackMonth.split('-')[0]) + 543}` 
+            : 'แสดงข้อมูล: ทั้งหมด (ทุกวัน)'}
+          </span>
+        </div>
+        {/* ------------------------------------- */}
 
+        
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-5 font-sans">
         {isDataLoading ? (
