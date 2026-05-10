@@ -2948,7 +2948,6 @@ const renderTracking = () => (
   );
 
   return (
-    // 🌟 1. กรอบจักรวาล (กางเต็ม 100% ของหน้าจอ บังขอบขาวมิดชัวร์!)
     <div className="fixed inset-0 w-full h-full bg-slate-900 flex justify-center overflow-hidden">
       
       {/* 🌍 ภาพพื้นหลังลูกโลก (ขยายเต็มจอ และปรับความสว่างให้พอดี) */}
@@ -2957,7 +2956,7 @@ const renderTracking = () => (
         style={{ backgroundImage: "url('/bg-earth.webp')" }}
       ></div>
 
-      {/* 🔮 แสงเรืองแสงอวกาศตามโหมด */}
+      {/* 🔮 แสงเรืองแสงอวกาศตามโหมด (ขยายไซส์และให้อยู่ขอบจอจริง) */}
       <div
         className={`absolute -top-20 -left-20 w-96 h-96 rounded-full blur-[100px] opacity-40 pointer-events-none z-0 transition-colors duration-1000 ${
           currentUserRole === 'technician' ? 'bg-emerald-500' : 'bg-orange-500'
@@ -2973,6 +2972,7 @@ const renderTracking = () => (
       <div className="relative z-10 flex flex-col h-screen w-full max-w-md md:max-w-5xl shadow-[0_0_50px_rgba(0,0,0,0.6)] border-x border-slate-700/50 bg-slate-900/40 backdrop-blur-md overflow-hidden text-slate-100 font-sans select-none">
       
       {lightboxImg && (
+
         <div
           className="fixed inset-0 z-[200] bg-slate-900/90 flex items-center justify-center p-4 backdrop-blur-sm animate-in fade-in"
           onClick={() => setLightboxImg(null)}
@@ -2997,6 +2997,7 @@ const renderTracking = () => (
         </div>
       )}
 
+  
       {/* 🚀 Dynamic Header (อัปเกรด: แบนเนอร์พร้อมน้องมาสคอต ยืดหดอัจฉริยะ) */}
       <div className={`bg-slate-900/50 backdrop-blur-xl pl-5 pr-4 py-3 flex items-center justify-between sticky top-4 z-50 border-2 border-solid border-orange-500 rounded-2xl mt-4 transition-all duration-500 shadow-[0_0_15px_rgba(249,115,22,0.4)] ${activeTab === 'report' ? 'mx-auto w-[calc(100%-2rem)] md:max-w-2xl' : 'mx-4'}`}>
         
@@ -3014,7 +3015,12 @@ const renderTracking = () => (
             )}
           </div>
           
+          {/* 🌟 2. ข้อความหัวข้อ (ลดขนาดลง และเปลี่ยนสีให้สว่างสบายตา) */}
           <div>
+            {/* 💡 ฟันธงจุดที่แก้ไข:
+               1. เปลี่ยน text-orange-600 -> เป็น text-white (สีขาวสว่าง) หรือ text-orange-400 (สีส้มทองอ่อนๆ)
+               2. เปลี่ยน text-3xl -> เป็น text-2xl (เล็กลง 1 สเต็ปให้พอดีกรอบ)
+            */}
             <h1 className="font-black text-white text-2xl tracking-widest leading-none drop-shadow-[0_2px_2px_rgba(0,0,0,0.5)] py-1 whitespace-nowrap">
               {activeTab === 'dashboard'
                 ? 'แผงควบคุม'
@@ -3027,60 +3033,143 @@ const renderTracking = () => (
           </div>
         </div>
 
-        {/* 🌟 โซนขวา: น้องมาสคอต GISTDA แอบมอง */}
-        <div className="relative w-12 h-14 shrink-0 z-0 pointer-events-none">
+
+{/* 🌟 โซนขวา: น้องมาสคอต GISTDA แอบมอง (3D Peeking Effect) เปลี่ยน 4 ท่าทาง! */}
+<div className="relative w-12 h-14 shrink-0 z-0 pointer-events-none">
            <img 
              src={
+               /* 1. เมนูแผงควบคุม */
                activeTab === 'dashboard' 
                  ? "/mascot-dashboard.webp" 
-                 : activeTab === 'report' 
-                   ? "/mascot-report.webp" 
-                   : (activeTab === 'tracking' && currentUserRole === 'technician')
-                     ? "/mascot-tech.webp" 
-                     : "/mascot-track.webp" 
+                 
+               /* 2. เมนูแจ้งซ่อม */
+               : activeTab === 'report' 
+                 ? "/mascot-report.webp" 
+                 
+               /* 3. เมนูจัดการงานซ่อม (หน้า Tracking + โหมดช่าง) */
+               : (activeTab === 'tracking' && currentUserRole === 'technician')
+                 ? "/mascot-tech.webp" 
+                 
+               /* 4. เมนูติดตามสถานะ (หน้า Tracking + โหมดผู้แจ้ง) */
+                 : "/mascot-track.webp" 
              }
-             key={activeTab + currentUserRole}
+             key={activeTab + currentUserRole} /* 🌟 ทริค: ใส่ key ให้รูปกระตุกเปลี่ยนแบบมีอนิเมชัน */
              alt="GSE Mascot" 
+             // ดันรูปให้ทะลุกรอบออกมานิดนึง เกิดเป็นเอฟเฟกต์ 3 มิติ
              className="absolute bottom-[-10px] right-[-10px] w-[65px] max-w-none h-auto object-contain drop-shadow-[0_5px_5px_rgba(0,0,0,0.4)] animate-in slide-in-from-right-4 fade-in duration-500"
            />
         </div>
+
       </div>
 
+
       <div className="relative z-10 flex-1 overflow-y-auto overflow-x-hidden w-full scrollbar-hide pb-28">
-        {activeTab === 'dashboard' && currentUserRole === 'technician' && renderDashboard()}
+        {activeTab === 'dashboard' &&
+          currentUserRole === 'technician' &&
+          renderDashboard()}
         {activeTab === 'report' && renderReport()}
         {activeTab === 'tracking' && renderTracking()}
       </div>
 
-      {/* 🧭 Navigation Bar */}
+
+
+
+      {/* 🧭 Navigation Bar (ฟันธง: ขยายกรอบให้กว้างเท่า Header ด้านบนเฉพาะจอ PC) */}
+      {/* 🧭 Navigation Bar (ฟันธง: ขยายและหดกรอบอัจฉริยะตามหน้าจอที่เปิดใช้งาน) */}
       <div className={`fixed bottom-4 left-1/2 -translate-x-1/2 w-[calc(100%-2rem)] max-w-[416px] p-3 bg-slate-900/50 backdrop-blur-xl border-2 border-solid border-orange-500 rounded-xl z-[100] transition-all duration-500 shadow-[0_0_15px_rgba(249,115,22,0.4)] ${activeTab === 'report' ? 'md:max-w-2xl' : 'md:max-w-[992px]'}`}>
-        <div className="max-w-md mx-auto flex justify-evenly items-center relative">
-          
+      <div className="max-w-md mx-auto flex justify-evenly items-center relative">
           {/* 🏠 ปุ่ม HOME */}
-          <button onClick={onGoHome} className="flex flex-col items-center justify-center transition-all duration-300 w-24 group scale-100 hover:scale-110 hover:-translate-y-2">
+          <button
+            onClick={onGoHome}
+            className="flex flex-col items-center justify-center transition-all duration-300 w-24 group scale-100 hover:scale-110 hover:-translate-y-2"
+          >
             <div className="p-3 rounded-full mb-1 transition-all duration-300 bg-transparent text-slate-300 group-hover:bg-gradient-to-b group-hover:from-orange-400 group-hover:to-orange-600 group-hover:text-white group-hover:shadow-[0_0_15px_rgba(249,115,22,0.8)]">
-              <Home size={26} className="group-hover:stroke-[2.5px] transition-all" />
+              <Home
+                size={26}
+                className="group-hover:stroke-[2.5px] transition-all"
+              />
             </div>
-            <span className="text-[13px] tracking-widest transition-colors font-bold text-slate-300 group-hover:text-white group-hover:drop-shadow-[0_0_5px_rgba(255,255,255,0.8)]">หน้าแรก</span>
+            <span className="text-[13px] tracking-widest transition-colors font-bold text-slate-300 group-hover:text-white group-hover:drop-shadow-[0_0_5px_rgba(255,255,255,0.8)]">
+              หน้าแรก
+            </span>
           </button>
 
           {/* ================= โหมดผู้แจ้ง (Reporter) ================= */}
           {currentUserRole === 'reporter' && (
             <>
               {/* 🟠 ปุ่มแจ้งซ่อม */}
-              <button onClick={() => setActiveTab('report')} className={`flex flex-col items-center justify-center transition-all duration-300 w-24 group ${activeTab === 'report' ? 'scale-110' : 'scale-100 hover:scale-110'}`}>
-                <div className={`p-3 rounded-full mb-1 transition-all duration-300 ${activeTab === 'report' ? 'bg-gradient-to-b from-orange-400 to-orange-600 text-white shadow-[0_0_20px_rgba(249,115,22,0.8)] border-[2px] border-solid border-white' : 'bg-transparent text-slate-300 group-hover:bg-gradient-to-b group-hover:from-orange-400 group-hover:to-orange-600 group-hover:text-white group-hover:shadow-[0_0_15px_rgba(249,115,22,0.8)]'}`}>
-                  <PlusCircle size={26} className={activeTab === 'report' ? 'stroke-[2.5px]' : 'group-hover:stroke-[2.5px]'} />
+              <button
+                onClick={() => setActiveTab('report')}
+                className={`flex flex-col items-center justify-center transition-all duration-300 w-24 group ${
+                  activeTab === 'report'
+                  ? 'scale-110'
+                  : 'scale-100 hover:scale-110'
+                }`}
+              >
+                <div
+                  className={`p-3 rounded-full mb-1 transition-all duration-300 ${
+                    activeTab === 'report'
+                      ? 'bg-gradient-to-b from-orange-400 to-orange-600 text-white shadow-[0_0_20px_rgba(249,115,22,0.8)] border-[2px] border-solid border-white'
+                      : 'bg-transparent text-slate-300 group-hover:bg-gradient-to-b group-hover:from-orange-400 group-hover:to-orange-600 group-hover:text-white group-hover:shadow-[0_0_15px_rgba(249,115,22,0.8)]'
+                  }`}
+                >
+                  <PlusCircle
+                    size={26}
+                    className={
+                      activeTab === 'report'
+                        ? 'stroke-[2.5px]'
+                        : 'group-hover:stroke-[2.5px]'
+                    }
+                  />
                 </div>
-                <span className={`text-[13px] tracking-widest transition-colors ${activeTab === 'report' ? 'text-orange-400 font-black drop-shadow-[0_0_8px_rgba(249,115,22,0.8)]' : 'text-slate-300 font-bold group-hover:text-white group-hover:drop-shadow-[0_0_5px_rgba(255,255,255,0.8)]'}`}>แจ้งซ่อม</span>
+                <span
+                  className={`text-[13px] tracking-widest transition-colors ${
+                    activeTab === 'report'
+                      ? 'text-orange-400 font-black drop-shadow-[0_0_8px_rgba(249,115,22,0.8)]'
+                      : 'text-slate-300 font-bold group-hover:text-white group-hover:drop-shadow-[0_0_5px_rgba(255,255,255,0.8)]'
+                  }`}
+                >
+                  แจ้งซ่อม
+                </span>
               </button>
 
               {/* 🟠 ปุ่มติดตามสถานะ */}
-              <button onClick={() => { setActiveTab('tracking'); setSearchTerm(''); }} className={`flex flex-col items-center justify-center transition-all duration-300 w-24 group ${activeTab === 'tracking' ? 'scale-110' : 'scale-100 hover:scale-110'}`}>
-                <div className={`p-3 rounded-full mb-1 transition-all duration-300 ${activeTab === 'tracking' ? 'bg-gradient-to-b from-orange-400 to-orange-600 text-white shadow-[0_0_20px_rgba(249,115,22,0.8)] border-[2px] border-solid border-white' : 'bg-transparent text-slate-300 group-hover:bg-gradient-to-b group-hover:from-orange-400 group-hover:to-orange-600 group-hover:text-white group-hover:shadow-[0_0_15px_rgba(249,115,22,0.8)]'}`}>
-                  <ClipboardCheck size={26} className={activeTab === 'tracking' ? 'stroke-[2.5px]' : 'group-hover:stroke-[2.5px]'} />
+              <button
+                onClick={() => {
+                  setActiveTab('tracking');
+                  setSearchTerm('');
+                }}
+                className={`flex flex-col items-center justify-center transition-all duration-300 w-24 group ${
+                  activeTab === 'tracking'
+                  ? 'scale-110'
+                  : 'scale-100 hover:scale-110'
+                }`}
+              >
+                <div
+                  className={`p-3 rounded-full mb-1 transition-all duration-300 ${
+                    activeTab === 'tracking'
+                      ? 'bg-gradient-to-b from-orange-400 to-orange-600 text-white shadow-[0_0_20px_rgba(249,115,22,0.8)] border-[2px] border-solid border-white'
+                      : 'bg-transparent text-slate-300 group-hover:bg-gradient-to-b group-hover:from-orange-400 group-hover:to-orange-600 group-hover:text-white group-hover:shadow-[0_0_15px_rgba(249,115,22,0.8)]'
+                  }`}
+                >
+                  <ClipboardCheck
+                    size={26}
+                    className={
+                      activeTab === 'tracking'
+                        ? 'stroke-[2.5px]'
+                        : 'group-hover:stroke-[2.5px]'
+                    }
+                  />
                 </div>
-                <span className={`text-[13px] tracking-widest transition-colors ${activeTab === 'tracking' ? 'text-orange-400 font-black drop-shadow-[0_0_8px_rgba(249,115,22,0.8)]' : 'text-slate-300 font-bold group-hover:text-white group-hover:drop-shadow-[0_0_5px_rgba(255,255,255,0.8)]'}`}>ติดตามสถานะ</span>
+                <span
+                  className={`text-[13px] tracking-widest transition-colors ${
+                    activeTab === 'tracking'
+                      ? 'text-orange-400 font-black drop-shadow-[0_0_8px_rgba(249,115,22,0.8)]'
+                      : 'text-slate-300 font-bold group-hover:text-white group-hover:drop-shadow-[0_0_5px_rgba(255,255,255,0.8)]'
+                  }`}
+                >
+                  ติดตามสถานะ
+                </span>
               </button>
             </>
           )}
@@ -3089,28 +3178,83 @@ const renderTracking = () => (
           {currentUserRole === 'technician' && (
             <>
               {/* 🟠 ปุ่มแผงควบคุม */}
-              <button onClick={() => setActiveTab('dashboard')} className={`flex flex-col items-center justify-center transition-all duration-300 w-24 group ${activeTab === 'dashboard' ? 'scale-110' : 'scale-100 hover:scale-110'}`}>
-                <div className={`p-3 rounded-full mb-1 transition-all duration-300 ${activeTab === 'dashboard' ? 'bg-gradient-to-b from-orange-400 to-orange-600 text-white shadow-[0_0_20px_rgba(249,115,22,0.8)] border-[2px] border-solid border-white' : 'bg-transparent text-slate-300 group-hover:bg-gradient-to-b group-hover:from-orange-400 group-hover:to-orange-600 group-hover:text-white group-hover:shadow-[0_0_15px_rgba(249,115,22,0.8)]'}`}>
-                  <LayoutDashboard size={26} className={activeTab === 'dashboard' ? 'stroke-[2.5px]' : 'group-hover:stroke-[2.5px]'} />
+              <button
+                onClick={() => setActiveTab('dashboard')}
+                className={`flex flex-col items-center justify-center transition-all duration-300 w-24 group ${
+                  activeTab === 'dashboard'
+                  ? 'scale-110'
+                  : 'scale-100 hover:scale-110'
+                }`}
+              >
+                <div
+                  className={`p-3 rounded-full mb-1 transition-all duration-300 ${
+                    activeTab === 'dashboard'
+                      ? 'bg-gradient-to-b from-orange-400 to-orange-600 text-white shadow-[0_0_20px_rgba(249,115,22,0.8)] border-[2px] border-solid border-white'
+                      : 'bg-transparent text-slate-300 group-hover:bg-gradient-to-b group-hover:from-orange-400 group-hover:to-orange-600 group-hover:text-white group-hover:shadow-[0_0_15px_rgba(249,115,22,0.8)]'
+                  }`}
+                >
+                  <LayoutDashboard
+                    size={26}
+                    className={
+                      activeTab === 'dashboard'
+                        ? 'stroke-[2.5px]'
+                        : 'group-hover:stroke-[2.5px]'
+                    }
+                  />
                 </div>
-                <span className={`text-[13px] tracking-widest transition-colors ${activeTab === 'dashboard' ? 'text-orange-400 font-black drop-shadow-[0_0_8px_rgba(249,115,22,0.8)]' : 'text-slate-300 font-bold group-hover:text-white group-hover:drop-shadow-[0_0_5px_rgba(255,255,255,0.8)]'}`}>แผงควบคุม</span>
+                <span
+                  className={`text-[13px] tracking-widest transition-colors ${
+                    activeTab === 'dashboard'
+                      ? 'text-orange-400 font-black drop-shadow-[0_0_8px_rgba(249,115,22,0.8)]'
+                      : 'text-slate-300 font-bold group-hover:text-white group-hover:drop-shadow-[0_0_5px_rgba(255,255,255,0.8)]'
+                  }`}
+                >
+                  แผงควบคุม
+                </span>
               </button>
 
               {/* 🟠 ปุ่มจัดการงานซ่อม */}
-              <button onClick={() => setActiveTab('tracking')} className={`flex flex-col items-center justify-center transition-all duration-300 w-24 group ${activeTab === 'tracking' ? 'scale-110' : 'scale-100 hover:scale-110'}`}>
-                <div className={`p-3 rounded-full mb-1 transition-all duration-300 ${activeTab === 'tracking' ? 'bg-gradient-to-b from-orange-400 to-orange-600 text-white shadow-[0_0_20px_rgba(249,115,22,0.8)] border-[2px] border-solid border-white' : 'bg-transparent text-slate-300 group-hover:bg-gradient-to-b group-hover:from-orange-400 group-hover:to-orange-600 group-hover:text-white group-hover:shadow-[0_0_15px_rgba(249,115,22,0.8)]'}`}>
-                  <Wrench size={26} className={activeTab === 'tracking' ? 'stroke-[2.5px]' : 'group-hover:stroke-[2.5px]'} />
+              <button
+                onClick={() => setActiveTab('tracking')}
+                className={`flex flex-col items-center justify-center transition-all duration-300 w-24 group ${
+                  activeTab === 'tracking'
+                  ? 'scale-110'
+                  : 'scale-100 hover:scale-110'
+                }`}
+              >
+                <div
+                  className={`p-3 rounded-full mb-1 transition-all duration-300 ${
+                    activeTab === 'tracking'
+                      ? 'bg-gradient-to-b from-orange-400 to-orange-600 text-white shadow-[0_0_20px_rgba(249,115,22,0.8)] border-[2px] border-solid border-white'
+                      : 'bg-transparent text-slate-300 group-hover:bg-gradient-to-b group-hover:from-orange-400 group-hover:to-orange-600 group-hover:text-white group-hover:shadow-[0_0_15px_rgba(249,115,22,0.8)]'
+                  }`}
+                >
+                  <Wrench
+                    size={26}
+                    className={
+                      activeTab === 'tracking'
+                        ? 'stroke-[2.5px]'
+                        : 'group-hover:stroke-[2.5px]'
+                    }
+                  />
                 </div>
-                <span className={`text-[13px] tracking-widest transition-colors ${activeTab === 'tracking' ? 'text-orange-400 font-black drop-shadow-[0_0_8px_rgba(249,115,22,0.8)]' : 'text-slate-300 font-bold group-hover:text-white group-hover:drop-shadow-[0_0_5px_rgba(255,255,255,0.8)]'}`}>จัดการงาน</span>
+                <span
+                  className={`text-[13px] tracking-widest transition-colors ${
+                    activeTab === 'tracking'
+                      ? 'text-orange-400 font-black drop-shadow-[0_0_8px_rgba(249,115,22,0.8)]'
+                      : 'text-slate-300 font-bold group-hover:text-white group-hover:drop-shadow-[0_0_5px_rgba(255,255,255,0.8)]'
+                  }`}
+                >
+                  จัดการงาน
+                </span>
               </button>
             </>
           )}
         </div>
       </div>
-      {/* 🌟 ปิดกรอบเนื้อหาหลักของแอป */}
-      </div>
-    {/* 🌟 ปิดกรอบจักรวาลสุดอลังการ */}
+      {/* 🌟 ปิดกรอบเนื้อหาหลัก */}
     </div>
+  </div> 
   );
 }
 
@@ -3130,10 +3274,10 @@ function LandingPage({ onStart }) {
       <div className="relative z-10 w-full max-w-md md:max-w-xl lg:max-w-2xl flex flex-col items-center animate-in slide-in-from-bottom-8 fade-in duration-1000">
         
         <div
-          className="py-8 px-4 md:py-14 md:px-10 rounded-[1.5rem] md:rounded-[3rem] shadow-[0_0_80px_rgba(249,115,22,0.4)] flex flex-col items-center text-center w-full relative backdrop-blur-[2px] transition-all duration-500"
+          className="py-8 px-4 md:py-14 md:px-10 rounded-[1.5rem] md:rounded-[3rem] shadow-[0_0_80px_rgba(0,0,0,0.6)] flex flex-col items-center text-center w-full relative backdrop-blur-[2px] transition-all duration-500"
           style={{
             backgroundColor: 'rgba(15, 23, 42, 0.35)',
-            border: '4px solid #FF6A00',
+            border: '4px solid #FF4500',
           }}
         >
           {/* โลโก้ */}
@@ -3152,17 +3296,11 @@ function LandingPage({ onStart }) {
           <h1 className="text-3xl md:text-5xl font-black text-white mb-2 md:mb-4 drop-shadow-md transition-all duration-500">
             ระบบแจ้งซ่อม
           </h1>
-          <h2 className="text-[15px] md:text-[28px] font-bold text-orange-500 uppercase mb-1 md:mb-2 transition-all duration-500">
-            ฝ่ายวิศวกรรมระบบปฏิบัติการดาวเทียม
-          </h2>
-          <h3 className="text-xs md:text-[18px] font-bold text-slate-100 tracking-widest transition-all duration-500">
-            สำนักปฏิบัติการดาวเทียม
-          </h3>
-
+          
           {/* 🌟 3. โซนน้องมาสคอต + กล่องคำพูด */}
           <div className="relative w-full mt-20 md:mt-32 mb-6 md:mb-12 flex items-start justify-end min-h-[180px] md:min-h-[260px] transition-all duration-500">
             
-            {/* 👩‍🔧 น้องมาสคอตทะลุกรอบ */}
+            {/* 👩‍🔧 น้องมาสคอตทะลุกรอบ (เคลียร์คลาสให้สะอาด เป๊ะทั้งมือถือและ PC) */}
             <div className="absolute left-[-45px] md:left-[-120px] bottom-[-10px] md:bottom-[-20px] z-20 w-[120%] max-w-[210px] md:max-w-[300px] pointer-events-none drop-shadow-[0_15px_15px_rgba(0,0,0,0.8)] transition-all duration-500">
               <img
                 src="/mascot.webp"
@@ -3187,6 +3325,7 @@ function LandingPage({ onStart }) {
                 </span>
               </p>
             </div>
+
           </div>
 
           {/* 4. กลุ่มปุ่มกด */}
@@ -3214,17 +3353,24 @@ function LandingPage({ onStart }) {
             <FileText size={20} className="md:w-7 md:h-7" /> คู่มือการใช้งานเบื้องต้น
             </button>
           </div>
+          <h2 className="text-[15px] md:text-[28px] font-bold text-orange-500 uppercase mb-1 md:mb-2 transition-all duration-500">
+            ฝ่ายวิศวกรรมระบบปฏิบัติการดาวเทียม
+          </h2>
+          <h3 className="text-xs md:text-[18px] font-bold text-slate-100 tracking-widest transition-all duration-500">
+            สำนักปฏิบัติการดาวเทียม
+          </h3>
+
         </div>
 
         {/* 5. Footer */}
         <div className="mt-8 md:mt-12 text-center opacity-80 transition-all duration-500">
-          <p className="text-[10px] md:text-[16px] font-mono text-white tracking-widest font-bold normal-case">
+          <p className="text-[10px] md:text-[18px] font-mono text-white tracking-widest font-bold normal-case">
             ©2026 Ground System Engineering Division: GSE
           </p>
-          <p className="text-[9px] md:text-[14px] font-bold text-white mt-1 md:mt-2 text-center normal-case">
+          <p className="text-[9px] md:text-[15px] font-bold text-white mt-1 md:mt-2 text-center normal-case">
             Satellite Operation Office: SOO
           </p>
-          <p className="text-[9px] md:text-[14px] font-bold text-white mt-1 text-center normal-case">
+          <p className="text-[9px] md:text-[15px] font-bold text-white mt-1 text-center normal-case">
             Geo-Informatics and Space Technology Development Agency: GISTDA
           </p>
         </div>
