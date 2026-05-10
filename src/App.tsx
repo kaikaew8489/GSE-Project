@@ -967,35 +967,32 @@ function MainApp({ onGoHome, initialRole }) {
   // 🌟 ลิสต์รายการงานสำหรับหน้า "ติดตามสถานะ/จัดการงาน" (แยกสมองอิสระ ไม่เกี่ยวกับเวลาในแผงควบคุม)
   const filteredTickets = useMemo(() => {
     return tickets.filter((t) => {
-
-// 🌟 1. กรองวันที่เฉพาะหน้า "ติดตามสถานะ"
-let timeMatch = true;
-if (t.date) {
-  const tDate = new Date(t.date);
-  if (trackTimeframe === 'custom_month' && trackMonth) {
-    const [year, month] = trackMonth.split('-');
-    timeMatch = tDate.getFullYear() === parseInt(year) && (tDate.getMonth() + 1) === parseInt(month);
-  } else if (trackTimeframe === 'custom_date' && trackDate) {
-    const selectedD = new Date(trackDate);
-    timeMatch = tDate.getFullYear() === selectedD.getFullYear() && 
-                tDate.getMonth() === selectedD.getMonth() && 
-                tDate.getDate() === selectedD.getDate();
-  } else if (trackTimeframe === 'week') {
-    // 🌟 ฟันธงเพิ่ม: รองรับการกดมาจาก "สัปดาห์นี้" ในแผงควบคุม
-    const now = new Date();
-    const firstDayOfWeek = new Date(now);
-    const currentDay = now.getDay();
-    const diffToMonday = currentDay === 0 ? -6 : 1 - currentDay;
-    firstDayOfWeek.setDate(now.getDate() + diffToMonday);
-    firstDayOfWeek.setHours(0, 0, 0, 0);
-    timeMatch = tDate >= firstDayOfWeek;
-  } else if (trackTimeframe === 'all') {
-    timeMatch = true;
-  }
-}
-if (!timeMatch) return false; // 🚫 ถ้าวันที่ไม่ตรง เตะออกเลย!
-
-
+      // 🌟 1. กรองวันที่เฉพาะหน้า "ติดตามสถานะ"
+      let timeMatch = true;
+      if (t.date) {
+        const tDate = new Date(t.date);
+        if (trackTimeframe === 'custom_month' && trackMonth) {
+          const [year, month] = trackMonth.split('-');
+          timeMatch = tDate.getFullYear() === parseInt(year) && (tDate.getMonth() + 1) === parseInt(month);
+        } else if (trackTimeframe === 'custom_date' && trackDate) {
+          const selectedD = new Date(trackDate);
+          timeMatch = tDate.getFullYear() === selectedD.getFullYear() && 
+                      tDate.getMonth() === selectedD.getMonth() && 
+                      tDate.getDate() === selectedD.getDate();
+        } else if (trackTimeframe === 'week') {
+          // รองรับการกดมาจาก "สัปดาห์นี้" ในแผงควบคุม
+          const now = new Date();
+          const firstDayOfWeek = new Date(now);
+          const currentDay = now.getDay();
+          const diffToMonday = currentDay === 0 ? -6 : 1 - currentDay;
+          firstDayOfWeek.setDate(now.getDate() + diffToMonday);
+          firstDayOfWeek.setHours(0, 0, 0, 0);
+          timeMatch = tDate >= firstDayOfWeek;
+        } else if (trackTimeframe === 'all') {
+          timeMatch = true;
+        }
+      }
+      if (!timeMatch) return false; // 🚫 ถ้าวันที่ไม่ตรง เตะออกเลย!
 
       // 🌟 2. กรองตาม "คำค้นหา (Search)"
       const searchStr = searchTerm.toLowerCase();
@@ -1009,14 +1006,18 @@ if (!timeMatch) return false; // 🚫 ถ้าวันที่ไม่ตร
       
       // 🌟 3. กรองตาม "สถานะ (Tab)"
       if (filterStatus === 'all') return true;
-      if (filterStatus === 'fixing') return ['acknowledged', 'in_progress'].includes(t.status);
+      
+      // 👇 🌟 ฟันธงแก้บั๊ก: อัปเกรดให้แท็บหลักดึงงานมาโชว์แบบ "เหมารวม" ให้ตัวเลขตรงกับแผงควบคุม!
+      if (filterStatus === 'fixing') return ['acknowledged', 'in_progress', 'on_hold'].includes(t.status); // รวมงานติดขัด (on_hold) มาโชว์ด้วย
+      if (filterStatus === 'completed') return ['completed', 'verified'].includes(t.status); // รวมงานรอยืนยัน (completed) มาโชว์ด้วย
+      
+      // 👇 แท็บย่อย (ดึงเฉพาะสถานะเจาะจง)
       if (filterStatus === 'on_hold') return t.status === 'on_hold';
       if (filterStatus === 'verify') return t.status === 'completed';
-      if (filterStatus === 'completed') return t.status === 'verified';
         
-      return t.status === filterStatus;
+      return t.status === filterStatus; // ครอบคลุม pending, cancelled
     });
-  }, [tickets, searchTerm, filterStatus, trackTimeframe, trackMonth, trackDate]); // 🌟 อัปเดตทันทีที่เลือกวัน
+  }, [tickets, searchTerm, filterStatus, trackTimeframe, trackMonth, trackDate]); // 🌟 อัปเดตทันทีที่สถานะหรือเวลาเปลี่ยน
 
 
   // 🌟 ฟันธง: สมองกลสะพานเชื่อม แปลงเวลาจากแผงควบคุม ส่งไปหน้า Tracking ให้ตรงเป๊ะ!
@@ -2150,7 +2151,7 @@ const renderTracking = () => (
 
     </div> {/* สิ้นสุดกล่อง Sticky Header สุดอลังการ */}
 
-    
+
 
     <div className="grid grid-cols-1 md:grid-cols-2 gap-5 font-sans">
         {isDataLoading ? (
@@ -2161,10 +2162,10 @@ const renderTracking = () => (
             </p>
           </div>
         ) : filteredTickets.length === 0 ? (
-          <div className="text-center py-16 text-slate-400 flex flex-col items-center">
-            <CheckCircle size={50} className="mx-auto mb-4 opacity-20" />
-            <p className="font-bold text-lg">ไม่มีรายการ</p>
-            <p className="text-xs mt-1">ในสถานะที่คุณเลือก</p>
+          <div className="text-center py-16 text-orange-500 flex flex-col items-center">
+            <CheckCircle size={50} className="mx-auto mb-4 opacity-50" />
+            <p className="font-bold text-[25px] text-lg">ไม่มีรายการ</p>
+            <p className="text-[20px] text-white-500 mt-1">ในสถานะที่คุณเลือก</p>
           </div>
         ) : (
           filteredTickets.map((t) => {
