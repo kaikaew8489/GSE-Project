@@ -3228,7 +3228,7 @@ function LandingPage({ onStart }) {
           }}
         >
           {/* โลโก้ (ฟันธง: ถอดกรอบขาวออก ให้โลโก้ลอยตัวแบบ 3D พรีเมียมสุดๆ) */}
-          <div className="w-36 h-36 md:w-48 md:h-48 mt-2 md:mt-4 mb-4 md:mb-8 flex items-center justify-center transition-all duration-500">
+          <div className="w-36 h-36 md:w-48 md:h-48 -mt-8 md:mt-4 mb-4 md:mb-8 flex items-center justify-center transition-all duration-500">
             <img
               src="/GSE-logo.webp" /* 🌟 ตรวจสอบชื่อไฟล์โลโก้ของท่านให้ตรงด้วยนะครับ */
               alt="Logo"
@@ -3261,7 +3261,7 @@ function LandingPage({ onStart }) {
             </div>
 
             {/* 👩‍🔧 น้องมาสคอต (เพอร์เฟกต์แล้ว ห้ามขยับ!) */}
-            <div className="relative z-30 w-[75%] md:w-[65%] max-w-[280px] md:max-w-[380px] mb-1 md:-mb-1 pointer-events-none drop-shadow-[0_20px_20px_rgba(0,0,0,0.8)] transition-all duration-500">
+            <div className="relative z-30 w-[75%] md:w-[85%] max-w-[280px] md:max-w-[390px] mb-1 md:-mb-12 pointer-events-none drop-shadow-[0_20px_20px_rgba(0,0,0,0.8)] transition-all duration-500">
               <img
                 src="/mascot.webp"
                 alt="Mascot"
