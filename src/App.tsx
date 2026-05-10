@@ -3228,7 +3228,7 @@ function LandingPage({ onStart }) {
           }}
         >
           {/* โลโก้ (ฟันธง: ถอดกรอบขาวออก ให้โลโก้ลอยตัวแบบ 3D พรีเมียมสุดๆ) */}
-          <div className="w-36 h-36 md:w-48 md:h-48 -mt-8 md:mt-8 -mb-1 md:mb-8 flex items-center justify-center transition-all duration-500">
+          <div className="w-36 h-36 md:w-48 md:h-48 -mt-8 md:mt-8 -mb-1 md:mb-8 md:pt-2 หรือ md:mt-2 flex items-center justify-center transition-all duration-500">
             <img
               src="/GSE-logo.webp" /* 🌟 ตรวจสอบชื่อไฟล์โลโก้ของท่านให้ตรงด้วยนะครับ */
               alt="Logo"
@@ -3245,23 +3245,23 @@ function LandingPage({ onStart }) {
           <div className="relative w-full mt-10 md:mt-16 flex flex-col items-center min-h-[220px] md:min-h-[340px] transition-all duration-500">
             
             {/* 💬 กล่องคำพูด (โปร่งแสงแบบกระจก + ติ่งสามเหลี่ยมโค้งมน) */}
-            <div className="relative z-20 bg-slate-900/85 backdrop-blur-md rounded-3xl md:rounded-[2rem] p-4 md:p-6 shadow-[0_15px_40px_rgba(249,115,22,0.5)] text-center border-[2px] border-solid border-orange-500 mb-2 md:mb-4 animate-bounce">
+            <div className="relative z-20 bg-slate-900/80 backdrop-blur-md rounded-3xl md:rounded-[2rem] p-3 md:p-6 shadow-[0_15px_40px_rgba(249,115,22,0.5)] text-center border-[2px] border-solid border-orange-500 mb-2 md:mb-4 animate-bounce">
               
               {/* 🌟 ฟันธง: ติ่งสามเหลี่ยมใช้เทคนิค CSS หมุนกล่องให้โค้งมน เนียนกริบ 100% */}
               <div className="absolute left-1/2 -translate-x-1/2 -bottom-[11px] w-5 h-5 bg-slate-900 border-b-[2px] border-r-[2px] border-solid border-orange-500 transform rotate-45 rounded-sm"></div>
 
-              <p className="text-[14px] md:text-[18px] font-bold text-slate-100 leading-relaxed relative z-20 shadow-none">
+              <p className="text-[18px] md:text-[22px] font-bold text-slate-100 leading-relaxed relative z-20 shadow-none">
                 ระบบมีปัญหาใช่มั้ยคะ?
                 <br />
-                <span className="text-orange-400 font-black text-[15px] md:text-[22px] mt-1 md:mt-2 inline-flex items-center justify-center gap-2 drop-shadow-sm whitespace-nowrap">
+                <span className="text-orange-500 font-black text-[15px] md:text-[22px] mt-1 md:mt-2 inline-flex items-center justify-center gap-2 drop-shadow-sm whitespace-nowrap">
                   กดแจ้งซ่อมด้านล่างได้เลย!
-                  <span className="text-[28px] md:text-[40px] leading-[0] block transform translate-y-1 md:translate-y-2 drop-shadow-md">👇</span>
+                  <span className="text-[30px] md:text-[45px] leading-[0] block transform translate-y-1 md:translate-y-2 drop-shadow-md">👇</span>
                 </span>
               </p>
             </div>
 
             {/* 👩‍🔧 น้องมาสคอต (เพอร์เฟกต์แล้ว ห้ามขยับ!) */}
-            <div className="relative z-30 w-[75%] md:w-[85%] max-w-[280px] md:max-w-[390px] mb-1 md:-mb-12 pointer-events-none drop-shadow-[0_20px_20px_rgba(0,0,0,0.8)] transition-all duration-500">
+            <div className="relative z-30 w-[55%] md:w-[75%] max-w-[280px] md:max-w-[390px] mb-1 md:-mb-12 pointer-events-none drop-shadow-[0_20px_20px_rgba(0,0,0,0.8)] transition-all duration-500">
               <img
                 src="/mascot.webp"
                 alt="Mascot"
