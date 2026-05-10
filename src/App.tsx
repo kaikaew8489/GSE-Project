@@ -512,9 +512,17 @@ function MainApp({ onGoHome, initialRole }) {
   const [pickerYear, setPickerYear] = useState(new Date().getFullYear()); // พ.ศ. ที่กำลังเลือกดู
   const [customDate, setCustomDate] = useState(''); // 🌟 เพิ่มตัวแปรเก็บค่าระบุวันที่
   const [showDatePicker, setShowDatePicker] = useState(false); // 🌟 ควบคุมป๊อปอัปปฏิทินรายวัน
-  const [calMonth, setCalMonth] = useState(new Date().getMonth()); // 🌟 เก็บเดือนที่กำลังเปิดดูในปฏิทิน
-  const [calYear, setCalYear] = useState(new Date().getFullYear()); // 🌟 เก็บปีที่กำลังเปิดดูในปฏิทิน
-  const dateInputRef = useRef(null); // 🌟🌟 เพิ่มสายลับเอาไว้เปิดปฏิทินใน PC
+  const [calMonth, setCalMonth] = useState(new Date().getMonth());
+  const [calYear, setCalYear] = useState(new Date().getFullYear());
+  
+  // 🌟 ตัวแปรใหม่สำหรับหน้า "ติดตามสถานะ" (แยกสมองอิสระจากแผงควบคุม 100%)
+  const [trackTimeframe, setTrackTimeframe] = useState('all'); 
+  const [trackMonth, setTrackMonth] = useState('');
+  const [trackDate, setTrackDate] = useState('');
+  const [showTrackMonthPicker, setShowTrackMonthPicker] = useState(false);
+  const [showTrackDatePicker, setShowTrackDatePicker] = useState(false);
+  const [trackCalMonth, setTrackCalMonth] = useState(new Date().getMonth());
+  const [trackCalYear, setTrackCalYear] = useState(new Date().getFullYear());
 
   const [hoveredTab, setHoveredTab] = useState(null);
   // ... โค้ดเดิมของท่าน ...
@@ -960,7 +968,23 @@ function MainApp({ onGoHome, initialRole }) {
   // 🌟 ลิสต์รายการงานสำหรับหน้า "ติดตามสถานะ/จัดการงาน" (แยกสมองอิสระ ไม่เกี่ยวกับเวลาในแผงควบคุม)
   const filteredTickets = useMemo(() => {
     return tickets.filter((t) => {
-      // 🌟 1. กรองตาม "คำค้นหา (Search)" อย่างเดียว
+      // 🌟 1. กรองวันที่เฉพาะหน้า "ติดตามสถานะ"
+      let timeMatch = true;
+      if (t.date) {
+        const tDate = new Date(t.date);
+        if (trackTimeframe === 'custom_month' && trackMonth) {
+          const [year, month] = trackMonth.split('-');
+          timeMatch = tDate.getFullYear() === parseInt(year) && (tDate.getMonth() + 1) === parseInt(month);
+        } else if (trackTimeframe === 'custom_date' && trackDate) {
+          const selectedD = new Date(trackDate);
+          timeMatch = tDate.getFullYear() === selectedD.getFullYear() && 
+                      tDate.getMonth() === selectedD.getMonth() && 
+                      tDate.getDate() === selectedD.getDate();
+        }
+      }
+      if (!timeMatch) return false; // 🚫 ถ้าวันที่ไม่ตรง เตะออกเลย! ไม่เอามาโชว์มั่วแล้ว
+
+      // 🌟 2. กรองตาม "คำค้นหา (Search)"
       const searchStr = searchTerm.toLowerCase();
       const matchSearch =
         !searchTerm ||
@@ -970,16 +994,16 @@ function MainApp({ onGoHome, initialRole }) {
         (t.techName && String(t.techName).toLowerCase().includes(searchStr));
       if (!matchSearch) return false;
       
-      // 🌟 2. กรองตามปุ่ม "สถานะ (Tab)" ด้านบน
+      // 🌟 3. กรองตาม "สถานะ (Tab)"
       if (filterStatus === 'all') return true;
       if (filterStatus === 'fixing') return ['acknowledged', 'in_progress'].includes(t.status);
       if (filterStatus === 'on_hold') return t.status === 'on_hold';
       if (filterStatus === 'verify') return t.status === 'completed';
       if (filterStatus === 'completed') return t.status === 'verified';
         
-      return t.status === filterStatus; // สำหรับ pending, cancelled
+      return t.status === filterStatus;
     });
-  }, [tickets, searchTerm, filterStatus]); // 🌟 ฟันธง: เอาตัวแปรเวลาออกให้เกลี้ยง!
+  }, [tickets, searchTerm, filterStatus, trackTimeframe, trackMonth, trackDate]); // 🌟 อัปเดตทันทีที่เลือกวัน
 
 
   // ==========================================
@@ -1066,7 +1090,7 @@ function MainApp({ onGoHome, initialRole }) {
           
 
 
-          {/* 🌟 ไอคอนปฏิทิน ระบุวัน (อัปเกรด UI สมบูรณ์แบบตามหลักสากล) */}
+          {/* 🌟 ไอคอนปฏิทิน ระบุวัน (อัปเกรดเป็น Custom UI ป๊อปอัปอลังการ!) */}
           <div className="relative flex-1 min-w-[95px] shrink-0 flex justify-center snap-center">
              <button 
                onClick={() => setShowDatePicker(true)}
@@ -1079,104 +1103,46 @@ function MainApp({ onGoHome, initialRole }) {
                <span className="whitespace-nowrap">ระบุวัน</span>
              </button>
 
-             {/* 🌟 กล่องป๊อปอัปเลือก "วันที่" แบบ Custom UI */}
+             {/* 🌟 ป๊อปอัปเลือก "วันที่" แบบ Custom */}
              {showDatePicker && (
               <div className="fixed inset-0 z-[200] bg-slate-900/80 backdrop-blur-md flex items-center justify-center p-4 animate-in fade-in" onClick={() => setShowDatePicker(false)}>
-                
                 <div className="relative bg-slate-900 border-[2px] border-solid border-white rounded-[2rem] shadow-[0_0_50px_rgba(0,0,0,0.8)] w-full max-w-[340px] p-6 text-center animate-in zoom-in-95 overflow-hidden" onClick={(e) => e.stopPropagation()}>
                   
-                  {/* 🌟 1. ย้ายแสง Flare ไปหลบมุม (บนซ้าย-ล่างขวา) ไม่ให้กวนสายตาตรงกลาง */}
-                  <div className="absolute -top-10 -left-10 w-32 h-32 bg-emerald-500/30 rounded-full blur-[40px] pointer-events-none z-0"></div>
-                  <div className="absolute -bottom-10 -right-10 w-32 h-32 bg-orange-500/30 rounded-full blur-[40px] pointer-events-none z-0"></div>
+                  {/* แสง Flare อลังการ */}
+                  <div className="absolute -top-10 -left-10 w-32 h-32 bg-blue-500/30 rounded-full blur-[40px] pointer-events-none z-0"></div>
+                  <div className="absolute -bottom-10 -right-10 w-32 h-32 bg-indigo-500/30 rounded-full blur-[40px] pointer-events-none z-0"></div>
 
-                  {/* โซนหัว: เลื่อนเดือน และ พ.ศ. */}
                   <div className="relative z-10 flex justify-between items-center mb-4 pb-4 border-b border-white/20">
-                    <button onClick={() => {
-                      if (calMonth === 0) { setCalMonth(11); setCalYear(y => y - 1); }
-                      else setCalMonth(m => m - 1);
-                    }} className="p-2.5 bg-slate-800 text-white rounded-xl hover:bg-orange-500 transition-colors active:scale-95 shadow-inner border border-slate-600">
-                      <ChevronDown size={20} className="rotate-90" />
-                    </button>
+                    <button onClick={() => { if (calMonth === 0) { setCalMonth(11); setCalYear(y => y - 1); } else setCalMonth(m => m - 1); }} className="p-2.5 bg-slate-800 text-white rounded-xl hover:bg-blue-500 transition-colors border border-slate-600"><ChevronDown size={20} className="rotate-90" /></button>
                     <div className="flex flex-col">
-                      <span className="text-xl font-black text-white drop-shadow-[0_0_10px_rgba(255,255,255,0.8)]">
-                        {['ม.ค.', 'ก.พ.', 'มี.ค.', 'เม.ย.', 'พ.ค.', 'มิ.ย.', 'ก.ค.', 'ส.ค.', 'ก.ย.', 'ต.ค.', 'พ.ย.', 'ธ.ค.'][calMonth]}
-                      </span>
-                      <span className="text-[12px] font-black text-orange-400 tracking-widest uppercase mt-0.5">
-                        พ.ศ. {calYear + 543}
-                      </span>
+                      <span className="text-xl font-black text-white">{['ม.ค.', 'ก.พ.', 'มี.ค.', 'เม.ย.', 'พ.ค.', 'มิ.ย.', 'ก.ค.', 'ส.ค.', 'ก.ย.', 'ต.ค.', 'พ.ย.', 'ธ.ค.'][calMonth]}</span>
+                      <span className="text-[12px] font-black text-blue-400 tracking-widest mt-0.5">พ.ศ. {calYear + 543}</span>
                     </div>
-                    <button onClick={() => {
-                      if (calMonth === 11) { setCalMonth(0); setCalYear(y => y + 1); }
-                      else setCalMonth(m => m + 1);
-                    }} className="p-2.5 bg-slate-800 text-white rounded-xl hover:bg-orange-500 transition-colors active:scale-95 shadow-inner border border-slate-600">
-                      <ChevronDown size={20} className="-rotate-90" />
-                    </button>
+                    <button onClick={() => { if (calMonth === 11) { setCalMonth(0); setCalYear(y => y + 1); } else setCalMonth(m => m + 1); }} className="p-2.5 bg-slate-800 text-white rounded-xl hover:bg-blue-500 transition-colors border border-slate-600"><ChevronDown size={20} className="-rotate-90" /></button>
                   </div>
 
-                  {/* โซนเนื้อหา: ตารางปฏิทิน 31 วัน */}
                   <div className="relative z-10">
-                    {/* หัวตารางวันในสัปดาห์ */}
                     <div className="grid grid-cols-7 gap-1 mb-2">
-                      {['อา', 'จ', 'อ', 'พ', 'พฤ', 'ศ', 'ส'].map(day => (
-                        <div key={day} className={`text-[12px] font-black ${day === 'อา' ? 'text-rose-400' : 'text-slate-300'}`}>{day}</div>
-                      ))}
+                      {['อา', 'จ', 'อ', 'พ', 'พฤ', 'ศ', 'ส'].map(day => (<div key={day} className={`text-[12px] font-black ${day === 'อา' ? 'text-rose-400' : 'text-slate-300'}`}>{day}</div>))}
                     </div>
-                    {/* วันที่ 1-31 */}
                     <div className="grid grid-cols-7 gap-1.5">
-                      {/* ช่องว่างก่อนเริ่มวันที่ 1 */}
-                      {Array.from({ length: new Date(calYear, calMonth, 1).getDay() }).map((_, i) => (
-                        <div key={`empty-${i}`} />
-                      ))}
-
-
-
-                      {/* สร้างปุ่มวันที่ */}
+                      {Array.from({ length: new Date(calYear, calMonth, 1).getDay() }).map((_, i) => (<div key={`empty-${i}`} />))}
                       {Array.from({ length: new Date(calYear, calMonth + 1, 0).getDate() }).map((_, i) => {
                         const day = i + 1;
                         const dateString = `${calYear}-${String(calMonth + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
                         const isSelected = customDate === dateString;
+                        const todayLocal = new Date(sysTime); 
+                        const isToday = todayLocal.getFullYear() === calYear && todayLocal.getMonth() === calMonth && todayLocal.getDate() === day;
                         
-                        // 👇 🌟 ฟันธงจุดที่แก้: เปลี่ยนมาเช็ควันที่จากเวลาท้องถิ่น (Local Time) แทนเวลาโลก (UTC)
-                        const todayLocal = new Date(sysTime); // อิงเวลาจากระบบหลัก
-                        const isToday = todayLocal.getFullYear() === calYear && 
-                                        todayLocal.getMonth() === calMonth && 
-                                        todayLocal.getDate() === day;
-
-                        // 🌟 2 & 3. ลำดับความสำคัญของสีปุ่ม (Hierarchy)
                         return (
-                          <button
-                            key={day}
-                            onClick={() => {
-                              setCustomDate(dateString);
-                              setDashTimeframe('custom_date');
-                              setShowDatePicker(false);
-                            }}
-                            className={`aspect-square flex items-center justify-center rounded-xl text-[14px] font-black transition-all active:scale-95 ${
-                              isSelected 
-                                /* วันที่ถูกจิ้มเลือก: สีส้มทึบ ขอบขาว เด้งใหญ่สุด */
-                                ? 'bg-orange-500 text-white shadow-[0_0_20px_rgba(249,115,22,0.9)] border-2 border-white scale-110 z-20' 
-                                : isToday
-                                /* วันนี้: สีครามเข้มทึบ เรืองแสง รองลงมา */
-                                ? 'bg-emerald-500 text-white shadow-[0_0_15px_rgba(16,185,129,0.8)] border border-emerald-300 z-10'
-                                /* วันอื่นๆ (อดีต/อนาคต): พื้นใส ขอบเทาบางๆ ไม่แย่งซีน */
-                                : 'bg-transparent text-slate-300 hover:bg-slate-700/80 border border-slate-600/50 hover:border-slate-400'
-                            }`}
-                          >
-                            {day}
-                          </button>
+                          <button key={day} onClick={() => { setCustomDate(dateString); setDashTimeframe('custom_date'); setShowDatePicker(false); }}
+                            className={`aspect-square flex items-center justify-center rounded-xl text-[14px] font-black transition-all active:scale-95 ${isSelected ? 'bg-blue-500 text-white shadow-[0_0_20px_rgba(59,130,246,0.9)] border-2 border-white scale-110 z-20' : isToday ? 'bg-indigo-500 text-white shadow-[0_0_15px_rgba(99,102,241,0.8)] border border-indigo-300 z-10' : 'bg-transparent text-slate-300 hover:bg-slate-700/80 border border-slate-600/50 hover:border-slate-400'}`}
+                          >{day}</button>
                         );
                       })}
                     </div>
                   </div>
-
-
-                  {/* ปุ่มยกเลิก */}
-                  <button 
-                    onClick={() => setShowDatePicker(false)}
-                    className="relative z-10 mt-6 w-full py-4 rounded-xl font-black text-white bg-orange-500 hover:bg-rose-500 border-[2px] border-solid border-white shadow-[0_0_20px_rgba(249,115,22,0.7)] hover:shadow-[0_0_25px_rgba(225,29,72,0.9)] transition-all duration-300 active:scale-95 tracking-widest uppercase"
-                  >
-                    ยกเลิก
-                  </button>
+                  <button onClick={() => setShowDatePicker(false)} className="relative z-10 mt-6 w-full py-4 rounded-xl font-black text-white bg-blue-600 hover:bg-rose-500 border-[2px] border-white shadow-lg transition-all active:scale-95 uppercase">ยกเลิก</button>
                 </div>
               </div>
             )}
@@ -2042,17 +2008,99 @@ function MainApp({ onGoHome, initialRole }) {
 
       </div>
 
-      <div className="relative sticky top-0 z-20 py-2">
-        <Search
-          size={18}
-          className="absolute left-6 top-1/2 -translate-y-1/2 text-slate-400"
-        />
-        <input
-          value={searchTerm}
-          onChange={(e) => setSearchTerm(e.target.value)}
-          className="w-full bg-slate-50 border-2 border-orange-500 focus:border-orange-600 focus:ring-2 focus:ring-orange-800/30 shadow-inner transition-all font-bold text-slate-800 pl-14 pr-5 py-3.5 rounded-2xl outline-none"
-          placeholder="ค้นหา รหัส หรือ อุปกรณ์..."
-        />
+      {/* 🌟 โซนค้นหา และ กรองเวลา (อัปเกรดให้หน้าติดตามสถานะ!) */}
+      <div className="relative sticky top-0 z-30 py-2 space-y-3 bg-slate-900/90 backdrop-blur-md pb-3 border-b border-slate-700/50 mb-4">
+        
+        <div className="relative">
+          <Search size={18} className="absolute left-6 top-1/2 -translate-y-1/2 text-slate-400" />
+          <input
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+            className="w-full bg-slate-50 border-2 border-orange-500 focus:border-orange-600 focus:ring-2 focus:ring-orange-800/30 shadow-inner transition-all font-bold text-slate-800 pl-14 pr-5 py-3.5 rounded-2xl outline-none"
+            placeholder="ค้นหา รหัส หรือ อุปกรณ์..."
+          />
+        </div>
+
+        {/* 🌟 ปุ่มกรองเวลา (ดูทุกวัน / ระบุเดือน / ระบุวัน) */}
+        <div className="flex gap-2">
+          <button onClick={() => setTrackTimeframe('all')} className={`flex-[0.8] py-2.5 rounded-xl font-black text-[13px] transition-all ${trackTimeframe === 'all' ? 'bg-gradient-to-r from-orange-500 to-amber-500 text-white shadow-[0_0_15px_rgba(249,115,22,0.6)] border border-orange-400' : 'bg-slate-800 text-slate-300 border border-slate-600 hover:bg-slate-700'}`}>ดูทุกวัน</button>
+
+          {/* ระบุเดือน */}
+          <div className="relative flex-1">
+            <button onClick={() => setShowTrackMonthPicker(true)} className={`w-full h-full py-2.5 rounded-xl font-black text-[13px] flex items-center justify-center gap-1.5 transition-all ${trackTimeframe === 'custom_month' ? 'bg-gradient-to-r from-emerald-500 to-teal-500 text-white shadow-[0_0_15px_rgba(16,185,129,0.6)] border border-emerald-400' : 'bg-slate-800 text-slate-300 border border-slate-600 hover:bg-slate-700'}`}>
+              <Calendar size={14}/> ระบุเดือน
+            </button>
+            {showTrackMonthPicker && (
+              <div className="fixed inset-0 z-[200] bg-slate-900/80 backdrop-blur-md flex items-center justify-center p-4 animate-in fade-in" onClick={() => setShowTrackMonthPicker(false)}>
+                <div className="relative bg-slate-900 border-[2px] border-white rounded-[2rem] shadow-[0_0_50px_rgba(0,0,0,0.8)] w-full max-w-[340px] p-7 text-center animate-in zoom-in-95 overflow-hidden" onClick={(e) => e.stopPropagation()}>
+                  <div className="absolute -top-20 -right-20 w-40 h-40 bg-emerald-500/30 rounded-full blur-[50px] pointer-events-none"></div>
+                  <div className="absolute -bottom-20 -left-20 w-40 h-40 bg-teal-500/20 rounded-full blur-[50px] pointer-events-none"></div>
+                  <div className="relative z-10 flex justify-between items-center mb-6 pb-5 border-b border-white/20">
+                    <button onClick={() => setTrackCalYear(y => y - 1)} className="p-2.5 bg-slate-800 text-white rounded-xl hover:bg-emerald-500 transition-colors border border-slate-600"><ChevronDown size={22} className="rotate-90" /></button>
+                    <div className="flex flex-col">
+                      <span className="text-[10px] font-black text-emerald-400 tracking-widest uppercase mb-0.5">เลือกปี พ.ศ.</span>
+                      <span className="text-2xl font-black text-white">{trackCalYear + 543}</span>
+                    </div>
+                    <button onClick={() => setTrackCalYear(y => y + 1)} className="p-2.5 bg-slate-800 text-white rounded-xl hover:bg-emerald-500 transition-colors border border-slate-600"><ChevronDown size={22} className="-rotate-90" /></button>
+                  </div>
+                  <div className="relative z-10 grid grid-cols-3 gap-3">
+                    {['ม.ค.', 'ก.พ.', 'มี.ค.', 'เม.ย.', 'พ.ค.', 'มิ.ย.', 'ก.ค.', 'ส.ค.', 'ก.ย.', 'ต.ค.', 'พ.ย.', 'ธ.ค.'].map((m, i) => {
+                      const monthValue = `${trackCalYear}-${String(i + 1).padStart(2, '0')}`;
+                      return (
+                        <button key={m} onClick={() => { setTrackMonth(monthValue); setTrackTimeframe('custom_month'); setShowTrackMonthPicker(false); }} className={`py-3.5 rounded-xl text-[15px] font-black transition-all active:scale-95 ${trackMonth === monthValue ? 'bg-emerald-500 text-white shadow-[0_0_20px_rgba(16,185,129,0.9)] border-2 border-white scale-110 z-10' : 'bg-slate-800/80 text-slate-100 hover:bg-emerald-500/40 border border-white/50 hover:border-white'}`}>{m}</button>
+                      )
+                    })}
+                  </div>
+                  <button onClick={() => setShowTrackMonthPicker(false)} className="relative z-10 mt-7 w-full py-4 rounded-xl font-black text-white bg-emerald-600 hover:bg-rose-500 border-[2px] border-white shadow-lg transition-all active:scale-95 uppercase">ยกเลิก</button>
+                </div>
+              </div>
+            )}
+          </div>
+
+          {/* ระบุวัน */}
+          <div className="relative flex-1">
+            <button onClick={() => setShowTrackDatePicker(true)} className={`w-full h-full py-2.5 rounded-xl font-black text-[13px] flex items-center justify-center gap-1.5 transition-all ${trackTimeframe === 'custom_date' ? 'bg-gradient-to-r from-blue-500 to-indigo-500 text-white shadow-[0_0_15px_rgba(59,130,246,0.6)] border border-blue-400' : 'bg-slate-800 text-slate-300 border border-slate-600 hover:bg-slate-700'}`}>
+              <Calendar size={14}/> ระบุวัน
+            </button>
+            {showTrackDatePicker && (
+              <div className="fixed inset-0 z-[200] bg-slate-900/80 backdrop-blur-md flex items-center justify-center p-4 animate-in fade-in" onClick={() => setShowTrackDatePicker(false)}>
+                <div className="relative bg-slate-900 border-[2px] border-white rounded-[2rem] shadow-[0_0_50px_rgba(0,0,0,0.8)] w-full max-w-[340px] p-6 text-center animate-in zoom-in-95 overflow-hidden" onClick={(e) => e.stopPropagation()}>
+                  <div className="absolute -top-10 -left-10 w-32 h-32 bg-blue-500/30 rounded-full blur-[40px] pointer-events-none"></div>
+                  <div className="absolute -bottom-10 -right-10 w-32 h-32 bg-indigo-500/30 rounded-full blur-[40px] pointer-events-none"></div>
+                  <div className="relative z-10 flex justify-between items-center mb-4 pb-4 border-b border-white/20">
+                    <button onClick={() => { if (trackCalMonth === 0) { setTrackCalMonth(11); setTrackCalYear(y => y - 1); } else setTrackCalMonth(m => m - 1); }} className="p-2.5 bg-slate-800 text-white rounded-xl hover:bg-blue-500 transition-colors border border-slate-600"><ChevronDown size={20} className="rotate-90" /></button>
+                    <div className="flex flex-col">
+                      <span className="text-xl font-black text-white">{['ม.ค.', 'ก.พ.', 'มี.ค.', 'เม.ย.', 'พ.ค.', 'มิ.ย.', 'ก.ค.', 'ส.ค.', 'ก.ย.', 'ต.ค.', 'พ.ย.', 'ธ.ค.'][trackCalMonth]}</span>
+                      <span className="text-[12px] font-black text-blue-400 tracking-widest mt-0.5">พ.ศ. {trackCalYear + 543}</span>
+                    </div>
+                    <button onClick={() => { if (trackCalMonth === 11) { setTrackCalMonth(0); setTrackCalYear(y => y + 1); } else setTrackCalMonth(m => m + 1); }} className="p-2.5 bg-slate-800 text-white rounded-xl hover:bg-blue-500 transition-colors border border-slate-600"><ChevronDown size={20} className="-rotate-90" /></button>
+                  </div>
+                  <div className="relative z-10">
+                    <div className="grid grid-cols-7 gap-1 mb-2">
+                      {['อา', 'จ', 'อ', 'พ', 'พฤ', 'ศ', 'ส'].map(day => (<div key={day} className={`text-[12px] font-black ${day === 'อา' ? 'text-rose-400' : 'text-slate-300'}`}>{day}</div>))}
+                    </div>
+                    <div className="grid grid-cols-7 gap-1.5">
+                      {Array.from({ length: new Date(trackCalYear, trackCalMonth, 1).getDay() }).map((_, i) => (<div key={`empty-${i}`} />))}
+                      {Array.from({ length: new Date(trackCalYear, trackCalMonth + 1, 0).getDate() }).map((_, i) => {
+                        const day = i + 1;
+                        const dateString = `${trackCalYear}-${String(trackCalMonth + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
+                        const isSelected = trackDate === dateString;
+                        const todayLocal = new Date(sysTime); 
+                        const isToday = todayLocal.getFullYear() === trackCalYear && todayLocal.getMonth() === trackCalMonth && todayLocal.getDate() === day;
+                        return (
+                          <button key={day} onClick={() => { setTrackDate(dateString); setTrackTimeframe('custom_date'); setShowTrackDatePicker(false); }}
+                            className={`aspect-square flex items-center justify-center rounded-xl text-[14px] font-black transition-all active:scale-95 ${isSelected ? 'bg-blue-500 text-white shadow-[0_0_20px_rgba(59,130,246,0.9)] border-2 border-white scale-110 z-20' : isToday ? 'bg-indigo-500 text-white shadow-[0_0_15px_rgba(99,102,241,0.8)] border border-indigo-300 z-10' : 'bg-transparent text-slate-300 hover:bg-slate-700/80 border border-slate-600/50 hover:border-slate-400'}`}
+                          >{day}</button>
+                        );
+                      })}
+                    </div>
+                  </div>
+                  <button onClick={() => setShowTrackDatePicker(false)} className="relative z-10 mt-6 w-full py-4 rounded-xl font-black text-white bg-blue-600 hover:bg-rose-500 border-[2px] border-white shadow-lg transition-all active:scale-95 uppercase">ยกเลิก</button>
+                </div>
+              </div>
+            )}
+          </div>
+        </div>
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-5 font-sans">
