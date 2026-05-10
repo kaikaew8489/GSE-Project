@@ -1063,12 +1063,26 @@ useEffect(() => {
     const completionRate =
       stats.total > 0 ? Math.round((stats.done / stats.total) * 100) : 0;
 
+    // 🌟 1. ฟังก์ชันดึงงานรอนาน (อัปเกรด: ต้องรอเกิน 60 นาทีถึงจะโชว์)
     const longestPendingTicket = tickets
-      .filter((t) => t.status === 'pending')
+      .filter((t) => {
+        if (t.status !== 'pending') return false;
+        // คำนวณเวลาที่รอเป็นนาที
+        const waitingMin = getMinutesDiff(t.date, sysTime);
+        // 🌟 ฟันธง: บังคับว่าต้องรอเกิน 60 นาที (1 ชม.) ถึงจะขึ้นแท่น "รอนานที่สุด"
+        return waitingMin > 60; 
+      })
       .sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime())[0];
 
+    // 🌟 2. ฟังก์ชันดึงงานซ่อมมาราธอน (อัปเกรด: ต้องซ่อมเกิน 4 ชั่วโมงถึงจะโชว์)
     const longestFixingTicket = tickets
-      .filter((t) => t.status === 'in_progress' || t.status === 'on_hold')
+      .filter((t) => {
+        if (t.status !== 'in_progress' && t.status !== 'on_hold') return false;
+        // คำนวณเวลาที่กำลังซ่อมเป็นนาที
+        const fixingMin = getMinutesDiff(t.startedAt || t.date, sysTime);
+        // 🌟 ฟันธง: บังคับว่าต้องซ่อมเกิน 240 นาที (4 ชม. ตามเกณฑ์ SLA) ถึงจะขึ้นแท่น "ซ่อมมาราธอน"
+        return fixingMin > 240; 
+      })
       .sort((a, b) => {
         const timeA = new Date(a.startedAt || a.date).getTime();
         const timeB = new Date(b.startedAt || b.date).getTime();
@@ -3233,32 +3247,35 @@ const renderTracking = () => (
     </div>
   );
 }
+
+
+
 // ==========================================
-// 🌟 Landing Page - ฉบับบังคับสี Hex (เส้นส้มต้องมา!)
+// 🌟 Landing Page - ฉบับอัปเกรด (ขยายร่างเต็มตาบน PC แต่พอดีเป๊ะบนมือถือ!)
 // ==========================================
 function LandingPage({ onStart }) {
-  const [showManual, setShowManual] = useState(false); // 🌟 เพิ่มบรรทัดนี้
+  const [showManual, setShowManual] = useState(false); 
   return (
-    <div className="relative min-h-screen flex flex-col items-center justify-center p-6 overflow-hidden bg-slate-900 font-sans">
-      {/* 1. ภาพพื้นหลังลูกโลก - คมชัด 60% */}
+    <div className="relative min-h-screen flex flex-col items-center justify-center p-6 md:p-12 overflow-hidden bg-slate-900 font-sans">
+      {/* 1. ภาพพื้นหลังลูกโลก */}
       <div
         className="absolute inset-0 z-0 bg-cover bg-center bg-no-repeat opacity-30 pointer-events-none"
         style={{ backgroundImage: "url('/bg-earth.webp')" }}
       ></div>
 
-      <div className="relative z-10 w-full max-w-md flex flex-col items-center animate-in slide-in-from-bottom-8 fade-in duration-1000">
-        {/* 🟠 บังคับเส้นสีส้มล้อมกรอบใหญ่ */}
-        {/* 🌟 ฟันธงจุดที่ 1: เปลี่ยนจาก p-8 เป็น py-8 px-4 (ลดขอบซ้ายขวาด้านในลง เพื่อเพิ่มพื้นที่ตรงกลาง) */}
+      {/* 🌟 ฟันธง: เพิ่ม md:max-w-xl และ lg:max-w-2xl เพื่อให้กล่องขยายใหญ่ขึ้นเมื่ออยู่บนจอคอม */}
+      <div className="relative z-10 w-full max-w-md md:max-w-xl lg:max-w-2xl flex flex-col items-center animate-in slide-in-from-bottom-8 fade-in duration-1000">
+        
         <div
-          className="py-8 px-4 rounded-[1.5rem] shadow-[0_0_80px_rgba(0,0,0,0.6)] flex flex-col items-center text-center w-full relative backdrop-blur-[2px]"
+          className="py-8 px-4 md:py-14 md:px-10 rounded-[1.5rem] md:rounded-[3rem] shadow-[0_0_80px_rgba(0,0,0,0.6)] flex flex-col items-center text-center w-full relative backdrop-blur-[2px] transition-all duration-500"
           style={{
             backgroundColor: 'rgba(15, 23, 42, 0.35)',
             border: '4px solid #f97316',
           }}
         >
-          {/* โลโก้ */}
+          {/* โลโก้ (ขยายจาก 24 เป็น 32 บน PC) */}
           <div
-            className="w-24 h-24 bg-white rounded-full p-2 -mt-5 mb-2 flex items-center justify-center shadow-xl border-4 border-solid border-orange-500"
+            className="w-24 h-24 md:w-32 md:h-32 bg-white rounded-full p-2 -mt-5 md:-mt-8 mb-3 md:mb-6 flex items-center justify-center shadow-xl border-4 border-solid border-orange-500 transition-all duration-500"
             style={{ boxShadow: 'inset 0 0 0 4px #10b981' }}
           >
             <img
@@ -3268,23 +3285,22 @@ function LandingPage({ onStart }) {
             />
           </div>
 
-          {/* ชื่อระบบ */}
-          <h1 className="text-3xl font-black text-white mb-1 drop-shadow-md">
+          {/* ชื่อระบบ (ขยายฟอนต์จาก 3xl เป็น 5xl บน PC) */}
+          <h1 className="text-3xl md:text-5xl font-black text-white mb-2 md:mb-4 drop-shadow-md transition-all duration-500">
             ระบบแจ้งซ่อม
           </h1>
-          <h2 className="text-[15px] font-bold text-orange-400 uppercase mb-0.5">
+          <h2 className="text-[15px] md:text-[22px] font-bold text-orange-400 uppercase mb-1 md:mb-2 transition-all duration-500">
             ฝ่ายวิศวกรรมระบบปฏิบัติการดาวเทียม
           </h2>
-          <h3 className="text-xs font-bold text-slate-300 tracking-widest">
+          <h3 className="text-xs md:text-[16px] font-bold text-slate-300 tracking-widest transition-all duration-500">
             สำนักปฏิบัติการดาวเทียม
           </h3>
 
-          {/* 🌟 โซนน้องมาสคอต + กล่องคำพูด */}
-          <div className="relative w-full mt-20 mb-6 flex items-start justify-end min-h-[180px]">
+          {/* 🌟 โซนน้องมาสคอต + กล่องคำพูด (ปรับสมดุลสัดส่วนใหม่) */}
+          <div className="relative w-full mt-20 md:mt-32 mb-6 md:mb-12 flex items-start justify-end min-h-[180px] md:min-h-[260px] transition-all duration-500">
             
-            {/* 👩‍🔧 น้องมาสคอต */}
-            {/* 🌟 ฟันธงจุดที่ 2: ดันมาสคอตไปซ้ายสุดๆ จาก -25px เป็น -35px */}
-            <div className="absolute left-[-35px] bottom-0 z-20 w-[100%] max-w-[180px] pointer-events-none drop-shadow-[0_15px_15px_rgba(0,0,0,0.8)]">
+            {/* 👩‍🔧 น้องมาสคอต (ขยับออกซ้าย และใหญ่ขึ้นบน PC) */}
+            <div className="absolute left-[-35px] md:left-[-70px] lg:left-[-90px] bottom-0 z-20 w-[100%] max-w-[180px] md:max-w-[260px] pointer-events-none drop-shadow-[0_15px_15px_rgba(0,0,0,0.8)] transition-all duration-500">
               <img
                 src="/mascot.webp"
                 alt="Mascot"
@@ -3292,94 +3308,81 @@ function LandingPage({ onStart }) {
               />
             </div>
 
-            {/* 💬 กล่องคำพูด (Speech Bubble สีขาว) */}
-            {/* 🌟 ฟันธงจุดที่ 3: ขยายกล่องจาก w-[56%] เป็น w-[65%] เพื่อให้ข้อความไม่ตกบรรทัด */}
-            <div className="relative z-10 w-[55%] -mt-16 -mr-1 bg-white rounded-3xl p-3.5 shadow-[0_0_30px_rgba(255,255,255,0.2)] text-left border-2 border-slate-100">
-              {/* 🔺 ติ่งลูกศรชี้ */}
+            {/* 💬 กล่องคำพูด (ปรับให้กว้างขึ้นและตัวหนังสือใหญ่ขึ้นบน PC) */}
+            <div className="relative z-10 w-[60%] md:w-[65%] -mt-16 md:-mt-24 -mr-1 md:mr-4 bg-white rounded-3xl md:rounded-[2rem] p-3.5 md:p-6 shadow-[0_0_30px_rgba(255,255,255,0.2)] text-left border-2 border-slate-100 transition-all duration-500">
               <svg
-                className="absolute -left-4 top-6 w-5 h-7 -z-10"
-                viewBox="0 0 20 28"
-                fill="none"
-                xmlns="http://www.w3.org/2000/svg"
+                className="absolute -left-4 md:-left-6 top-6 md:top-8 w-5 h-7 md:w-8 md:h-10 -z-10 transition-all duration-500"
+                viewBox="0 0 20 28" fill="none" xmlns="http://www.w3.org/2000/svg"
               >
-                <path
-                  d="M20 1 L2 14 L20 27"
-                  fill="#ffffff"
-                  stroke="#f1f5f9"
-                  strokeWidth="2"
-                  strokeLinejoin="round"
-                />
+                <path d="M20 1 L2 14 L20 27" fill="#ffffff" stroke="#f1f5f9" strokeWidth="2" strokeLinejoin="round" />
               </svg>
-
-              {/* ข้อความในกล่องคำพูด */}
-              {/* 🌟 ฟันธง: แก้ไขการขึ้นบรรทัดใหม่ ให้ดูเป็นธรรมชาติ */}
-              <p className="text-[13px] font-bold text-slate-700 leading-relaxed relative z-20">
+              <p className="text-[13px] md:text-[18px] font-bold text-slate-700 leading-relaxed relative z-20 transition-all duration-500">
                 ระบบมีปัญหาใช่มั้ยคะ?
                 <br />
-                <span className="text-red-500 font-black text-[13px] mt-1 inline-block drop-shadow-sm whitespace-nowrap">
+                <span className="text-red-500 font-black text-[13px] md:text-[20px] mt-1 md:mt-2 inline-block drop-shadow-sm whitespace-nowrap">
                   กดแจ้งซ่อมได้เลย! 👇
                 </span>
               </p>
             </div>
           </div>
 
-          {/* 4. กลุ่มปุ่มกด */}
-          <div className="w-full flex flex-col gap-4 -mt-5 relative z-30">
+          {/* 4. กลุ่มปุ่มกด (ขยายขนาดปุ่มและตัวอักษร) */}
+          <div className="w-full flex flex-col gap-4 md:gap-6 -mt-5 relative z-30 transition-all duration-500">
             {/* 🟠 ปุ่มที่ 1 */}
             <button
               onClick={() => onStart('reporter')}
-              className="w-full bg-gradient-to-r from-orange-500 to-amber-500 text-white font-black text-[19px] py-5 rounded-2xl flex items-center justify-center gap-3 border-2 border-white shadow-xl shadow-orange-500/30 active:scale-95 transition-all"
+              className="w-full bg-gradient-to-r from-orange-500 to-amber-500 text-white font-black text-[19px] md:text-[28px] py-5 md:py-7 rounded-2xl md:rounded-[1.5rem] flex items-center justify-center gap-3 md:gap-5 border-2 border-white shadow-xl shadow-orange-500/30 active:scale-95 transition-all"
             >
-              <Wrench size={28} className="drop-shadow-md" />{' '}
+              <Wrench size={28} className="drop-shadow-md md:w-9 md:h-9" />{' '}
               แจ้งซ่อมระบบ/อุปกรณ์
             </button>
 
             {/* 🟢 ปุ่มวิศวกร/ทีมช่าง */}
             <button
               onClick={() => onStart('technician')}
-              className="w-full bg-green-600/40 hover:bg-orange-500/60 text-yellow-300 font-black text-lg py-4 rounded-2xl border-2 border-white/50 flex items-center justify-center gap-3 shadow-lg active:scale-95 transition-all"
+              className="w-full bg-green-600/40 hover:bg-orange-500/60 text-yellow-300 font-black text-lg md:text-[22px] py-4 md:py-6 rounded-2xl md:rounded-[1.5rem] border-2 border-white/50 flex items-center justify-center gap-3 shadow-lg active:scale-95 transition-all"
             >
-              <Settings size={25} className="text-emerald-500" />{' '}
+              <Settings size={25} className="text-emerald-500 md:w-8 md:h-8" />{' '}
               สำหรับเจ้าหน้าที่ ฝวด.
             </button>
 
             {/* ⚪ ปุ่มคู่มือ */}
             <button
             onClick={() => setShowManual(true)} 
-            className="w-full bg-rose-600/40 hover:bg-slate-500/60 text-white text-[18px] font-bold py-4 rounded-2xl border-2 border-2 border-solid border-white/40 flex items-center justify-center gap-3 shadow-sm"
+            className="w-full bg-rose-600/40 hover:bg-slate-500/60 text-white text-[18px] md:text-[20px] font-bold py-4 md:py-5 rounded-2xl md:rounded-[1.5rem] border-2 border-white/40 flex items-center justify-center gap-3 shadow-sm transition-all"
             >
-            <FileText size={20} /> คู่มือการใช้งานเบื้องต้น
+            <FileText size={20} className="md:w-7 md:h-7" /> คู่มือการใช้งานเบื้องต้น
             </button>
           </div>
         </div>
 
-        {/* 5. Footer - แก้ไขเป็นพิมพ์เล็ก (ลบ uppercase ออกแล้ว) */}
-        <div className="mt-8 text-center opacity-80">
-          <p className="text-[10px] font-mono text-white tracking-widest font-bold normal-case">
+        {/* 5. Footer (ขยายฟอนต์ให้ชัดขึ้นบน PC) */}
+        <div className="mt-8 md:mt-12 text-center opacity-80 transition-all duration-500">
+          <p className="text-[10px] md:text-[14px] font-mono text-white tracking-widest font-bold normal-case">
             ©2026 Ground System Engineering Division: GSE
           </p>
-          <p className="text-[9px] font-bold text-white mt-1 text-center normal-case">
+          <p className="text-[9px] md:text-[12px] font-bold text-white mt-1 md:mt-2 text-center normal-case">
             Satellite Operation Office: SOO
           </p>
-          <p className="text-[9px] font-bold text-white mt-1 text-center normal-case">
+          <p className="text-[9px] md:text-[12px] font-bold text-white mt-1 text-center normal-case">
             Geo-Informatics and Space Technology Development Agency: GISTDA
           </p>
         </div>
       </div>
-      {/* 🌟 หน้าต่าง Popup คู่มือ */}
+
+      {/* 🌟 หน้าต่าง Popup คู่มือ (อัปเกรดให้รองรับจอคอม) */}
       {showManual && (
         <div className="fixed inset-0 z-[200] bg-slate-900/90 flex flex-col items-center justify-center p-4 backdrop-blur-sm animate-in fade-in">
-          <div className="w-full max-w-lg bg-slate-800 border-2 border-orange-500 rounded-2xl overflow-hidden shadow-2xl flex flex-col max-h-[85vh]">
-            <div className="p-4 bg-slate-900 flex justify-between items-center border-b border-slate-700">
-              <h3 className="text-white font-bold tracking-widest">คู่มือการใช้งาน</h3>
-              <button onClick={() => setShowManual(false)} className="text-rose-500 hover:text-rose-400 bg-rose-500/10 p-1.5 rounded-full">
-                <X size={20} />
+          <div className="w-full max-w-lg md:max-w-4xl bg-slate-800 border-2 border-orange-500 rounded-2xl md:rounded-[2rem] overflow-hidden shadow-2xl flex flex-col max-h-[85vh] transition-all">
+            <div className="p-4 md:p-6 bg-slate-900 flex justify-between items-center border-b border-slate-700">
+              <h3 className="text-white font-bold tracking-widest md:text-2xl">คู่มือการใช้งาน</h3>
+              <button onClick={() => setShowManual(false)} className="text-rose-500 hover:text-rose-400 bg-rose-500/10 p-1.5 md:p-2.5 rounded-full transition-all">
+                <X size={20} className="md:w-8 md:h-8" />
               </button>
             </div>
-            <div className="p-4 overflow-y-auto space-y-4">
-              {/* เปลี่ยนชื่อไฟล์รูปตรง src ให้ตรงกับของท่าน */}
-              <img src="/manual-1.png" alt="คู่มือผู้แจ้ง" className="w-full rounded-xl shadow-md border border-slate-600" />
-              <img src="/manual-2.png" alt="คู่มือช่าง" className="w-full rounded-xl shadow-md border border-slate-600" />
+            <div className="p-4 md:p-8 overflow-y-auto space-y-4 md:space-y-8">
+              <img src="/manual-1.png" alt="คู่มือผู้แจ้ง" className="w-full rounded-xl md:rounded-2xl shadow-md border border-slate-600" />
+              <img src="/manual-2.png" alt="คู่มือช่าง" className="w-full rounded-xl md:rounded-2xl shadow-md border border-slate-600" />
             </div>
           </div>
         </div>
