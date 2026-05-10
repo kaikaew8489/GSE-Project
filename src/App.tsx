@@ -496,12 +496,19 @@ const calculateDuration = (start, end, holdMs = 0) => {
 // ==========================================
 // 🌟 5. Main App Logic
 // ==========================================
+
+// 👇 🌟🌟 ฟันธง: บรรทัดนี้ของท่านหายไปครับ! เติมกลับเข้าไปด่วน ไม่งั้นแอปพังทั้งระบบ!
 function MainApp({ onGoHome, initialRole }) {
-  // 🌟 ฟันธง: ลบระบบจำหน้าเก่าทิ้ง! ให้ตั้งต้นใหม่ตาม Role ที่เลือกเสมอ
+
+  // 🌟 ฟันธงแก้: จำหน้า Tab ปัจจุบันไว้ในเครื่อง กันรีเฟรชแล้วเด้งกลับ
   const [activeTab, setActiveTab] = useState(
-    initialRole === 'technician' ? 'dashboard' : 'report'
+    () => localStorage.getItem('activeTab') || (initialRole === 'technician' ? 'dashboard' : 'report')
   );
-  // (ลบ useEffect ที่เซฟลง localStorage ออกไปแล้ว)
+
+useEffect(() => {
+  localStorage.setItem('activeTab', activeTab);
+}, [activeTab]);
+
 
   // 🌟🌟🌟 จุดที่ 1: เติมบรรทัดนี้ลงไป! (สำคัญมาก ถ้าไม่มีระบบจะพัง) 🌟🌟🌟
   // ของเดิมอาจจะเป็น: const [dashTimeframe, setDashTimeframe] = useState('month');
@@ -1006,18 +1013,15 @@ function MainApp({ onGoHome, initialRole }) {
       
       // 🌟 3. กรองตาม "สถานะ (Tab)"
       if (filterStatus === 'all') return true;
-      
-      // 👇 🌟 ฟันธงแก้บั๊ก: อัปเกรดให้แท็บหลักดึงงานมาโชว์แบบ "เหมารวม" ให้ตัวเลขตรงกับแผงควบคุม!
-      if (filterStatus === 'fixing') return ['acknowledged', 'in_progress', 'on_hold'].includes(t.status); // รวมงานติดขัด (on_hold) มาโชว์ด้วย
-      if (filterStatus === 'completed') return ['completed', 'verified'].includes(t.status); // รวมงานรอยืนยัน (completed) มาโชว์ด้วย
-      
-      // 👇 แท็บย่อย (ดึงเฉพาะสถานะเจาะจง)
+      if (filterStatus === 'fixing') return ['acknowledged', 'in_progress', 'on_hold'].includes(t.status);
+      if (filterStatus === 'completed') return ['completed', 'verified'].includes(t.status);
       if (filterStatus === 'on_hold') return t.status === 'on_hold';
       if (filterStatus === 'verify') return t.status === 'completed';
         
-      return t.status === filterStatus; // ครอบคลุม pending, cancelled
-    });
-  }, [tickets, searchTerm, filterStatus, trackTimeframe, trackMonth, trackDate]); // 🌟 อัปเดตทันทีที่สถานะหรือเวลาเปลี่ยน
+      return t.status === filterStatus;
+      
+    }); // 🌟🌟🌟 ฟันธง: บรรทัดนี้แหละครับตัวการ! ต้องเป็น }); เพื่อปิดการ filter นะครับ!
+  }, [tickets, searchTerm, filterStatus, trackTimeframe, trackMonth, trackDate]);
 
 
   // 🌟 ฟันธง: สมองกลสะพานเชื่อม แปลงเวลาจากแผงควบคุม ส่งไปหน้า Tracking ให้ตรงเป๊ะ!
@@ -1403,6 +1407,7 @@ function MainApp({ onGoHome, initialRole }) {
                     setActiveTab('tracking');
                     setSearchTerm(longestPendingTicket.id);
                     setFilterStatus('all');
+                    setTrackTimeframe('all'); // 🌟 ฟันธง: ล้างตัวกรองเวลาเป็น 'ดูทุกวัน' เสมอ!
                   }}
                   className="bg-white p-4 rounded-2xl border-2 border-solid border-orange-800 shadow-[0_4px_10px_rgba(225,29,72,0.1)] cursor-pointer hover:border-rose-500 hover:bg-rose-100 hover:shadow-[0_0_20px_rgba(249,115,22,0.3)] transition-all active:scale-[0.98]"
                 >
@@ -1439,6 +1444,7 @@ function MainApp({ onGoHome, initialRole }) {
                     setActiveTab('tracking');
                     setSearchTerm(longestFixingTicket.id);
                     setFilterStatus('all');
+                    setTrackTimeframe('all'); // 🌟 ฟันธง: ล้างตัวกรองเวลาเป็น 'ดูทุกวัน' เสมอ!
                   }}
                   className="bg-white p-4 rounded-2xl border-2 border-solid border-orange-400 shadow-[0_4px_10px_rgba(249,115,22,0.1)] cursor-pointer hover:border-orange-500 hover:bg-orange-50 hover:shadow-md transition-all active:scale-[0.98]"
                 >
@@ -1492,6 +1498,7 @@ function MainApp({ onGoHome, initialRole }) {
                   setActiveTab('tracking');
                   setSearchTerm(t.id);
                   setFilterStatus('all');
+                  setTrackTimeframe('all'); // 🌟 ฟันธง: ล้างตัวกรองเวลาเป็น 'ดูทุกวัน' เสมอ!
                 }}
                 className={`flex flex-col p-4 bg-slate-50 rounded-2xl border-2 cursor-pointer active:scale-[0.98] transition-all shadow-sm ${
                   t.status === 'pending'
@@ -2845,7 +2852,7 @@ const renderTracking = () => (
       {/* 🛠️ Action Modals */}
       {actionModal.isOpen && (
         <div className="fixed inset-0 z-[150] flex items-center justify-center bg-slate-900/60 backdrop-blur-sm p-5 animate-in fade-in text-center">
-          <div className="bg-white border border-2 border-orange-400/70rounded-[2rem] w-full max-w-xs overflow-hidden shadow-2xl">
+          <div className="bg-white border border-2 border-orange-400/70 rounded-[2rem] w-full max-w-xs overflow-hidden shadow-2xl">
             <div
               className={`p-4 font-black text-center text-sm flex items-center justify-center gap-2 ${
                 actionModal.type === 'hold'
@@ -3385,18 +3392,21 @@ function LandingPage({ onStart }) {
 // 🚀 ส่วนควบคุมระบบ (App Component)
 // ==========================================
 export default function App() {
-  // 🌟 ฟันธง: ลบความจำเบราว์เซอร์ออก กำหนดค่าเริ่มต้นเป็น false เสมอ 
-  // เปิดแอปใหม่ปุ๊บ จะต้องเห็นหน้า Landing Page ทุกครั้ง 1,000,000%
-  const [hasStarted, setHasStarted] = useState(false);
-  const [role, setRole] = useState('reporter');
+  // 🌟 ฟันธงกู้คืน: ใช้ localStorage จำค่าการเข้าสู่ระบบ กันรีเฟรชหลุด!
+  const [hasStarted, setHasStarted] = useState(() => localStorage.getItem('hasStarted') === 'true');
+  const [role, setRole] = useState(() => localStorage.getItem('role') || 'reporter');
 
   const handleStart = (selectedRole) => {
     setRole(selectedRole);
     setHasStarted(true);
+    localStorage.setItem('role', selectedRole);
+    localStorage.setItem('hasStarted', 'true');
   };
 
   const handleGoHome = () => {
     setHasStarted(false);
+    localStorage.removeItem('hasStarted');
+    localStorage.removeItem('activeTab');
   };
 
   return (
