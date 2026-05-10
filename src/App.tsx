@@ -3227,14 +3227,12 @@ function LandingPage({ onStart }) {
             border: '4px solid #FF4500',
           }}
         >
-          {/* โลโก้ (ฟันธง: ดึงขึ้นไปให้ชิดขอบส้มด้านบนมากขึ้น) */}
-          <div
-            className="w-32 h-32 md:w-44 md:h-44 bg-white rounded-full -mt-6 md:-mt-6 mb-4 md:mb-6 flex items-center justify-center shadow-xl border-[4px] border-solid border-orange-500 transition-all duration-500 overflow-hidden"
-          >
+          {/* โลโก้ (ฟันธง: ถอดกรอบขาวออก ให้โลโก้ลอยตัวแบบ 3D พรีเมียมสุดๆ) */}
+          <div className="w-36 h-36 md:w-48 md:h-48 mt-2 md:mt-4 mb-4 md:mb-8 flex items-center justify-center transition-all duration-500">
             <img
-              src="/GSE-logo.webp"
+              src="/GSE-logo.webp" /* 🌟 ตรวจสอบชื่อไฟล์โลโก้ของท่านให้ตรงด้วยนะครับ */
               alt="Logo"
-              className="w-full h-full object-cover scale-[1.15]" 
+              className="w-full h-full object-contain drop-shadow-[0_15px_15px_rgba(0,0,0,0.6)] hover:scale-105 transition-transform duration-500" 
             />
           </div>
 
@@ -3244,28 +3242,26 @@ function LandingPage({ onStart }) {
           </h1>
 
           {/* 🌟 3. โซนน้องมาสคอต + กล่องคำพูด */}
-          <div className="relative w-full mt-8 md:mt-12 flex flex-col items-center min-h-[220px] md:min-h-[340px] transition-all duration-500">
+          <div className="relative w-full mt-10 md:mt-16 flex flex-col items-center min-h-[220px] md:min-h-[340px] transition-all duration-500">
             
-            {/* 💬 กล่องคำพูด */}
-            <div className="relative z-20 bg-slate-700 rounded-3xl md:rounded-[2rem] p-4 md:p-6 shadow-[0_15px_40px_rgba(249,115,22,0.8)] text-center border-[3px] border-solid border-orange-500 mb-2 md:mb-4 animate-bounce">
-              <svg 
-                className="absolute left-1/2 -translate-x-1/2 -bottom-[12px] md:-bottom-[16px] w-6 h-6 md:w-8 md:h-8 z-10" 
-                viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"
-              >
-                <path d="M12 24L0 0H24L12 24Z" fill="#1e293b" /> 
-              </svg>
-              <p className="text-[18px] md:text-[18px] font-bold text-slate-100 leading-relaxed relative z-20 shadow-none">
+            {/* 💬 กล่องคำพูด (โปร่งแสงแบบกระจก + ติ่งสามเหลี่ยมโค้งมน) */}
+            <div className="relative z-20 bg-slate-900/85 backdrop-blur-md rounded-3xl md:rounded-[2rem] p-4 md:p-6 shadow-[0_15px_40px_rgba(249,115,22,0.5)] text-center border-[2px] border-solid border-orange-500 mb-2 md:mb-4 animate-bounce">
+              
+              {/* 🌟 ฟันธง: ติ่งสามเหลี่ยมใช้เทคนิค CSS หมุนกล่องให้โค้งมน เนียนกริบ 100% */}
+              <div className="absolute left-1/2 -translate-x-1/2 -bottom-[11px] w-5 h-5 bg-slate-900 border-b-[2px] border-r-[2px] border-solid border-orange-500 transform rotate-45 rounded-sm"></div>
+
+              <p className="text-[14px] md:text-[18px] font-bold text-slate-100 leading-relaxed relative z-20 shadow-none">
                 ระบบมีปัญหาใช่มั้ยคะ?
                 <br />
-                <span className="text-orange-300 font-black text-[18px] md:text-[22px] mt-1 md:mt-2 inline-flex items-center justify-center gap-2 drop-shadow-sm whitespace-nowrap">
+                <span className="text-orange-400 font-black text-[15px] md:text-[22px] mt-1 md:mt-2 inline-flex items-center justify-center gap-2 drop-shadow-sm whitespace-nowrap">
                   กดแจ้งซ่อมด้านล่างได้เลย!
-                  <span className="text-[30px] md:text-[40px] leading-[0] block transform translate-y-1 md:translate-y-2 drop-shadow-md">👇</span>
+                  <span className="text-[28px] md:text-[40px] leading-[0] block transform translate-y-1 md:translate-y-2 drop-shadow-md">👇</span>
                 </span>
               </p>
             </div>
 
-            {/* 👩‍🔧 น้องมาสคอต (ฟันธง: ขยายร่างให้เบิ้มขึ้น และใช้ -mb ดึงให้จมลงไปเหยียบขอบปุ่มพอดี!) */}
-            <div className="relative z-30 w-[75%] md:w-[65%] max-w-[280px] md:max-w-[380px] mb-1 md:-mb-12 pointer-events-none drop-shadow-[0_20px_20px_rgba(0,0,0,0.8)] transition-all duration-500">
+            {/* 👩‍🔧 น้องมาสคอต (เพอร์เฟกต์แล้ว ห้ามขยับ!) */}
+            <div className="relative z-30 w-[75%] md:w-[65%] max-w-[280px] md:max-w-[380px] mb-1 md:-mb-1 pointer-events-none drop-shadow-[0_20px_20px_rgba(0,0,0,0.8)] transition-all duration-500">
               <img
                 src="/mascot.webp"
                 alt="Mascot"
@@ -3274,31 +3270,31 @@ function LandingPage({ onStart }) {
             </div>
           </div>
 
-          {/* 4. กลุ่มปุ่มกด (ฟันธง: ไล่สี Gradient 3 กษัตริย์สุดหรูหรา 100%) */}
+          {/* 4. กลุ่มปุ่มกด (ฟันธง: ลำดับสีตามนี้คือสุดยอด UX ระดับสากลครับ!) */}
           <div className="w-full flex flex-col gap-4 md:gap-6 relative z-10 transition-all duration-500">
             
-            {/* ปุ่มที่ 1: แจ้งซ่อม (Gradient ส้ม-ทอง) */}
+            {/* ปุ่ม 1: ส้ม-ทอง (Primary Action) */}
             <button
               onClick={() => onStart('reporter')}
-              className="w-full pt-10 md:pt-14 pb-5 md:pb-7 bg-gradient-to-r from-emerald-500 to-teal-800 text-white font-black text-[19px] md:text-[28px] rounded-2xl md:rounded-[1.5rem] flex items-center justify-center gap-3 md:gap-5 border-[2px] border-solid border-white/80  shadow-[0_10px_20px_rgba(16,185,129,0.5)]  hover:shadow-[0_15px_25px_rgba(16,185,129,01)]  active:scale-95 transition-all"
+              className="w-full pt-10 md:pt-14 pb-5 md:pb-7 bg-gradient-to-r from-orange-500 to-amber-500 text-white font-black text-[19px] md:text-[28px] rounded-2xl md:rounded-[1.5rem] flex items-center justify-center gap-3 md:gap-5 border-[2px] border-solid border-white/80 shadow-[0_15px_30px_rgba(249,115,22,0.5)] hover:shadow-[0_15px_35px_rgba(249,115,22,0.8)] active:scale-95 transition-all"
             >
               <Wrench size={28} className="drop-shadow-md md:w-9 md:h-9" />{' '}
               แจ้งซ่อมระบบ/อุปกรณ์
             </button>
 
-            {/* ปุ่มที่ 2: ช่าง (Gradient เขียวมรกต) */}
+            {/* ปุ่ม 2: เขียวมรกต (Admin Action) */}
             <button
               onClick={() => onStart('technician')}
-              className="w-full bg-gradient-to-r from-orange-400 to-yellow-800 text-white font-black text-lg md:text-[22px] py-4 md:py-6 rounded-2xl md:rounded-[1.5rem] border-[2px] border-solid border-white/50 flex items-center justify-center gap-3 shadow-[0_15px_30px_rgba(249,115,22,0.5)] hover:shadow-[0_15px_35px_rgba(249,115,22,1)] active:scale-95 transition-all"
+              className="w-full bg-gradient-to-r from-emerald-600 to-teal-700 text-white font-black text-lg md:text-[22px] py-4 md:py-6 rounded-2xl md:rounded-[1.5rem] border-[2px] border-solid border-white/50 flex items-center justify-center gap-3 shadow-[0_10px_20px_rgba(16,185,129,0.5)] hover:shadow-[0_15px_25px_rgba(16,185,129,0.8)] active:scale-95 transition-all"
             >
               <Settings size={25} className="md:w-8 md:h-8 drop-shadow-sm" />{' '}
               สำหรับเจ้าหน้าที่ ฝวด.
             </button>
 
-            {/* ปุ่มที่ 3: คู่มือ (Gradient ม่วง-ชมพูเข้ม) */}
+            {/* ปุ่ม 3: ม่วง-ชมพู (Secondary Action) */}
             <button
               onClick={() => setShowManual(true)} 
-              className="w-full bg-gradient-to-r from-rose-500 to-purple-800 text-white text-[18px] md:text-[20px] font-bold py-4 md:py-5 rounded-2xl md:rounded-[1.5rem] border-[2px] border-solid border-white/40 flex items-center justify-center gap-3 shadow-[0_10px_20px_rgba(225,29,72,0.5)] hover:shadow-[0_15px_25px_rgba(225,29,72,1)] active:scale-95 transition-all"
+              className="w-full bg-gradient-to-r from-rose-700 to-purple-800 text-white text-[18px] md:text-[20px] font-bold py-4 md:py-5 rounded-2xl md:rounded-[1.5rem] border-[2px] border-solid border-white/40 flex items-center justify-center gap-3 shadow-[0_10px_20px_rgba(225,29,72,0.5)] hover:shadow-[0_15px_25px_rgba(225,29,72,0.8)] active:scale-95 transition-all"
             >
               <FileText size={20} className="md:w-7 md:h-7 drop-shadow-sm" /> คู่มือการใช้งานเบื้องต้น
             </button>
