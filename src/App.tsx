@@ -3017,35 +3017,35 @@ const renderTracking = () => (
         {activeTab === 'tracking' && renderTracking()}
       </div>
 
-     {/* 🧭 Navigation Bar (ฟันธง: ใช้วิชา Content-Driven Height ให้กรอบกางตามตัวหนังสือ ป้องกันการบีบอัดตอนรีเฟรช 1,000,000%) */}
-     <div className={`fixed bottom-4 left-1/2 -translate-x-1/2 w-[calc(100%-2rem)] max-w-[416px] py-2 md:py-3 bg-slate-900/95 backdrop-blur-xl border-2 border-solid border-orange-500 rounded-2xl z-[9999] transition-all duration-500 shadow-[0_10px_30px_rgba(249,115,22,0.4)] ${activeTab === 'report' ? 'md:max-w-2xl' : 'md:max-w-[992px]'}`}>
+     {/* 🧭 Navigation Bar (ฟันธง: หล่อปูนล็อกความสูงตายตัว ถอดแอนิเมชันตอนรีเฟรช ปิดตายบั๊กมือถือ 1,000,000%) */}
+     <div className={`fixed bottom-4 left-1/2 -translate-x-1/2 w-[calc(100%-2rem)] max-w-[416px] py-2.5 md:py-3 bg-slate-900/95 backdrop-blur-xl border-2 border-solid border-orange-500 rounded-2xl z-[9999] shadow-[0_10px_30px_rgba(249,115,22,0.4)] ${activeTab === 'report' ? 'md:max-w-2xl' : 'md:max-w-[992px]'}`}>
         <div className="w-full flex justify-evenly items-center px-1 md:px-8">
 
           {/* 🏠 ปุ่ม HOME */}
-          <button onClick={onGoHome} className="flex flex-col items-center justify-center w-20 md:w-24 gap-1 active:scale-95 transition-all shrink-0">
-            <div className="p-2 md:p-2.5 rounded-full bg-transparent text-slate-300">
-              <Home size={26} />
+          <button onClick={onGoHome} className="flex flex-col items-center justify-between h-[56px] md:h-[64px] w-[70px] md:w-24 shrink-0 active:scale-95">
+            <div className="flex items-center justify-center h-[34px] w-[34px] md:h-[40px] md:w-[40px] rounded-full text-slate-300">
+              <Home size={24} className="md:w-[26px] md:h-[26px]" />
             </div>
-            <span className="block text-[11px] md:text-[13px] font-bold text-slate-300 tracking-widest whitespace-nowrap shrink-0 leading-none">หน้าแรก</span>
+            <span className="block text-[11px] md:text-[13px] font-bold text-slate-300 tracking-widest whitespace-nowrap leading-none mt-1">หน้าแรก</span>
           </button>
 
           {/* ================= โหมดผู้แจ้ง ================= */}
           {currentUserRole === 'reporter' && (
             <>
               {/* 🟠 แจ้งซ่อม */}
-              <button onClick={() => setActiveTab('report')} className={`flex flex-col items-center justify-center w-20 md:w-24 gap-1 transition-all shrink-0 ${activeTab === 'report' ? '-translate-y-2' : 'active:scale-95'}`}>
-                <div className={`p-2 md:p-2.5 rounded-full transition-all ${activeTab === 'report' ? 'bg-gradient-to-b from-orange-400 to-orange-600 text-white shadow-[0_0_15px_rgba(249,115,22,0.8)] border-[2px] border-white scale-110' : 'bg-transparent text-slate-300'}`}>
-                  <PlusCircle size={26} className={activeTab === 'report' ? 'stroke-[2.5px]' : ''} />
+              <button onClick={() => setActiveTab('report')} className="flex flex-col items-center justify-between h-[56px] md:h-[64px] w-[70px] md:w-24 shrink-0 active:scale-95">
+                <div className={`flex items-center justify-center h-[34px] w-[34px] md:h-[40px] md:w-[40px] rounded-full transition-all ${activeTab === 'report' ? 'bg-gradient-to-b from-orange-400 to-orange-600 text-white shadow-[0_0_15px_rgba(249,115,22,0.8)] border-[2px] border-white scale-110 -translate-y-1 md:-translate-y-2' : 'bg-transparent text-slate-300'}`}>
+                  <PlusCircle size={24} className={`md:w-[26px] md:h-[26px] ${activeTab === 'report' ? 'stroke-[2.5px]' : ''}`} />
                 </div>
-                <span className={`block text-[11px] md:text-[13px] font-bold tracking-widest whitespace-nowrap shrink-0 leading-none transition-all ${activeTab === 'report' ? 'text-orange-400 drop-shadow-md' : 'text-slate-300'}`}>แจ้งซ่อม</span>
+                <span className={`block text-[11px] md:text-[13px] font-bold tracking-widest whitespace-nowrap leading-none mt-1 transition-all ${activeTab === 'report' ? 'text-orange-400 drop-shadow-md' : 'text-slate-300'}`}>แจ้งซ่อม</span>
               </button>
 
               {/* 🟠 ติดตามสถานะ */}
-              <button onClick={() => { setActiveTab('tracking'); setSearchTerm(''); }} className={`flex flex-col items-center justify-center w-20 md:w-24 gap-1 transition-all shrink-0 ${activeTab === 'tracking' ? '-translate-y-2' : 'active:scale-95'}`}>
-                <div className={`p-2 md:p-2.5 rounded-full transition-all ${activeTab === 'tracking' ? 'bg-gradient-to-b from-orange-400 to-orange-600 text-white shadow-[0_0_15px_rgba(249,115,22,0.8)] border-[2px] border-white scale-110' : 'bg-transparent text-slate-300'}`}>
-                  <ClipboardCheck size={26} className={activeTab === 'tracking' ? 'stroke-[2.5px]' : ''} />
+              <button onClick={() => { setActiveTab('tracking'); setSearchTerm(''); }} className="flex flex-col items-center justify-between h-[56px] md:h-[64px] w-[70px] md:w-24 shrink-0 active:scale-95">
+                <div className={`flex items-center justify-center h-[34px] w-[34px] md:h-[40px] md:w-[40px] rounded-full transition-all ${activeTab === 'tracking' ? 'bg-gradient-to-b from-orange-400 to-orange-600 text-white shadow-[0_0_15px_rgba(249,115,22,0.8)] border-[2px] border-white scale-110 -translate-y-1 md:-translate-y-2' : 'bg-transparent text-slate-300'}`}>
+                  <ClipboardCheck size={24} className={`md:w-[26px] md:h-[26px] ${activeTab === 'tracking' ? 'stroke-[2.5px]' : ''}`} />
                 </div>
-                <span className={`block text-[11px] md:text-[13px] font-bold tracking-widest whitespace-nowrap shrink-0 leading-none transition-all ${activeTab === 'tracking' ? 'text-orange-400 drop-shadow-md' : 'text-slate-300'}`}>ติดตามสถานะ</span>
+                <span className={`block text-[11px] md:text-[13px] font-bold tracking-widest whitespace-nowrap leading-none mt-1 transition-all ${activeTab === 'tracking' ? 'text-orange-400 drop-shadow-md' : 'text-slate-300'}`}>ติดตามสถานะ</span>
               </button>
             </>
           )}
@@ -3054,19 +3054,19 @@ const renderTracking = () => (
           {currentUserRole === 'technician' && (
             <>
               {/* 🟠 แผงควบคุม */}
-              <button onClick={() => setActiveTab('dashboard')} className={`flex flex-col items-center justify-center w-20 md:w-24 gap-1 transition-all shrink-0 ${activeTab === 'dashboard' ? '-translate-y-2' : 'active:scale-95'}`}>
-                <div className={`p-2 md:p-2.5 rounded-full transition-all ${activeTab === 'dashboard' ? 'bg-gradient-to-b from-orange-400 to-orange-600 text-white shadow-[0_0_15px_rgba(249,115,22,0.8)] border-[2px] border-white scale-110' : 'bg-transparent text-slate-300'}`}>
-                  <LayoutDashboard size={26} className={activeTab === 'dashboard' ? 'stroke-[2.5px]' : ''} />
+              <button onClick={() => setActiveTab('dashboard')} className="flex flex-col items-center justify-between h-[56px] md:h-[64px] w-[70px] md:w-24 shrink-0 active:scale-95">
+                <div className={`flex items-center justify-center h-[34px] w-[34px] md:h-[40px] md:w-[40px] rounded-full transition-all ${activeTab === 'dashboard' ? 'bg-gradient-to-b from-orange-400 to-orange-600 text-white shadow-[0_0_15px_rgba(249,115,22,0.8)] border-[2px] border-white scale-110 -translate-y-1 md:-translate-y-2' : 'bg-transparent text-slate-300'}`}>
+                  <LayoutDashboard size={24} className={`md:w-[26px] md:h-[26px] ${activeTab === 'dashboard' ? 'stroke-[2.5px]' : ''}`} />
                 </div>
-                <span className={`block text-[11px] md:text-[13px] font-bold tracking-widest whitespace-nowrap shrink-0 leading-none transition-all ${activeTab === 'dashboard' ? 'text-orange-400 drop-shadow-md' : 'text-slate-300'}`}>แผงควบคุม</span>
+                <span className={`block text-[11px] md:text-[13px] font-bold tracking-widest whitespace-nowrap leading-none mt-1 transition-all ${activeTab === 'dashboard' ? 'text-orange-400 drop-shadow-md' : 'text-slate-300'}`}>แผงควบคุม</span>
               </button>
 
               {/* 🟠 จัดการงานซ่อม */}
-              <button onClick={() => setActiveTab('tracking')} className={`flex flex-col items-center justify-center w-20 md:w-24 gap-1 transition-all shrink-0 ${activeTab === 'tracking' ? '-translate-y-2' : 'active:scale-95'}`}>
-                <div className={`p-2 md:p-2.5 rounded-full transition-all ${activeTab === 'tracking' ? 'bg-gradient-to-b from-orange-400 to-orange-600 text-white shadow-[0_0_15px_rgba(249,115,22,0.8)] border-[2px] border-white scale-110' : 'bg-transparent text-slate-300'}`}>
-                  <Wrench size={26} className={activeTab === 'tracking' ? 'stroke-[2.5px]' : ''} />
+              <button onClick={() => setActiveTab('tracking')} className="flex flex-col items-center justify-between h-[56px] md:h-[64px] w-[70px] md:w-24 shrink-0 active:scale-95">
+                <div className={`flex items-center justify-center h-[34px] w-[34px] md:h-[40px] md:w-[40px] rounded-full transition-all ${activeTab === 'tracking' ? 'bg-gradient-to-b from-orange-400 to-orange-600 text-white shadow-[0_0_15px_rgba(249,115,22,0.8)] border-[2px] border-white scale-110 -translate-y-1 md:-translate-y-2' : 'bg-transparent text-slate-300'}`}>
+                  <Wrench size={24} className={`md:w-[26px] md:h-[26px] ${activeTab === 'tracking' ? 'stroke-[2.5px]' : ''}`} />
                 </div>
-                <span className={`block text-[11px] md:text-[13px] font-bold tracking-widest whitespace-nowrap shrink-0 leading-none transition-all ${activeTab === 'tracking' ? 'text-orange-400 drop-shadow-md' : 'text-slate-300'}`}>จัดการงาน</span>
+                <span className={`block text-[11px] md:text-[13px] font-bold tracking-widest whitespace-nowrap leading-none mt-1 transition-all ${activeTab === 'tracking' ? 'text-orange-400 drop-shadow-md' : 'text-slate-300'}`}>จัดการงาน</span>
               </button>
             </>
           )}
