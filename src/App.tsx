@@ -3239,41 +3239,64 @@ function LandingPage({ onStart }) {
         </div>
       </div>
 
-     {/* 🌟 หน้าต่าง Popup คู่มือ (อัปเดตใหม่ 5 หน้า) */}
-     {showManual && (
-        <div className="fixed inset-0 z-[200] bg-slate-900/90 flex flex-col items-center justify-center p-4 backdrop-blur-sm animate-in fade-in" onClick={() => setShowManual(false)}>
-          <div className="w-full max-w-lg md:max-w-4xl bg-slate-800 border-2 border-orange-500 rounded-2xl md:rounded-[2rem] overflow-hidden shadow-2xl flex flex-col max-h-[85vh] transition-all" onClick={(e) => e.stopPropagation()}>
-            <div className="p-4 md:p-6 bg-slate-900 flex justify-between items-center border-b border-slate-700">
-              <h3 className="text-white font-bold tracking-widest md:text-2xl">คู่มือการใช้งานระบบแจ้งซ่อม</h3>
-              <button onClick={() => setShowManual(false)} className="text-rose-500 hover:text-rose-400 bg-rose-500/10 p-1.5 md:p-2.5 rounded-full transition-all hover:bg-rose-500/20 active:scale-95">
-                <X size={20} className="md:w-8 md:h-8" />
-              </button>
-            </div>
+
+    {/* 🌟 หน้าต่าง Popup คู่มือ (แก้บั๊กข้อความหาย + อัปเกรดแสงเฟลอร์ส้ม 0.8-1.0) */}
+    {showManual && (
+        <div className="fixed inset-0 z-[200] bg-slate-950/90 flex flex-col items-center justify-center p-4 backdrop-blur-md animate-in fade-in" onClick={() => setShowManual(false)}>
+          
+          {/* 💥 พลังแสงเฟลอร์ส้มวาบๆ ทะลุอยู่ด้านหลังสุด (ระดับ 0.8 - 1.0) */}
+          <div className="absolute w-[350px] h-[350px] bg-orange-500/80 rounded-full blur-[120px] animate-pulse pointer-events-none z-0"></div>
+
+          {/* กรอบหน้าต่างหลัก: อัดเงาส้มเข้ม 0.8 พร้อมแก้โครงสร้าง flex ให้สมดุล */}
+          <div className="w-full max-w-lg md:max-w-4xl bg-slate-900 border-[4px] border-solid border-orange-500 rounded-2xl md:rounded-[2rem] overflow-hidden shadow-[0_0_80px_rgba(249,115,22,0.8)] flex flex-col max-h-[85vh] relative z-10 transition-all" onClick={(e) => e.stopPropagation()}>
             
-            {/* 🌟 โซนแสดงรูปภาพคู่มือ (ฟันธง: เรียง 4 ไฟล์ต่อกัน เลื่อนอ่านได้สมูทๆ) */}
-            <div className="p-4 md:p-8 overflow-y-auto space-y-4 md:space-y-8 bg-slate-800">
-            <div className="p-4 md:p-8 overflow-y-auto space-y-4 md:space-y-8">
+            {/* 🌟 1. ส่วนหัว (Header) แก้ไขโครงสร้างไม่ให้โดนบีบ (shrink-0) */}
+            <div className="relative pt-8 pb-6 px-6 bg-slate-950 flex flex-col items-center border-b-4 border-orange-500 shrink-0">
+              {/* แสงแฟลอร์ส้มวาบๆ พื้นหลัง Header */}
+              <div className="absolute inset-0 bg-orange-500/30 blur-[50px] pointer-events-none animate-pulse z-0"></div>
 
-                <img src="/manual-1-1.png" alt="คู่มือเข้าโปรแกรมหน้าแรก" className="w-full rounded-xl md:rounded-2xl shadow-md border border-slate-600" />
+              {/* กากบาทปิด (X) */}
+              <button onClick={() => setShowManual(false)} className="absolute top-4 right-4 md:top-6 md:right-6 z-20 text-white bg-slate-900 border-2 border-solid border-orange-400 p-2 md:p-3 rounded-full transition-all shadow-[0_0_20px_rgba(249,115,22,0.8)] hover:shadow-[0_0_30px_rgba(249,115,22,1)] hover:-translate-y-1 active:scale-95">
+                <X size={24} className="text-rose-500 drop-shadow-[0_0_8px_rgba(225,29,72,0.8)] stroke-[3px]" />
+              </button>
 
-                <img src="/manual-2-1.png" alt="คู่มือผู้แจ้งซ่อม-1" className="w-full rounded-xl md:rounded-2xl shadow-md border border-slate-600" />
+              <div className="relative z-10 w-full flex flex-col items-center gap-4">
+                {/* ไอคอน FileText สีส้ม */}
+                <div className="p-3 md:p-4 bg-gradient-to-br from-orange-400 to-orange-600 rounded-2xl shadow-[0_0_30px_rgba(249,115,22,0.8)] animate-pulse">
+                  <FileText size={32} className="text-white drop-shadow-md" />
+                </div>
 
-                <img src="/manual-2-2.png" alt="คู่มือผู้แจ้งซ่อม-2" className="w-full rounded-xl md:rounded-2xl shadow-md border border-slate-600" />
-
-                <img src="/manual-3-1.png" alt="คู่มือเจ้าหน้าที่ ฝวด.-1" className="w-full rounded-xl md:rounded-2xl shadow-md border border-slate-600" />
-
-                <img src="/manual-3-2.png" alt="คู่มือเจ้าหน้าที่ ฝวด.-2" className="w-full rounded-xl md:rounded-2xl shadow-md border border-slate-600" />
-
-              </div>
-              {/* ติ่งข้อความปิดท้ายคู่มือ */}
-              <div className="text-center pt-4 pb-2">
-                <p className="text-orange-400 font-bold text-sm tracking-widest">สิ้นสุดคู่มือการใช้งาน</p>
+                {/* ข้อความคู่มือในกรอบ (แก้ปัญหาข้อความหาย) */}
+                <div className="relative">
+                  <div className="absolute -inset-2 bg-orange-500/80 blur-[20px] rounded-full animate-pulse z-0"></div>
+                  <div className="relative z-10 bg-slate-800 border-[3px] border-solid border-orange-400 rounded-xl px-6 md:px-10 py-3 shadow-[0_0_30px_rgba(249,115,22,0.9)]">
+                    <h3 className="text-white font-black tracking-widest text-lg md:text-2xl text-center drop-shadow-[0_0_10px_rgba(255,255,255,0.9)]">
+                      คู่มือการใช้งานเบื้องต้น
+                    </h3>
+                  </div>
+                </div>
               </div>
             </div>
+
+            {/* 🌟 2. โซนแสดงรูปภาพคู่มือ (5 หน้า) */}
+            {/* อัปเกรดเป็น flex-1 ทำให้รูปโดนดันลงมาอยู่ข้างล่าง Header พอดีเป๊ะ ไม่ทับกัน! */}
+            <div className="p-4 md:p-8 overflow-y-auto space-y-6 md:space-y-10 bg-slate-800 flex-1">
+              <img src="/manual-1-1.png" alt="คู่มือเข้าโปรแกรมหน้าแรก" className="w-full rounded-xl md:rounded-2xl shadow-[0_10px_30px_rgba(0,0,0,0.6)] border-[2px] border-solid border-slate-600" />
+              <img src="/manual-2-1.png" alt="คู่มือผู้แจ้งซ่อม-1" className="w-full rounded-xl md:rounded-2xl shadow-[0_10px_30px_rgba(0,0,0,0.6)] border-[2px] border-solid border-slate-600" />
+              <img src="/manual-2-2.png" alt="คู่มือผู้แจ้งซ่อม-2" className="w-full rounded-xl md:rounded-2xl shadow-[0_10px_30px_rgba(0,0,0,0.6)] border-[2px] border-solid border-slate-600" />
+              <img src="/manual-3-1.png" alt="คู่มือเจ้าหน้าที่ ฝวด.-1" className="w-full rounded-xl md:rounded-2xl shadow-[0_10px_30px_rgba(0,0,0,0.6)] border-[2px] border-solid border-slate-600" />
+              <img src="/manual-3-2.png" alt="คู่มือเจ้าหน้าที่ ฝวด.-2" className="w-full rounded-xl md:rounded-2xl shadow-[0_10px_30px_rgba(0,0,0,0.6)] border-[2px] border-solid border-slate-600" />
+              
+              <div className="text-center pt-2 pb-4">
+                <p className="text-orange-400 font-bold text-sm tracking-widest flex items-center justify-center gap-2">
+                  <CheckCircle size={16} className="text-emerald-400" /> สิ้นสุดคู่มือการใช้งาน
+                </p>
+              </div>
+            </div>
+
           </div>
         </div>
       )}
-
 
     </div>
   );
