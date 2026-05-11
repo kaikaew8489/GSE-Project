@@ -2075,6 +2075,9 @@ const renderTracking = () => (
                       {['อา', 'จ', 'อ', 'พ', 'พฤ', 'ศ', 'ส'].map(day => (<div key={day} className={`text-[13px] font-black ${day === 'อา' ? 'text-rose-400' : 'text-slate-300'}`}>{day}</div>))}
                     </div>
                     <div className="grid grid-cols-7 gap-1.5">
+
+                      {/*เปลี่ยนสีปุ่มส้มวันที่ Active ในปฏิทินระบุวัน */}
+
                       {Array.from({ length: new Date(trackCalYear, trackCalMonth, 1).getDay() }).map((_, i) => (<div key={`empty-${i}`} />))}
                       {Array.from({ length: new Date(trackCalYear, trackCalMonth + 1, 0).getDate() }).map((_, i) => {
                         const day = i + 1;
@@ -2084,10 +2087,18 @@ const renderTracking = () => (
                         const isToday = todayLocal.getFullYear() === trackCalYear && todayLocal.getMonth() === trackCalMonth && todayLocal.getDate() === day;
                         return (
                           <button key={day} onClick={() => { setTrackDate(dateString); setTrackTimeframe('custom_date'); setShowTrackDatePicker(false); }}
-                            className={`aspect-square flex items-center justify-center rounded-xl text-[15px] font-black transition-all duration-300 active:scale-95 ${isSelected ? 'bg-cyan-500 text-white shadow-[0_0_20px_rgba(6,182,212,0.9)] border-[2px] border-solid border-white scale-110 z-20' : isToday ? 'bg-cyan-500/80 text-white shadow-[0_0_15px_rgba(6,182,212,0.8)] border border-cyan-300 z-10 animate-pulse' : 'bg-slate-800 text-slate-300 hover:bg-cyan-500/50 hover:border-cyan-400 border border-slate-600/50 shadow-inner'}`}
+                            className={`aspect-square flex items-center justify-center rounded-xl text-[15px] font-black transition-all duration-300 active:scale-95 ${
+                              isSelected 
+                                ? 'bg-gradient-to-r from-cyan-600 to-blue-600 text-white shadow-[0_0_20px_rgba(6,182,212,0.9)] border-[2px] border-solid border-cyan-300 scale-110 z-20' 
+                                : isToday 
+                                ? 'bg-gradient-to-r from-orange-500 to-amber-500 text-white shadow-[0_0_25px_rgba(249,115,22,1)] border-[2px] border-solid border-orange-300 z-10 animate-pulse' // 🌟 ฟันธง: เพิ่มแสงส้มสว่างวาบเรืองแสงขั้นสุดสำหรับวันปัจจุบัน!
+                                : 'bg-slate-800 text-slate-300 hover:bg-cyan-500/50 hover:border-cyan-400 border border-slate-600/50 shadow-inner'
+                            }`}
                           >{day}</button>
                         );
                       })}
+
+
                     </div>
                   </div>
                   <button onClick={() => setShowTrackDatePicker(false)} className="relative z-10 mt-8 w-full py-4 rounded-xl font-black text-white bg-cyan-600 hover:bg-rose-500 border-[2px] border-solid border-white shadow-[0_0_20px_rgba(6,182,212,0.7)] transition-all duration-300 active:scale-95 tracking-widest uppercase">ยกเลิก</button>
@@ -2114,7 +2125,9 @@ const renderTracking = () => (
                     </div>
                     <button onClick={() => setTrackCalYear(y => y + 1)} className="p-2.5 bg-slate-800 text-white rounded-xl hover:bg-cyan-500 transition-colors active:scale-95 shadow-inner border border-slate-600"><ChevronDown size={22} className="-rotate-90" /></button>
                   </div>
-                  <div className="relative z-10 grid grid-cols-3 gap-3">
+
+                   {/*เปลี่ยนสีปุ่มสีส้มเดือน Active ในปฏิทินระบุเดือน */}
+                   <div className="relative z-10 grid grid-cols-3 gap-3">
                     {['ม.ค.', 'ก.พ.', 'มี.ค.', 'เม.ย.', 'พ.ค.', 'มิ.ย.', 'ก.ค.', 'ส.ค.', 'ก.ย.', 'ต.ค.', 'พ.ย.', 'ธ.ค.'].map((m, i) => {
                       const monthValue = `${trackCalYear}-${String(i + 1).padStart(2, '0')}`;
                       const isSelected = trackMonth === monthValue;
@@ -2122,11 +2135,19 @@ const renderTracking = () => (
                       const isCurrentMonth = todayLocal.getFullYear() === trackCalYear && todayLocal.getMonth() === i;
                       return (
                         <button key={m} onClick={() => { setTrackMonth(monthValue); setTrackTimeframe('custom_month'); setShowTrackMonthPicker(false); }}
-                          className={`py-3.5 rounded-xl text-[15px] font-black transition-all duration-300 active:scale-95 ${isSelected ? 'bg-cyan-500 text-white shadow-[0_0_20px_rgba(6,182,212,0.9)] border-[2px] border-solid border-white scale-110 z-10' : isCurrentMonth ? 'bg-cyan-500/80 text-white shadow-[0_0_15px_rgba(6,182,212,0.8)] border border-cyan-300 z-10 animate-pulse' : 'bg-slate-800/80 text-slate-100 hover:bg-cyan-500/40 hover:border-cyan-400 border border-slate-600/50 hover:shadow-[0_0_15px_rgba(6,182,212,0.4)] shadow-inner'}`}
+                          className={`py-3.5 rounded-xl text-[15px] font-black transition-all duration-300 active:scale-95 ${
+                            isSelected 
+                              ? 'bg-gradient-to-r from-cyan-600 to-blue-600 text-white shadow-[0_0_20px_rgba(6,182,212,0.9)] border-[2px] border-solid border-cyan-300 scale-110 z-10' 
+                              : isCurrentMonth 
+                              ? 'bg-gradient-to-r from-orange-500 to-amber-500 text-white shadow-[0_0_25px_rgba(249,115,22,1)] border-[2px] border-solid border-orange-300 z-10 animate-pulse' // 🌟 ฟันธง: เพิ่มแสงส้มสว่างวาบเรืองแสงขั้นสุดสำหรับเดือนปัจจุบัน!
+                              : 'bg-slate-800/80 text-slate-100 hover:bg-cyan-500/40 hover:border-cyan-400 border border-slate-600/50 hover:shadow-[0_0_15px_rgba(6,182,212,0.4)] shadow-inner'
+                          }`}
                         >{m}</button>
                       )
                     })}
                   </div>
+
+
                   <button onClick={() => setShowTrackMonthPicker(false)} className="relative z-10 mt-8 w-full py-4 rounded-xl font-black text-white bg-cyan-600 hover:bg-rose-500 border-[2px] border-solid border-white shadow-[0_0_20px_rgba(6,182,212,0.7)] transition-all duration-300 active:scale-95 tracking-widest uppercase">ยกเลิก</button>
                 </div>
               </div>
