@@ -2893,188 +2893,122 @@ const renderTracking = () => (
     </div>
   );
 
+
   return (
-    <div className="fixed inset-0 w-full h-full bg-slate-900 flex justify-center overflow-hidden">
+    <div className="fixed inset-0 w-full h-[100dvh] bg-slate-900 flex justify-center overflow-hidden">
       
-      {/* 🌍 ภาพพื้นหลังลูกโลก (ขยายเต็มจอ และปรับความสว่างให้พอดี) */}
-      <div
-        className="absolute inset-0 z-0 bg-cover bg-center bg-no-repeat opacity-40 pointer-events-none"
-        style={{ backgroundImage: "url('/bg-earth.webp')" }}
-      ></div>
+      {/* 🌍 ภาพพื้นหลังลูกโลก */}
+      <div className="absolute inset-0 z-0 bg-cover bg-center bg-no-repeat opacity-40 pointer-events-none" style={{ backgroundImage: "url('/bg-earth.webp')" }}></div>
 
-      {/* 🔮 แสงเรืองแสงอวกาศตามโหมด (ขยายไซส์และให้อยู่ขอบจอจริง) */}
-      <div
-        className={`absolute -top-20 -left-20 w-96 h-96 rounded-full blur-[100px] opacity-40 pointer-events-none z-0 transition-colors duration-1000 ${
-          currentUserRole === 'technician' ? 'bg-emerald-500' : 'bg-orange-500'
-        }`}
-      ></div>
-      <div
-        className={`absolute top-1/2 -right-20 w-96 h-96 rounded-full blur-[100px] opacity-30 pointer-events-none z-0 transition-colors duration-1000 ${
-          currentUserRole === 'technician' ? 'bg-teal-500' : 'bg-amber-500'
-        }`}
-      ></div>
+      {/* 🔮 แสงเรืองแสงอวกาศตามโหมด */}
+      <div className={`absolute -top-20 -left-20 w-96 h-96 rounded-full blur-[100px] opacity-40 pointer-events-none z-0 transition-colors duration-1000 ${currentUserRole === 'technician' ? 'bg-emerald-500' : 'bg-orange-500'}`}></div>
+      <div className={`absolute top-1/2 -right-20 w-96 h-96 rounded-full blur-[100px] opacity-30 pointer-events-none z-0 transition-colors duration-1000 ${currentUserRole === 'technician' ? 'bg-teal-500' : 'bg-amber-500'}`}></div>
 
-      {/* 📱 2. กรอบเนื้อหาหลักของแอป (จับมาวางตรงกลางจอแบบกระจกฝ้าหรูหรา) */}
-      <div className="relative z-10 flex flex-col h-screen w-full max-w-md md:max-w-5xl shadow-[0_0_50px_rgba(0,0,0,0.6)] border-x border-slate-700/50 bg-slate-900/40 backdrop-blur-md overflow-hidden text-slate-100 font-sans select-none">
+      {/* 📱 2. กรอบเนื้อหาหลักของแอป (ฟันธง: แก้ไข h-screen เป็น h-[100dvh] ป้องกันจอกระชากตอนรีเฟรช) */}
+      <div className="relative z-10 flex flex-col h-[100dvh] w-full max-w-md md:max-w-5xl shadow-[0_0_50px_rgba(0,0,0,0.6)] border-x border-slate-700/50 bg-slate-900/40 backdrop-blur-md overflow-hidden text-slate-100 font-sans select-none">
       
       {lightboxImg && (
-
-        <div
-          className="fixed inset-0 z-[200] bg-slate-900/90 flex items-center justify-center p-4 backdrop-blur-sm animate-in fade-in"
-          onClick={() => setLightboxImg(null)}
-        >
-          <button className="absolute top-6 right-6 text-white bg-white/10 p-2 rounded-full active:bg-white/20">
-            <X size={24} />
-          </button>
-          <img
-            src={lightboxImg}
-            alt="Zoomed"
-            className="max-w-full max-h-full object-contain rounded-2xl shadow-2xl border-2 border-white/20"
-          />
+        <div className="fixed inset-0 z-[200] bg-slate-900/90 flex items-center justify-center p-4 backdrop-blur-sm animate-in fade-in" onClick={() => setLightboxImg(null)}>
+          <button className="absolute top-6 right-6 text-white bg-white/10 p-2 rounded-full active:bg-white/20"><X size={24} /></button>
+          <img src={lightboxImg} alt="Zoomed" className="max-w-full max-h-full object-contain rounded-2xl shadow-2xl border-2 border-white/20" />
         </div>
       )}
 
       {emailNotify && (
         <div className="absolute top-24 left-4 right-4 z-[100] bg-emerald-50 text-emerald-700 px-4 py-3 rounded-2xl shadow-xl flex items-center gap-3 animate-in slide-in-from-top-4 border border-emerald-200">
           <Mail size={18} className="text-emerald-500 shrink-0" />
-          <span className="text-[10px] font-bold leading-tight">
-            {emailNotify}
-          </span>
+          <span className="text-[10px] font-bold leading-tight">{emailNotify}</span>
         </div>
       )}
 
-  
-      {/* 🚀 Dynamic Header (อัปเกรด: แบนเนอร์พร้อมน้องมาสคอต ยืดหดอัจฉริยะ) */}
+      {/* 🚀 Dynamic Header */}
       <div className={`bg-slate-900/50 backdrop-blur-xl pl-5 pr-4 py-3 flex items-center justify-between sticky top-4 z-50 border-2 border-solid border-orange-500 rounded-2xl mt-4 transition-all duration-500 shadow-[0_0_15px_rgba(249,115,22,0.4)] ${activeTab === 'report' ? 'mx-auto w-[calc(100%-2rem)] md:max-w-2xl' : 'mx-4'}`}>
-        
-        {/* 🌟 โซนซ้าย: ไอคอนทางการ และ ชื่อหน้า */}
         <div className="flex items-center gap-3.5 z-10">
           <div className="bg-white w-14 h-14 rounded-2xl shadow-md text-orange-500 border-2 border-solid border-orange-300 flex items-center justify-center shrink-0">
-            {activeTab === 'dashboard' ? (
-              <LayoutDashboard size={32} strokeWidth={2.5} />
-            ) : activeTab === 'report' ? (
-              <PlusCircle size={32} strokeWidth={2.5} />
-            ) : currentUserRole === 'technician' ? (
-              <Wrench size={32} strokeWidth={2.5} />
-            ) : (
-              <ClipboardCheck size={32} strokeWidth={2.5} />
-            )}
+            {activeTab === 'dashboard' ? <LayoutDashboard size={32} strokeWidth={2.5} /> : activeTab === 'report' ? <PlusCircle size={32} strokeWidth={2.5} /> : currentUserRole === 'technician' ? <Wrench size={32} strokeWidth={2.5} /> : <ClipboardCheck size={32} strokeWidth={2.5} />}
           </div>
-          
-          {/* 🌟 2. ข้อความหัวข้อ (ลดขนาดลง และเปลี่ยนสีให้สว่างสบายตา) */}
           <div>
-            {/* 💡 ฟันธงจุดที่แก้ไข:
-               1. เปลี่ยน text-orange-600 -> เป็น text-white (สีขาวสว่าง) หรือ text-orange-400 (สีส้มทองอ่อนๆ)
-               2. เปลี่ยน text-3xl -> เป็น text-2xl (เล็กลง 1 สเต็ปให้พอดีกรอบ)
-            */}
             <h1 className="font-black text-white text-2xl tracking-widest leading-none drop-shadow-[0_2px_2px_rgba(0,0,0,0.5)] py-1 whitespace-nowrap">
-              {activeTab === 'dashboard'
-                ? 'แผงควบคุม'
-                : activeTab === 'report'
-                ? 'แจ้งซ่อม'
-                : currentUserRole === 'technician'
-                ? 'จัดการงานซ่อม'
-                : 'ติดตามสถานะ'}
+              {activeTab === 'dashboard' ? 'แผงควบคุม' : activeTab === 'report' ? 'แจ้งซ่อม' : currentUserRole === 'technician' ? 'จัดการงานซ่อม' : 'ติดตามสถานะ'}
             </h1>
           </div>
         </div>
 
-
-{/* 🌟 โซนขวา: น้องมาสคอต GISTDA แอบมอง (3D Peeking Effect) เปลี่ยน 4 ท่าทาง! */}
-<div className="relative w-12 h-14 shrink-0 z-0 pointer-events-none">
+        <div className="relative w-12 h-14 shrink-0 z-0 pointer-events-none">
            <img 
-             src={
-               /* 1. เมนูแผงควบคุม */
-               activeTab === 'dashboard' 
-                 ? "/mascot-dashboard.webp" 
-                 
-               /* 2. เมนูแจ้งซ่อม */
-               : activeTab === 'report' 
-                 ? "/mascot-report.webp" 
-                 
-               /* 3. เมนูจัดการงานซ่อม (หน้า Tracking + โหมดช่าง) */
-               : (activeTab === 'tracking' && currentUserRole === 'technician')
-                 ? "/mascot-tech.webp" 
-                 
-               /* 4. เมนูติดตามสถานะ (หน้า Tracking + โหมดผู้แจ้ง) */
-                 : "/mascot-track.webp" 
-             }
-             key={activeTab + currentUserRole} /* 🌟 ทริค: ใส่ key ให้รูปกระตุกเปลี่ยนแบบมีอนิเมชัน */
+             src={activeTab === 'dashboard' ? "/mascot-dashboard.webp" : activeTab === 'report' ? "/mascot-report.webp" : (activeTab === 'tracking' && currentUserRole === 'technician') ? "/mascot-tech.webp" : "/mascot-track.webp"}
+             key={activeTab + currentUserRole}
              alt="GSE Mascot" 
-             // ดันรูปให้ทะลุกรอบออกมานิดนึง เกิดเป็นเอฟเฟกต์ 3 มิติ
              className="absolute bottom-[-10px] right-[-10px] w-[65px] max-w-none h-auto object-contain drop-shadow-[0_5px_5px_rgba(0,0,0,0.4)] animate-in slide-in-from-right-4 fade-in duration-500"
            />
         </div>
-
       </div>
 
-
       <div className="relative z-10 flex-1 overflow-y-auto overflow-x-hidden w-full scrollbar-hide pb-28">
-        {activeTab === 'dashboard' &&
-          currentUserRole === 'technician' &&
-          renderDashboard()}
+        {activeTab === 'dashboard' && currentUserRole === 'technician' && renderDashboard()}
         {activeTab === 'report' && renderReport()}
         {activeTab === 'tracking' && renderTracking()}
       </div>
 
-     {/* 🧭 Navigation Bar (ฟันธง: หล่อปูนล็อกความสูงตายตัว ถอดแอนิเมชันตอนรีเฟรช ปิดตายบั๊กมือถือ 1,000,000%) */}
-     <div className={`fixed bottom-4 left-1/2 -translate-x-1/2 w-[calc(100%-2rem)] max-w-[416px] py-2.5 md:py-3 bg-slate-900/95 backdrop-blur-xl border-2 border-solid border-orange-500 rounded-2xl z-[9999] shadow-[0_10px_30px_rgba(249,115,22,0.4)] ${activeTab === 'report' ? 'md:max-w-2xl' : 'md:max-w-[992px]'}`}>
-        <div className="w-full flex justify-evenly items-center px-1 md:px-8">
+      </div> 
+      {/* 🌟 ปิดกรอบเนื้อหาหลักของแอป */}
 
+      {/* 🧭 Navigation Bar (ฟันธง: ย้ายเมนูออกมานอกกรอบหลัก + ใส่ transform-gpu บังคับมือถือวาดกราฟิกแยกชั้น ป้องกันตัวหนังสือหาย 1,000,000%) */}
+      <div className={`fixed bottom-4 left-1/2 -translate-x-1/2 w-[calc(100%-2rem)] max-w-[416px] py-2 md:py-3 bg-slate-900/90 backdrop-blur-xl border-2 border-solid border-orange-500 rounded-2xl z-[9999] shadow-[0_10px_30px_rgba(249,115,22,0.4)] transform-gpu ${activeTab === 'report' ? 'md:max-w-2xl' : 'md:max-w-[992px]'}`}>
+        <div className="w-full flex justify-evenly items-center px-1 md:px-8">
+          
           {/* 🏠 ปุ่ม HOME */}
-          <button onClick={onGoHome} className="flex flex-col items-center justify-between h-[56px] md:h-[64px] w-[70px] md:w-24 shrink-0 active:scale-95">
-            <div className="flex items-center justify-center h-[34px] w-[34px] md:h-[40px] md:w-[40px] rounded-full text-slate-300">
-              <Home size={24} className="md:w-[26px] md:h-[26px]" />
+          <button onClick={onGoHome} className="flex flex-col items-center justify-center w-20 md:w-24 gap-1.5 active:scale-95 transition-all shrink-0">
+            <div className="p-2.5 rounded-full bg-transparent text-slate-300">
+              <Home size={26} />
             </div>
-            <span className="block text-[11px] md:text-[13px] font-bold text-slate-300 tracking-widest whitespace-nowrap leading-none mt-1">หน้าแรก</span>
+            <span className="block text-[11px] md:text-[13px] font-bold text-slate-300 tracking-widest whitespace-nowrap shrink-0">หน้าแรก</span>
           </button>
 
-          {/* ================= โหมดผู้แจ้ง ================= */}
+          {/* ================= โหมดผู้แจ้ง (Reporter) ================= */}
           {currentUserRole === 'reporter' && (
             <>
-              {/* 🟠 แจ้งซ่อม */}
-              <button onClick={() => setActiveTab('report')} className="flex flex-col items-center justify-between h-[56px] md:h-[64px] w-[70px] md:w-24 shrink-0 active:scale-95">
-                <div className={`flex items-center justify-center h-[34px] w-[34px] md:h-[40px] md:w-[40px] rounded-full transition-all ${activeTab === 'report' ? 'bg-gradient-to-b from-orange-400 to-orange-600 text-white shadow-[0_0_15px_rgba(249,115,22,0.8)] border-[2px] border-white scale-110 -translate-y-1 md:-translate-y-2' : 'bg-transparent text-slate-300'}`}>
-                  <PlusCircle size={24} className={`md:w-[26px] md:h-[26px] ${activeTab === 'report' ? 'stroke-[2.5px]' : ''}`} />
+              {/* 🟠 ปุ่มแจ้งซ่อม */}
+              <button onClick={() => setActiveTab('report')} className={`flex flex-col items-center justify-center w-20 md:w-24 gap-1.5 transition-all shrink-0 ${activeTab === 'report' ? '-translate-y-2' : 'active:scale-95'}`}>
+                <div className={`p-2.5 rounded-full transition-all ${activeTab === 'report' ? 'bg-gradient-to-b from-orange-400 to-orange-600 text-white shadow-[0_0_15px_rgba(249,115,22,0.8)] border-[2px] border-white scale-110' : 'bg-transparent text-slate-300'}`}>
+                  <PlusCircle size={26} className={activeTab === 'report' ? 'stroke-[2.5px]' : ''} />
                 </div>
-                <span className={`block text-[11px] md:text-[13px] font-bold tracking-widest whitespace-nowrap leading-none mt-1 transition-all ${activeTab === 'report' ? 'text-orange-400 drop-shadow-md' : 'text-slate-300'}`}>แจ้งซ่อม</span>
+                <span className={`block text-[11px] md:text-[13px] font-bold tracking-widest whitespace-nowrap shrink-0 transition-all ${activeTab === 'report' ? 'text-orange-400 drop-shadow-md' : 'text-slate-300'}`}>แจ้งซ่อม</span>
               </button>
 
-              {/* 🟠 ติดตามสถานะ */}
-              <button onClick={() => { setActiveTab('tracking'); setSearchTerm(''); }} className="flex flex-col items-center justify-between h-[56px] md:h-[64px] w-[70px] md:w-24 shrink-0 active:scale-95">
-                <div className={`flex items-center justify-center h-[34px] w-[34px] md:h-[40px] md:w-[40px] rounded-full transition-all ${activeTab === 'tracking' ? 'bg-gradient-to-b from-orange-400 to-orange-600 text-white shadow-[0_0_15px_rgba(249,115,22,0.8)] border-[2px] border-white scale-110 -translate-y-1 md:-translate-y-2' : 'bg-transparent text-slate-300'}`}>
-                  <ClipboardCheck size={24} className={`md:w-[26px] md:h-[26px] ${activeTab === 'tracking' ? 'stroke-[2.5px]' : ''}`} />
+              {/* 🟠 ปุ่มติดตามสถานะ */}
+              <button onClick={() => { setActiveTab('tracking'); setSearchTerm(''); }} className={`flex flex-col items-center justify-center w-20 md:w-24 gap-1.5 transition-all shrink-0 ${activeTab === 'tracking' ? '-translate-y-2' : 'active:scale-95'}`}>
+                <div className={`p-2.5 rounded-full transition-all ${activeTab === 'tracking' ? 'bg-gradient-to-b from-orange-400 to-orange-600 text-white shadow-[0_0_15px_rgba(249,115,22,0.8)] border-[2px] border-white scale-110' : 'bg-transparent text-slate-300'}`}>
+                  <ClipboardCheck size={26} className={activeTab === 'tracking' ? 'stroke-[2.5px]' : ''} />
                 </div>
-                <span className={`block text-[11px] md:text-[13px] font-bold tracking-widest whitespace-nowrap leading-none mt-1 transition-all ${activeTab === 'tracking' ? 'text-orange-400 drop-shadow-md' : 'text-slate-300'}`}>ติดตามสถานะ</span>
+                <span className={`block text-[11px] md:text-[13px] font-bold tracking-widest whitespace-nowrap shrink-0 transition-all ${activeTab === 'tracking' ? 'text-orange-400 drop-shadow-md' : 'text-slate-300'}`}>ติดตามสถานะ</span>
               </button>
             </>
           )}
 
-          {/* ================= โหมดช่าง ================= */}
+          {/* ================= โหมดช่าง (Technician) ================= */}
           {currentUserRole === 'technician' && (
             <>
-              {/* 🟠 แผงควบคุม */}
-              <button onClick={() => setActiveTab('dashboard')} className="flex flex-col items-center justify-between h-[56px] md:h-[64px] w-[70px] md:w-24 shrink-0 active:scale-95">
-                <div className={`flex items-center justify-center h-[34px] w-[34px] md:h-[40px] md:w-[40px] rounded-full transition-all ${activeTab === 'dashboard' ? 'bg-gradient-to-b from-orange-400 to-orange-600 text-white shadow-[0_0_15px_rgba(249,115,22,0.8)] border-[2px] border-white scale-110 -translate-y-1 md:-translate-y-2' : 'bg-transparent text-slate-300'}`}>
-                  <LayoutDashboard size={24} className={`md:w-[26px] md:h-[26px] ${activeTab === 'dashboard' ? 'stroke-[2.5px]' : ''}`} />
+              {/* 🟠 ปุ่มแผงควบคุม */}
+              <button onClick={() => setActiveTab('dashboard')} className={`flex flex-col items-center justify-center w-20 md:w-24 gap-1.5 transition-all shrink-0 ${activeTab === 'dashboard' ? '-translate-y-2' : 'active:scale-95'}`}>
+                <div className={`p-2.5 rounded-full transition-all ${activeTab === 'dashboard' ? 'bg-gradient-to-b from-orange-400 to-orange-600 text-white shadow-[0_0_15px_rgba(249,115,22,0.8)] border-[2px] border-white scale-110' : 'bg-transparent text-slate-300'}`}>
+                  <LayoutDashboard size={26} className={activeTab === 'dashboard' ? 'stroke-[2.5px]' : ''} />
                 </div>
-                <span className={`block text-[11px] md:text-[13px] font-bold tracking-widest whitespace-nowrap leading-none mt-1 transition-all ${activeTab === 'dashboard' ? 'text-orange-400 drop-shadow-md' : 'text-slate-300'}`}>แผงควบคุม</span>
+                <span className={`block text-[11px] md:text-[13px] font-bold tracking-widest whitespace-nowrap shrink-0 transition-all ${activeTab === 'dashboard' ? 'text-orange-400 drop-shadow-md' : 'text-slate-300'}`}>แผงควบคุม</span>
               </button>
 
-              {/* 🟠 จัดการงานซ่อม */}
-              <button onClick={() => setActiveTab('tracking')} className="flex flex-col items-center justify-between h-[56px] md:h-[64px] w-[70px] md:w-24 shrink-0 active:scale-95">
-                <div className={`flex items-center justify-center h-[34px] w-[34px] md:h-[40px] md:w-[40px] rounded-full transition-all ${activeTab === 'tracking' ? 'bg-gradient-to-b from-orange-400 to-orange-600 text-white shadow-[0_0_15px_rgba(249,115,22,0.8)] border-[2px] border-white scale-110 -translate-y-1 md:-translate-y-2' : 'bg-transparent text-slate-300'}`}>
-                  <Wrench size={24} className={`md:w-[26px] md:h-[26px] ${activeTab === 'tracking' ? 'stroke-[2.5px]' : ''}`} />
+              {/* 🟠 ปุ่มจัดการงานซ่อม */}
+              <button onClick={() => setActiveTab('tracking')} className={`flex flex-col items-center justify-center w-20 md:w-24 gap-1.5 transition-all shrink-0 ${activeTab === 'tracking' ? '-translate-y-2' : 'active:scale-95'}`}>
+                <div className={`p-2.5 rounded-full transition-all ${activeTab === 'tracking' ? 'bg-gradient-to-b from-orange-400 to-orange-600 text-white shadow-[0_0_15px_rgba(249,115,22,0.8)] border-[2px] border-white scale-110' : 'bg-transparent text-slate-300'}`}>
+                  <Wrench size={26} className={activeTab === 'tracking' ? 'stroke-[2.5px]' : ''} />
                 </div>
-                <span className={`block text-[11px] md:text-[13px] font-bold tracking-widest whitespace-nowrap leading-none mt-1 transition-all ${activeTab === 'tracking' ? 'text-orange-400 drop-shadow-md' : 'text-slate-300'}`}>จัดการงาน</span>
+                <span className={`block text-[11px] md:text-[13px] font-bold tracking-widest whitespace-nowrap shrink-0 transition-all ${activeTab === 'tracking' ? 'text-orange-400 drop-shadow-md' : 'text-slate-300'}`}>จัดการงาน</span>
               </button>
             </>
           )}
         </div>
       </div>
-      {/* 🌟 ปิดกรอบเนื้อหาหลักของแอป */}
-      </div>
-    {/* 🌟 ปิดกรอบจักรวาลสุดอลังการ */}
+
     </div>
   );
 }
