@@ -1179,7 +1179,7 @@ useEffect(() => {
 
              {showDatePicker && (
               <div className="fixed inset-0 z-[300] bg-slate-900/80 backdrop-blur-md flex items-center justify-center p-4 animate-in fade-in" onClick={() => setShowDatePicker(false)}>
-                <div className="relative bg-slate-900 border-[2px] border-solid border-white rounded-[2rem] shadow-[0_0_50px_rgba(249,115,22,0.5)] w-full max-w-[340px] p-7 text-center animate-in zoom-in-95 overflow-hidden flex flex-col my-auto" onClick={(e) => e.stopPropagation()}>
+                <div className="relative bg-slate-900 border-[2px] border-solid border-white rounded-[2rem] shadow-[0_0_50px_rgba(249,115,22,0.8)] w-full max-w-[340px] p-7 text-center animate-in zoom-in-95 overflow-hidden flex flex-col my-auto" onClick={(e) => e.stopPropagation()}>
                   <div className="absolute -top-20 -left-20 w-40 h-40 bg-orange-500/30 rounded-full blur-[50px] pointer-events-none z-0"></div>
                   <div className="relative z-10 flex justify-between items-center mb-6 pb-5 border-b border-white/20">
                     <button onClick={() => { if (calMonth === 0) { setCalMonth(11); setCalYear(y => y - 1); } else setCalMonth(m => m - 1); }} className="p-2.5 bg-slate-800 text-white rounded-xl hover:bg-orange-500 transition-colors border border-slate-600 active:scale-95 shadow-inner"><ChevronDown size={22} className="rotate-90" /></button>
@@ -1224,7 +1224,7 @@ useEffect(() => {
             </button>
             {showMonthPicker && (
               <div className="fixed inset-0 z-[300] bg-slate-900/80 backdrop-blur-md flex items-center justify-center p-4 animate-in fade-in" onClick={() => setShowMonthPicker(false)}>
-                <div className="relative bg-slate-900 border-[2px] border-solid border-white rounded-[2rem] shadow-[0_0_50px_rgba(249,115,22,0.5)] w-full max-w-[340px] p-7 text-center animate-in zoom-in-95 overflow-hidden flex flex-col my-auto" onClick={(e) => e.stopPropagation()}>
+                <div className="relative bg-slate-900 border-[2px] border-solid border-white rounded-[2rem] shadow-[0_0_50px_rgba(249,115,22,0.8)] w-full max-w-[340px] p-7 text-center animate-in zoom-in-95 overflow-hidden flex flex-col my-auto" onClick={(e) => e.stopPropagation()}>
                   <div className="absolute -top-20 -right-20 w-40 h-40 bg-orange-500/30 rounded-full blur-[50px] pointer-events-none z-0"></div>
                   <div className="relative z-10 flex justify-between items-center mb-6 pb-5 border-b border-white/20">
                     <button onClick={() => setPickerYear(y => y - 1)} className="p-2.5 bg-slate-800 text-white rounded-xl hover:bg-orange-500 transition-colors border border-slate-600"><ChevronDown size={22} className="rotate-90" /></button>
@@ -1959,12 +1959,12 @@ useEffect(() => {
           <div className="absolute w-[300px] h-[300px] bg-orange-500/40 rounded-full blur-[80px] animate-pulse pointer-events-none z-0"></div>
 
           {/* 📦 ตัวกล่อง Popup */}
-          <div className="relative z-10 bg-slate-800 border-[2px] border-solid border-orange-500 rounded-[2rem] w-full max-w-sm overflow-hidden shadow-[0_0_40px_rgba(249,115,22,0.8)] p-8 text-center space-y-6">
+          <div className="relative z-10 bg-slate-800 border-[2px] border-solid border-orange-500 rounded-[2rem] w-full max-w-sm overflow-hidden shadow-[0_0_40px_rgba(249,115,22,1)] p-8 text-center space-y-6">
             
             {/* ไอคอนหมุนๆ ด้านบน */}
-            <div className="w-24 h-24 bg-slate-900 text-orange-500 rounded-full flex items-center justify-center mx-auto border-2 border-orange-400/50 shadow-[0_0_20px_rgba(249,115,22,0.4)] relative">
+            <div className="w-24 h-24 bg-slate-900 text-orange-500 rounded-full flex items-center justify-center mx-auto border-2 border-orange-400/50 shadow-[0_0_20px_rgba(249,115,22,0.8)] relative">
               <div className="absolute inset-0 border-4 border-orange-500 rounded-full border-t-transparent animate-spin opacity-50"></div>
-              <CheckSquare size={40} className="animate-pulse" />
+              <CheckSquare size={50} className="animate-pulse" />
             </div>
 
             {/* ข้อความยืนยัน */}
@@ -1972,7 +1972,7 @@ useEffect(() => {
               <h3 className="text-3xl font-black text-white tracking-tight drop-shadow-md mb-2">
                 ยืนยันข้อมูล?
               </h3>
-              <p className="text-[15px] text-slate-300 font-bold leading-relaxed">
+              <p className="text-[18px] text-slate-300 font-bold leading-relaxed">
                 โปรดตรวจสอบข้อมูลให้ถูกต้อง<br />
                 ก่อนส่งเข้าระบบ
               </p>
@@ -3080,8 +3080,8 @@ function LandingPage({ onStart }) {
 
       <div className="relative z-10 w-full max-w-md md:max-w-xl lg:max-w-2xl flex flex-col items-center animate-in slide-in-from-bottom-8 fade-in duration-1000">
         
-        <div
-          className="py-8 px-4 md:py-14 md:px-10 rounded-[1.5rem] md:rounded-[3rem] shadow-[0_0_80px_rgba(249,115,22,1)] flex flex-col items-center text-center w-full relative backdrop-blur-[2px] transition-all duration-500"
+      <div
+          className="pt-8 pb-4 px-4 md:pt-14 md:pb-6 md:px-10 rounded-[1.5rem] md:rounded-[3rem] shadow-[0_0_80px_rgba(249,115,22,1)] flex flex-col items-center text-center w-full relative backdrop-blur-[2px] transition-all duration-500"
           style={{
             backgroundColor: 'rgba(15, 23, 42, 0.35)',
             border: '4px solid #FF4500',
@@ -3114,7 +3114,7 @@ function LandingPage({ onStart }) {
                 ระบบมีปัญหาใช่มั้ยคะ?
                 <br />
                 <span className="text-orange-500 font-black text-[16px] md:text-[22px] mt-1 md:mt-2 inline-flex items-center justify-center gap-2 drop-shadow-sm whitespace-nowrap">
-                  กดแจ้งซ่อมด้านล่างได้เลย!
+                  กดแจ้งซ่อมด้านล่างได้เลยค่ะ!
                   <span className="text-[30px] md:text-[45px] leading-[0] block transform translate-y-1 md:translate-y-2 drop-shadow-md">👇</span>
                 </span>
               </p>
@@ -3164,10 +3164,12 @@ function LandingPage({ onStart }) {
             ฝ่ายวิศวกรรมระบบปฏิบัติการดาวเทียม
           </h2>
 
-          <h3 className="text-[14px] md:text-[18px] font-bold text-slate-100 tracking-widest mt-1 mb-2 transition-all duration-500">
+          <h3 className="text-[14px] md:text-[18px] font-bold text-slate-100 tracking-widest mt-1 transition-all duration-500">
             สำนักปฏิบัติการดาวเทียม
           </h3>
-          <h3 className="text-[9px] md:text-[18px] font-mono text-white tracking-widest font-bold normal-case">
+
+          {/* ฟันธง: เติม mt-4 md:mt-8 เพื่อดึงให้ข้อความลิขสิทธิ์เว้นระยะห่างจากชื่อสำนัก และเติม opacity-80 ให้สีซอฟต์ลงดูเป็นซับไตเติ้ลสวยๆ */}
+          <h3 className="text-[9px] md:text-[15px] font-mono text-white tracking-widest font-bold normal-case mt-4 md:mt-8 opacity-80">
             ©2026 Ground System Engineering Division: GSE
           </h3>
         </div>
