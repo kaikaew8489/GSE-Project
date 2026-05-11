@@ -3108,7 +3108,7 @@ function LandingPage({ onStart }) {
             </button>
           </div>
 
-          <h2 className="text-[16px] md:text-[30px] font-bold text-orange-400 uppercase mt-5 md:mt-16 mb-1.5 md:mb-2 transition-all duration-500">
+          <h2 className="text-[16px] md:text-[30px] font-bold text-orange-400 uppercase mt-5 md:mt-14 mb-1.5 md:mb-2 transition-all duration-500">
             ฝ่ายวิศวกรรมระบบปฏิบัติการดาวเทียม
           </h2>
           <h3 className="text-[14px] md:text-[18px] font-bold text-slate-100 tracking-widest mt-1 mb-2 transition-all duration-500">
