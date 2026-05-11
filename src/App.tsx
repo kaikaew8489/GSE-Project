@@ -3035,10 +3035,10 @@ function LandingPage({ onStart }) {
             border: '4px solid #FF4500',
           }}
         >
-          {/* โลโก้ (ฟันธง: ปรับ md:mt-8 เป็น md:mt-0 เพื่อดึงชิดขอบบนใน PC และลบคำว่า "หรือ md:mt-2" ทิ้ง) */}
-          <div className="w-28 h-28 md:w-44 md:h-44 -mt-8 md:mt-0 -mb-1 md:mb-4 flex items-center justify-center transition-all duration-500">
+          {/* โลโก้ (ฟันธง: ใช้ md:-mt-6 ดึงโลโก้ขึ้นไปชิดขอบบน แต่ไม่ติดขอบ 100%) */}
+          <div className="w-28 h-28 md:w-44 md:h-44 mt-2 md:-mt-6 mb-4 md:mb-4 flex items-center justify-center transition-all duration-500">
             <img
-              src="/GSE-logo.webp" 
+              src="/GSE-logo.webp"
               alt="Logo"
               className="w-full h-full object-contain drop-shadow-[0_15px_15px_rgba(0,0,0,0.6)] hover:scale-105 transition-transform duration-500" 
             />
@@ -3068,8 +3068,8 @@ function LandingPage({ onStart }) {
               </p>
             </div>
 
-            {/* 👩‍🔧 น้องมาสคอต (ฟันธง: แก้ md:-mb-12 เป็น md:-mb-4 เพื่อให้น้องยืนแตะขอบปุ่มพอดี ไม่ทับตัวหนังสือใน PC) */}
-            <div className="relative z-30 w-[50%] md:w-[65%] max-w-[280px] md:max-w-[340px] mb-1 md:-mb-4 pointer-events-none drop-shadow-[0_20px_20px_rgba(0,0,0,0.8)] transition-all duration-500">
+            {/* 👩‍🔧 น้องมาสคอต (ฟันธง: เปลี่ยนค่า mb ให้จอ PC เป็นบวก md:mb-4 เพื่อดันปุ่มสีส้มให้ถอยหนีลงไป ไม่ทับเท้า) */}
+            <div className="relative z-30 w-[50%] md:w-[70%] max-w-[280px] md:max-w-[360px] mb-1 md:mb-4 pointer-events-none drop-shadow-[0_20px_20px_rgba(0,0,0,0.8)] transition-all duration-500">
               <img
                 src="/mascot.webp"
                 alt="Mascot"
@@ -3084,7 +3084,7 @@ function LandingPage({ onStart }) {
             {/* ปุ่ม 1: ส้ม-ทอง (Primary Action) */}
             <button
               onClick={() => onStart('reporter')}
-              className="w-full pt-4 md:pt-8 pb-5 md:pb-6 bg-gradient-to-r from-orange-500 to-amber-500 text-white font-black text-[19px] md:text-[28px] rounded-2xl md:rounded-[1.5rem] flex items-center justify-center gap-3 md:gap-5 border-[2px] border-solid border-white/80 shadow-[0_15px_30px_rgba(249,115,22,0.5)] hover:shadow-[0_15px_35px_rgba(249,115,22,0.8)] active:scale-95 transition-all"
+              className="w-full pt-4 md:py-6 pb-5 bg-gradient-to-r from-orange-500 to-amber-500 text-white font-black text-[19px] md:text-[28px] rounded-2xl md:rounded-[1.5rem] flex items-center justify-center gap-3 md:gap-5 border-[2px] border-solid border-white/80 shadow-[0_15px_30px_rgba(249,115,22,0.5)] hover:shadow-[0_15px_35px_rgba(249,115,22,0.8)] active:scale-95 transition-all"
             >
               <Wrench size={28} className="drop-shadow-md md:w-9 md:h-9" />{' '}
               แจ้งซ่อมระบบ/อุปกรณ์
