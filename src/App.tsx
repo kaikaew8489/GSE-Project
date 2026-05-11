@@ -833,25 +833,39 @@ useEffect(() => {
       await addDoc(collection(db, 'tickets'), newTicket);
       setShowSuccess(true);
 
-    // 🌟 โค้ดยิงแจ้งเตือนเข้า LINE ผ่าน GAS
-    const gasUrl = "https://script.google.com/macros/s/AKfycbxBoB_e637WkWMeSuX9NP3BSKcSiE8J3dSXmlzNV9aeiq6DRUvn81bSp6w-B0nzCVA5/exec"; // <--- อย่าลืมเอา URL ยาวๆ มาวางในเครื่องหมายคำพูดนะครับ
+   // 🌟 โค้ดยิงแจ้งเตือนเข้า LINE ผ่าน GAS
+   const gasUrl = "https://script.google.com/macros/s/AKfycbxBoB_e637WkWMeSuX9NP3BSKcSiE8J3dSXmlzNV9aeiq6DRUvn81bSp6w-B0nzCVA5/exec"; 
       
-    try {
-      fetch(gasUrl, {
-        method: 'POST',
-        mode: 'no-cors',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          ticketId: newId,
-          equipment: formData.equipment,
-          description: formData.description,
-          reporter: formData.reporter,
-          phone: formData.reporterContact
-        })
-      });
-    } catch (err) {
-      console.error("Line Notify Error:", err);
-    }
+   // 🌟🌟 ฟันธง: เพิ่มระบบสมองกลจับคู่ "กลุ่มงาน" กับ "ผู้รับผิดชอบหลัก" 🌟🌟
+   let primaryTech = "ทีมช่าง ฝวด."; // ค่าเริ่มต้นถ้าหาไม่เจอ
+   
+   // ⚠️ หัวหน้าต้องเปลี่ยนชื่อในเครื่องหมายคำพูดด้านล่าง ให้ตรงกับคนรับผิดชอบจริงนะครับ! ⚠️
+   if (formData.equipmentCategory === 'ภารกิจด้านจานสายอากาศ') {
+     primaryTech = "คุณทศพล/คุณนรัตว์"; 
+   } else if (formData.equipmentCategory === 'ภารกิจด้านคอมพิวเตอร์แม่ข่ายและไอที') {
+     primaryTech = "คุณธนกาญจน์/คุณชุติพงษ์"; 
+   } else if (formData.equipmentCategory === 'ภารกิจด้านโครงสร้างพื้นฐานไฟฟ้า') {
+     primaryTech = "คุณประมินทร์/คุณนรัตว์"; 
+   }
+
+   try {
+     fetch(gasUrl, {
+       method: 'POST',
+       mode: 'no-cors',
+       headers: { 'Content-Type': 'application/json' },
+       body: JSON.stringify({
+         ticketId: newId,
+         equipment: formData.equipment,
+         description: formData.description,
+         reporter: formData.reporter,
+         phone: formData.reporterContact,
+         primaryTech: primaryTech // 🌟 ส่งชื่อคนรับผิดชอบหลักแนบไปให้ LINE ด้วย!
+       })
+     });
+   } catch (err) {
+     console.error("Line Notify Error:", err);
+   }
+
 
     // 🌟 ฟันธง: โค้ดหน่วงเวลา 5 วินาที (5000ms) แล้วเด้งกลับหน้าติดตามงาน
     setTimeout(() => {
