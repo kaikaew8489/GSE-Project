@@ -2862,89 +2862,114 @@ const renderTracking = () => (
           </div>
           {/* ================= สิ้นสุดการวางทับ ================= */}
 
-      {/* 🛠️ Action Modals */}
+      {/* 🛠️ Action Modals (ฟันธง: อัปเกรดกล่องอเนกประสงค์ ให้แปลงร่างได้ 5 รูปแบบ พร้อมแสงเฟลอร์ระดับ Sci-Fi) */}
       {actionModal.isOpen && (
-        <div className="fixed inset-0 z-[150] flex items-center justify-center bg-slate-900/60 backdrop-blur-sm p-5 animate-in fade-in text-center">
-          <div className="bg-white border border-2 border-orange-400/70 rounded-[2rem] w-full max-w-xs overflow-hidden shadow-2xl">
-            <div
-              className={`p-4 font-black text-center text-sm flex items-center justify-center gap-2 ${
-                actionModal.type === 'hold'
-                  ? 'bg-purple-600 text-white'
-                  : actionModal.type === 'finish'
-                  ? 'bg-emerald-600 text-white'
-                  : actionModal.type === 'cancel'
-                  ? 'bg-rose-500 text-white'
-                  : actionModal.type === 'ssc'
-                  ? 'bg-rose-500 text-white'
-                  : 'bg-emerald-500 text-white'
-              }`}
-            >
-              {actionModal.type === 'accept'
-                ? 'วิศวกร / ผู้รับผิดชอบ'
-                : actionModal.type === 'cancel'
-                ? 'ยืนยันการยกเลิก'
-                : actionModal.type === 'finish'
-                ? 'บันทึกผลการซ่อมแซม'
-                : actionModal.type === 'hold'
-                ? 'ระบุเหตุขัดข้อง'
-                : actionModal.type === 'ssc'
-                ? 'บันทึกเวร SSC'
-                : 'บันทึกข้อมูล'}
+        <div className="fixed inset-0 z-[150] flex items-center justify-center bg-slate-900/80 backdrop-blur-md p-6 animate-in fade-in" onClick={() => setActionModal({ isOpen: false, ticketId: null, type: null })}>
+          
+          {/* 💥 พลังแสงเฟลอร์ ทะลุอยู่ด้านหลัง (เปลี่ยนสีตามประเภทงาน) */}
+          <div className={`absolute w-[300px] h-[300px] rounded-full blur-[80px] animate-pulse pointer-events-none z-0 ${actionModal.type === 'cancel' ? 'bg-rose-500/40' : 'bg-orange-500/40'}`}></div>
+
+          {/* 📦 ตัวกล่อง Popup */}
+          <div className={`relative z-10 bg-slate-900 border-[2px] border-solid rounded-[2rem] w-full max-w-sm md:max-w-md overflow-hidden p-8 md:p-10 text-center space-y-7 ${actionModal.type === 'cancel' ? 'border-rose-500 shadow-[0_0_50px_rgba(225,29,72,0.6)]' : 'border-orange-500 shadow-[0_0_50px_rgba(249,115,22,0.8)]'}`} onClick={(e) => e.stopPropagation()}>
+            
+            {/* 🌟 ไอคอนเรืองแสงด้านบน (เปลี่ยนไอคอนตามโหมด) */}
+            <div className={`w-24 h-24 rounded-full flex items-center justify-center mx-auto border-4 shadow-[0_0_20px_rgba(249,115,22,0.8)] ${actionModal.type === 'cancel' ? 'bg-rose-950 text-white border-rose-500 shadow-[0_0_25px_rgba(225,29,72,0.8)]' : 'bg-slate-950 text-orange-500 border-orange-400'}`}>
+              {actionModal.type === 'accept' && <Wrench size={44} className="animate-pulse" />}
+              {actionModal.type === 'hold' && <PauseCircle size={44} className="animate-pulse" />}
+              {actionModal.type === 'finish' && <ClipboardCheck size={44} className="animate-pulse" />}
+              {actionModal.type === 'cancel' && <XCircle size={44} className="animate-pulse" />}
+              {actionModal.type === 'ssc' && <AlertTriangle size={44} className="animate-pulse" />}
             </div>
-            <div className="p-6 space-y-4">
+
+            {/* 🌟 ข้อความหัวข้อ */}
+            <div>
+               <h3 className="text-2xl md:text-3xl font-black text-white tracking-tight drop-shadow-lg mb-2.5">
+                 {actionModal.type === 'accept' ? 'รับงานซ่อมระบบ?' :
+                  actionModal.type === 'cancel' ? 'ยกเลิกงานแจ้งซ่อม?' :
+                  actionModal.type === 'finish' ? 'บันทึกปิดงานซ่อม' :
+                  actionModal.type === 'hold' ? 'แจ้งเหตุขัดข้อง?' :
+                  'บันทึกเวร SSC'}
+               </h3>
+               <p className="text-[14px] md:text-[15px] text-slate-300 font-bold leading-relaxed px-2 md:px-4">
+                 {actionModal.type === 'accept' ? <>คุณกำลังจะกดยอมรับงานซ่อมรหัส<br/><span className="text-orange-400 font-extrabold">{actionModal.ticketId}</span></> :
+                  actionModal.type === 'cancel' ? <>คุณแน่ใจหรือไม่ว่าต้องการยกเลิกงาน<br/><span className="text-rose-400 font-extrabold">{actionModal.ticketId}</span><br/><span className="text-[11px] md:text-[12px] text-rose-300 opacity-80">(การกระทำนี้ไม่สามารถย้อนกลับได้)</span></> :
+                  actionModal.type === 'finish' ? <>โปรดตรวจสอบข้อมูลให้ถูกต้อง ก่อนส่งผล<br/><span className="text-orange-400 font-extrabold">{actionModal.ticketId}</span></> :
+                  actionModal.type === 'hold' ? <>โปรดระบุเหตุผลที่ทำให้การซ่อมล่าช้า<br/>งานรหัส <span className="text-orange-400 font-extrabold">{actionModal.ticketId}</span></> :
+                  <>โปรดระบุการแก้ไขเบื้องต้นสำหรับงาน<br/><span className="text-orange-400 font-extrabold">{actionModal.ticketId}</span></>}
+               </p>
+            </div>
+
+            {/* 🌟 ช่องกรอกข้อมูล */}
+            <div className="text-left space-y-5">
               {actionModal.type === 'accept' ? (
-                <select
-                  value={selectedTech}
-                  onChange={(e) => setSelectedTech(e.target.value)}
-                  className="w-full bg-slate-50 text-slate-800 border-2 border-orange-400 focus:border-orange-500 focus:ring-2 focus:ring-orange-500/30 shadow-inner font-bold appearance-none text-center rounded-xl p-3.5 outline-none cursor-pointer"
-                >
-                  <option value="" disabled>
-                    -- เลือกวิศวกร หรือผู้รับผิดชอบ --
-                  </option>
-                  {technicianList.map((tech) => (
-                    <option key={tech.name} value={tech.name}>
-                      {tech.name}
-                    </option>
-                  ))}
-                </select>
+                 <div className="space-y-2">
+                   <label className="text-sm font-black text-orange-400 tracking-wider">👨‍🔧 เลือกผู้รับผิดชอบหลัก</label>
+                   <select
+                     value={selectedTech}
+                     onChange={(e) => setSelectedTech(e.target.value)}
+                     className="w-full bg-slate-800 border-2 border-solid border-slate-700 rounded-xl px-5 py-3.5 text-white font-bold text-sm focus:border-orange-500 focus:ring-1 focus:ring-orange-500 outline-none transition-all shadow-inner"
+                   >
+                     <option value="" disabled>-- โปรดเลือกวิศวกร --</option>
+                     {technicianList.map((tech) => (
+                       <option key={tech.name} value={tech.name}>{tech.name}</option>
+                     ))}
+                   </select>
+                 </div>
               ) : (
-                <textarea
-                  value={actionText}
-                  onChange={(e) => setActionText(e.target.value)}
-                  className="w-full bg-slate-50 text-slate-800 border-2 border-orange-400 focus:border-orange-500 focus:ring-2 focus:ring-orange-500/30 rounded-xl p-4 shadow-inner outline-none resize-none font-medium"
-                  placeholder="ระบุรายละเอียด..."
-                  rows={4}
-                />
+                 <div className="space-y-2">
+                   <label className={`text-sm font-black tracking-wider flex items-center gap-1.5 ${actionModal.type === 'cancel' ? 'text-rose-400' : 'text-orange-400'}`}>
+                     <FileText size={16} /> 
+                     {actionModal.type === 'hold' ? 'เหตุผลที่ทำให้เกิดความล่าช้า' :
+                      actionModal.type === 'cancel' ? 'ระบุเหตุผลการยกเลิก' :
+                      actionModal.type === 'finish' ? 'สรุปผลการซ่อม/ข้อแนะนำ' :
+                      'บันทึกการแก้ไขเบื้องต้น'}
+                   </label>
+                   <textarea
+                     value={actionText}
+                     onChange={(e) => setActionText(e.target.value)}
+                     placeholder="ระบุรายละเอียดลงที่นี่..."
+                     rows={4}
+                     className={`w-full bg-slate-800 border-2 border-solid rounded-xl px-5 py-3.5 text-white font-bold text-sm outline-none transition-all resize-none shadow-inner ${actionModal.type === 'cancel' ? 'border-slate-700 focus:border-rose-500 focus:ring-1 focus:ring-rose-500' : 'border-slate-700 focus:border-orange-500 focus:ring-1 focus:ring-orange-500'}`}
+                   />
+                 </div>
               )}
-              {/* 🟢 ปุ่มยืนยันเดียว สีส้มเรืองแสง */}
+            </div>
+
+           {/* 🌟 🔘 โซนปุ่มกด (อัปเกรดตามมาตรฐาน UI/UX: แยกปุ่ม Safe Action และ Primary Action) */}
+           <div className="flex gap-4 pt-4">
+              
+              {/* ⚪ ปุ่มซ้าย: ยกเลิก/ปิดหน้าต่าง (Safe Action) - ฟันธง: ใช้สีเทาอวกาศ (Slate) เพื่อความปลอดภัย และไม่แย่งซีนปุ่มหลัก! */}
               <button
-                onClick={executeActionModal}
-                disabled={
-                  actionModal.type === 'accept'
-                    ? !selectedTech
-                    : !actionText.trim()
-                }
-                className="w-full py-3.5 rounded-xl font-bold active:scale-95 text-white shadow-md shadow-orange-500/30 transition-all disabled:opacity-50 disabled:grayscale bg-orange-500 hover:bg-orange-600 tracking-widest uppercase"
+                 onClick={() => setActionModal({ isOpen: false, ticketId: null, type: null })}
+                 className="flex-1 py-3.5 md:py-4 rounded-xl font-bold text-white bg-slate-700 border-[2px] border-solid border-slate-500 shadow-[0_5px_15px_rgba(0,0,0,0.3)] active:scale-95 transition-all duration-300 hover:bg-slate-600 hover:border-slate-400 hover:shadow-[0_0_20px_rgba(255,255,255,0.4)] hover:-translate-y-1"
               >
-                {actionModal.type === 'finish'
-                  ? 'ยืนยันบันทึกผล'
-                  : 'ยืนยันการบันทึก'}
+                 {actionModal.type === 'cancel' ? 'ไม่ยกเลิก' : 'ยกเลิก'}
               </button>
+
+              {/* 🔴/🟠 ปุ่มขวา: ยืนยันทำรายการ (Primary / Destructive Action) */}
               <button
-                onClick={() =>
-                  setActionModal({ isOpen: false, ticketId: null, type: null })
-                }
-                className="w-full py-3.5 rounded-xl font-bold text-slate-500 bg-slate-100 hover:bg-slate-200 active:scale-95 transition-all mt-3 shadow-sm"
+                 onClick={executeActionModal}
+                 disabled={actionModal.type === 'accept' ? !selectedTech : !actionText.trim()}
+                 className={`flex-[1.5] py-3.5 md:py-4 rounded-xl font-black text-white border-[2px] border-solid border-white/90 active:scale-95 transition-all duration-300 hover:-translate-y-1 disabled:opacity-50 disabled:grayscale ${
+                   actionModal.type === 'cancel' 
+                     ? 'bg-rose-600 shadow-[0_5px_15px_rgba(225,29,72,0.4)] hover:bg-rose-500 hover:shadow-[0_0_35px_rgba(225,29,72,1)]' // โหมดลบงาน: สีแดงเตือนภัย
+                     : 'bg-gradient-to-r from-orange-500 to-amber-500 shadow-[0_5px_15px_rgba(249,115,22,0.4)] hover:from-orange-400 hover:to-amber-400 hover:shadow-[0_0_35px_rgba(249,115,22,1)]' // โหมดปกติ: สีส้มทอง
+                 }`}
               >
-                ยกเลิก
+                 {actionModal.type === 'accept' ? 'ยืนยันรับงานซ่อม' :
+                  actionModal.type === 'cancel' ? 'ยืนยันลบงานซ่อม' :
+                  actionModal.type === 'finish' ? 'ยืนยันบันทึกปิดงาน' :
+                  actionModal.type === 'hold' ? 'ยืนยันแจ้งขัดข้อง' :
+                  'ยืนยันบันทึก'}
               </button>
             </div>
           </div>
         </div>
       )}
+
+
     </div>
   );
-
 
   return (
     <div className="fixed inset-0 w-full h-[100dvh] bg-slate-900 flex justify-center overflow-hidden">
