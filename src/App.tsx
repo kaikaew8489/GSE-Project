@@ -3036,7 +3036,7 @@ function LandingPage({ onStart }) {
           }}
         >
           {/* โลโก้ (ฟันธง: ใช้ md:-mt-6 ดึงโลโก้ขึ้นไปชิดขอบบน แต่ไม่ติดขอบ 100%) */}
-          <div className="w-28 h-28 md:w-44 md:h-44 mt-2 md:-mt-6 mb-4 md:mb-4 flex items-center justify-center transition-all duration-500">
+          <div className="w-28 h-28 md:w-44 md:h-44 mt-2 md:-mt-4 mb-4 md:mb-4 flex items-center justify-center transition-all duration-500">
             <img
               src="/GSE-logo.webp"
               alt="Logo"
@@ -3069,7 +3069,7 @@ function LandingPage({ onStart }) {
             </div>
 
             {/* 👩‍🔧 น้องมาสคอต (ฟันธง: เปลี่ยนค่า mb ให้จอ PC เป็นบวก md:mb-4 เพื่อดันปุ่มสีส้มให้ถอยหนีลงไป ไม่ทับเท้า) */}
-            <div className="relative z-30 w-[50%] md:w-[70%] max-w-[280px] md:max-w-[360px] mb-1 md:mb-4 pointer-events-none drop-shadow-[0_20px_20px_rgba(0,0,0,0.8)] transition-all duration-500">
+            <div className="relative z-30 w-[50%] md:w-[70%] max-w-[280px] md:max-w-[360px] mb-1 md:mb-2 pointer-events-none drop-shadow-[0_20px_20px_rgba(0,0,0,0.8)] transition-all duration-500">
               <img
                 src="/mascot.webp"
                 alt="Mascot"
