@@ -3017,11 +3017,8 @@ const renderTracking = () => (
         {activeTab === 'tracking' && renderTracking()}
       </div>
 
-
-
-
      {/* 🧭 Navigation Bar (ฟันธง: แก้บั๊กข้อความหายตอนรีเฟรชบนมือถือ 100%) */}
-     <div className={`fixed bottom-4 left-1/2 -translate-x-1/2 w-[calc(100%-2rem)] max-w-[416px] min-h-[85px] p-2 md:p-3 bg-slate-900/90 backdrop-blur-xl border-2 border-solid border-orange-500 rounded-2xl z-[100] transition-all duration-500 shadow-[0_10px_30px_rgba(249,115,22,0.4)] ${activeTab === 'report' ? 'md:max-w-2xl' : 'md:max-w-[992px]'}`}>
+     <div className={`fixed bottom-4 left-1/2 -translate-x-1/2 w-[calc(100%-2rem)] max-w-[416px] min-h-[85px] md:min-h-[95px] p-2 md:p-3 bg-slate-900/90 backdrop-blur-xl border-2 border-solid border-orange-500 rounded-2xl z-[100] transition-all duration-500 shadow-[0_10px_30px_rgba(249,115,22,0.4)] ${activeTab === 'report' ? 'md:max-w-2xl' : 'md:max-w-[992px]'}`}>
         <div className="w-full h-full flex justify-evenly items-center relative px-1 md:px-8 pt-1">
 
           {/* 🏠 ปุ่ม HOME */}
@@ -3071,7 +3068,7 @@ const renderTracking = () => (
                 </div>
                 <span className={`block whitespace-nowrap text-[11px] md:text-[13px] tracking-widest transition-colors ${activeTab === 'tracking' ? 'text-orange-400 font-black drop-shadow-[0_0_8px_rgba(249,115,22,0.8)]' : 'text-slate-300 font-bold md:group-hover:text-white md:group-hover:drop-shadow-[0_0_5px_rgba(255,255,255,0.8)]'}`}>จัดการงาน</span>
               </button>
-              </>
+            </>
           )}
         </div>
       </div>
@@ -3183,19 +3180,9 @@ function LandingPage({ onStart }) {
           <h3 className="text-xs md:text-[20px] font-bold text-slate-100 tracking-widest mt-1 mb-2 transition-all duration-500">
             สำนักปฏิบัติการดาวเทียม
           </h3>
-        </div>
-
-        {/* 5. Footer */}
-        <div className="mt-8 md:mt-12 text-center opacity-80 transition-all duration-500">
-          <p className="text-[10px] md:text-[18px] font-mono text-white tracking-widest font-bold normal-case">
+          <h3 className="text-[10px] md:text-[18px] font-mono text-white tracking-widest font-bold normal-case">
             ©2026 Ground System Engineering Division: GSE
-          </p>
-          <p className="text-[9px] md:text-[15px] font-bold text-white mt-1 md:mt-2 text-center normal-case">
-            Satellite Operation Office: SOO
-          </p>
-          <p className="text-[9px] md:text-[15px] font-bold text-white mt-1 text-center normal-case">
-            Geo-Informatics and Space Technology Development Agency: GISTDA
-          </p>
+          </h3>
         </div>
       </div>
 
