@@ -852,16 +852,18 @@ useEffect(() => {
      fetch(gasUrl, {
        method: 'POST',
        mode: 'no-cors',
-       headers: { 'Content-Type': 'application/json' },
+       // 🌟 ฟันธงแก้ไข: เปลี่ยน Header เป็น text/plain เพื่อให้ทะลวงผ่านกฎ CORS ของ Browser ได้ 100%
+       headers: { 'Content-Type': 'text/plain;charset=utf-8' }, 
        body: JSON.stringify({
          ticketId: newId,
          equipment: formData.equipment,
          description: formData.description,
          reporter: formData.reporter,
          phone: formData.reporterContact,
-         primaryTech: primaryTech // 🌟 ส่งชื่อคนรับผิดชอบหลักแนบไปให้ LINE ด้วย!
+         primaryTech: primaryTech 
        })
      });
+     // ... (โค้ดแจ้งเตือนสำเร็จของท่าน) ...
    } catch (err) {
      console.error("Line Notify Error:", err);
    }
