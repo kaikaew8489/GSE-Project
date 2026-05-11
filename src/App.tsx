@@ -3053,7 +3053,7 @@ function LandingPage({ onStart }) {
           <div className="relative w-full -mt-6 md:mt-4 flex flex-col items-center min-h-[220px] md:min-h-[300px] transition-all duration-500">            
             
             {/* 💬 กล่องคำพูด (โปร่งแสงแบบกระจก + ติ่งสามเหลี่ยมโค้งมน) */}
-            <div className="relative z-20 bg-slate-900/80 backdrop-blur-md rounded-3xl md:rounded-[2rem] p-2 md:p-6 shadow-[0_15px_40px_rgba(249,115,22,0.5)] text-center border-[2px] border-solid border-orange-200 mb-1 md:mb-4 animate-bounce">
+            <div className="relative z-20 bg-slate-900/80 backdrop-blur-md rounded-3xl md:rounded-[2rem] p-2 md:p-6 shadow-[0_15px_40px_rgba(249,115,22,0.8)] text-center border-[2px] border-solid border-orange-500 mb-1 md:mb-4 animate-bounce">
               
               {/* 🌟 ฟันธง: ติ่งสามเหลี่ยมใช้เทคนิค CSS หมุนกล่องให้โค้งมน เนียนกริบ 100% */}
               <div className="absolute left-1/2 -translate-x-1/2 -bottom-[11px] w-5 h-5 bg-slate-900 border-b-[2px] border-r-[2px] border-solid border-orange-500 transform rotate-45 rounded-sm"></div>
@@ -3078,8 +3078,8 @@ function LandingPage({ onStart }) {
             </div>
           </div>
 
-          {/* 4. กลุ่มปุ่มกด (ฟันธง: ลำดับสีตามนี้คือสุดยอด UX ระดับสากลครับ!) */}
-          <div className="w-full flex flex-col gap-4 md:gap-6 relative z-10 transition-all duration-500">
+         {/* 4. กลุ่มปุ่มกด (ฟันธง: ลด gap-4 เหลือ gap-3 สำหรับมือถือ และลด md:gap-6 เหลือ md:gap-4 สำหรับ PC เพื่อดึงปุ่มให้กระชับเข้าหากันตามหลัก Law of Proximity) */}
+         <div className="w-full flex flex-col gap-3 md:gap-4 relative z-10 transition-all duration-500">
             
             {/* ปุ่ม 1: ส้ม-ทอง (Primary Action) */}
             <button
@@ -3108,9 +3108,10 @@ function LandingPage({ onStart }) {
             </button>
           </div>
 
-          <h2 className="text-[16px] md:text-[30px] font-bold text-orange-400 uppercase mt-5 md:mt-14 mb-1.5 md:mb-2 transition-all duration-500">
+          <h2 className="text-[16px] md:text-[30px] font-bold text-orange-400 uppercase mt-3 md:mt-6 mb-1.5 md:mb-2 transition-all duration-500">
             ฝ่ายวิศวกรรมระบบปฏิบัติการดาวเทียม
           </h2>
+
           <h3 className="text-[14px] md:text-[18px] font-bold text-slate-100 tracking-widest mt-1 mb-2 transition-all duration-500">
             สำนักปฏิบัติการดาวเทียม
           </h3>
