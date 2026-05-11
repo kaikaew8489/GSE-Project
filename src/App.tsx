@@ -3255,15 +3255,15 @@ function LandingPage({ onStart }) {
               {/* แสงแฟลอร์ส้มวาบๆ พื้นหลัง Header */}
               <div className="absolute inset-0 bg-orange-500/30 blur-[50px] pointer-events-none animate-pulse z-0"></div>
 
-              {/* กากบาทปิด (X) */}
-              <button onClick={() => setShowManual(false)} className="absolute top-4 right-4 md:top-6 md:right-6 z-20 text-white bg-slate-900 border-2 border-solid border-orange-400 p-2 md:p-3 rounded-full transition-all shadow-[0_0_20px_rgba(249,115,22,0.8)] hover:shadow-[0_0_30px_rgba(249,115,22,1)] hover:-translate-y-1 active:scale-95">
-                <X size={24} className="text-rose-500 drop-shadow-[0_0_8px_rgba(225,29,72,0.8)] stroke-[3px]" />
+             {/* กากบาทปิด (X): อัปเกรด Hover เปลี่ยนสีแดง-ขาว */}
+             <button onClick={() => setShowManual(false)} className="absolute top-4 right-4 md:top-6 md:right-6 z-20 bg-slate-900 border-2 border-solid border-orange-400 p-2 md:p-3 rounded-full transition-all shadow-[0_0_15px_rgba(249,115,22,0.6)] hover:shadow-[0_0_25px_rgba(225,29,72,1)] hover:-translate-y-1 active:scale-95 animate-pulse hover:bg-rose-600 hover:border-rose-400 group">
+                <X size={28} className="text-rose-500 group-hover:text-white drop-shadow-[0_0_8px_rgba(225,29,72,0.8)] stroke-[3px] transition-colors" />
               </button>
 
-              <div className="relative z-10 w-full flex flex-col items-center gap-4">
+              <div className="relative z-10 w-full flex flex-col items-center gap-6">
                 {/* ไอคอน FileText สีส้ม */}
-                <div className="p-3 md:p-4 bg-gradient-to-br from-orange-400 to-orange-600 rounded-2xl shadow-[0_0_30px_rgba(249,115,22,0.8)] animate-pulse">
-                  <FileText size={32} className="text-white drop-shadow-md" />
+                <div className="p-5 md:p-4 bg-gradient-to-br from-orange-400 to-orange-600 rounded-2xl shadow-[0_0_30px_rgba(249,115,22,0.8)] animate-pulse">
+                  <FileText size={40} className="text-white drop-shadow-md" />
                 </div>
 
                 {/* ข้อความคู่มือในกรอบ (แก้ปัญหาข้อความหาย) */}
@@ -3287,9 +3287,11 @@ function LandingPage({ onStart }) {
               <img src="/manual-3-1.png" alt="คู่มือเจ้าหน้าที่ ฝวด.-1" className="w-full rounded-xl md:rounded-2xl shadow-[0_10px_30px_rgba(0,0,0,0.6)] border-[2px] border-solid border-slate-600" />
               <img src="/manual-3-2.png" alt="คู่มือเจ้าหน้าที่ ฝวด.-2" className="w-full rounded-xl md:rounded-2xl shadow-[0_10px_30px_rgba(0,0,0,0.6)] border-[2px] border-solid border-slate-600" />
               
-              <div className="text-center pt-2 pb-4">
-                <p className="text-orange-400 font-bold text-sm tracking-widest flex items-center justify-center gap-2">
-                  <CheckCircle size={16} className="text-emerald-400" /> สิ้นสุดคู่มือการใช้งาน
+             {/* ติ่งข้อความปิดท้ายคู่มือ (ตีเส้นประ + ขยายไซส์ PC + เปล่งแสง) */}
+             <div className="text-center pt-6 pb-4 mt-8 border-t-2 border-dashed border-orange-500/30">
+                <p className="text-orange-500 font-black text-[18px] md:text-[24px] tracking-widest flex items-center justify-center gap-2 md:gap-3 drop-shadow-[0_0_10px_rgba(249,115,22,0.6)]">
+                  <CheckCircle className="w-5 h-5 md:w-7 md:h-7 text-emerald-400 drop-shadow-[0_0_8px_rgba(16,185,129,0.8)]" /> 
+                  สิ้นสุดคู่มือการใช้งาน
                 </p>
               </div>
             </div>
