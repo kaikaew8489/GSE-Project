@@ -1286,7 +1286,6 @@ useEffect(() => {
                 </div>
               </div>
             )}
-            )}
           </div>
         </div>
 
@@ -3240,23 +3239,42 @@ function LandingPage({ onStart }) {
         </div>
       </div>
 
-      {/* 🌟 หน้าต่าง Popup คู่มือ */}
-      {showManual && (
-        <div className="fixed inset-0 z-[200] bg-slate-900/90 flex flex-col items-center justify-center p-4 backdrop-blur-sm animate-in fade-in">
-          <div className="w-full max-w-lg md:max-w-4xl bg-slate-800 border-2 border-orange-500 rounded-2xl md:rounded-[2rem] overflow-hidden shadow-2xl flex flex-col max-h-[85vh] transition-all">
+     {/* 🌟 หน้าต่าง Popup คู่มือ (อัปเดตใหม่ 5 หน้า) */}
+     {showManual && (
+        <div className="fixed inset-0 z-[200] bg-slate-900/90 flex flex-col items-center justify-center p-4 backdrop-blur-sm animate-in fade-in" onClick={() => setShowManual(false)}>
+          <div className="w-full max-w-lg md:max-w-4xl bg-slate-800 border-2 border-orange-500 rounded-2xl md:rounded-[2rem] overflow-hidden shadow-2xl flex flex-col max-h-[85vh] transition-all" onClick={(e) => e.stopPropagation()}>
             <div className="p-4 md:p-6 bg-slate-900 flex justify-between items-center border-b border-slate-700">
-              <h3 className="text-white font-bold tracking-widest md:text-2xl">คู่มือการใช้งาน</h3>
-              <button onClick={() => setShowManual(false)} className="text-rose-500 hover:text-rose-400 bg-rose-500/10 p-1.5 md:p-2.5 rounded-full transition-all">
+              <h3 className="text-white font-bold tracking-widest md:text-2xl">คู่มือการใช้งานระบบแจ้งซ่อม</h3>
+              <button onClick={() => setShowManual(false)} className="text-rose-500 hover:text-rose-400 bg-rose-500/10 p-1.5 md:p-2.5 rounded-full transition-all hover:bg-rose-500/20 active:scale-95">
                 <X size={20} className="md:w-8 md:h-8" />
               </button>
             </div>
+            
+            {/* 🌟 โซนแสดงรูปภาพคู่มือ (ฟันธง: เรียง 4 ไฟล์ต่อกัน เลื่อนอ่านได้สมูทๆ) */}
+            <div className="p-4 md:p-8 overflow-y-auto space-y-4 md:space-y-8 bg-slate-800">
             <div className="p-4 md:p-8 overflow-y-auto space-y-4 md:space-y-8">
-              <img src="/manual-1.png" alt="คู่มือผู้แจ้ง" className="w-full rounded-xl md:rounded-2xl shadow-md border border-slate-600" />
-              <img src="/manual-2.png" alt="คู่มือช่าง" className="w-full rounded-xl md:rounded-2xl shadow-md border border-slate-600" />
+
+                <img src="/manual-1-1.png" alt="คู่มือเข้าโปรแกรมหน้าแรก" className="w-full rounded-xl md:rounded-2xl shadow-md border border-slate-600" />
+
+                <img src="/manual-2-1.png" alt="คู่มือผู้แจ้งซ่อม-1" className="w-full rounded-xl md:rounded-2xl shadow-md border border-slate-600" />
+
+                <img src="/manual-2-2.png" alt="คู่มือผู้แจ้งซ่อม-2" className="w-full rounded-xl md:rounded-2xl shadow-md border border-slate-600" />
+
+                <img src="/manual-3-1.png" alt="คู่มือเจ้าหน้าที่ ฝวด.-1" className="w-full rounded-xl md:rounded-2xl shadow-md border border-slate-600" />
+
+                <img src="/manual-3-2.png" alt="คู่มือเจ้าหน้าที่ ฝวด.-2" className="w-full rounded-xl md:rounded-2xl shadow-md border border-slate-600" />
+
+              </div>
+              {/* ติ่งข้อความปิดท้ายคู่มือ */}
+              <div className="text-center pt-4 pb-2">
+                <p className="text-orange-400 font-bold text-sm tracking-widest">สิ้นสุดคู่มือการใช้งาน</p>
+              </div>
             </div>
           </div>
         </div>
       )}
+
+
     </div>
   );
 } // <--- 🌟 ฟันธง: วงเล็บปีกกาตัวนี้แหละครับที่หายไป ทำให้พัง! 🌟
