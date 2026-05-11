@@ -3036,7 +3036,7 @@ function LandingPage({ onStart }) {
           }}
         >
           {/* โลโก้ (ฟันธง: ใช้ md:-mt-6 ดึงโลโก้ขึ้นไปชิดขอบบน แต่ไม่ติดขอบ 100%) */}
-          <div className="w-28 h-28 md:w-44 md:h-44 mt-8 md:-mt-12 mb-4 md:mb-4 flex items-center justify-center transition-all duration-500">
+          <div className="w-28 h-28 md:w-44 md:h-44 -mt-8 md:-mt-12 mb-10 md:mb-4 flex items-center justify-center transition-all duration-500">
             <img
               src="/GSE-logo.webp"
               alt="Logo"
@@ -3050,7 +3050,7 @@ function LandingPage({ onStart }) {
           </h1> */}
 
           {/* 🌟 3. โซนน้องมาสคอต + กล่องคำพูด */}
-          <div className="relative w-full mt-6 md:mt-4 flex flex-col items-center min-h-[220px] md:min-h-[300px] transition-all duration-500">            
+          <div className="relative w-full -mt-6 md:mt-4 flex flex-col items-center min-h-[220px] md:min-h-[300px] transition-all duration-500">            
             
             {/* 💬 กล่องคำพูด (โปร่งแสงแบบกระจก + ติ่งสามเหลี่ยมโค้งมน) */}
             <div className="relative z-20 bg-slate-900/80 backdrop-blur-md rounded-3xl md:rounded-[2rem] p-2 md:p-6 shadow-[0_15px_40px_rgba(249,115,22,0.5)] text-center border-[2px] border-solid border-orange-200 mb-1 md:mb-4 animate-bounce">
