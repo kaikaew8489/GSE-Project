@@ -3036,7 +3036,7 @@ function LandingPage({ onStart }) {
           }}
         >
           {/* โลโก้ (ฟันธง: ใช้ md:-mt-6 ดึงโลโก้ขึ้นไปชิดขอบบน แต่ไม่ติดขอบ 100%) */}
-          <div className="w-28 h-28 md:w-44 md:h-44 mt-2 md:-mt-10 mb-4 md:mb-4 flex items-center justify-center transition-all duration-500">
+          <div className="w-28 h-28 md:w-44 md:h-44 mt-8 md:-mt-12 mb-4 md:mb-4 flex items-center justify-center transition-all duration-500">
             <img
               src="/GSE-logo.webp"
               alt="Logo"
