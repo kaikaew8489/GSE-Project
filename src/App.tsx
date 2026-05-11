@@ -3017,56 +3017,56 @@ const renderTracking = () => (
         {activeTab === 'tracking' && renderTracking()}
       </div>
 
-     {/* 🧭 Navigation Bar (ฟันธง: แก้บั๊กข้อความหายตอนรีเฟรชบนมือถือ 100%) */}
-     <div className={`fixed bottom-4 left-1/2 -translate-x-1/2 w-[calc(100%-2rem)] max-w-[416px] min-h-[85px] md:min-h-[95px] p-2 md:p-3 bg-slate-900/90 backdrop-blur-xl border-2 border-solid border-orange-500 rounded-2xl z-[100] transition-all duration-500 shadow-[0_10px_30px_rgba(249,115,22,0.4)] ${activeTab === 'report' ? 'md:max-w-2xl' : 'md:max-w-[992px]'}`}>
-        <div className="w-full h-full flex justify-evenly items-center relative px-1 md:px-8 pt-1">
+     {/* 🧭 Navigation Bar (ฟันธง: ล็อกความสูงแบบ Hardcode ปิดตายบั๊กตัวหนังสือหาย 1,000,000%) */}
+     <div className={`fixed bottom-4 left-1/2 -translate-x-1/2 w-[calc(100%-2rem)] max-w-[416px] h-[85px] md:h-[95px] bg-slate-900/95 backdrop-blur-xl border-2 border-solid border-orange-500 rounded-2xl z-[9999] transition-all duration-500 shadow-[0_10px_30px_rgba(249,115,22,0.4)] ${activeTab === 'report' ? 'md:max-w-2xl' : 'md:max-w-[992px]'}`}>
+        <div className="w-full h-full flex justify-evenly items-center px-1 md:px-8">
 
           {/* 🏠 ปุ่ม HOME */}
-          <button onClick={onGoHome} className="flex flex-col items-center justify-center transition-all duration-300 w-20 md:w-24 group active:scale-95 md:hover:scale-110 md:hover:-translate-y-1 shrink-0">
-            <div className="p-2 md:p-3 rounded-full mb-0.5 md:mb-1 transition-all duration-300 bg-transparent text-slate-300 md:group-hover:bg-gradient-to-b md:group-hover:from-orange-400 md:group-hover:to-orange-600 md:group-hover:text-white md:group-hover:shadow-[0_0_15px_rgba(249,115,22,0.8)]">
-              <Home size={26} className="md:group-hover:stroke-[2.5px] transition-all" />
+          <button onClick={onGoHome} className="flex flex-col items-center justify-center h-full w-20 md:w-24 gap-1 active:scale-95 transition-all shrink-0">
+            <div className="p-2.5 rounded-full bg-transparent text-slate-300">
+              <Home size={26} />
             </div>
-            <span className="block whitespace-nowrap text-[11px] md:text-[13px] tracking-widest transition-colors font-bold text-slate-300 md:group-hover:text-white md:group-hover:drop-shadow-[0_0_5px_rgba(255,255,255,0.8)]">หน้าแรก</span>
+            <span className="text-[11px] md:text-[13px] font-bold text-slate-300 tracking-widest whitespace-nowrap shrink-0 leading-none">หน้าแรก</span>
           </button>
 
-          {/* ================= โหมดผู้แจ้ง (Reporter) ================= */}
+          {/* ================= โหมดผู้แจ้ง ================= */}
           {currentUserRole === 'reporter' && (
             <>
-              {/* 🟠 ปุ่มแจ้งซ่อม */}
-              <button onClick={() => setActiveTab('report')} className={`flex flex-col items-center justify-center transition-all duration-300 w-20 md:w-24 group shrink-0 ${activeTab === 'report' ? 'scale-110 -translate-y-1' : 'scale-100 active:scale-95 md:hover:scale-110 md:hover:-translate-y-1'}`}>
-                <div className={`p-2 md:p-3 rounded-full mb-0.5 md:mb-1 transition-all duration-300 ${activeTab === 'report' ? 'bg-gradient-to-b from-orange-400 to-orange-600 text-white shadow-[0_0_20px_rgba(249,115,22,0.8)] border-[2px] border-solid border-white' : 'bg-transparent text-slate-300 md:group-hover:bg-gradient-to-b md:group-hover:from-orange-400 md:group-hover:to-orange-600 md:group-hover:text-white md:group-hover:shadow-[0_0_15px_rgba(249,115,22,0.8)]'}`}>
-                  <PlusCircle size={26} className={activeTab === 'report' ? 'stroke-[2.5px]' : 'md:group-hover:stroke-[2.5px]'} />
+              {/* 🟠 แจ้งซ่อม */}
+              <button onClick={() => setActiveTab('report')} className={`flex flex-col items-center justify-center h-full w-20 md:w-24 gap-1 transition-all shrink-0 ${activeTab === 'report' ? '-translate-y-2' : 'active:scale-95'}`}>
+                <div className={`p-2.5 rounded-full transition-all ${activeTab === 'report' ? 'bg-gradient-to-b from-orange-400 to-orange-600 text-white shadow-[0_0_15px_rgba(249,115,22,0.8)] border-[2px] border-white scale-110' : 'bg-transparent text-slate-300'}`}>
+                  <PlusCircle size={26} className={activeTab === 'report' ? 'stroke-[2.5px]' : ''} />
                 </div>
-                <span className={`block whitespace-nowrap text-[11px] md:text-[13px] tracking-widest transition-colors ${activeTab === 'report' ? 'text-orange-400 font-black drop-shadow-[0_0_8px_rgba(249,115,22,0.8)]' : 'text-slate-300 font-bold md:group-hover:text-white md:group-hover:drop-shadow-[0_0_5px_rgba(255,255,255,0.8)]'}`}>แจ้งซ่อม</span>
+                <span className={`text-[11px] md:text-[13px] font-bold tracking-widest whitespace-nowrap shrink-0 leading-none transition-all ${activeTab === 'report' ? 'text-orange-400 drop-shadow-md' : 'text-slate-300'}`}>แจ้งซ่อม</span>
               </button>
 
-              {/* 🟠 ปุ่มติดตามสถานะ */}
-              <button onClick={() => { setActiveTab('tracking'); setSearchTerm(''); }} className={`flex flex-col items-center justify-center transition-all duration-300 w-20 md:w-24 group shrink-0 ${activeTab === 'tracking' ? 'scale-110 -translate-y-1' : 'scale-100 active:scale-95 md:hover:scale-110 md:hover:-translate-y-1'}`}>
-                <div className={`p-2 md:p-3 rounded-full mb-0.5 md:mb-1 transition-all duration-300 ${activeTab === 'tracking' ? 'bg-gradient-to-b from-orange-400 to-orange-600 text-white shadow-[0_0_20px_rgba(249,115,22,0.8)] border-[2px] border-solid border-white' : 'bg-transparent text-slate-300 md:group-hover:bg-gradient-to-b md:group-hover:from-orange-400 md:group-hover:to-orange-600 md:group-hover:text-white md:group-hover:shadow-[0_0_15px_rgba(249,115,22,0.8)]'}`}>
-                  <ClipboardCheck size={26} className={activeTab === 'tracking' ? 'stroke-[2.5px]' : 'md:group-hover:stroke-[2.5px]'} />
+              {/* 🟠 ติดตามสถานะ */}
+              <button onClick={() => { setActiveTab('tracking'); setSearchTerm(''); }} className={`flex flex-col items-center justify-center h-full w-20 md:w-24 gap-1 transition-all shrink-0 ${activeTab === 'tracking' ? '-translate-y-2' : 'active:scale-95'}`}>
+                <div className={`p-2.5 rounded-full transition-all ${activeTab === 'tracking' ? 'bg-gradient-to-b from-orange-400 to-orange-600 text-white shadow-[0_0_15px_rgba(249,115,22,0.8)] border-[2px] border-white scale-110' : 'bg-transparent text-slate-300'}`}>
+                  <ClipboardCheck size={26} className={activeTab === 'tracking' ? 'stroke-[2.5px]' : ''} />
                 </div>
-                <span className={`block whitespace-nowrap text-[11px] md:text-[13px] tracking-widest transition-colors ${activeTab === 'tracking' ? 'text-orange-400 font-black drop-shadow-[0_0_8px_rgba(249,115,22,0.8)]' : 'text-slate-300 font-bold md:group-hover:text-white md:group-hover:drop-shadow-[0_0_5px_rgba(255,255,255,0.8)]'}`}>ติดตามสถานะ</span>
+                <span className={`text-[11px] md:text-[13px] font-bold tracking-widest whitespace-nowrap shrink-0 leading-none transition-all ${activeTab === 'tracking' ? 'text-orange-400 drop-shadow-md' : 'text-slate-300'}`}>ติดตามสถานะ</span>
               </button>
             </>
           )}
 
-          {/* ================= โหมดช่าง (Technician) ================= */}
+          {/* ================= โหมดช่าง ================= */}
           {currentUserRole === 'technician' && (
             <>
-              {/* 🟠 ปุ่มแผงควบคุม */}
-              <button onClick={() => setActiveTab('dashboard')} className={`flex flex-col items-center justify-center transition-all duration-300 w-20 md:w-24 group shrink-0 ${activeTab === 'dashboard' ? 'scale-110 -translate-y-1' : 'scale-100 active:scale-95 md:hover:scale-110 md:hover:-translate-y-1'}`}>
-                <div className={`p-2 md:p-3 rounded-full mb-0.5 md:mb-1 transition-all duration-300 ${activeTab === 'dashboard' ? 'bg-gradient-to-b from-orange-400 to-orange-600 text-white shadow-[0_0_20px_rgba(249,115,22,0.8)] border-[2px] border-solid border-white' : 'bg-transparent text-slate-300 md:group-hover:bg-gradient-to-b md:group-hover:from-orange-400 md:group-hover:to-orange-600 md:group-hover:text-white md:group-hover:shadow-[0_0_15px_rgba(249,115,22,0.8)]'}`}>
-                  <LayoutDashboard size={26} className={activeTab === 'dashboard' ? 'stroke-[2.5px]' : 'md:group-hover:stroke-[2.5px]'} />
+              {/* 🟠 แผงควบคุม */}
+              <button onClick={() => setActiveTab('dashboard')} className={`flex flex-col items-center justify-center h-full w-20 md:w-24 gap-1 transition-all shrink-0 ${activeTab === 'dashboard' ? '-translate-y-2' : 'active:scale-95'}`}>
+                <div className={`p-2.5 rounded-full transition-all ${activeTab === 'dashboard' ? 'bg-gradient-to-b from-orange-400 to-orange-600 text-white shadow-[0_0_15px_rgba(249,115,22,0.8)] border-[2px] border-white scale-110' : 'bg-transparent text-slate-300'}`}>
+                  <LayoutDashboard size={26} className={activeTab === 'dashboard' ? 'stroke-[2.5px]' : ''} />
                 </div>
-                <span className={`block whitespace-nowrap text-[11px] md:text-[13px] tracking-widest transition-colors ${activeTab === 'dashboard' ? 'text-orange-400 font-black drop-shadow-[0_0_8px_rgba(249,115,22,0.8)]' : 'text-slate-300 font-bold md:group-hover:text-white md:group-hover:drop-shadow-[0_0_5px_rgba(255,255,255,0.8)]'}`}>แผงควบคุม</span>
+                <span className={`text-[11px] md:text-[13px] font-bold tracking-widest whitespace-nowrap shrink-0 leading-none transition-all ${activeTab === 'dashboard' ? 'text-orange-400 drop-shadow-md' : 'text-slate-300'}`}>แผงควบคุม</span>
               </button>
 
-              {/* 🟠 ปุ่มจัดการงานซ่อม */}
-              <button onClick={() => setActiveTab('tracking')} className={`flex flex-col items-center justify-center transition-all duration-300 w-20 md:w-24 group shrink-0 ${activeTab === 'tracking' ? 'scale-110 -translate-y-1' : 'scale-100 active:scale-95 md:hover:scale-110 md:hover:-translate-y-1'}`}>
-                <div className={`p-2 md:p-3 rounded-full mb-0.5 md:mb-1 transition-all duration-300 ${activeTab === 'tracking' ? 'bg-gradient-to-b from-orange-400 to-orange-600 text-white shadow-[0_0_20px_rgba(249,115,22,0.8)] border-[2px] border-solid border-white' : 'bg-transparent text-slate-300 md:group-hover:bg-gradient-to-b md:group-hover:from-orange-400 md:group-hover:to-orange-600 md:group-hover:text-white md:group-hover:shadow-[0_0_15px_rgba(249,115,22,0.8)]'}`}>
-                  <Wrench size={26} className={activeTab === 'tracking' ? 'stroke-[2.5px]' : 'md:group-hover:stroke-[2.5px]'} />
+              {/* 🟠 จัดการงานซ่อม */}
+              <button onClick={() => setActiveTab('tracking')} className={`flex flex-col items-center justify-center h-full w-20 md:w-24 gap-1 transition-all shrink-0 ${activeTab === 'tracking' ? '-translate-y-2' : 'active:scale-95'}`}>
+                <div className={`p-2.5 rounded-full transition-all ${activeTab === 'tracking' ? 'bg-gradient-to-b from-orange-400 to-orange-600 text-white shadow-[0_0_15px_rgba(249,115,22,0.8)] border-[2px] border-white scale-110' : 'bg-transparent text-slate-300'}`}>
+                  <Wrench size={26} className={activeTab === 'tracking' ? 'stroke-[2.5px]' : ''} />
                 </div>
-                <span className={`block whitespace-nowrap text-[11px] md:text-[13px] tracking-widest transition-colors ${activeTab === 'tracking' ? 'text-orange-400 font-black drop-shadow-[0_0_8px_rgba(249,115,22,0.8)]' : 'text-slate-300 font-bold md:group-hover:text-white md:group-hover:drop-shadow-[0_0_5px_rgba(255,255,255,0.8)]'}`}>จัดการงาน</span>
+                <span className={`text-[11px] md:text-[13px] font-bold tracking-widest whitespace-nowrap shrink-0 leading-none transition-all ${activeTab === 'tracking' ? 'text-orange-400 drop-shadow-md' : 'text-slate-300'}`}>จัดการงาน</span>
               </button>
             </>
           )}
