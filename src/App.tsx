@@ -1619,32 +1619,43 @@ useEffect(() => {
       
       {/* 🌟 ฟันธง: เติมสวิตช์ตรงนี้! */}
       {showSuccess ? (
-
-        <div className="flex flex-col items-center justify-center py-24 text-center animate-in zoom-in duration-500">
+        /* 🌟 เปลี่ยนเป็น Popup Overlay ทับทุกสิ่งบนหน้าจอด้วย fixed inset-0 z-[300] */
+        <div className="fixed inset-0 z-[300] bg-slate-950/90 backdrop-blur-md flex flex-col items-center justify-center p-6 animate-in fade-in zoom-in duration-500">
           
-          {/* 🌟 1. โซนไอคอน: เพิ่มวงแหวนเรืองแสงและเส้นประหมุนล้อมรอบ */}
-          <div className="relative mb-10 mt-8">
-            <div className="absolute inset-0 border-4 border-emerald-400 rounded-full animate-ping opacity-40"></div>
-            <div className="absolute -inset-4 border-2 border-dashed border-white-600/90 rounded-full animate-[spin_10s_linear_infinite]"></div>
+          {/* 💥 พลังแสงเฟลอร์สีเขียว-ส้ม วาบๆ อยู่ด้านหลัง */}
+          <div className="absolute w-[300px] h-[300px] bg-emerald-500/40 rounded-full blur-[100px] animate-pulse pointer-events-none z-0"></div>
+          <div className="absolute w-[200px] h-[200px] bg-orange-500/30 rounded-full blur-[80px] animate-pulse delay-150 pointer-events-none z-0 translate-x-10 translate-y-10"></div>
+
+          <div className="relative z-10 flex flex-col items-center justify-center w-full max-w-sm">
             
-            <div className="relative w-32 h-32 bg-gradient-to-tr from-emerald-400 to-orange-600 text-white rounded-full flex items-center justify-center shadow-[0_0_40px_rgba(16,185,129,0.7)] border-2 border-solid border-emerald-200/80">
-              <CheckCircle size={80} />
+            {/* 🌟 1. โซนไอคอน: อลังการวงแหวน */}
+            <div className="relative mb-8 mt-4">
+              <div className="absolute inset-0 border-[6px] border-emerald-400 rounded-full animate-ping opacity-30"></div>
+              <div className="absolute -inset-4 border-2 border-dashed border-emerald-400/70 rounded-full animate-[spin_8s_linear_infinite]"></div>
+              
+              <div className="relative w-28 h-28 md:w-32 md:h-32 bg-gradient-to-tr from-emerald-500 to-teal-400 text-white rounded-full flex items-center justify-center shadow-[0_0_50px_rgba(16,185,129,0.8)] border-[3px] border-solid border-white/50">
+                <CheckCircle size={60} className="md:w-20 md:h-20 drop-shadow-md" />
+              </div>
             </div>
+
+            {/* 🌟 2. โซนข้อความ: กรอบ Sci-Fi */}
+            <div className="bg-slate-900 border-[3px] border-solid border-emerald-500/80 p-8 rounded-3xl shadow-[0_0_40px_rgba(16,185,129,0.4)] w-full text-center relative overflow-hidden">
+              <div className="absolute top-0 left-0 w-full h-2 bg-gradient-to-r from-emerald-400 to-teal-500"></div>
+              <h2 className="text-3xl md:text-4xl font-black text-transparent bg-clip-text bg-gradient-to-b from-emerald-300 to-emerald-600 drop-shadow-lg mb-4 tracking-wide">
+                ส่งข้อมูลสำเร็จ!
+              </h2>
+              <p className="text-[15px] md:text-lg font-bold text-slate-200 leading-relaxed">
+                ระบบบันทึกข้อมูลและส่งแจ้งเตือนให้<br/>
+                <span className="text-orange-500 font-black text-lg md:text-xl mt-2 mb-1 inline-block drop-shadow-[0_0_8px_rgba(249,115,22,0.8)] border-b-2 border-dashed border-orange-500">
+                  เจ้าหน้าที่ ฝวด.
+                </span><br/>
+                รับทราบเรียบร้อยแล้ว!!
+              </p>
+            </div>
+
           </div>
-
-          {/* 🌟 2. โซนข้อความ: ทำพื้นหลังใสๆ พร้อมขอบสีเขียวให้ดูอวกาศไฮเทค */}
-          <div className="bg-emerald-500/30 backdrop-blur-xl border-[2px] border-solid border-white-300/80 p-8 rounded-[1rem] shadow-[0_0_30px_rgba(16,185,129,0.2)] max-w-sm w-full mx-auto">
-            <h2 className="text-4xl font-black text-emerald-400 drop-shadow-lg mb-3 tracking-wide">
-              ส่งข้อมูลสำเร็จ!
-            </h2>
-            <p className="text-[16px] font-bold text-slate-100 leading-relaxed">
-              ระบบบันทึกข้อมูล และส่งแจ้งเตือนให้ <br/>
-              <span className="border-2 border-solid border-white-200/80 text-orange-500 font-black bg-white-500/60 px-2 py-1 rounded-lg mt-1 inline-block">เจ้าหน้าที่ ฝวด.</span> รับทราบแล้ว!!
-            </p>
-            </div>
-
-            </div>
-          ) : (
+        </div>
+      ) : (
 
             <form onSubmit={handleSubmit} className="space-y-6 md:max-w-2xl md:mx-auto">
           <div className="bg-slate-800/60 backdrop-blur-xl  border-2 border-solid border-white-600/50 rounded-[1rem] py-4 text-center shadow-[0_0_30px_rgba(0,0,0,0.3)] font-sans tracking-widest text-white font-bold">
@@ -2039,12 +2050,23 @@ useEffect(() => {
 const renderTracking = () => (
   <div className="p-4 space-y-6 pb-32 animate-in slide-in-from-left-4 duration-500 text-left">
     
-    {/* 🌟 ฟันธงข้อ 3 & 4: มัดรวมทุกเมนูควบคุมให้อยู่ในกล่อง Sticky เดียวกัน (ติดหนึบด้านบนตลอดเวลา!) */}
-    <div className="sticky top-0 z-40 bg-slate-900/95 backdrop-blur-xl pt-2 pb-4 space-y-3 -mx-4 px-4 sm:mx-0 sm:px-0 border-b border-slate-700/50 shadow-[0_10px_30px_rgba(0,0,0,0.5)]">
+    {/* 🌟 ฟันธงข้อ 3 & 4: มัดรวมทุกเมนูควบคุมให้อยู่ในกล่อง Sticky เดียวกัน (อัปเกรด รีดไขมัน ลดความอ้วน!) */}
+    <div className="sticky top-0 z-40 bg-slate-900/95 backdrop-blur-xl pt-3 pb-2 space-y-2 -mx-4 px-4 sm:mx-0 sm:px-0 border-b-2 border-slate-700/80 shadow-[0_10px_20px_rgba(0,0,0,0.6)]">
       
-      {/* 1. สวิตช์กรองสถานะงาน (อัปเกรด: แสงเฟลอร์สีส้มอวกาศ ล้างสีเขียวทิ้ง) */}
-      <div className="bg-slate-800/80 rounded-2xl border-[2px] border-solid border-slate-700 shadow-inner">
-        <div className="flex gap-2.5 overflow-x-auto pt-3 pb-3 px-3 snap-x scrollbar-hide">
+      {/* 1. ช่องค้นหา (ย้ายมาบนสุด เล็กลง กระชับขึ้น) */}
+      <div className="relative">
+        <Search size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" />
+        <input
+          value={searchTerm}
+          onChange={(e) => setSearchTerm(e.target.value)}
+          className="w-full bg-slate-800 border-[2px] border-slate-600 focus:border-orange-500 focus:ring-1 focus:ring-orange-500/30 shadow-inner transition-all font-bold text-slate-100 text-[13px] pl-9 pr-4 py-2 rounded-xl outline-none placeholder:text-slate-400"
+          placeholder="ค้นหา รหัส หรือ อุปกรณ์..."
+        />
+      </div>
+
+      {/* 2. สวิตช์กรองสถานะงาน (ปรับปุ่มให้เตี้ยลง และใช้ flex-none ให้กระชับพอดีตัวอักษร) */}
+      <div className="bg-slate-800/80 rounded-xl border-[2px] border-solid border-slate-700 shadow-inner">
+        <div className="flex gap-1.5 overflow-x-auto py-1.5 px-1.5 snap-x scrollbar-hide">
         {[
             { id: 'all', label: 'ทั้งหมด' },
             { id: 'pending', label: 'รอดำเนินการ' },
@@ -2060,10 +2082,10 @@ const renderTracking = () => (
                 setFilterStatus(f.id);
                 setSearchTerm('');
               }}
-              className={`flex-1 min-w-[95px] shrink-0 text-[13px] font-black py-2.5 rounded-xl transition-all duration-300 snap-center ${
+              className={`flex-none px-3.5 py-1.5 text-[12px] font-black rounded-lg transition-all duration-300 snap-center ${
                 filterStatus === f.id
-                  ? 'bg-gradient-to-r from-orange-500 to-amber-500 text-white border-[2px] border-solid border-orange-300 shadow-[0_0_20px_rgba(249,115,22,0.8)] scale-105 z-10' 
-                  : 'bg-slate-800 text-slate-300 border-[2px] border-solid border-slate-600 hover:border-orange-500 hover:text-orange-400 hover:bg-orange-500/10 hover:shadow-[0_0_15px_rgba(249,115,22,0.5)] hover:-translate-y-1' 
+                  ? 'bg-gradient-to-r from-orange-500 to-amber-500 text-white border-[2px] border-solid border-orange-300 shadow-[0_0_15px_rgba(249,115,22,0.8)] scale-[1.02] z-10' 
+                  : 'bg-slate-700 text-slate-300 border-[2px] border-solid border-slate-600 hover:border-orange-500 hover:text-orange-400' 
               }`}
             >
               {f.label}
@@ -2072,27 +2094,15 @@ const renderTracking = () => (
         </div>
       </div>
 
-      {/* 2. ช่องค้นหา */}
-      <div className="relative">
-        <Search size={18} className="absolute left-6 top-1/2 -translate-y-1/2 text-slate-400" />
-        <input
-          value={searchTerm}
-          onChange={(e) => setSearchTerm(e.target.value)}
-          className="w-full bg-slate-50 border-2 border-orange-500 focus:border-orange-600 focus:ring-2 focus:ring-orange-800/30 shadow-inner transition-all font-bold text-slate-800 pl-14 pr-5 py-3 rounded-2xl outline-none"
-          placeholder="ค้นหา รหัส หรือ อุปกรณ์..."
-        />
-      </div>
+      {/* 3. ปุ่มกรองเวลา (ปรับให้บางลง รีด Padding ออก) */}
+      <div className="flex gap-1.5">
+          <button onClick={() => setTrackTimeframe('all')} className={`flex-[0.8] py-1.5 rounded-lg font-black text-[12px] transition-all duration-300 ${trackTimeframe === 'all' ? 'bg-gradient-to-r from-cyan-600 to-blue-600 text-white shadow-[0_0_15px_rgba(6,182,212,0.8)] border-[2px] border-solid border-cyan-300' : 'bg-slate-700 text-slate-300 border-[2px] border-solid border-slate-600 hover:border-cyan-400'}`}>ดูทุกวัน</button>
 
-      {/* 3. ปุ่มกรองเวลา (อัปเกรด: ธีมแสงสีฟ้าคราม แยกหมวดหมู่ชัดเจน + แอนิเมชันปฏิทิน) */}
-      <div className="flex gap-2">
-          <button onClick={() => setTrackTimeframe('all')} className={`flex-[0.8] py-2.5 rounded-xl font-black text-[13px] transition-all duration-300 ${trackTimeframe === 'all' ? 'bg-gradient-to-r from-cyan-600 to-blue-600 text-white shadow-[0_0_20px_rgba(6,182,212,0.8)] border-[2px] border-solid border-cyan-300' : 'bg-slate-800 text-slate-300 border-[2px] border-solid border-slate-600 hover:border-cyan-400 hover:text-cyan-400 hover:bg-cyan-500/10 hover:shadow-[0_0_15px_rgba(6,182,212,0.5)]'}`}>ดูทุกวัน</button>
-
-          {/* ระบุวัน (Centered + Glow) */}
+          {/* ระบุวัน */}
           <div className="relative flex-1">
-            <button onClick={() => setShowTrackDatePicker(true)} className={`w-full h-full py-2.5 rounded-xl font-black text-[13px] flex items-center justify-center gap-1.5 transition-all duration-300 group ${trackTimeframe === 'custom_date' ? 'bg-gradient-to-r from-cyan-600 to-blue-600 text-white shadow-[0_0_20px_rgba(6,182,212,0.8)] border-[2px] border-solid border-cyan-300' : 'bg-slate-800 text-slate-300 border-[2px] border-solid border-slate-600 hover:border-cyan-400 hover:text-cyan-400 hover:bg-cyan-500/10 hover:shadow-[0_0_15px_rgba(6,182,212,0.5)]'}`}>
-              <Calendar size={14} className={`transition-all ${trackTimeframe === 'custom_date' ? 'text-white animate-pulse' : 'text-cyan-500 group-hover:animate-bounce'}`}/> ระบุวัน
+            <button onClick={() => setShowTrackDatePicker(true)} className={`w-full h-full py-1.5 rounded-lg font-black text-[12px] flex items-center justify-center gap-1.5 transition-all duration-300 ${trackTimeframe === 'custom_date' ? 'bg-gradient-to-r from-cyan-600 to-blue-600 text-white shadow-[0_0_15px_rgba(6,182,212,0.8)] border-[2px] border-solid border-cyan-300' : 'bg-slate-700 text-slate-300 border-[2px] border-solid border-slate-600 hover:border-cyan-400'}`}>
+              <Calendar size={14} className={trackTimeframe === 'custom_date' ? 'text-white animate-pulse' : 'text-cyan-500'}/> ระบุวัน
             </button>
-
             {showTrackDatePicker && (
               <div className="fixed inset-0 z-[300] bg-slate-900/80 backdrop-blur-md flex items-center justify-center p-4 animate-in fade-in" onClick={() => setShowTrackDatePicker(false)}>
                 <div className="relative bg-slate-900 border-[2px] border-solid border-white rounded-[2rem] shadow-[0_0_60px_rgba(6,182,212,0.8)] w-full max-w-[340px] p-7 text-center animate-in zoom-in-95 overflow-hidden flex flex-col my-auto" onClick={(e) => e.stopPropagation()}>
@@ -2143,10 +2153,10 @@ const renderTracking = () => (
             )}
           </div>
 
-          {/* ระบุเดือน (Centered + Glow) */}
+          {/* ระบุเดือน */}
           <div className="relative flex-1">
-            <button onClick={() => setShowTrackMonthPicker(true)} className={`w-full h-full py-2.5 rounded-xl font-black text-[13px] flex items-center justify-center gap-1.5 transition-all duration-300 group ${trackTimeframe === 'custom_month' ? 'bg-gradient-to-r from-cyan-600 to-blue-600 text-white shadow-[0_0_20px_rgba(6,182,212,0.8)] border-[2px] border-solid border-cyan-300' : 'bg-slate-800 text-slate-300 border-[2px] border-solid border-slate-600 hover:border-cyan-400 hover:text-cyan-400 hover:bg-cyan-500/10 hover:shadow-[0_0_15px_rgba(6,182,212,0.5)]'}`}>
-              <Calendar size={14} className={`transition-all ${trackTimeframe === 'custom_month' ? 'text-white animate-pulse' : 'text-cyan-500 group-hover:animate-bounce'}`}/> ระบุเดือน
+            <button onClick={() => setShowTrackMonthPicker(true)} className={`w-full h-full py-1.5 rounded-lg font-black text-[12px] flex items-center justify-center gap-1.5 transition-all duration-300 ${trackTimeframe === 'custom_month' ? 'bg-gradient-to-r from-cyan-600 to-blue-600 text-white shadow-[0_0_15px_rgba(6,182,212,0.8)] border-[2px] border-solid border-cyan-300' : 'bg-slate-700 text-slate-300 border-[2px] border-solid border-slate-600 hover:border-cyan-400'}`}>
+              <Calendar size={14} className={trackTimeframe === 'custom_month' ? 'text-white animate-pulse' : 'text-cyan-500'}/> ระบุเดือน
             </button>
             
             {showTrackMonthPicker && (
@@ -2194,10 +2204,10 @@ const renderTracking = () => (
           </div>
       </div>
 
-      {/* 4. ป้ายบอกวันที่ (แทรกเข้ามาอยู่ใน Sticky Header ด้วย!) พร้อมอัปเกรดโชว์ "สัปดาห์นี้" */}
-      <div className="flex items-center gap-2 px-1 pt-2 animate-in fade-in">
-        <Clock size={16} className="text-orange-500" />
-        <span className="text-[13px] font-black text-emerald-400 tracking-widest drop-shadow-sm">
+      {/* 4. ป้ายบอกวันที่ (ย่อขนาดลง ไม่กินที่) */}
+      <div className="flex items-center gap-1.5 px-1 pt-0.5 animate-in fade-in">
+        <Clock size={12} className="text-orange-500" />
+        <span className="text-[11px] font-bold text-emerald-400 tracking-widest drop-shadow-sm">
           {trackTimeframe === 'custom_date' && trackDate 
             ? `แสดงข้อมูลวันที่: ${parseInt(trackDate.split('-')[2])} ${['ม.ค.','ก.พ.','มี.ค.','เม.ย.','พ.ค.','มิ.ย.','ก.ค.','ส.ค.','ก.ย.','ต.ค.','พ.ย.','ธ.ค.'][parseInt(trackDate.split('-')[1])-1]} ${parseInt(trackDate.split('-')[0]) + 543}` 
           : trackTimeframe === 'custom_month' && trackMonth 
