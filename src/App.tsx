@@ -3191,24 +3191,28 @@ const renderTracking = () => (
       </div> 
       {/* 🌟 ปิดกรอบเนื้อหาหลักของแอป */}
 
-{/* 🌟 หน้าต่าง Popup ประเมินความพึงพอใจ (CSAT) - ฟันธง: อัปเกรดสี Dynamic & Holographic 🌟 */}
-{ratingModal.isOpen && (
+{/* 🌟 หน้าต่าง Popup ประเมินความพึงพอใจ (CSAT) - ฟันธง: อัปเกรด UI V.Max กรอบขาว+เด้งดึ๋ง+แสงสว่าง 80% 🌟 */}
+{ratingModal.isOpen && (() => {
+        // สมองกลเปลี่ยนสีตามจำนวนดาว 1-5 แบบ Full Dynamic (อัปเกรดแสง Flare 80-90%)
+        const rating = ratingModal.rating;
+        const rColor = rating === 5 ? { text: 'text-emerald-400', fill: '#34d399', drop: 'drop-shadow-[0_0_15px_rgba(52,211,153,1)]', border: 'border-emerald-500', shadow: 'shadow-[0_0_60px_rgba(52,211,153,0.4)]', flare: 'bg-emerald-500/80', btnFrom: 'from-emerald-500', btnTo: 'to-emerald-600', btnGlow: 'shadow-[0_0_20px_rgba(16,185,129,0.8)]', btnHover: 'hover:shadow-[0_0_30px_rgba(16,185,129,1)]', ring: 'focus:border-emerald-500 focus:ring-emerald-500/50', iconGlow: 'shadow-[0_0_25px_rgba(52,211,153,0.9)]' } :
+                       rating === 4 ? { text: 'text-cyan-400', fill: '#22d3ee', drop: 'drop-shadow-[0_0_15px_rgba(34,211,238,1)]', border: 'border-cyan-500', shadow: 'shadow-[0_0_60px_rgba(34,211,238,0.4)]', flare: 'bg-cyan-500/80', btnFrom: 'from-cyan-500', btnTo: 'to-cyan-600', btnGlow: 'shadow-[0_0_20px_rgba(6,182,212,0.8)]', btnHover: 'hover:shadow-[0_0_30px_rgba(6,182,212,1)]', ring: 'focus:border-cyan-500 focus:ring-cyan-500/50', iconGlow: 'shadow-[0_0_25px_rgba(34,211,238,0.9)]' } :
+                       rating === 3 ? { text: 'text-yellow-400', fill: '#facc15', drop: 'drop-shadow-[0_0_15px_rgba(250,204,21,1)]', border: 'border-yellow-500', shadow: 'shadow-[0_0_60px_rgba(250,204,21,0.4)]', flare: 'bg-yellow-500/90', btnFrom: 'from-yellow-500', btnTo: 'to-yellow-600', btnGlow: 'shadow-[0_0_20px_rgba(234,179,8,0.8)]', btnHover: 'hover:shadow-[0_0_30px_rgba(234,179,8,1)]', ring: 'focus:border-yellow-500 focus:ring-yellow-500/50', iconGlow: 'shadow-[0_0_25px_rgba(250,204,21,0.9)]' } :
+                       rating === 2 ? { text: 'text-orange-400', fill: '#fb923c', drop: 'drop-shadow-[0_0_15px_rgba(251,146,60,1)]', border: 'border-orange-500', shadow: 'shadow-[0_0_60px_rgba(251,146,60,0.4)]', flare: 'bg-orange-500/90', btnFrom: 'from-orange-500', btnTo: 'to-orange-600', btnGlow: 'shadow-[0_0_20px_rgba(249,115,22,0.8)]', btnHover: 'hover:shadow-[0_0_30px_rgba(249,115,22,1)]', ring: 'focus:border-orange-500 focus:ring-orange-500/50', iconGlow: 'shadow-[0_0_25px_rgba(251,146,60,0.9)]' } :
+                       rating === 1 ? { text: 'text-rose-400', fill: '#fb7185', drop: 'drop-shadow-[0_0_15px_rgba(244,63,94,1)]', border: 'border-rose-500', shadow: 'shadow-[0_0_60px_rgba(244,63,94,0.4)]', flare: 'bg-rose-500/80', btnFrom: 'from-rose-500', btnTo: 'to-rose-600', btnGlow: 'shadow-[0_0_20px_rgba(225,29,72,0.8)]', btnHover: 'hover:shadow-[0_0_30px_rgba(225,29,72,1)]', ring: 'focus:border-rose-500 focus:ring-rose-500/50', iconGlow: 'shadow-[0_0_25px_rgba(244,63,94,0.9)]' } :
+                                      { text: 'text-slate-500', fill: 'none', drop: '', border: 'border-slate-700', shadow: 'shadow-[0_0_40px_rgba(0,0,0,0.5)]', flare: 'bg-blue-500/10', btnFrom: 'from-slate-700', btnTo: 'to-slate-800', btnGlow: '', btnHover: '', ring: 'focus:border-slate-400 focus:ring-slate-400/50', iconGlow: 'shadow-[0_0_15px_rgba(255,255,255,0.1)]' };
+
+        return (
         <div className="fixed inset-0 z-[160] flex items-center justify-center bg-slate-950/90 backdrop-blur-md p-6 animate-in fade-in" onClick={() => setRatingModal({ ...ratingModal, isOpen: false })}>
           
-          {/* 💥 แสงเฟลอร์หลังกล่อง เปลี่ยนสีตามดาว (ฟันธง: อัปเกรดแสงสีเขียวให้สว่างจ้าขึ้น 80%) */}
-          <div className={`absolute w-[400px] h-[400px] rounded-full blur-[90px] animate-pulse pointer-events-none z-0 transition-colors duration-500 ${
-            ratingModal.rating >= 4 ? 'bg-emerald-400/80 shadow-[0_0_100px_rgba(52,211,153,0.8)]' : ratingModal.rating === 3 ? 'bg-amber-400/60' : ratingModal.rating > 0 ? 'bg-rose-500/60' : 'bg-blue-500/30'
-          }`}></div>
+          {/* 💥 แสงเฟลอร์หลังกล่อง สว่างขั้นสุด 80-90% ตามดาว */}
+          <div className={`absolute w-[450px] h-[450px] rounded-full blur-[100px] animate-pulse pointer-events-none z-0 transition-colors duration-500 ${rColor.flare}`}></div>
 
-          <div className={`relative z-10 bg-slate-900 border-[3px] border-solid rounded-[2.5rem] w-full max-w-sm overflow-hidden p-8 text-center space-y-6 shadow-2xl transition-all duration-500 ${
-            ratingModal.rating >= 4 ? 'border-emerald-500 shadow-emerald-500/50' : ratingModal.rating === 3 ? 'border-amber-500 shadow-amber-500/50' : ratingModal.rating > 0 ? 'border-rose-500 shadow-rose-500/50' : 'border-slate-700 shadow-blue-500/20'
-          }`} onClick={(e) => e.stopPropagation()}>
+          <div className={`relative z-10 bg-slate-900 border-[3px] border-solid rounded-[2.5rem] w-full max-w-sm overflow-hidden p-8 text-center space-y-6 transition-all duration-500 ${rColor.border} ${rColor.shadow}`} onClick={(e) => e.stopPropagation()}>
             
-            {/* ไอคอนด้านบนเปลี่ยนตามคะแนน */}
-            <div className={`w-20 h-20 rounded-full flex items-center justify-center mx-auto border-[3px] shadow-lg transition-all duration-500 ${
-              ratingModal.rating >= 4 ? 'bg-emerald-950 text-emerald-400 border-emerald-500' : ratingModal.rating === 3 ? 'bg-amber-950 text-amber-400 border-amber-500' : ratingModal.rating > 0 ? 'bg-rose-950 text-rose-400 border-rose-500' : 'bg-slate-800 text-slate-500 border-slate-600'
-            }`}>
-              <Star size={40} className={ratingModal.rating > 0 ? "animate-bounce" : ""} fill={ratingModal.rating > 0 ? "currentColor" : "none"} />
+            {/* 🌟 ไอคอนด้านบน ขอบสีขาวสว่าง พร้อมแสงเฟลอร์รอบวงกลมและดาวเด้งดึ๋ง */}
+            <div className={`w-20 h-20 rounded-full flex items-center justify-center mx-auto border-[3px] border-white bg-slate-950 transition-all duration-500 ${rColor.iconGlow}`}>
+              <Star size={40} className={`${rating > 0 ? "animate-bounce" : ""} ${rColor.text}`} fill={rating > 0 ? rColor.fill : "none"} />
             </div>
 
             <div>
@@ -3220,7 +3224,7 @@ const renderTracking = () => (
               </p>
             </div>
 
-            {/* โซนให้ดาวขนาดใหญ่เรืองแสง */}
+            {/* โซนให้ดาว สีเปลี่ยนเป๊ะตามเฉด 1-5 */}
             <div className="flex justify-center gap-1.5 py-2">
               {[1, 2, 3, 4, 5].map((star) => (
                 <button
@@ -3228,58 +3232,57 @@ const renderTracking = () => (
                   type="button"
                   onClick={() => setRatingModal({ ...ratingModal, rating: star })}
                   className={`transition-all duration-300 transform hover:scale-125 active:scale-90 ${
-                    ratingModal.rating >= star 
-                      ? 'text-yellow-400 drop-shadow-[0_0_15px_rgba(250,204,21,0.8)]' 
-                      : 'text-slate-700 hover:text-slate-500'
+                    rating >= star 
+                      ? `${rColor.text} ${rColor.drop}` 
+                      : 'text-slate-600 hover:text-slate-400'
                   }`}
                 >
-                  <Star size={44} fill={ratingModal.rating >= star ? 'currentColor' : 'none'} strokeWidth={ratingModal.rating >= star ? 0 : 1.5} />
+                  <Star size={44} fill={rating >= star ? rColor.fill : 'none'} strokeWidth={rating >= star ? 0 : 1.5} />
                 </button>
               ))}
             </div>
             
             {/* คำอธิบายระดับดาว สี Dynamic */}
             <div className="h-7 -mt-4 mb-2">
-              <span className={`text-[15px] font-black tracking-widest animate-in fade-in zoom-in duration-300 ${
-                ratingModal.rating >= 4 ? 'text-emerald-400' : ratingModal.rating === 3 ? 'text-amber-400' : 'text-rose-400'
-              }`}>
-                {ratingModal.rating === 5 ? 'ยอดเยี่ยมที่สุด 🤩' : 
-                 ratingModal.rating === 4 ? 'ดีมาก / ประทับใจ 🙂' : 
-                 ratingModal.rating === 3 ? 'ดี / ตามมาตรฐาน 😐' : 
-                 ratingModal.rating === 2 ? 'พอใช้ / ปรับปรุงนิดหน่อย 😕' : 
-                 ratingModal.rating === 1 ? 'ไม่ประทับใจ / ล่าช้า 😞' : 'โปรดแตะเลือกจำนวนดาว'}
+              <span className={`text-[15px] font-black tracking-widest animate-in fade-in zoom-in duration-300 ${rColor.text}`}>
+                {rating === 5 ? 'ยอดเยี่ยมที่สุด 🤩' : 
+                 rating === 4 ? 'ดีมาก / ประทับใจ 🙂' : 
+                 rating === 3 ? 'ดี / ตามมาตรฐาน 😐' : 
+                 rating === 2 ? 'พอใช้ / ปรับปรุงนิดหน่อย 😕' : 
+                 rating === 1 ? 'ไม่ประทับใจ / ล่าช้า 😞' : 'โปรดแตะเลือกจำนวนดาว'}
               </span>
             </div>
 
-            {/* กล่องคอมเมนต์ */}
+            {/* 🌟 กล่องคอมเมนต์ Default สีเทา พอกดพิมพ์ (Focus) หรือมีดาว ค่อยเรืองแสงตามดาว */}
             <div className="text-left space-y-1.5">
               <textarea
                 value={ratingModal.comment}
                 onChange={(e) => setRatingModal({ ...ratingModal, comment: e.target.value })}
                 placeholder="พิมพ์คำชื่นชมช่าง หรือข้อเสนอแนะเพิ่มเติม..."
                 rows={3}
-                className="w-full bg-slate-950/50 border-2 border-solid border-slate-800 focus:border-blue-500 rounded-2xl px-4 py-3 text-white font-bold text-sm outline-none transition-all shadow-inner"
+                className={`w-full bg-slate-800 border-[2px] border-solid border-slate-600 rounded-2xl px-4 py-3 text-white font-bold text-sm outline-none transition-all shadow-inner ${rating > 0 ? rColor.ring : 'focus:border-slate-400 focus:ring-slate-400/50'}`}
               />
             </div>
 
             <div className="flex gap-3 pt-2">
-              {/* 🌟 ฟันธง: อัปเกรดปุ่มปิด ขอบขาวสว่าง โฮเวอร์แล้วเป็นสีแดง */}
+              {/* ปุ่มยกเลิก สี Rose วาบๆ */}
               <button
                 type="button"
                 onClick={() => setRatingModal({ ...ratingModal, isOpen: false })}
-                className="flex-1 py-4 rounded-xl font-bold text-slate-200 bg-slate-800 border-[2px] border-solid border-white/60 hover:bg-rose-600 hover:border-rose-400 hover:text-white hover:shadow-[0_0_20px_rgba(225,29,72,0.8)] active:scale-95 transition-all duration-300"
+                className="flex-[0.8] py-4 rounded-xl font-bold text-rose-200 bg-rose-900/40 border-[2px] border-solid border-rose-500/50 hover:bg-rose-600 hover:border-rose-400 hover:text-white hover:shadow-[0_0_20px_rgba(225,29,72,0.8)] hover:-translate-y-1 active:scale-95 transition-all duration-300"
               >
-                ปิดหน้าต่าง
+                ยกเลิก
               </button>
               
+              {/* ปุ่มยืนยัน สีเปลี่ยนตามดาว พร้อมเอฟเฟกต์ลอยเรืองแสง */}
               <button
                 type="button"
                 onClick={executeRatingSubmit}
-                disabled={ratingModal.rating === 0}
-                className={`flex-[2] py-4 rounded-xl font-black text-white border-2 border-solid active:scale-95 transition-all duration-300 ${
-                  ratingModal.rating === 0 
-                    ? 'bg-slate-700 border-slate-600 text-slate-500 opacity-50 cursor-not-allowed' 
-                    : 'bg-gradient-to-r from-blue-600 to-indigo-600 border-blue-400 shadow-[0_0_20px_rgba(37,99,235,0.5)] hover:shadow-[0_0_30px_rgba(37,99,235,0.8)] hover:-translate-y-1'
+                disabled={rating === 0}
+                className={`flex-[1.2] py-4 rounded-xl font-black text-white border-[2px] border-solid active:scale-95 transition-all duration-300 ${
+                  rating === 0 
+                    ? 'bg-slate-800 border-slate-600 text-slate-500 opacity-50 cursor-not-allowed' 
+                    : `bg-gradient-to-r ${rColor.btnFrom} ${rColor.btnTo} ${rColor.border} ${rColor.btnGlow} ${rColor.btnHover} hover:-translate-y-1`
                 }`}
               >
                 ยืนยันการประเมิน
@@ -3287,7 +3290,8 @@ const renderTracking = () => (
             </div>
           </div>
         </div>
-      )}
+        );
+      })()}
 
       {/* 🧭 Navigation Bar (ฟันธง: ย้ายเมนูออกมานอกกรอบหลัก + ใส่ transform-gpu บังคับมือถือวาดกราฟิกแยกชั้น ป้องกันตัวหนังสือหาย 1,000,000%) */}
 
