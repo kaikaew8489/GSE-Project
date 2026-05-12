@@ -3048,24 +3048,15 @@ const renderTracking = () => (
       {/* 🌍 ภาพพื้นหลังลูกโลก */}
       <div className="absolute inset-0 z-0 bg-cover bg-center bg-no-repeat opacity-40 pointer-events-none" style={{ backgroundImage: "url('/bg-earth.webp')" }}></div>
 
-     {/* 🔮 แสงเรืองแสงอวกาศตามโหมด */}
-     <div className={`absolute -top-20 -left-20 w-96 h-96 rounded-full blur-[100px] opacity-40 pointer-events-none z-0 transition-colors duration-1000 ${
-        activeTab === 'dashboard' ? 'bg-orange-500' : 
-        activeTab === 'report' ? 'bg-emerald-500' : 
-        (activeTab === 'tracking' && currentUserRole === 'technician') ? 'bg-cyan-500' : 
-        'bg-rose-500'
-      }`}></div>
-      <div className={`absolute top-1/2 -right-20 w-96 h-96 rounded-full blur-[100px] opacity-30 pointer-events-none z-0 transition-colors duration-1000 ${
-        activeTab === 'dashboard' ? 'bg-amber-500' : 
-        activeTab === 'report' ? 'bg-teal-500' : 
-        (activeTab === 'tracking' && currentUserRole === 'technician') ? 'bg-blue-500' : 
-        'bg-pink-500'
-      }`}></div>
 
-      
-      {/* 📱 2. กรอบเนื้อหาหลักของแอป (ฟันธง: แก้ไข h-screen เป็น h-[100dvh] ป้องกันจอกระชากตอนรีเฟรช) */}
-      <div className="relative z-10 flex flex-col h-[100dvh] w-full max-w-md md:max-w-5xl shadow-[0_0_50px_rgba(0,0,0,0.6)] border-x border-slate-700/50 bg-slate-900/40 backdrop-blur-md overflow-hidden text-slate-100 font-sans select-none">
-      
+     {/* 📱 2. กรอบเนื้อหาหลักของแอป (ฟันธง: อัปเกรดให้มีแสงเฟลอร์เรืองแสงรอบกรอบ เปลี่ยนสีตามหน้า) */}
+     <div className={`relative z-10 flex flex-col h-[100dvh] w-full max-w-md md:max-w-5xl backdrop-blur-md overflow-hidden text-slate-100 font-sans select-none bg-slate-900/40 border-x border-solid transition-all duration-1000 ${
+        activeTab === 'dashboard' ? 'shadow-[0_0_60px_-5px_rgba(249,115,22,1)] border-orange-500/50' :
+        activeTab === 'report' ? 'shadow-[0_0_60px_-5px_rgba(16,185,129,1)] border-emerald-500/50' :
+        (activeTab === 'tracking' && currentUserRole === 'technician') ? 'shadow-[0_0_60px_-5px_rgba(6,182,212,1)] border-cyan-500/50' :
+        'shadow-[0_0_60px_-5px_rgba(244,63,94,1)] border-rose-500/50'
+      }`}>
+
       {lightboxImg && (
         <div className="fixed inset-0 z-[200] bg-slate-900/90 flex items-center justify-center p-4 backdrop-blur-sm animate-in fade-in" onClick={() => setLightboxImg(null)}>
           <button className="absolute top-6 right-6 text-white bg-white/10 p-2 rounded-full active:bg-white/20"><X size={24} /></button>
