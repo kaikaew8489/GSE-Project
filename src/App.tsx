@@ -3240,46 +3240,46 @@ function LandingPage({ onStart }) {
       </div>
 
 
-    {/* 🌟 หน้าต่าง Popup คู่มือ (แก้บั๊กข้อความหาย + อัปเกรดแสงเฟลอร์ส้ม 0.8-1.0) */}
+    {/* 🌟 หน้าต่าง Popup คู่มือ (อัปเกรดจัดสมดุล ซ้าย-กลาง-ขวา เป๊ะ 100%) */}
     {showManual && (
         <div className="fixed inset-0 z-[200] bg-slate-950/90 flex flex-col items-center justify-center p-4 backdrop-blur-md animate-in fade-in" onClick={() => setShowManual(false)}>
           
-          {/* 💥 พลังแสงเฟลอร์ส้มวาบๆ ทะลุอยู่ด้านหลังสุด (ระดับ 0.8 - 1.0) */}
-          <div className="absolute w-[350px] h-[350px] bg-orange-500/80 rounded-full blur-[120px] animate-pulse pointer-events-none z-0"></div>
+          {/* 💥 แสงเฟลอร์ส้มด้านหลัง (ภาพรวม) */}
+          <div className="absolute w-[300px] h-[300px] bg-orange-500/40 rounded-full blur-[100px] animate-pulse pointer-events-none z-0"></div>
 
-          {/* กรอบหน้าต่างหลัก: อัดเงาส้มเข้ม 0.8 พร้อมแก้โครงสร้าง flex ให้สมดุล */}
-          <div className="w-full max-w-lg md:max-w-4xl bg-slate-900 border-[4px] border-solid border-orange-500 rounded-2xl md:rounded-[2rem] overflow-hidden shadow-[0_0_80px_rgba(249,115,22,0.8)] flex flex-col max-h-[85vh] relative z-10 transition-all" onClick={(e) => e.stopPropagation()}>
+          {/* กรอบหน้าต่างหลัก */}
+          <div className="w-full max-w-lg md:max-w-4xl bg-slate-900 border-[3px] md:border-[4px] border-solid border-orange-500 rounded-2xl md:rounded-[2rem] overflow-hidden shadow-[0_0_50px_rgba(249,115,22,0.6)] flex flex-col max-h-[85vh] relative z-10 transition-all" onClick={(e) => e.stopPropagation()}>
             
-            {/* 🌟 1. ส่วนหัว (Header) แก้ไขโครงสร้างไม่ให้โดนบีบ (shrink-0) */}
-            <div className="relative pt-8 pb-6 px-6 bg-slate-950 flex flex-col items-center border-b-4 border-orange-500 shrink-0">
-              {/* แสงแฟลอร์ส้มวาบๆ พื้นหลัง Header */}
-              <div className="absolute inset-0 bg-orange-500/30 blur-[50px] pointer-events-none animate-pulse z-0"></div>
+            {/* 🌟 1. ส่วนหัว (Header) จัดเรียงใหม่ แยก ซ้าย-กลาง-ขวา ชัดเจน */}
+            <div className="relative py-4 px-4 md:px-8 bg-slate-950 flex items-center justify-between border-b-4 border-orange-500 shrink-0 min-h-[70px] md:min-h-[90px]">
+              {/* แสงแฟลอร์ส้มวาบๆ พื้นหลัง Header เบาๆ */}
+              <div className="absolute inset-0 bg-orange-500/20 blur-[40px] pointer-events-none animate-pulse z-0"></div>
 
-             {/* กากบาทปิด (X): อัปเกรด Hover เปลี่ยนสีแดง-ขาว */}
-             <button onClick={() => setShowManual(false)} className="absolute top-4 right-4 md:top-6 md:right-6 z-20 bg-slate-900 border-2 border-solid border-orange-400 p-2 md:p-3 rounded-full transition-all shadow-[0_0_15px_rgba(249,115,22,0.6)] hover:shadow-[0_0_25px_rgba(225,29,72,1)] hover:-translate-y-1 active:scale-95 animate-pulse hover:bg-rose-600 hover:border-rose-400 group">
-                <X size={28} className="text-rose-500 group-hover:text-white drop-shadow-[0_0_8px_rgba(225,29,72,0.8)] stroke-[3px] transition-colors" />
-              </button>
+              {/* 👈 โซนซ้ายสุด: ไอคอนกระดาษ */}
+              <div className="relative z-10 p-2 md:p-3 bg-gradient-to-br from-orange-400 to-orange-600 rounded-xl md:rounded-2xl shadow-[0_0_20px_rgba(249,115,22,0.6)] animate-pulse shrink-0">
+                <FileText size={24} className="md:w-8 md:h-8 text-white drop-shadow-md" />
+              </div>
 
-              <div className="relative z-10 w-full flex flex-col items-center gap-6">
-                {/* ไอคอน FileText สีส้ม */}
-                <div className="p-5 md:p-4 bg-gradient-to-br from-orange-400 to-orange-600 rounded-2xl shadow-[0_0_30px_rgba(249,115,22,0.8)] animate-pulse">
-                  <FileText size={40} className="text-white drop-shadow-md" />
-                </div>
-
-                {/* ข้อความคู่มือในกรอบ (แก้ปัญหาข้อความหาย) */}
-                <div className="relative">
-                  <div className="absolute -inset-2 bg-orange-500/80 blur-[20px] rounded-full animate-pulse z-0"></div>
-                  <div className="relative z-10 bg-slate-800 border-[3px] border-solid border-orange-400 rounded-xl px-6 md:px-10 py-3 shadow-[0_0_30px_rgba(249,115,22,0.9)]">
-                    <h3 className="text-white font-black tracking-widest text-lg md:text-2xl text-center drop-shadow-[0_0_10px_rgba(255,255,255,0.9)]">
+              {/* 🎯 โซนกลางเป๊ะๆ: กล่องข้อความ (ฟันธง: ใช้ absolute ดึงไว้กึ่งกลางสมบูรณ์แบบ) */}
+              <div className="absolute left-1/2 -translate-x-1/2 z-10 flex justify-center items-center pointer-events-none w-full px-16 md:px-0">
+                <div className="relative pointer-events-auto">
+                  {/* ลดแสงเฟลอร์ด้านหลังกล่องข้อความลง (ความเข้มเหลือ 30% และลดเงาลงให้พอดี) */}
+                  <div className="absolute -inset-1 bg-orange-500/30 blur-[10px] rounded-full animate-pulse z-0"></div>
+                  <div className="relative z-10 bg-slate-800 border-[2px] md:border-[3px] border-solid border-orange-400 rounded-lg md:rounded-xl px-3 md:px-8 py-2 md:py-2.5 shadow-[0_0_10px_rgba(249,115,22,0.5)]">
+                    <h3 className="text-white font-black tracking-widest text-[13px] sm:text-[15px] md:text-2xl drop-shadow-[0_0_5px_rgba(255,255,255,0.8)] whitespace-nowrap">
                       คู่มือการใช้งานเบื้องต้น
                     </h3>
                   </div>
                 </div>
               </div>
+
+              {/* 👉 โซนขวาสุด: กากบาทปิด (X) */}
+              <button onClick={() => setShowManual(false)} className="relative z-20 bg-slate-900 border-2 border-solid border-orange-400 p-2 md:p-3 rounded-full transition-all shadow-[0_0_15px_rgba(249,115,22,0.6)] hover:shadow-[0_0_25px_rgba(225,29,72,1)] hover:-translate-y-1 active:scale-95 animate-pulse hover:bg-rose-600 hover:border-rose-400 group shrink-0">
+                <X size={20} className="md:w-6 md:h-6 text-rose-500 group-hover:text-white drop-shadow-[0_0_8px_rgba(225,29,72,0.8)] stroke-[3px] transition-colors" />
+              </button>
             </div>
 
             {/* 🌟 2. โซนแสดงรูปภาพคู่มือ (5 หน้า) */}
-            {/* อัปเกรดเป็น flex-1 ทำให้รูปโดนดันลงมาอยู่ข้างล่าง Header พอดีเป๊ะ ไม่ทับกัน! */}
             <div className="p-4 md:p-8 overflow-y-auto space-y-6 md:space-y-10 bg-slate-800 flex-1">
               <img src="/manual-1-1.png" alt="คู่มือเข้าโปรแกรมหน้าแรก" className="w-full rounded-xl md:rounded-2xl shadow-[0_10px_30px_rgba(0,0,0,0.6)] border-[2px] border-solid border-slate-600" />
               <img src="/manual-2-1.png" alt="คู่มือผู้แจ้งซ่อม-1" className="w-full rounded-xl md:rounded-2xl shadow-[0_10px_30px_rgba(0,0,0,0.6)] border-[2px] border-solid border-slate-600" />
@@ -3287,8 +3287,8 @@ function LandingPage({ onStart }) {
               <img src="/manual-3-1.png" alt="คู่มือเจ้าหน้าที่ ฝวด.-1" className="w-full rounded-xl md:rounded-2xl shadow-[0_10px_30px_rgba(0,0,0,0.6)] border-[2px] border-solid border-slate-600" />
               <img src="/manual-3-2.png" alt="คู่มือเจ้าหน้าที่ ฝวด.-2" className="w-full rounded-xl md:rounded-2xl shadow-[0_10px_30px_rgba(0,0,0,0.6)] border-[2px] border-solid border-slate-600" />
               
-             {/* ติ่งข้อความปิดท้ายคู่มือ (ตีเส้นประ + ขยายไซส์ PC + เปล่งแสง) */}
-             <div className="text-center pt-6 pb-4 mt-8 border-t-2 border-dashed border-orange-500/30">
+              {/* ติ่งข้อความปิดท้ายคู่มือ */}
+              <div className="text-center pt-6 pb-4 mt-8 border-t-2 border-dashed border-orange-500/30">
                 <p className="text-orange-500 font-black text-[18px] md:text-[24px] tracking-widest flex items-center justify-center gap-2 md:gap-3 drop-shadow-[0_0_10px_rgba(249,115,22,0.6)]">
                   <CheckCircle className="w-5 h-5 md:w-7 md:h-7 text-emerald-400 drop-shadow-[0_0_8px_rgba(16,185,129,0.8)]" /> 
                   สิ้นสุดคู่มือการใช้งาน
