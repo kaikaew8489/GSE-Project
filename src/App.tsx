@@ -3266,7 +3266,7 @@ function LandingPage({ onStart }) {
                   {/* ลดแสงเฟลอร์ด้านหลังกล่องข้อความลง (ความเข้มเหลือ 30% และลดเงาลงให้พอดี) */}
                   <div className="absolute -inset-1 bg-orange-500/30 blur-[10px] rounded-full animate-pulse z-0"></div>
                   <div className="relative z-10 bg-slate-800 border-[2px] md:border-[3px] border-solid border-orange-400 rounded-lg md:rounded-xl px-3 md:px-8 py-2 md:py-2.5 shadow-[0_0_10px_rgba(249,115,22,0.8)]">
-                    <h3 className="text-white font-black tracking-widest text-[18px] sm:text-[15px] md:text-2xl drop-shadow-[0_0_5px_rgba(255,255,255,0.8)] whitespace-nowrap">
+                    <h3 className="text-white font-black tracking-widest text-[14px] sm:text-[15px] md:text-2xl drop-shadow-[0_0_5px_rgba(255,255,255,0.8)] whitespace-nowrap">
                       คู่มือการใช้งานเบื้องต้น
                     </h3>
                   </div>
@@ -3289,7 +3289,7 @@ function LandingPage({ onStart }) {
               
               {/* ติ่งข้อความปิดท้ายคู่มือ */}
               <div className="text-center pt-6 pb-4 mt-8 border-t-2 border-dashed border-orange-500/30">
-                <p className="text-slate-200 font-black text-[15px] md:text-[24px] tracking-widest flex items-center justify-center gap-2 md:gap-3 drop-shadow-[0_0_10px_rgba(249,115,22,1)]">
+                <p className="text-slate-200 font-black text-[12px] md:text-[24px] tracking-widest flex items-center justify-center gap-2 md:gap-3 drop-shadow-[0_0_10px_rgba(249,115,22,1)]">
                   <CheckCircle className="w-6 h-7 md:w-7 md:h-7 text-emerald-600 drop-shadow-[0_0_8px_rgba(16,185,129,1)]" /> 
                   สิ้นสุดคู่มือการใช้งาน
                 </p>
