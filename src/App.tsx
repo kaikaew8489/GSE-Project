@@ -1439,7 +1439,7 @@ useEffect(() => {
                     setActiveTab('tracking');
                     setSearchTerm(longestPendingTicket.id);
                     setFilterStatus('all');
-                    setTrackTimeframe('all'); // 🌟 ฟันธง: ล้างตัวกรองเวลาเป็น 'ดูทุกวัน' เสมอ!
+                    setTrackTimeframe('all'); // 🌟 ฟันธง: ล้างตัวกรองเวลาเป็น 'ทุกวัน' เสมอ!
                   }}
                   className="bg-white p-4 rounded-2xl border-2 border-solid border-orange-800 shadow-[0_4px_10px_rgba(225,29,72,0.1)] cursor-pointer hover:border-rose-500 hover:bg-rose-100 hover:shadow-[0_0_20px_rgba(249,115,22,0.3)] transition-all active:scale-[0.98]"
                 >
@@ -1530,7 +1530,7 @@ useEffect(() => {
                   setActiveTab('tracking');
                   setSearchTerm(t.id);
                   setFilterStatus('all');
-                  setTrackTimeframe('all'); // 🌟 ฟันธง: ล้างตัวกรองเวลาเป็น 'ดูทุกวัน' เสมอ!
+                  setTrackTimeframe('all'); // 🌟 ฟันธง: ล้างตัวกรองเวลาเป็น 'ทุกวัน' เสมอ!
                 }}
                 className={`flex flex-col p-4 bg-slate-50 rounded-2xl border-2 cursor-pointer active:scale-[0.98] transition-all shadow-sm ${
                   t.status === 'pending'
@@ -2108,7 +2108,7 @@ const renderTracking = () => (
              className={`flex-none md:flex-1 px-3.5 py-1.5 text-[12px] font-black rounded-lg transition-all duration-300 snap-center ${
                 filterStatus === f.id
                   ? 'bg-gradient-to-r from-orange-500 to-amber-500 text-white border-[2px] border-solid border-orange-300 shadow-[0_0_15px_rgba(249,115,22,0.8)] scale-[1.02] z-10' 
-                  : 'bg-slate-700 text-slate-300 border-[2px] border-solid border-slate-600 hover:border-orange-500 hover:text-orange-400' 
+                  : 'bg-slate-700 text-slate-300 border-[2px] border-solid border-slate-600 hover:border-orange-500 hover:text-orange-400 hover:bg-orange-500/10 hover:shadow-[0_0_15px_rgba(249,115,22,0.5)]' 
               }`}
             >
               {f.label}
@@ -2119,11 +2119,11 @@ const renderTracking = () => (
 
       {/* 3. ปุ่มกรองเวลา (ปรับให้บางลง รีด Padding ออก) */}
       <div className="flex gap-1.5">
-          <button onClick={() => setTrackTimeframe('all')} className={`flex-[0.8] py-1.5 rounded-lg font-black text-[12px] transition-all duration-300 ${trackTimeframe === 'all' ? 'bg-gradient-to-r from-cyan-600 to-blue-600 text-white shadow-[0_0_15px_rgba(6,182,212,0.8)] border-[2px] border-solid border-cyan-300' : 'bg-slate-700 text-slate-300 border-[2px] border-solid border-slate-600 hover:border-cyan-400'}`}>ดูทุกวัน</button>
+          <button onClick={() => setTrackTimeframe('all')} className={`flex-[0.8] py-1.5 rounded-lg font-black text-[12px] transition-all duration-300 ${trackTimeframe === 'all' ? 'bg-gradient-to-r from-cyan-600 to-blue-600 text-white shadow-[0_0_15px_rgba(6,182,212,0.8)] border-[2px] border-solid border-cyan-300' : 'bg-slate-700 text-slate-300 border-[2px] border-solid border-slate-600 hover:border-cyan-400 hover:bg-cyan-500/10 hover:shadow-[0_0_15px_rgba(6,182,212,0.5)]'}`}>ดูทุกวัน</button>
 
           {/* ระบุวัน */}
           <div className="relative flex-1">
-            <button onClick={() => setShowTrackDatePicker(true)} className={`w-full h-full py-1.5 rounded-lg font-black text-[12px] flex items-center justify-center gap-1.5 transition-all duration-300 ${trackTimeframe === 'custom_date' ? 'bg-gradient-to-r from-cyan-600 to-blue-600 text-white shadow-[0_0_15px_rgba(6,182,212,0.8)] border-[2px] border-solid border-cyan-300' : 'bg-slate-700 text-slate-300 border-[2px] border-solid border-slate-600 hover:border-cyan-400'}`}>
+            <button onClick={() => setShowTrackDatePicker(true)} className={`w-full h-full py-1.5 rounded-lg font-black text-[12px] flex items-center justify-center gap-1.5 transition-all duration-300 ${trackTimeframe === 'custom_date' ? 'bg-gradient-to-r from-cyan-600 to-blue-600 text-white shadow-[0_0_15px_rgba(6,182,212,0.8)] border-[2px] border-solid border-cyan-300' : 'bg-slate-700 text-slate-300 border-[2px] border-solid border-slate-600 hover:border-cyan-400 hover:bg-cyan-500/10 hover:shadow-[0_0_15px_rgba(6,182,212,0.5)]'}`}>
               <Calendar size={14} className={trackTimeframe === 'custom_date' ? 'text-white animate-pulse' : 'text-cyan-500'}/> ระบุวัน
             </button>
             {showTrackDatePicker && (
@@ -2150,7 +2150,7 @@ const renderTracking = () => (
                         const day = i + 1;
                         const dateString = `${trackCalYear}-${String(trackCalMonth + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
                         const isSelected = trackDate === dateString;
-                        const todayLocal = new Date(sysTime);
+                        const todayLocal = new Date(); // ใช้ sysTime ไม่ได้เพราะไม่ได้ดึงมาจาก props ในท่อนนี้ เลยใช้ new Date() แทนเพื่อให้ทำงานได้
                         const isToday = todayLocal.getFullYear() === trackCalYear && todayLocal.getMonth() === trackCalMonth && todayLocal.getDate() === day;
                         return (
                           <button 
@@ -2178,7 +2178,7 @@ const renderTracking = () => (
 
           {/* ระบุเดือน */}
           <div className="relative flex-1">
-            <button onClick={() => setShowTrackMonthPicker(true)} className={`w-full h-full py-1.5 rounded-lg font-black text-[12px] flex items-center justify-center gap-1.5 transition-all duration-300 ${trackTimeframe === 'custom_month' ? 'bg-gradient-to-r from-cyan-600 to-blue-600 text-white shadow-[0_0_15px_rgba(6,182,212,0.8)] border-[2px] border-solid border-cyan-300' : 'bg-slate-700 text-slate-300 border-[2px] border-solid border-slate-600 hover:border-cyan-400'}`}>
+            <button onClick={() => setShowTrackMonthPicker(true)} className={`w-full h-full py-1.5 rounded-lg font-black text-[12px] flex items-center justify-center gap-1.5 transition-all duration-300 ${trackTimeframe === 'custom_month' ? 'bg-gradient-to-r from-cyan-600 to-blue-600 text-white shadow-[0_0_15px_rgba(6,182,212,0.8)] border-[2px] border-solid border-cyan-300' : 'bg-slate-700 text-slate-300 border-[2px] border-solid border-slate-600 hover:border-cyan-400 hover:bg-cyan-500/10 hover:shadow-[0_0_15px_rgba(6,182,212,0.5)]'}`}>
               <Calendar size={14} className={trackTimeframe === 'custom_month' ? 'text-white animate-pulse' : 'text-cyan-500'}/> ระบุเดือน
             </button>
             
@@ -2201,7 +2201,7 @@ const renderTracking = () => (
                     {['ม.ค.', 'ก.พ.', 'มี.ค.', 'เม.ย.', 'พ.ค.', 'มิ.ย.', 'ก.ค.', 'ส.ค.', 'ก.ย.', 'ต.ค.', 'พ.ย.', 'ธ.ค.'].map((m, i) => {
                       const monthValue = `${trackCalYear}-${String(i + 1).padStart(2, '0')}`;
                       const isSelected = trackMonth === monthValue;
-                      const todayLocal = new Date(sysTime);
+                      const todayLocal = new Date();
                       const isCurrentMonth = todayLocal.getFullYear() === trackCalYear && todayLocal.getMonth() === i;
                       return (
                         <button 
@@ -2226,11 +2226,10 @@ const renderTracking = () => (
             )}
           </div>
       </div>
-
       {/* 4. ป้ายบอกวันที่ (ย่อขนาดลง ไม่กินที่) */}
       <div className="flex items-center gap-1.5 px-1 pt-0.5 animate-in fade-in">
-        <Clock size={12} className="text-orange-500" />
-        <span className="text-[11px] font-bold text-emerald-400 tracking-widest drop-shadow-sm">
+        <Clock size={14} className="text-orange-500" />
+        <span className="text-[12px] font-bold text-emerald-400 tracking-widest drop-shadow-sm">
           {trackTimeframe === 'custom_date' && trackDate 
             ? `แสดงข้อมูลวันที่: ${parseInt(trackDate.split('-')[2])} ${['ม.ค.','ก.พ.','มี.ค.','เม.ย.','พ.ค.','มิ.ย.','ก.ค.','ส.ค.','ก.ย.','ต.ค.','พ.ย.','ธ.ค.'][parseInt(trackDate.split('-')[1])-1]} ${parseInt(trackDate.split('-')[0]) + 543}` 
           : trackTimeframe === 'custom_month' && trackMonth 
@@ -3049,10 +3048,21 @@ const renderTracking = () => (
       {/* 🌍 ภาพพื้นหลังลูกโลก */}
       <div className="absolute inset-0 z-0 bg-cover bg-center bg-no-repeat opacity-40 pointer-events-none" style={{ backgroundImage: "url('/bg-earth.webp')" }}></div>
 
-      {/* 🔮 แสงเรืองแสงอวกาศตามโหมด */}
-      <div className={`absolute -top-20 -left-20 w-96 h-96 rounded-full blur-[100px] opacity-40 pointer-events-none z-0 transition-colors duration-1000 ${currentUserRole === 'technician' ? 'bg-emerald-500' : 'bg-orange-500'}`}></div>
-      <div className={`absolute top-1/2 -right-20 w-96 h-96 rounded-full blur-[100px] opacity-30 pointer-events-none z-0 transition-colors duration-1000 ${currentUserRole === 'technician' ? 'bg-teal-500' : 'bg-amber-500'}`}></div>
+     {/* 🔮 แสงเรืองแสงอวกาศตามโหมด */}
+     <div className={`absolute -top-20 -left-20 w-96 h-96 rounded-full blur-[100px] opacity-40 pointer-events-none z-0 transition-colors duration-1000 ${
+        activeTab === 'dashboard' ? 'bg-orange-500' : 
+        activeTab === 'report' ? 'bg-emerald-500' : 
+        (activeTab === 'tracking' && currentUserRole === 'technician') ? 'bg-cyan-500' : 
+        'bg-rose-500'
+      }`}></div>
+      <div className={`absolute top-1/2 -right-20 w-96 h-96 rounded-full blur-[100px] opacity-30 pointer-events-none z-0 transition-colors duration-1000 ${
+        activeTab === 'dashboard' ? 'bg-amber-500' : 
+        activeTab === 'report' ? 'bg-teal-500' : 
+        (activeTab === 'tracking' && currentUserRole === 'technician') ? 'bg-blue-500' : 
+        'bg-pink-500'
+      }`}></div>
 
+      
       {/* 📱 2. กรอบเนื้อหาหลักของแอป (ฟันธง: แก้ไข h-screen เป็น h-[100dvh] ป้องกันจอกระชากตอนรีเฟรช) */}
       <div className="relative z-10 flex flex-col h-[100dvh] w-full max-w-md md:max-w-5xl shadow-[0_0_50px_rgba(0,0,0,0.6)] border-x border-slate-700/50 bg-slate-900/40 backdrop-blur-md overflow-hidden text-slate-100 font-sans select-none">
       
