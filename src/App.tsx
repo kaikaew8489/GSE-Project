@@ -2104,7 +2104,8 @@ const renderTracking = () => (
                 setFilterStatus(f.id);
                 setSearchTerm('');
               }}
-              className={`flex-none px-3.5 py-1.5 text-[12px] font-black rounded-lg transition-all duration-300 snap-center ${
+             // 👇 แก้ไขบรรทัดนี้ โดยเติม md:flex-1 เข้าไปครับ 👇
+             className={`flex-none md:flex-1 px-3.5 py-1.5 text-[12px] font-black rounded-lg transition-all duration-300 snap-center ${
                 filterStatus === f.id
                   ? 'bg-gradient-to-r from-orange-500 to-amber-500 text-white border-[2px] border-solid border-orange-300 shadow-[0_0_15px_rgba(249,115,22,0.8)] scale-[1.02] z-10' 
                   : 'bg-slate-700 text-slate-300 border-[2px] border-solid border-slate-600 hover:border-orange-500 hover:text-orange-400' 
