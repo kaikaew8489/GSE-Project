@@ -3325,6 +3325,9 @@ function LandingPage({ onStart }) {
               <img src="/manual-2-2.png" alt="คู่มือผู้แจ้งซ่อม-2" className="w-full rounded-xl md:rounded-2xl shadow-[0_10px_30px_rgba(0,0,0,0.6)] border-[2px] border-solid border-slate-600" />
               <img src="/manual-3-1.png" alt="คู่มือเจ้าหน้าที่ ฝวด.-1" className="w-full rounded-xl md:rounded-2xl shadow-[0_10px_30px_rgba(0,0,0,0.6)] border-[2px] border-solid border-slate-600" />
               <img src="/manual-3-2.png" alt="คู่มือเจ้าหน้าที่ ฝวด.-2" className="w-full rounded-xl md:rounded-2xl shadow-[0_10px_30px_rgba(0,0,0,0.6)] border-[2px] border-solid border-slate-600" />
+              <img src="/manual-iPhone.png" alt="คู่มือตั้งค่าโทรศัพท์-iOS" className="w-full rounded-xl md:rounded-2xl shadow-[0_10px_30px_rgba(0,0,0,0.6)] border-[2px] border-solid border-slate-600" />
+              <img src="/manual-Android.png" alt="คู่มือการตั้งค่าโทรศัพท์-Android" className="w-full rounded-xl md:rounded-2xl shadow-[0_10px_30px_rgba(0,0,0,0.6)] border-[2px] border-solid border-slate-600" />
+              <img src="/manual-PC.png" alt="คู่มือตั้งค่าการแสดงผลบน-PC" className="w-full rounded-xl md:rounded-2xl shadow-[0_10px_30px_rgba(0,0,0,0.6)] border-[2px] border-solid border-slate-600" />
               
               {/* ติ่งข้อความปิดท้ายคู่มือ */}
               <div className="text-center pt-6 pb-4 mt-8 border-t-2 border-dashed border-orange-500/30">
