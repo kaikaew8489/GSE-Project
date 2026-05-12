@@ -298,12 +298,33 @@ const formatDateTimeString = (date) => {
 };
 
 const getNextReqId = (tickets) => {
-  if (!tickets || tickets.length === 0) return 'GSE-0001';
-  const maxNum = tickets.reduce((max, t) => {
-    const num = parseInt(String(t.id).replace(/[^0-9]/g, '') || '0');
+  // 1. ดึงปีและเดือนปัจจุบัน
+  const now = new Date();
+  const yy = String(now.getFullYear()).slice(-2); // เอาแค่ 2 หลักท้าย เช่น "26"
+  const mm = String(now.getMonth() + 1).padStart(2, '0'); // เดือน "05"
+  
+  // 2. สร้าง Prefix ของเดือนนี้ เช่น "GSE-2605-"
+  const prefix = `GSE-${yy}${mm}-`; 
+
+  // ถ้ายังไม่มีข้อมูลในระบบเลย ให้เริ่ม 0001
+  if (!tickets || tickets.length === 0) return `${prefix}0001`;
+
+  // 3. กรองหาเฉพาะงานของ "เดือนปัจจุบัน" เท่านั้น
+  const currentMonthTickets = tickets.filter(t => String(t.id).startsWith(prefix));
+
+  // ถ้าเดือนนี้ยังไม่มีงานเลย ให้เริ่ม 0001 ใหม่
+  if (currentMonthTickets.length === 0) return `${prefix}0001`;
+
+  // 4. หาเลข Running ล่าสุดของเดือนนี้ แล้วบวก 1
+  const maxNum = currentMonthTickets.reduce((max, t) => {
+    // ตัดเอาเฉพาะตัวเลขด้านหลังมาคำนวณ
+    const numStr = String(t.id).replace(prefix, '');
+    const num = parseInt(numStr, 10);
     return !isNaN(num) && num > max ? num : max;
   }, 0);
-  return `GSE-${String(maxNum + 1).padStart(4, '0')}`;
+
+  // 5. ประกอบร่างและเติม 0 ด้านหน้าให้ครบ 4 หลัก
+  return `${prefix}${String(maxNum + 1).padStart(4, '0')}`;
 };
 
 const formatDisplayPhone = (phone) => {
