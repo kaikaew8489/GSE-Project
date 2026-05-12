@@ -3046,7 +3046,7 @@ const renderTracking = () => (
     <div className="fixed inset-0 w-full h-[100dvh] bg-slate-900 flex justify-center overflow-hidden">
       
       {/* 🌍 ภาพพื้นหลังลูกโลก */}
-      <div className="absolute inset-0 z-0 bg-cover bg-center bg-no-repeat opacity-40 pointer-events-none" style={{ backgroundImage: "url('/bg-earth.webp')" }}></div>
+      <div className="absolute inset-0 z-0 bg-cover bg-center bg-no-repeat opacity-40 pointer-events-none" style={{ backgroundImage: "url('/bg-earth-new.webp')" }}></div>
 
 
      {/* 📱 2. กรอบเนื้อหาหลักของแอป (ฟันธง: อัปเกรดให้มีแสงเฟลอร์เรืองแสงรอบกรอบ เปลี่ยนสีตามหน้า) */}
