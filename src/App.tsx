@@ -3177,7 +3177,7 @@ function LandingPage({ onStart }) {
       {/* 1. ภาพพื้นหลังลูกโลก */}
       <div
         className="absolute inset-0 z-0 bg-cover bg-center bg-no-repeat opacity-45 pointer-events-none"
-        style={{ backgroundImage: "url('/bg-earth.webp')" }}
+        style={{ backgroundImage: "url('/bg-earth-new.webp')" }}
       ></div>
 
       <div className="relative z-10 w-full max-w-md md:max-w-xl lg:max-w-2xl flex flex-col items-center animate-in slide-in-from-bottom-8 fade-in duration-1000">
