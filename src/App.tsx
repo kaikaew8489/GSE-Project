@@ -25,7 +25,6 @@ import {
   Send,
   Loader2,
   ChevronRight,
-  Zap,
   ChevronDown,
   XCircle,
   RotateCcw,
@@ -38,6 +37,7 @@ import {
   PhoneCall,
   Flame,
   Settings,
+  Star, // <--- 🌟 ฟันธง: เติมบรรทัดนี้เข้าไปครับ
 } from 'lucide-react';
 
 // ==========================================
@@ -660,6 +660,16 @@ useEffect(() => {
     ticketId: null,
     type: null,
   });
+
+  // 🌟 ฟันธง: ตัวแปรควบคุม Popup ประเมินความพึงพอใจ
+  const [ratingModal, setRatingModal] = useState({
+    isOpen: false,
+    ticketId: null,
+    rating: 0,
+    comment: '',
+  });
+
+
   const [actionText, setActionText] = useState('');
   const [selectedTech, setSelectedTech] = useState('');
   const [lightboxImg, setLightboxImg] = useState(null);
@@ -954,6 +964,20 @@ useEffect(() => {
     setSelectedTech('');
   };
 
+
+  // 🌟 ฟันธง: ฟังก์ชันส่งผลประเมินและปิดงานสมบูรณ์
+  const executeRatingSubmit = async () => {
+    if (ratingModal.rating === 0) return; // ป้องกันการกดส่งถ้ายังไม่ให้ดาว
+    
+    await updateTicketStatus(ratingModal.ticketId, {
+      status: 'verified',
+      rating: ratingModal.rating,
+      ratingComment: ratingModal.comment,
+      verifiedAt: new Date().toISOString(),
+    });
+    
+    setRatingModal({ isOpen: false, ticketId: null, rating: 0, comment: '' });
+  };
 
   // 🌟 ฟันธง: ตัวคำนวณสถิติที่รองรับปฏิทินย้อนหลังแบบ 100%
   const stats = useMemo(() => {
@@ -2325,6 +2349,56 @@ const renderTracking = () => (
                       {statusLabel}
                     </div>
                   </div>
+
+                {/* 🌟 ฟันธง: โชว์ดาวและผลประเมิน (แยกมุมมองผู้แจ้ง vs ช่าง/หัวหน้า) */}
+  {t.status === 'verified' && t.rating && (
+    <div className="mt-3 animate-in slide-in-from-top-2 duration-500">
+      {currentUserRole === 'technician' ? (
+        // 👨‍🔧 มุมมองช่าง/หัวหน้า: กล่องไฮไลท์จัดเต็ม โชว์ทั้งดาวและคอมเมนต์ (Wow Effect)
+        <div className="bg-slate-900 border-[2px] border-solid border-yellow-400/80 rounded-xl p-4 shadow-[0_0_15px_rgba(250,204,21,0.2)] relative overflow-hidden">
+           {/* แสงวิบวับหลังกล่อง */}
+           <div className="absolute -right-10 -top-10 w-24 h-24 bg-yellow-500/20 blur-[20px] rounded-full pointer-events-none"></div>
+           <div className="relative z-10">
+             <div className="flex justify-between items-center mb-2">
+               <span className="text-[12px] font-black text-yellow-400 uppercase tracking-widest flex items-center gap-1.5 drop-shadow-sm">
+                 <Star size={14} className="text-yellow-400" fill="currentColor"/> ผลการประเมิน:
+               </span>
+               <div className="flex gap-0.5">
+                  {[1, 2, 3, 4, 5].map((s) => (
+                    <Star key={s} size={16} fill={t.rating >= s ? "#facc15" : "none"} stroke={t.rating >= s ? "#facc15" : "#475569"} strokeWidth={2} className={t.rating >= s ? "drop-shadow-[0_0_8px_rgba(250,204,21,0.8)]" : ""} />
+                  ))}
+               </div>
+             </div>
+             
+             {/* กล่องโชว์คอมเมนต์ผู้แจ้ง (แสดงเฉพาะหัวหน้า/ช่าง) */}
+             {t.ratingComment ? (
+               <div className="bg-slate-800/80 p-3 rounded-lg border border-slate-700/50 mt-3 shadow-inner">
+                 <p className="text-[13px] font-bold text-emerald-300 leading-relaxed italic flex gap-2">
+                   <span className="text-lg leading-none">"</span>
+                   {t.ratingComment}
+                   <span className="text-lg leading-none self-end">"</span>
+                 </p>
+               </div>
+             ) : (
+               <p className="text-[12px] font-bold text-slate-500 mt-2 italic">- ไม่มีข้อเสนอแนะเพิ่มเติม -</p>
+             )}
+           </div>
+        </div>
+      ) : (
+        // 👤 มุมมองผู้แจ้ง (Reporter): โชว์แค่ดาวเรียบหรู คอนเฟิร์มว่าประเมินแล้ว (ซ่อนคอมเมนต์ไม่ให้รก)
+        <div className="flex items-center justify-between bg-yellow-50/50 p-2.5 rounded-lg border border-yellow-200">
+          <span className="text-[11px] font-black text-yellow-800 uppercase tracking-widest ml-1">คุณได้ประเมินงานนี้แล้ว:</span>
+          <div className="flex gap-0.5">
+            {[1, 2, 3, 4, 5].map((s) => (
+              <Star key={s} size={14} fill={t.rating >= s ? "#facc15" : "none"} stroke={t.rating >= s ? "#facc15" : "#d1d5db"} strokeWidth={2} />
+            ))}
+          </div>
+        </div>
+      )}
+    </div>
+  )}
+                 )}
+
                   <h3
                     className={`text-lg font-black mb-1.5 leading-tight ${
                       isCancelled
@@ -2908,13 +2982,12 @@ const renderTracking = () => (
                             </div>
                           )}
 
-                          {t.status === 'completed' && (
-                            <button
-                              onClick={() => updateTicketStatus(t.id, { status: 'verified' })}
-                              className="w-full bg-gradient-to-r from-emerald-500 to-emerald-600 text-white border border-emerald-400 font-bold py-4 rounded-xl flex justify-center items-center gap-2 shadow-[0_0_15px_rgba(16,185,129,0.4)] hover:shadow-[0_0_25px_rgba(16,185,129,0.6)] active:scale-95 transition-all"
-                            >
-                              <ThumbsUp size={18} /> ยืนยันผลการซ่อมบำรุง
-                            </button>
+                    {t.status === 'completed' && (
+                    <button
+                       onClick={() => setRatingModal({ isOpen: true, ticketId: t.id, rating: 0, comment: '' })} // 🌟 เรียก Popup ประเมิน
+                      className="w-full bg-gradient-to-r from-emerald-500 to-emerald-600 text-white border border-emerald-400 font-bold py-4 rounded-xl flex justify-center items-center gap-2 shadow-[0_0_15px_rgba(16,185,129,0.4)] hover:shadow-[0_0_25px_rgba(16,185,129,0.6)] active:scale-95 transition-all">
+                      <ThumbsUp size={18} /> ยืนยันผลการซ่อมบำรุง
+                      </button>
                           )}
                           
                           {t.status === 'verified' && (
@@ -3103,6 +3176,104 @@ const renderTracking = () => (
 
       </div> 
       {/* 🌟 ปิดกรอบเนื้อหาหลักของแอป */}
+
+{/* 🌟 หน้าต่าง Popup ประเมินความพึงพอใจ (CSAT) - ฟันธง: อัปเกรดสี Dynamic & Holographic 🌟 */}
+{ratingModal.isOpen && (
+        <div className="fixed inset-0 z-[160] flex items-center justify-center bg-slate-950/90 backdrop-blur-md p-6 animate-in fade-in" onClick={() => setRatingModal({ ...ratingModal, isOpen: false })}>
+          
+          {/* 💥 แสงเฟลอร์หลังกล่อง เปลี่ยนสีตามดาว (ฟันธง: อัปเกรดแสงสีเขียวให้สว่างจ้าขึ้น 80%) */}
+          <div className={`absolute w-[400px] h-[400px] rounded-full blur-[90px] animate-pulse pointer-events-none z-0 transition-colors duration-500 ${
+            ratingModal.rating >= 4 ? 'bg-emerald-400/80 shadow-[0_0_100px_rgba(52,211,153,0.8)]' : ratingModal.rating === 3 ? 'bg-amber-400/60' : ratingModal.rating > 0 ? 'bg-rose-500/60' : 'bg-blue-500/30'
+          }`}></div>
+
+          <div className={`relative z-10 bg-slate-900 border-[3px] border-solid rounded-[2.5rem] w-full max-w-sm overflow-hidden p-8 text-center space-y-6 shadow-2xl transition-all duration-500 ${
+            ratingModal.rating >= 4 ? 'border-emerald-500 shadow-emerald-500/50' : ratingModal.rating === 3 ? 'border-amber-500 shadow-amber-500/50' : ratingModal.rating > 0 ? 'border-rose-500 shadow-rose-500/50' : 'border-slate-700 shadow-blue-500/20'
+          }`} onClick={(e) => e.stopPropagation()}>
+            
+            {/* ไอคอนด้านบนเปลี่ยนตามคะแนน */}
+            <div className={`w-20 h-20 rounded-full flex items-center justify-center mx-auto border-[3px] shadow-lg transition-all duration-500 ${
+              ratingModal.rating >= 4 ? 'bg-emerald-950 text-emerald-400 border-emerald-500' : ratingModal.rating === 3 ? 'bg-amber-950 text-amber-400 border-amber-500' : ratingModal.rating > 0 ? 'bg-rose-950 text-rose-400 border-rose-500' : 'bg-slate-800 text-slate-500 border-slate-600'
+            }`}>
+              <Star size={40} className={ratingModal.rating > 0 ? "animate-bounce" : ""} fill={ratingModal.rating > 0 ? "currentColor" : "none"} />
+            </div>
+
+            <div>
+              <h3 className="text-2xl font-black text-white tracking-tight drop-shadow-md">
+                ความพึงพอใจของผู้แจ้ง
+              </h3>
+              <p className="text-[13px] text-slate-400 font-bold mt-2">
+                รหัสงาน: <span className="text-blue-400">{ratingModal.ticketId}</span>
+              </p>
+            </div>
+
+            {/* โซนให้ดาวขนาดใหญ่เรืองแสง */}
+            <div className="flex justify-center gap-1.5 py-2">
+              {[1, 2, 3, 4, 5].map((star) => (
+                <button
+                  key={star}
+                  type="button"
+                  onClick={() => setRatingModal({ ...ratingModal, rating: star })}
+                  className={`transition-all duration-300 transform hover:scale-125 active:scale-90 ${
+                    ratingModal.rating >= star 
+                      ? 'text-yellow-400 drop-shadow-[0_0_15px_rgba(250,204,21,0.8)]' 
+                      : 'text-slate-700 hover:text-slate-500'
+                  }`}
+                >
+                  <Star size={44} fill={ratingModal.rating >= star ? 'currentColor' : 'none'} strokeWidth={ratingModal.rating >= star ? 0 : 1.5} />
+                </button>
+              ))}
+            </div>
+            
+            {/* คำอธิบายระดับดาว สี Dynamic */}
+            <div className="h-7 -mt-4 mb-2">
+              <span className={`text-[15px] font-black tracking-widest animate-in fade-in zoom-in duration-300 ${
+                ratingModal.rating >= 4 ? 'text-emerald-400' : ratingModal.rating === 3 ? 'text-amber-400' : 'text-rose-400'
+              }`}>
+                {ratingModal.rating === 5 ? 'ยอดเยี่ยมที่สุด 🤩' : 
+                 ratingModal.rating === 4 ? 'ดีมาก / ประทับใจ 🙂' : 
+                 ratingModal.rating === 3 ? 'ดี / ตามมาตรฐาน 😐' : 
+                 ratingModal.rating === 2 ? 'พอใช้ / ปรับปรุงนิดหน่อย 😕' : 
+                 ratingModal.rating === 1 ? 'ไม่ประทับใจ / ล่าช้า 😞' : 'โปรดแตะเลือกจำนวนดาว'}
+              </span>
+            </div>
+
+            {/* กล่องคอมเมนต์ */}
+            <div className="text-left space-y-1.5">
+              <textarea
+                value={ratingModal.comment}
+                onChange={(e) => setRatingModal({ ...ratingModal, comment: e.target.value })}
+                placeholder="พิมพ์คำชื่นชมช่าง หรือข้อเสนอแนะเพิ่มเติม..."
+                rows={3}
+                className="w-full bg-slate-950/50 border-2 border-solid border-slate-800 focus:border-blue-500 rounded-2xl px-4 py-3 text-white font-bold text-sm outline-none transition-all shadow-inner"
+              />
+            </div>
+
+            <div className="flex gap-3 pt-2">
+              {/* 🌟 ฟันธง: อัปเกรดปุ่มปิด ขอบขาวสว่าง โฮเวอร์แล้วเป็นสีแดง */}
+              <button
+                type="button"
+                onClick={() => setRatingModal({ ...ratingModal, isOpen: false })}
+                className="flex-1 py-4 rounded-xl font-bold text-slate-200 bg-slate-800 border-[2px] border-solid border-white/60 hover:bg-rose-600 hover:border-rose-400 hover:text-white hover:shadow-[0_0_20px_rgba(225,29,72,0.8)] active:scale-95 transition-all duration-300"
+              >
+                ปิดหน้าต่าง
+              </button>
+              
+              <button
+                type="button"
+                onClick={executeRatingSubmit}
+                disabled={ratingModal.rating === 0}
+                className={`flex-[2] py-4 rounded-xl font-black text-white border-2 border-solid active:scale-95 transition-all duration-300 ${
+                  ratingModal.rating === 0 
+                    ? 'bg-slate-700 border-slate-600 text-slate-500 opacity-50 cursor-not-allowed' 
+                    : 'bg-gradient-to-r from-blue-600 to-indigo-600 border-blue-400 shadow-[0_0_20px_rgba(37,99,235,0.5)] hover:shadow-[0_0_30px_rgba(37,99,235,0.8)] hover:-translate-y-1'
+                }`}
+              >
+                ยืนยันการประเมิน
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* 🧭 Navigation Bar (ฟันธง: ย้ายเมนูออกมานอกกรอบหลัก + ใส่ transform-gpu บังคับมือถือวาดกราฟิกแยกชั้น ป้องกันตัวหนังสือหาย 1,000,000%) */}
 
