@@ -3080,8 +3080,10 @@ const renderTracking = () => (
       {/* 🌟 ปิดกรอบเนื้อหาหลักของแอป */}
 
       {/* 🧭 Navigation Bar (ฟันธง: ย้ายเมนูออกมานอกกรอบหลัก + ใส่ transform-gpu บังคับมือถือวาดกราฟิกแยกชั้น ป้องกันตัวหนังสือหาย 1,000,000%) */}
+
       <div className={`fixed bottom-4 left-1/2 -translate-x-1/2 w-[calc(100%-2rem)] max-w-[416px] py-2 md:py-3 bg-slate-900/90 backdrop-blur-xl border-2 border-solid border-orange-500 rounded-2xl z-[9999] shadow-[0_10px_30px_rgba(249,115,22,0.4)] transform-gpu ${activeTab === 'report' ? 'md:max-w-2xl' : 'md:max-w-[992px]'}`}>
-        <div className="w-full flex justify-evenly items-center px-1 md:px-8">
+     
+      <div className="w-full flex justify-evenly items-center px-1 md:px-8">
           
           {/* 🏠 ปุ่ม HOME */}
           <button onClick={onGoHome} className="flex flex-col items-center justify-center w-20 md:w-24 gap-1.5 active:scale-95 transition-all shrink-0">
@@ -3095,7 +3097,8 @@ const renderTracking = () => (
           {currentUserRole === 'reporter' && (
             <>
               {/* 🟠 ปุ่มแจ้งซ่อม */}
-              <button onClick={() => setActiveTab('report')} className={`flex flex-col items-center justify-center w-20 md:w-24 gap-1.5 transition-all shrink-0 ${activeTab === 'report' ? '-translate-y-2' : 'active:scale-95'}`}>
+              {/* 🌟 ฟันธงแก้ไข: ลบ -translate-y-2 ออก เพื่อไม่ให้ปุ่มกระโดดชิดขอบบน */}
+              <button onClick={() => setActiveTab('report')} className="flex flex-col items-center justify-center w-20 md:w-24 gap-1.5 transition-all shrink-0 active:scale-95">
                 <div className={`p-2.5 rounded-full transition-all ${activeTab === 'report' ? 'bg-gradient-to-b from-orange-400 to-orange-600 text-white shadow-[0_0_15px_rgba(249,115,22,0.8)] border-[2px] border-white scale-110' : 'bg-transparent text-slate-300'}`}>
                   <PlusCircle size={26} className={activeTab === 'report' ? 'stroke-[2.5px]' : ''} />
                 </div>
@@ -3103,7 +3106,7 @@ const renderTracking = () => (
               </button>
 
               {/* 🟠 ปุ่มติดตามสถานะ */}
-              <button onClick={() => { setActiveTab('tracking'); setSearchTerm(''); }} className={`flex flex-col items-center justify-center w-20 md:w-24 gap-1.5 transition-all shrink-0 ${activeTab === 'tracking' ? '-translate-y-2' : 'active:scale-95'}`}>
+              <button onClick={() => { setActiveTab('tracking'); setSearchTerm(''); }} className="flex flex-col items-center justify-center w-20 md:w-24 gap-1.5 transition-all shrink-0 active:scale-95">
                 <div className={`p-2.5 rounded-full transition-all ${activeTab === 'tracking' ? 'bg-gradient-to-b from-orange-400 to-orange-600 text-white shadow-[0_0_15px_rgba(249,115,22,0.8)] border-[2px] border-white scale-110' : 'bg-transparent text-slate-300'}`}>
                   <ClipboardCheck size={26} className={activeTab === 'tracking' ? 'stroke-[2.5px]' : ''} />
                 </div>
@@ -3116,7 +3119,7 @@ const renderTracking = () => (
           {currentUserRole === 'technician' && (
             <>
               {/* 🟠 ปุ่มแผงควบคุม */}
-              <button onClick={() => setActiveTab('dashboard')} className={`flex flex-col items-center justify-center w-20 md:w-24 gap-1.5 transition-all shrink-0 ${activeTab === 'dashboard' ? '-translate-y-2' : 'active:scale-95'}`}>
+              <button onClick={() => setActiveTab('dashboard')} className="flex flex-col items-center justify-center w-20 md:w-24 gap-1.5 transition-all shrink-0 active:scale-95">
                 <div className={`p-2.5 rounded-full transition-all ${activeTab === 'dashboard' ? 'bg-gradient-to-b from-orange-400 to-orange-600 text-white shadow-[0_0_15px_rgba(249,115,22,0.8)] border-[2px] border-white scale-110' : 'bg-transparent text-slate-300'}`}>
                   <LayoutDashboard size={26} className={activeTab === 'dashboard' ? 'stroke-[2.5px]' : ''} />
                 </div>
@@ -3124,7 +3127,7 @@ const renderTracking = () => (
               </button>
 
               {/* 🟠 ปุ่มจัดการงานซ่อม */}
-              <button onClick={() => setActiveTab('tracking')} className={`flex flex-col items-center justify-center w-20 md:w-24 gap-1.5 transition-all shrink-0 ${activeTab === 'tracking' ? '-translate-y-2' : 'active:scale-95'}`}>
+              <button onClick={() => setActiveTab('tracking')} className="flex flex-col items-center justify-center w-20 md:w-24 gap-1.5 transition-all shrink-0 active:scale-95">
                 <div className={`p-2.5 rounded-full transition-all ${activeTab === 'tracking' ? 'bg-gradient-to-b from-orange-400 to-orange-600 text-white shadow-[0_0_15px_rgba(249,115,22,0.8)] border-[2px] border-white scale-110' : 'bg-transparent text-slate-300'}`}>
                   <Wrench size={26} className={activeTab === 'tracking' ? 'stroke-[2.5px]' : ''} />
                 </div>
@@ -3133,8 +3136,8 @@ const renderTracking = () => (
             </>
           )}
         </div>
-      </div>
 
+      </div>
     </div>
   );
 }
@@ -3250,16 +3253,19 @@ function LandingPage({ onStart }) {
       </div>
 
 
-    {/* 🌟 หน้าต่าง Popup คู่มือ (อัปเกรดจัดสมดุล ซ้าย-กลาง-ขวา เป๊ะ 100%) */}
-    {showManual && (
-        <div className="fixed inset-0 z-[200] bg-slate-950/90 flex flex-col items-center justify-center p-4 backdrop-blur-md animate-in fade-in" onClick={() => setShowManual(false)}>
+    {/* 🌟 หน้าต่าง Popup คู่มือ (อัปเกรดขยายกรอบบน-ล่างให้เต็มจอมือถือ) */}
+      {showManual && (
+        /* 🎯 จุดแก้ที่ 1: เปลี่ยน p-4 เป็น p-2 md:p-4 (เพื่อลดระยะห่างขอบจอมือถือลงครึ่งนึง) */
+        <div className="fixed inset-0 z-[200] bg-slate-950/90 flex flex-col items-center justify-center p-2 md:p-4 backdrop-blur-md animate-in fade-in" onClick={() => setShowManual(false)}>
           
           {/* 💥 แสงเฟลอร์ส้มด้านหลัง (ภาพรวม) */}
           <div className="absolute w-[300px] h-[300px] bg-orange-500/40 rounded-full blur-[100px] animate-pulse pointer-events-none z-0"></div>
 
-          {/* กรอบหน้าต่างหลัก */}
-          <div className="w-full max-w-lg md:max-w-4xl bg-slate-900 border-[3px] md:border-[4px] border-solid border-orange-500 rounded-2xl md:rounded-[2rem] overflow-hidden shadow-[0_0_50px_rgba(249,115,22,0.6)] flex flex-col max-h-[85vh] relative z-10 transition-all" onClick={(e) => e.stopPropagation()}>
+          {/* 🎯 จุดแก้ที่ 2: เปลี่ยน max-h-[85vh] เป็น max-h-[96vh] md:max-h-[90vh] (ปลดล็อกความสูงให้ยืดชิดบนล่าง!) */}
+          <div className="w-full max-w-lg md:max-w-4xl bg-slate-900 border-[3px] md:border-[4px] border-solid border-orange-500 rounded-2xl md:rounded-[2rem] overflow-hidden shadow-[0_0_50px_rgba(249,115,22,0.6)] flex flex-col max-h-[96vh] md:max-h-[90vh] relative z-10 transition-all" onClick={(e) => e.stopPropagation()}>
             
+            {/* 🌟 1. ส่วนหัว (Header) จัดเรียงใหม่ แยก ซ้าย-กลาง-ขวา ชัดเจน */}
+            {/* ... (โค้ดส่วน Header และเนื้อหาคู่มือด้านล่างของท่าน เก็บไว้เหมือนเดิมทุกประการครับ) ... */}            
             {/* 🌟 1. ส่วนหัว (Header) จัดเรียงใหม่ แยก ซ้าย-กลาง-ขวา ชัดเจน */}
             <div className="relative py-4 px-4 md:px-8 bg-slate-950 flex items-center justify-between border-b-4 border-orange-500 shrink-0 min-h-[70px] md:min-h-[90px]">
               {/* แสงแฟลอร์ส้มวาบๆ พื้นหลัง Header เบาๆ */}
