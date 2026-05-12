@@ -866,28 +866,29 @@ useEffect(() => {
    } else if (formData.equipmentCategory === 'ภารกิจด้านคอมพิวเตอร์แม่ข่ายและไอที') {
      primaryTech = "คุณธนกาญจน์/คุณชุติพงษ์"; 
    } else if (formData.equipmentCategory === 'ภารกิจด้านโครงสร้างพื้นฐานไฟฟ้า') {
-     primaryTech = "คุณประมินทร์"; 
+     primaryTech = "คุณประมินทร์/นรัตว์"; 
    }
 
    try {
-     fetch(gasUrl, {
-       method: 'POST',
-       mode: 'no-cors',
-       // 🌟 ฟันธงแก้ไข: เปลี่ยน Header เป็น text/plain เพื่อให้ทะลวงผ่านกฎ CORS ของ Browser ได้ 100%
-       headers: { 'Content-Type': 'text/plain;charset=utf-8' }, 
-       body: JSON.stringify({
-         ticketId: newId,
-         equipment: formData.equipment,
-         description: formData.description,
-         reporter: formData.reporter,
-         phone: formData.reporterContact,
-         primaryTech: primaryTech 
-       })
-     });
-     // ... (โค้ดแจ้งเตือนสำเร็จของท่าน) ...
-   } catch (err) {
-     console.error("Line Notify Error:", err);
-   }
+    fetch(gasUrl, {
+      method: 'POST',
+      mode: 'no-cors',
+      headers: { 'Content-Type': 'text/plain;charset=utf-8' }, 
+      body: JSON.stringify({
+        ticketId: newId,
+        equipment: formData.equipment,
+        description: formData.description,
+        reporter: formData.reporter,
+        phone: formData.reporterContact,
+        primaryTech: primaryTech,
+        building: formData.building, // 🌟 พิกัด: เพิ่มตรงนี้
+        room: formData.room          // 🌟 พิกัด: เพิ่มตรงนี้
+      })
+    });
+    // (โค้ดแจ้งเตือนสำเร็จของท่าน)
+  } catch (err) {
+    console.error("Line Notify Error:", err);
+  }
 
 
     // 🌟 ฟันธง: โค้ดหน่วงเวลา 5 วินาที (5000ms) แล้วเด้งกลับหน้าติดตามงาน
