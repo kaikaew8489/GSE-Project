@@ -1025,6 +1025,11 @@ useEffect(() => {
         fixing: filteredByTime.filter((t) => ['acknowledged', 'in_progress', 'on_hold'].includes(t.status)).length,
         done: filteredByTime.filter((t) => ['completed', 'verified'].includes(t.status)).length,
         cancelled: filteredByTime.filter((t) => t.status === 'cancelled').length,
+        // 🌟 ฟันธง: เพิ่มสมองกลคำนวณคะแนนดาวเฉลี่ย (CSAT)
+        ratedCount: filteredByTime.filter((t) => t.rating > 0).length,
+        avgRating: filteredByTime.filter((t) => t.rating > 0).length > 0 
+          ? (filteredByTime.filter((t) => t.rating > 0).reduce((sum, t) => sum + t.rating, 0) / filteredByTime.filter((t) => t.rating > 0).length).toFixed(1) 
+          : 0,
       };
     } catch (err) {
       console.error("Stats Error:", err);
@@ -1444,9 +1449,42 @@ useEffect(() => {
             </div>
           </div>
         </div>
+        
+{/* 🌟 ฟันธง: กล่องสรุปคะแนนประเมิน SLA (CSAT KPI) จะโชว์ก็ต่อเมื่อมีงานที่ซ่อมเสร็จแล้ว */}
+{stats.done > 0 && (
+          <div className="bg-slate-800/60 backdrop-blur-xl p-5 rounded-[1.5rem] border-[2px] border-solid border-yellow-500/80 shadow-[0_0_20px_rgba(250,204,21,0.2)] mt-4 relative overflow-hidden flex items-center justify-between hover:shadow-[0_0_30px_rgba(250,204,21,0.4)] transition-all">
+            
+            {/* แสงเฟลอร์หลังกล่อง สีทองอร่าม */}
+            <div className="absolute -left-10 -top-10 w-32 h-32 bg-yellow-500/30 blur-[30px] rounded-full pointer-events-none animate-pulse"></div>
+            
+            <div className="relative z-10 flex flex-col">
+              <span className="text-[13px] font-black text-yellow-400 uppercase tracking-widest drop-shadow-sm mb-1">
+                คะแนนความพึงพอใจเฉลี่ย
+              </span>
+              <div className="flex items-center gap-3 mt-1">
+                <span className="text-5xl font-black text-white drop-shadow-[0_0_15px_rgba(255,255,255,0.8)] tracking-tighter">
+                  {stats.avgRating > 0 ? stats.avgRating : '-'}
+                </span>
+                <div className="flex flex-col">
+                  <div className="flex gap-0.5">
+                    {[1, 2, 3, 4, 5].map(s => (
+                      <Star key={s} size={16} fill={Math.round(stats.avgRating) >= s ? "#facc15" : "none"} stroke={Math.round(stats.avgRating) >= s ? "#facc15" : "#475569"} strokeWidth={2} className={Math.round(stats.avgRating) >= s ? "drop-shadow-[0_0_8px_rgba(250,204,21,0.8)]" : ""} />
+                    ))}
+                  </div>
+                  <span className="text-[11px] font-bold text-slate-400 mt-1">
+                    จากผู้แจ้ง <span className="text-yellow-400 font-black">{stats.ratedCount}</span> รายการ
+                  </span>
+                </div>
+              </div>
+            </div>
 
-
-
+            {/* โลโก้ขวา */}
+            <div className="relative z-10 bg-slate-900 border-[2px] border-solid border-yellow-500/50 p-3.5 rounded-2xl shadow-[0_0_15px_rgba(250,204,21,0.3)] flex flex-col items-center justify-center shrink-0">
+               <Star size={32} className="text-yellow-400 mb-1 animate-bounce" fill="currentColor" />
+               <span className="text-[10px] font-black text-yellow-500 tracking-widest uppercase">CSAT KPI</span>
+            </div>
+          </div>
+        )}
         {/* ================= เริ่มกล่อง: งานที่รอเกินกำหนด ================= */}
         {(longestPendingTicket || longestFixingTicket) && (
           <div className="bg-slate-800/60 backdrop-blur-xl p-5 rounded-[1rem] border-2 border-solid border-orange-500/80 shadow-[0_0_20px_rgba(249,115,22,0.15)] mt-6 overflow-hidden">
