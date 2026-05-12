@@ -2350,54 +2350,68 @@ const renderTracking = () => (
                     </div>
                   </div>
 
-                {/* 🌟 ฟันธง: โชว์ดาวและผลประเมิน (แยกมุมมองผู้แจ้ง vs ช่าง/หัวหน้า) */}
-  {t.status === 'verified' && t.rating && (
-    <div className="mt-3 animate-in slide-in-from-top-2 duration-500">
-      {currentUserRole === 'technician' ? (
-        // 👨‍🔧 มุมมองช่าง/หัวหน้า: กล่องไฮไลท์จัดเต็ม โชว์ทั้งดาวและคอมเมนต์ (Wow Effect)
-        <div className="bg-slate-900 border-[2px] border-solid border-yellow-400/80 rounded-xl p-4 shadow-[0_0_15px_rgba(250,204,21,0.2)] relative overflow-hidden">
-           {/* แสงวิบวับหลังกล่อง */}
-           <div className="absolute -right-10 -top-10 w-24 h-24 bg-yellow-500/20 blur-[20px] rounded-full pointer-events-none"></div>
-           <div className="relative z-10">
-             <div className="flex justify-between items-center mb-2">
-               <span className="text-[12px] font-black text-yellow-400 uppercase tracking-widest flex items-center gap-1.5 drop-shadow-sm">
-                 <Star size={14} className="text-yellow-400" fill="currentColor"/> ผลการประเมิน:
-               </span>
-               <div className="flex gap-0.5">
-                  {[1, 2, 3, 4, 5].map((s) => (
-                    <Star key={s} size={16} fill={t.rating >= s ? "#facc15" : "none"} stroke={t.rating >= s ? "#facc15" : "#475569"} strokeWidth={2} className={t.rating >= s ? "drop-shadow-[0_0_8px_rgba(250,204,21,0.8)]" : ""} />
-                  ))}
+                {/* 🌟 ฟันธง: โชว์ดาวและผลประเมิน (แยกมุมมองผู้แจ้ง vs ช่าง/หัวหน้า) พร้อมระบบ Dynamic Color */}
+  {t.status === 'verified' && t.rating && (() => {
+    // สมองกลเปลี่ยนสีตามจำนวนดาว 1-5
+    const rColor = t.rating === 5 ? { text: 'text-emerald-400', fill: '#34d399', drop: 'drop-shadow-[0_0_10px_rgba(52,211,153,0.8)]', border: 'border-emerald-500', glow: 'shadow-[0_0_15px_rgba(52,211,153,0.3)]', flare: 'bg-emerald-500/20' } :
+                   t.rating === 4 ? { text: 'text-teal-400', fill: '#2dd4bf', drop: 'drop-shadow-[0_0_10px_rgba(45,212,191,0.8)]', border: 'border-teal-500', glow: 'shadow-[0_0_15px_rgba(45,212,191,0.3)]', flare: 'bg-teal-500/20' } :
+                   t.rating === 3 ? { text: 'text-amber-400', fill: '#fbbf24', drop: 'drop-shadow-[0_0_10px_rgba(251,191,36,0.8)]', border: 'border-amber-500', glow: 'shadow-[0_0_15px_rgba(251,191,36,0.3)]', flare: 'bg-amber-500/20' } :
+                   t.rating === 2 ? { text: 'text-orange-400', fill: '#fb923c', drop: 'drop-shadow-[0_0_10px_rgba(251,146,60,0.8)]', border: 'border-orange-500', glow: 'shadow-[0_0_15px_rgba(251,146,60,0.3)]', flare: 'bg-orange-500/20' } :
+                                    { text: 'text-rose-400', fill: '#fb7185', drop: 'drop-shadow-[0_0_10px_rgba(251,113,133,0.8)]', border: 'border-rose-500', glow: 'shadow-[0_0_15px_rgba(225,29,72,0.3)]', flare: 'bg-rose-500/20' };
+
+    return (
+      <div className="mt-3 animate-in slide-in-from-top-2 duration-500">
+        {currentUserRole === 'technician' ? (
+          // 👨‍🔧 มุมมองช่าง/หัวหน้า: กล่องเรืองแสง โชว์คอมเมนต์เต็มรูปแบบ
+          <div className={`bg-slate-900 border-[2px] border-solid ${rColor.border} rounded-xl p-4 ${rColor.glow} relative overflow-hidden`}>
+             {/* แสงวิบวับหลังกล่อง (Dynamic Flare) */}
+             <div className={`absolute -right-10 -top-10 w-32 h-32 ${rColor.flare} blur-[25px] rounded-full pointer-events-none`}></div>
+             <div className="relative z-10">
+               <div className="flex justify-between items-center mb-3 border-b border-slate-700/50 pb-3">
+                 <span className={`text-[13px] font-black ${rColor.text} uppercase tracking-widest flex items-center gap-1.5 drop-shadow-sm`}>
+                   <Star size={16} className={rColor.text} fill="currentColor"/> ผลการประเมิน
+                 </span>
+                 <div className="flex gap-1">
+                    {[1, 2, 3, 4, 5].map((s) => (
+                      <Star key={s} size={18} fill={t.rating >= s ? rColor.fill : "none"} stroke={t.rating >= s ? rColor.fill : "#475569"} strokeWidth={2} className={t.rating >= s ? rColor.drop : ""} />
+                    ))}
+                 </div>
                </div>
+               
+               {/* กล่องโชว์คอมเมนต์ผู้แจ้ง (ตกแต่งให้มีเส้นขอบซ้ายนำสายตา) */}
+               {t.ratingComment ? (
+                 <div className={`bg-slate-950 p-4 rounded-xl border border-solid ${rColor.border} shadow-inner relative overflow-hidden`}>
+                   <div className={`absolute top-0 left-0 w-1.5 h-full ${rColor.text.replace('text-', 'bg-')}`}></div>
+                   <p className={`text-[13px] sm:text-[14px] font-bold ${rColor.text} leading-relaxed italic pl-1`}>
+                     <span className="text-xl leading-none opacity-50 mr-1">"</span>
+                     {t.ratingComment}
+                     <span className="text-xl leading-none opacity-50 ml-1">"</span>
+                   </p>
+                 </div>
+               ) : (
+                 <div className="bg-slate-950/50 p-3 rounded-xl border border-slate-800 flex justify-center">
+                   <p className="text-[12px] font-bold text-slate-500 italic">- ไม่มีข้อเสนอแนะเพิ่มเติม -</p>
+                 </div>
+               )}
              </div>
-             
-             {/* กล่องโชว์คอมเมนต์ผู้แจ้ง (แสดงเฉพาะหัวหน้า/ช่าง) */}
-             {t.ratingComment ? (
-               <div className="bg-slate-800/80 p-3 rounded-lg border border-slate-700/50 mt-3 shadow-inner">
-                 <p className="text-[13px] font-bold text-emerald-300 leading-relaxed italic flex gap-2">
-                   <span className="text-lg leading-none">"</span>
-                   {t.ratingComment}
-                   <span className="text-lg leading-none self-end">"</span>
-                 </p>
-               </div>
-             ) : (
-               <p className="text-[12px] font-bold text-slate-500 mt-2 italic">- ไม่มีข้อเสนอแนะเพิ่มเติม -</p>
-             )}
-           </div>
-        </div>
-      ) : (
-        // 👤 มุมมองผู้แจ้ง (Reporter): โชว์แค่ดาวเรียบหรู คอนเฟิร์มว่าประเมินแล้ว (ซ่อนคอมเมนต์ไม่ให้รก)
-        <div className="flex items-center justify-between bg-yellow-50/50 p-2.5 rounded-lg border border-yellow-200">
-          <span className="text-[11px] font-black text-yellow-800 uppercase tracking-widest ml-1">คุณได้ประเมินงานนี้แล้ว:</span>
-          <div className="flex gap-0.5">
-            {[1, 2, 3, 4, 5].map((s) => (
-              <Star key={s} size={14} fill={t.rating >= s ? "#facc15" : "none"} stroke={t.rating >= s ? "#facc15" : "#d1d5db"} strokeWidth={2} />
-            ))}
           </div>
-        </div>
-      )}
-    </div>
-  )}
-                 )}
+        ) : (
+          // 👤 มุมมองผู้แจ้ง (Reporter): กรอบเข้ม เรืองแสงตามดาว ดูพรีเมียม
+          <div className={`flex flex-col sm:flex-row sm:items-center justify-between bg-slate-900/80 p-3.5 rounded-xl border-[2px] border-solid ${rColor.border} ${rColor.glow} relative overflow-hidden`}>
+            <div className={`absolute -left-10 -bottom-10 w-24 h-24 ${rColor.flare} blur-[20px] rounded-full pointer-events-none`}></div>
+            <span className={`text-[11px] sm:text-[12px] font-black ${rColor.text} uppercase tracking-widest ml-1 relative z-10 mb-2 sm:mb-0 drop-shadow-sm`}>
+              คุณให้คะแนนงานนี้:
+            </span>
+            <div className="flex gap-1 relative z-10">
+              {[1, 2, 3, 4, 5].map((s) => (
+                <Star key={s} size={16} fill={t.rating >= s ? rColor.fill : "none"} stroke={t.rating >= s ? rColor.fill : "#475569"} strokeWidth={2} className={t.rating >= s ? rColor.drop : ""} />
+              ))}
+            </div>
+          </div>
+        )}
+      </div>
+    );
+  })()}
 
                   <h3
                     className={`text-lg font-black mb-1.5 leading-tight ${
