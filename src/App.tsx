@@ -3146,14 +3146,26 @@ const renderTracking = () => (
       {actionModal.isOpen && (
         <div className="fixed inset-0 z-[150] flex items-center justify-center bg-slate-900/80 backdrop-blur-md p-6 animate-in fade-in" onClick={() => setActionModal({ isOpen: false, ticketId: null, type: null })}>
           
-          {/* 💥 พลังแสงเฟลอร์ ทะลุอยู่ด้านหลัง (เปลี่ยนสีตามประเภทงาน) */}
-          <div className={`absolute w-[300px] h-[300px] rounded-full blur-[80px] animate-pulse pointer-events-none z-0 ${actionModal.type === 'cancel' ? 'bg-rose-500/40' : 'bg-orange-500/40'}`}></div>
+          {/* 💥 จุดที่ 1: พลังแสงเฟลอร์ ทะลุอยู่ด้านหลัง (แยกสีตามประเภทงาน) */}
+          <div className={`absolute w-[300px] h-[300px] rounded-full blur-[80px] animate-pulse pointer-events-none z-0 ${
+            actionModal.type === 'finish' ? 'bg-emerald-500/40' :
+            actionModal.type === 'hold' || actionModal.type === 'cancel' ? 'bg-rose-500/40' : 
+            'bg-orange-500/40'
+          }`}></div>
 
-          {/* 📦 ตัวกล่อง Popup */}
-          <div className={`relative z-10 bg-slate-900 border-[2px] border-solid rounded-[2rem] w-full max-w-sm md:max-w-md overflow-hidden p-8 md:p-10 text-center space-y-7 ${actionModal.type === 'cancel' ? 'border-rose-500 shadow-[0_0_50px_rgba(225,29,72,0.6)]' : 'border-orange-500 shadow-[0_0_50px_rgba(249,115,22,0.8)]'}`} onClick={(e) => e.stopPropagation()}>
+          {/* 📦 จุดที่ 2: ตัวกล่อง Popup (แยกสีกรอบและเงา) */}
+          <div className={`relative z-10 bg-slate-900 border-[2px] border-solid rounded-[2rem] w-full max-w-sm md:max-w-md overflow-hidden p-8 md:p-10 text-center space-y-7 ${
+            actionModal.type === 'finish' ? 'border-emerald-500 shadow-[0_0_50px_rgba(16,185,129,0.5)]' :
+            actionModal.type === 'hold' || actionModal.type === 'cancel' ? 'border-rose-500 shadow-[0_0_50px_rgba(225,29,72,0.5)]' : 
+            'border-orange-500 shadow-[0_0_50px_rgba(249,115,22,0.6)]'
+          }`} onClick={(e) => e.stopPropagation()}>
             
-            {/* 🌟 ไอคอนเรืองแสงด้านบน (เปลี่ยนไอคอนตามโหมด) */}
-            <div className={`w-24 h-24 rounded-full flex items-center justify-center mx-auto border-4 shadow-[0_0_20px_rgba(249,115,22,0.8)] ${actionModal.type === 'cancel' ? 'bg-rose-950 text-white border-rose-500 shadow-[0_0_25px_rgba(225,29,72,0.8)]' : 'bg-slate-950 text-orange-500 border-orange-400'}`}>
+            {/* 🌟 จุดที่ 3: ไอคอนเรืองแสงด้านบน (แยกสีกรอบ เงา และสีไอคอนให้เข้าชุดกัน) */}
+            <div className={`w-24 h-24 rounded-full flex items-center justify-center mx-auto border-[3px] border-solid bg-slate-950 transition-all duration-300 ${
+              actionModal.type === 'finish' ? 'text-emerald-500 border-emerald-500 shadow-[0_0_25px_rgba(16,185,129,0.8)]' :
+              actionModal.type === 'hold' || actionModal.type === 'cancel' ? 'text-rose-500 border-rose-500 shadow-[0_0_25px_rgba(225,29,72,0.8)]' : 
+              'text-orange-500 border-orange-500 shadow-[0_0_25px_rgba(249,115,22,0.8)]'
+            }`}>
               {actionModal.type === 'accept' && <Wrench size={44} className="animate-pulse" />}
               {actionModal.type === 'hold' && <PauseCircle size={44} className="animate-pulse" />}
               {actionModal.type === 'finish' && <ClipboardCheck size={44} className="animate-pulse" />}
@@ -3180,6 +3192,8 @@ const renderTracking = () => (
             </div>
 
             {/* 🌟 ช่องกรอกข้อมูล */}
+            {/* 🌟 ช่องกรอกข้อมูล (อัปเกรด UI: กรอบขาว Inactive -> ฟ้า Cyan Active) */}
+            {/* 🌟 ช่องกรอกข้อมูล (อัปเกรด UI: กรอบขาว Inactive -> ฟ้า Cyan Active) */}
             <div className="text-left space-y-5">
               {actionModal.type === 'accept' ? (
                  <div className="space-y-2">
@@ -3187,9 +3201,9 @@ const renderTracking = () => (
                    <select
                      value={selectedTech}
                      onChange={(e) => setSelectedTech(e.target.value)}
-                     className="w-full bg-slate-800 border-2 border-solid border-slate-700 rounded-xl px-5 py-3.5 text-white font-bold text-sm focus:border-orange-500 focus:ring-1 focus:ring-orange-500 outline-none transition-all shadow-inner"
+                     className="w-full bg-slate-800 border-[2px] border-solid border-white/50 text-white rounded-xl px-4 py-3 outline-none transition-all duration-300 appearance-none cursor-pointer hover:border-cyan-400 hover:shadow-[0_0_15px_rgba(34,211,238,0.4)] focus:border-cyan-400 focus:shadow-[0_0_15px_rgba(34,211,238,0.6)]"
                    >
-                     <option value="" disabled>-- โปรดเลือกวิศวกร --</option>
+                     <option value="" disabled>-- โปรดเลือก --</option>
                      {technicianList.map((tech) => (
                        <option key={tech.name} value={tech.name}>{tech.name}</option>
                      ))}
@@ -3197,7 +3211,10 @@ const renderTracking = () => (
                  </div>
               ) : (
                  <div className="space-y-2">
-                   <label className={`text-sm font-black tracking-wider flex items-center gap-1.5 ${actionModal.type === 'cancel' ? 'text-rose-400' : 'text-orange-400'}`}>
+                   <label className={`text-sm font-black tracking-wider flex items-center gap-1.5 ${
+                     actionModal.type === 'finish' ? 'text-emerald-400' : 
+                     actionModal.type === 'hold' || actionModal.type === 'cancel' ? 'text-rose-400' : 'text-orange-400'
+                   }`}>
                      <FileText size={16} /> 
                      {actionModal.type === 'hold' ? 'เหตุผลที่ทำให้เกิดความล่าช้า' :
                       actionModal.type === 'cancel' ? 'ระบุเหตุผลการยกเลิก' :
@@ -3209,31 +3226,33 @@ const renderTracking = () => (
                      onChange={(e) => setActionText(e.target.value)}
                      placeholder="ระบุรายละเอียดลงที่นี่..."
                      rows={4}
-                     className={`w-full bg-slate-800 border-2 border-solid rounded-xl px-5 py-3.5 text-white font-bold text-sm outline-none transition-all resize-none shadow-inner ${actionModal.type === 'cancel' ? 'border-slate-700 focus:border-rose-500 focus:ring-1 focus:ring-rose-500' : 'border-slate-700 focus:border-orange-500 focus:ring-1 focus:ring-orange-500'}`}
+                     className="w-full bg-slate-800 border-[2px] border-solid border-white/50 rounded-xl px-5 py-3.5 text-white font-bold text-sm outline-none transition-all duration-300 resize-none shadow-inner hover:border-cyan-400 hover:shadow-[0_0_15px_rgba(34,211,238,0.4)] focus:border-cyan-400 focus:shadow-[0_0_15px_rgba(34,211,238,0.6)]"
                    />
                  </div>
               )}
             </div>
 
-           {/* 🌟 🔘 โซนปุ่มกด (อัปเกรดตามมาตรฐาน UI/UX: แยกปุ่ม Safe Action และ Primary Action) */}
+           {/* 🌟 🔘 โซนปุ่มกด (อัปเกรด UI: กรอบขาวทั้งหมด + แยกสี Hover ตาม Semantic) */}
            <div className="flex gap-4 pt-4">
               
-              {/* ⚪ ปุ่มซ้าย: ยกเลิก/ปิดหน้าต่าง (Safe Action) - ฟันธง: ใช้สีเทาอวกาศ (Slate) เพื่อความปลอดภัย และไม่แย่งซีนปุ่มหลัก! */}
+              {/* ⚪ ปุ่มซ้าย: ยกเลิก (Safe Action) - ฟันธง: กรอบขาว -> Hover แดงเรืองแสง */}
               <button
                  onClick={() => setActionModal({ isOpen: false, ticketId: null, type: null })}
-                 className="flex-1 py-3.5 md:py-4 rounded-xl font-bold text-white bg-slate-700 border-[2px] border-solid border-slate-500 shadow-[0_5px_15px_rgba(0,0,0,0.3)] active:scale-95 transition-all duration-300 hover:bg-slate-600 hover:border-slate-400 hover:shadow-[0_0_20px_rgba(255,255,255,0.4)] hover:-translate-y-1"
+                 className="flex-1 py-3.5 md:py-4 rounded-xl font-bold text-white bg-slate-800 border-[2px] border-solid border-white/50 shadow-inner active:scale-95 transition-all duration-300 hover:bg-rose-600 hover:border-rose-400 hover:shadow-[0_0_20px_rgba(225,29,72,0.8)] hover:-translate-y-1"
               >
                  {actionModal.type === 'cancel' ? 'ไม่ยกเลิก' : 'ยกเลิก'}
               </button>
 
-              {/* 🔴/🟠 ปุ่มขวา: ยืนยันทำรายการ (Primary / Destructive Action) */}
+              {/* 🔴/🟠/🟢 ปุ่มขวา: ยืนยันทำรายการ - ฟันธง: กรอบขาว -> แยกสี Hover สีส้ม/แดง/เขียว ให้ตรงกับแสงด้านหลัง! */}
               <button
                  onClick={executeActionModal}
                  disabled={actionModal.type === 'accept' ? !selectedTech : !actionText.trim()}
-                 className={`flex-[1.5] py-3.5 md:py-4 rounded-xl font-black text-white border-[2px] border-solid border-white/90 active:scale-95 transition-all duration-300 hover:-translate-y-1 disabled:opacity-50 disabled:grayscale ${
-                   actionModal.type === 'cancel' 
-                     ? 'bg-rose-600 shadow-[0_5px_15px_rgba(225,29,72,0.4)] hover:bg-rose-500 hover:shadow-[0_0_35px_rgba(225,29,72,1)]' // โหมดลบงาน: สีแดงเตือนภัย
-                     : 'bg-gradient-to-r from-orange-500 to-amber-500 shadow-[0_5px_15px_rgba(249,115,22,0.4)] hover:from-orange-400 hover:to-amber-400 hover:shadow-[0_0_35px_rgba(249,115,22,1)]' // โหมดปกติ: สีส้มทอง
+                 className={`flex-[1.5] py-3.5 md:py-4 rounded-xl font-black text-white border-[2px] border-solid border-white/50 active:scale-95 transition-all duration-300 hover:-translate-y-1 hover:border-white disabled:opacity-50 disabled:grayscale ${
+                   actionModal.type === 'cancel' || actionModal.type === 'hold'
+                     ? 'bg-rose-600 shadow-[0_5px_15px_rgba(225,29,72,0.4)] hover:bg-rose-500 hover:shadow-[0_0_35px_rgba(225,29,72,1)]' 
+                     : actionModal.type === 'finish'
+                     ? 'bg-emerald-600 shadow-[0_5px_15px_rgba(16,185,129,0.4)] hover:bg-emerald-500 hover:shadow-[0_0_35px_rgba(16,185,129,1)]' 
+                     : 'bg-gradient-to-r from-orange-500 to-amber-500 shadow-[0_5px_15px_rgba(249,115,22,0.4)] hover:from-orange-400 hover:to-amber-400 hover:shadow-[0_0_35px_rgba(249,115,22,1)]'
                  }`}
               >
                  {actionModal.type === 'accept' ? 'ยืนยันรับงานซ่อม' :
