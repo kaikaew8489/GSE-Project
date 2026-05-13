@@ -1248,8 +1248,8 @@ const toggleTag = (tag) => {
           {ThaiDateFormatter(sysTime)}
         </div>
 
-       {/* 🔘 2. สวิตช์เลือกกรอบเวลา (ฉบับสีส้มเรืองแสง 100%) */}
-       <div className="flex gap-2 bg-slate-600/80 p-2 rounded-2xl border-2 border-solid border-white-/80 shadow-inner mt-4 overflow-x-auto scrollbar-hide snap-x">
+       {/* 🔘 2. สวิตช์เลือกกรอบเวลา (ปรับเป็น ธีม Sci-Fi Cyan & Orange พรีเมียม 1,000,000%) */}
+       <div className="flex gap-2 bg-slate-800/80 p-2 rounded-2xl border-[2px] border-solid border-slate-700 shadow-inner mt-4 overflow-x-auto scrollbar-hide snap-x">
           {[
             { id: 'today', label: 'วันนี้' },
             { id: 'week', label: 'สัปดาห์นี้' },
@@ -1258,27 +1258,29 @@ const toggleTag = (tag) => {
             <button
               key={tf.id}
               onClick={() => setDashTimeframe(tf.id)}
-              className={`flex-1 min-w-[75px] shrink-0 text-[13px] font-black py-2.5 rounded-xl transition-all duration-300 snap-center ${
+              className={`flex-1 min-w-[75px] shrink-0 text-[13px] font-black py-2.5 rounded-xl transition-all duration-300 snap-center whitespace-nowrap ${
                 dashTimeframe === tf.id
-                  ? 'bg-gradient-to-r from-orange-500 to-amber-500 text-white border-2 border-solid border-white-300 shadow-[0_0_15px_rgba(249,115,22,0.8)] scale-105 z-10' 
-                  : 'text-slate-100 bg-emerald-600/60 border-2 border-solid border-white-500/50 hover:bg-rose-600 hover:text-white hover:shadow-[0_0_15px_rgba(255,255,255,0.4)] hover:-translate-y-1' 
+                  // 🟠 Active: สีส้มทอง GSE (ขยายตัวนิดๆ)
+                  ? 'bg-gradient-to-r from-orange-500 to-amber-500 text-white border-[2px] border-solid border-orange-300 shadow-[0_0_15px_rgba(249,115,22,0.8)] scale-[1.02] z-10' 
+                  // 🔵 Inactive: สีฟ้าเรืองแสง Sci-Fi (เด้งรับเมาส์)
+                  : 'bg-slate-950 text-cyan-300 border-[2px] border-solid border-cyan-400/30 shadow-[0_0_8px_rgba(34,211,238,0.3)] hover:bg-slate-900 hover:text-cyan-200 hover:border-cyan-300 hover:shadow-[0_0_15px_rgba(34,211,238,0.6)] hover:-translate-y-0.5' 
               }`}
             >
               {tf.label}
             </button>
           ))}
 
-          {/* 🌟 ปฏิทิน ระบุวัน (Centered + Orange Glow) */}
+          {/* 🌟 ปฏิทิน ระบุวัน (เปลี่ยน Hover เป็น Cyan) */}
           <div className="relative flex-1 min-w-[95px] shrink-0 flex justify-center snap-center">
              <button 
                onClick={() => setShowDatePicker(true)}
-               className={`w-full relative z-10 text-[13px] font-black py-2.5 rounded-xl transition-all duration-300 flex items-center justify-center gap-1.5 ${
+               className={`w-full relative z-10 text-[13px] font-black py-2.5 rounded-xl transition-all duration-300 flex items-center justify-center gap-1.5 whitespace-nowrap ${
                  dashTimeframe === 'custom_date' 
-                   ? 'bg-gradient-to-r from-orange-500 to-amber-500 text-white border-2 border-solid border-white/80 shadow-[0_0_15px_rgba(249,115,22,0.8)] scale-105' 
-                   : 'text-slate-100 bg-emerald-600/60 border-2 border-solid border-white/50 hover:bg-rose-600 hover:text-white hover:shadow-[0_0_15px_rgba(255,255,255,0.4)] hover:-translate-y-1' 
+                   ? 'bg-gradient-to-r from-orange-500 to-amber-500 text-white border-[2px] border-solid border-orange-300 shadow-[0_0_15px_rgba(249,115,22,0.8)] scale-[1.02] z-10' 
+                   : 'bg-slate-950 text-cyan-300 border-[2px] border-solid border-cyan-400/30 shadow-[0_0_8px_rgba(34,211,238,0.3)] hover:bg-slate-900 hover:text-cyan-200 hover:border-cyan-300 hover:shadow-[0_0_15px_rgba(34,211,238,0.6)] hover:-translate-y-0.5' 
                }`}>
-               <Calendar size={16} className={dashTimeframe === 'custom_date' ? 'text-white' : 'text-emerald-300'} /> 
-               <span className="whitespace-nowrap">ระบุวัน</span>
+               <Calendar size={16} className={dashTimeframe === 'custom_date' ? 'text-white' : 'text-cyan-400'} /> 
+               <span>ระบุวัน</span>
              </button>
 
              {showDatePicker && (
@@ -1335,12 +1337,16 @@ const toggleTag = (tag) => {
              )}
           </div>
 
-          {/* 🌟 ปฏิทิน ระบุเดือน (Centered + Orange Glow) */}
+          {/* 🌟 ปฏิทิน ระบุเดือน (เปลี่ยน Hover เป็น Cyan) */}
           <div className="relative flex-1 min-w-[95px] shrink-0 flex justify-center snap-center">
             <button onClick={() => setShowMonthPicker(true)}
-              className={`w-full relative z-10 text-[13px] font-black py-2.5 rounded-xl transition-all duration-300 flex items-center justify-center gap-1.5 ${dashTimeframe === 'custom' ? 'bg-gradient-to-r from-orange-500 to-amber-500 text-white border-2 border-solid border-orange-300 shadow-[0_0_15px_rgba(249,115,22,0.8)] scale-105' : 'text-slate-100 bg-emerald-600/60 border-2 border-solid border-white/50 hover:bg-orange-600 hover:text-white hover:shadow-[0_0_15px_rgba(255,255,255,0.4)] hover:-translate-y-1'}`}>
-              <Calendar size={16} className={dashTimeframe === 'custom' ? 'text-white' : 'text-emerald-300'} /> 
-              <span className="whitespace-nowrap">ระบุเดือน</span>
+              className={`w-full relative z-10 text-[13px] font-black py-2.5 rounded-xl transition-all duration-300 flex items-center justify-center gap-1.5 whitespace-nowrap ${
+                dashTimeframe === 'custom' 
+                  ? 'bg-gradient-to-r from-orange-500 to-amber-500 text-white border-[2px] border-solid border-orange-300 shadow-[0_0_15px_rgba(249,115,22,0.8)] scale-[1.02] z-10' 
+                  : 'bg-slate-950 text-cyan-300 border-[2px] border-solid border-cyan-400/30 shadow-[0_0_8px_rgba(34,211,238,0.3)] hover:bg-slate-900 hover:text-cyan-200 hover:border-cyan-300 hover:shadow-[0_0_15px_rgba(34,211,238,0.6)] hover:-translate-y-0.5'
+              }`}>
+              <Calendar size={16} className={dashTimeframe === 'custom' ? 'text-white' : 'text-cyan-400'} /> 
+              <span>ระบุเดือน</span>
             </button>
             
             {showMonthPicker && (
@@ -2193,15 +2199,17 @@ const renderTracking = () => (
     <div className="sticky top-0 z-40 bg-slate-900/95 backdrop-blur-xl pt-3 pb-2 space-y-2 -mx-4 px-4 sm:mx-0 sm:px-0 border-b-2 border-slate-700/80 shadow-[0_10px_20px_rgba(0,0,0,0.6)]">
       
       {/* 1. ช่องค้นหา (ย้ายมาบนสุด เล็กลง กระชับขึ้น) */}
-      <div className="relative">
-        <Search size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" />
-        <input
-          value={searchTerm}
-          onChange={(e) => setSearchTerm(e.target.value)}
-          className="w-full bg-slate-800 border-[2px] border-slate-600 focus:border-orange-500 focus:ring-1 focus:ring-orange-500/30 shadow-inner transition-all font-bold text-slate-100 text-[13px] pl-9 pr-4 py-2 rounded-xl outline-none placeholder:text-slate-400"
-          placeholder="ค้นหา รหัส หรือ อุปกรณ์..."
-        />
-      </div>
+      {/* 🌟 ฟันธง: ช่องค้นหา (Search Bar) */}
+      <div className="flex-grow flex items-center bg-slate-900 border-2 border-solid border-cyan-800/80 rounded-xl p-3 shadow-inner shadow-[0_0_8px_rgba(34,211,238,1)] hover:border-cyan-500 hover:shadow-[0_0_15px_rgba(34,211,238,1)] transition-all duration-300 cursor-text">
+            <Search size={22} className="text-cyan-300" />
+            <input
+              type="text"
+              placeholder="ค้นหา รหัส หรือ อุปกรณ์..."
+              className="bg-transparent flex-grow outline-none text-white px-3 font-bold placeholder:text-slate-500 placeholder:font-normal"
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+            />
+          </div>
 
       {/* 2. สวิตช์กรองสถานะงาน (ปรับปุ่มให้เตี้ยลง และใช้ flex-none ให้กระชับพอดีตัวอักษร) */}
       <div className="bg-slate-800/80 rounded-xl border-[2px] border-solid border-slate-700 shadow-inner">
@@ -2221,11 +2229,12 @@ const renderTracking = () => (
                 setFilterStatus(f.id);
                 setSearchTerm('');
               }}
-             // 👇 แก้ไขบรรทัดนี้ โดยเติม md:flex-1 เข้าไปครับ 👇
-             className={`flex-none md:flex-1 px-3.5 py-1.5 text-[12px] font-black rounded-lg transition-all duration-300 snap-center ${
+             className={`flex-none md:flex-1 px-3.5 py-1.5 text-[12px] font-black rounded-lg transition-all duration-300 snap-center whitespace-nowrap ${
                 filterStatus === f.id
+                  // 🟠 สถานะ Active: เก็บสีส้มทอง GSE ของเดิมไว้ สวยเด่นอยู่แล้วครับ
                   ? 'bg-gradient-to-r from-orange-500 to-amber-500 text-white border-[2px] border-solid border-orange-300 shadow-[0_0_15px_rgba(249,115,22,0.8)] scale-[1.02] z-10' 
-                  : 'bg-slate-700 text-slate-300 border-[2px] border-solid border-slate-600 hover:border-orange-500 hover:text-orange-400 hover:bg-orange-500/10 hover:shadow-[0_0_15px_rgba(249,115,22,0.5)]' 
+                  // 🔵 สถานะ Inactive: ฟันธงเปลี่ยนเป็นฟ้าเรืองแสง (Cyan Glow) พร้อมเอฟเฟกต์ตอนเมาส์ชี้
+                  : 'bg-slate-900 text-cyan-300 border-[2px] border-solid border-cyan-400/30 shadow-[0_0_8px_rgba(34,211,238,0.8)] hover:bg-slate-900 hover:text-cyan-200 hover:border-cyan-300 hover:shadow-[0_0_15px_rgba(34,211,238,1)] hover:-translate-y-0.5' 
               }`}
             >
               {f.label}
@@ -2236,12 +2245,20 @@ const renderTracking = () => (
 
       {/* 3. ปุ่มกรองเวลา (ปรับให้บางลง รีด Padding ออก) */}
       <div className="flex gap-1.5">
-          <button onClick={() => setTrackTimeframe('all')} className={`flex-[0.8] py-1.5 rounded-lg font-black text-[12px] transition-all duration-300 ${trackTimeframe === 'all' ? 'bg-gradient-to-r from-cyan-600 to-blue-600 text-white shadow-[0_0_15px_rgba(6,182,212,0.8)] border-[2px] border-solid border-cyan-300' : 'bg-slate-700 text-slate-300 border-[2px] border-solid border-slate-600 hover:border-cyan-400 hover:bg-cyan-500/10 hover:shadow-[0_0_15px_rgba(6,182,212,0.5)]'}`}>ดูทุกวัน</button>
+          <button onClick={() => setTrackTimeframe('all')} className={`flex-[0.8] py-1.5 rounded-lg font-black text-[12px] transition-all duration-300 whitespace-nowrap ${
+            trackTimeframe === 'all' 
+              ? 'bg-gradient-to-r from-cyan-600 to-blue-600 text-white shadow-[0_0_15px_rgba(6,182,212,0.8)] border-[2px] border-solid border-cyan-300 scale-[1.02] z-10' 
+              : 'bg-slate-950 text-cyan-300 border-[2px] border-solid border-cyan-400/30 shadow-[0_0_8px_rgba(34,211,238,0.3)] hover:bg-slate-900 hover:text-cyan-200 hover:border-cyan-300 hover:shadow-[0_0_15px_rgba(34,211,238,0.6)] hover:-translate-y-0.5'
+          }`}>ดูทุกวัน</button>
 
           {/* ระบุวัน */}
           <div className="relative flex-1">
-            <button onClick={() => setShowTrackDatePicker(true)} className={`w-full h-full py-1.5 rounded-lg font-black text-[12px] flex items-center justify-center gap-1.5 transition-all duration-300 ${trackTimeframe === 'custom_date' ? 'bg-gradient-to-r from-cyan-600 to-blue-600 text-white shadow-[0_0_15px_rgba(6,182,212,0.8)] border-[2px] border-solid border-cyan-300' : 'bg-slate-700 text-slate-300 border-[2px] border-solid border-slate-600 hover:border-cyan-400 hover:bg-cyan-500/10 hover:shadow-[0_0_15px_rgba(6,182,212,0.5)]'}`}>
-              <Calendar size={14} className={trackTimeframe === 'custom_date' ? 'text-white animate-pulse' : 'text-cyan-500'}/> ระบุวัน
+            <button onClick={() => setShowTrackDatePicker(true)} className={`w-full h-full py-1.5 rounded-lg font-black text-[12px] flex items-center justify-center gap-1.5 transition-all duration-300 whitespace-nowrap ${
+              trackTimeframe === 'custom_date' 
+                ? 'bg-gradient-to-r from-cyan-600 to-blue-600 text-white shadow-[0_0_15px_rgba(6,182,212,0.8)] border-[2px] border-solid border-cyan-300 scale-[1.02] z-10' 
+                : 'bg-slate-950 text-cyan-300 border-[2px] border-solid border-cyan-400/30 shadow-[0_0_8px_rgba(34,211,238,0.3)] hover:bg-slate-900 hover:text-cyan-200 hover:border-cyan-300 hover:shadow-[0_0_15px_rgba(34,211,238,0.6)] hover:-translate-y-0.5'
+            }`}>
+              <Calendar size={14} className={trackTimeframe === 'custom_date' ? 'text-white animate-pulse' : 'text-cyan-400'}/> ระบุวัน
             </button>
             {showTrackDatePicker && (
               <div className="fixed inset-0 z-[300] bg-slate-900/80 backdrop-blur-md flex items-center justify-center p-4 animate-in fade-in" onClick={() => setShowTrackDatePicker(false)}>
@@ -2267,7 +2284,7 @@ const renderTracking = () => (
                         const day = i + 1;
                         const dateString = `${trackCalYear}-${String(trackCalMonth + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
                         const isSelected = trackDate === dateString;
-                        const todayLocal = new Date(); // ใช้ sysTime ไม่ได้เพราะไม่ได้ดึงมาจาก props ในท่อนนี้ เลยใช้ new Date() แทนเพื่อให้ทำงานได้
+                        const todayLocal = new Date();
                         const isToday = todayLocal.getFullYear() === trackCalYear && todayLocal.getMonth() === trackCalMonth && todayLocal.getDate() === day;
                         return (
                           <button 
@@ -2295,8 +2312,12 @@ const renderTracking = () => (
 
           {/* ระบุเดือน */}
           <div className="relative flex-1">
-            <button onClick={() => setShowTrackMonthPicker(true)} className={`w-full h-full py-1.5 rounded-lg font-black text-[12px] flex items-center justify-center gap-1.5 transition-all duration-300 ${trackTimeframe === 'custom_month' ? 'bg-gradient-to-r from-cyan-600 to-blue-600 text-white shadow-[0_0_15px_rgba(6,182,212,0.8)] border-[2px] border-solid border-cyan-300' : 'bg-slate-700 text-slate-300 border-[2px] border-solid border-slate-600 hover:border-cyan-400 hover:bg-cyan-500/10 hover:shadow-[0_0_15px_rgba(6,182,212,0.5)]'}`}>
-              <Calendar size={14} className={trackTimeframe === 'custom_month' ? 'text-white animate-pulse' : 'text-cyan-500'}/> ระบุเดือน
+            <button onClick={() => setShowTrackMonthPicker(true)} className={`w-full h-full py-1.5 rounded-lg font-black text-[12px] flex items-center justify-center gap-1.5 transition-all duration-300 whitespace-nowrap ${
+              trackTimeframe === 'custom_month' 
+                ? 'bg-gradient-to-r from-cyan-600 to-blue-600 text-white shadow-[0_0_15px_rgba(6,182,212,0.8)] border-[2px] border-solid border-cyan-300 scale-[1.02] z-10' 
+                : 'bg-slate-950 text-cyan-300 border-[2px] border-solid border-cyan-400/30 shadow-[0_0_8px_rgba(34,211,238,0.3)] hover:bg-slate-900 hover:text-cyan-200 hover:border-cyan-300 hover:shadow-[0_0_15px_rgba(34,211,238,0.6)] hover:-translate-y-0.5'
+            }`}>
+              <Calendar size={14} className={trackTimeframe === 'custom_month' ? 'text-white animate-pulse' : 'text-cyan-400'}/> ระบุเดือน
             </button>
             
             {showTrackMonthPicker && (
@@ -2343,6 +2364,7 @@ const renderTracking = () => (
             )}
           </div>
       </div>
+
       {/* 4. ป้ายบอกวันที่ (ย่อขนาดลง ไม่กินที่) */}
       <div className="flex items-center gap-1.5 px-1 pt-0.5 animate-in fade-in">
         <Clock size={14} className="text-orange-500" />
@@ -3063,11 +3085,11 @@ const renderTracking = () => (
                                   <XCircle size={20} /> ยกเลิก
                                 </button>
                                 <a
-                                  href="tel:0835293836"
-                                  className="flex-[1.5] bg-gradient-to-r from-rose-500/80 to-orange-600 text-white border border-blue-400 text-[18px] font-bold py-4 rounded-2xl flex justify-center items-center gap-1.5 shadow-[0_0_15px_rgba(225,29,72,0.4)] hover:shadow-[0_0_25px_rgba(225,29,72,0.6)] active:scale-95 transition-all text-xs"
+                                  href="tel:เบอร์โทรส่วนกลางทีมช่าง" // 🌟 ใส่เบอร์ของทีมช่างที่รับหน้าเสื่อ
+                                  className="flex-[1.5] bg-gradient-to-r from-orange-500 to-amber-500 text-white border-2 border-solid border-white/50 font-black py-4 rounded-2xl flex justify-center items-center gap-1.5 sm:gap-2 shadow-[0_0_15px_rgba(249,115,22,0.4)] hover:shadow-[0_0_25px_rgba(249,115,22,0.8)] active:scale-95 transition-all text-[16px] sm:text-[18px] md:text-[22px] tracking-wide whitespace-nowrap"
                                 >
-                                  <PhoneCall size={18} className="animate-pulse" />
-                                  สายด่วน หน.ฝวด.
+                                  <PhoneCall size={20} className="animate-pulse shrink-0" />
+                                  สายด่วนช่างผู้รับผิดชอบ
                                 </a>
                               </div>
                             </div>
@@ -3080,11 +3102,11 @@ const renderTracking = () => (
                                 ดำเนินการซ่อมเกินกำหนด 5 วัน (SLA Breach)
                               </div>
                               <a
-                                href="tel:0835293836"
-                                className="flex-[1.5] bg-gradient-to-r from-rose-500/80 to-orange-600 text-white border border-blue-400 text-[20px] font-bold py-4 rounded-2xl flex justify-center items-center gap-1.5 shadow-[0_0_15px_rgba(225,29,72,0.4)] hover:shadow-[0_0_25px_rgba(225,29,72,0.6)] active:scale-95 transition-all text-xs"
+                                href="tel:0835293836" // 🌟 เบอร์สายตรง หน.ฝวด. (เบอร์ท่านหัวหน้า)
+                                className="flex-[1.5] bg-gradient-to-r from-rose-600 to-red-700 text-white border-2 border-solid border-white/50 font-black py-4 rounded-2xl flex justify-center items-center gap-1.5 sm:gap-2 shadow-[0_0_15px_rgba(225,29,72,0.4)] hover:shadow-[0_0_25px_rgba(225,29,72,0.8)] active:scale-95 transition-all text-[15px] sm:text-[18px] md:text-[22px] tracking-wide whitespace-nowrap"
                               >
-                                <PhoneCall size={16} className="animate-pulse" />
-                                สายด่วนตามงาน (ฝวด.)
+                                <PhoneCall size={20} className="animate-pulse shrink-0" />
+                                สายด่วน หน.ฝวด. (กรณีล่าช้า)
                               </a>
                             </div>
                           )}
@@ -3588,7 +3610,8 @@ function LandingPage({ onStart }) {
             ฝ่ายวิศวกรรมระบบปฏิบัติการดาวเทียม
           </h2>
 
-          <h3 className="text-[14px] md:text-[18px] font-bold text-slate-200 tracking-widest mt-1 transition-all duration-500 drop-shadow-md">
+          {/* 🌟 ฟันธง: เปลี่ยนเป็นสีขาวมุกเรืองแสง (Pearl White Glow) หรูหรา เป็นจุดพักสายตา */}
+          <h3 className="text-[14px] md:text-[18px] font-bold text-white tracking-widest mt-1 transition-all duration-500 drop-shadow-[0_0_10px_rgba(255,255,255,0.8)]">
             สำนักปฏิบัติการดาวเทียม
           </h3>
 
@@ -3605,10 +3628,7 @@ function LandingPage({ onStart }) {
             </span>
             <span>
               <span className="text-[16px] md:text-[22px] text-orange-500 font-black drop-shadow-[0_0_8px_rgba(249,115,22,0.8)]">E</span>
-              <span className="text-[10px] md:text-[14px]">ngineering</span>
-            </span>
-            <span>
-              <span className="text-[10px] md:text-[14px]">Division:</span>
+              <span className="text-[10px] md:text-[14px]">ngineering:</span>
             </span>
             <span className="text-[15px] md:text-[20px] text-orange-400 font-black drop-shadow-[0_0_10px_rgba(249,115,22,1)] ml-1">
               GSE
