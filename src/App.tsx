@@ -3583,17 +3583,36 @@ function LandingPage({ onStart }) {
             </button>
           </div>
 
-          <h2 className="text-[16px] md:text-[30px] font-bold text-orange-400 uppercase mt-3 md:mt-6 mb-1.5 md:mb-2 transition-all duration-500">
+          {/* 🌟 1. ฟันธง: เปลี่ยนเป็นสีฟ้าสว่าง (Cyan) พร้อมเอฟเฟกต์เรืองแสงทะลุอวกาศ */}
+          <h2 className="text-[16px] md:text-[28px] font-black text-cyan-400 drop-shadow-[0_0_12px_rgba(34,211,238,0.8)] uppercase mt-4 md:mt-8 mb-1.5 md:mb-2 transition-all duration-500 tracking-wide">
             ฝ่ายวิศวกรรมระบบปฏิบัติการดาวเทียม
           </h2>
 
-          <h3 className="text-[14px] md:text-[18px] font-bold text-slate-100 tracking-widest mt-1 transition-all duration-500">
+          <h3 className="text-[14px] md:text-[18px] font-bold text-slate-200 tracking-widest mt-1 transition-all duration-500 drop-shadow-md">
             สำนักปฏิบัติการดาวเทียม
           </h3>
 
-          {/* ฟันธง: เติม mt-4 md:mt-8 เพื่อดึงให้ข้อความลิขสิทธิ์เว้นระยะห่างจากชื่อสำนัก และเติม opacity-80 ให้สีซอฟต์ลงดูเป็นซับไตเติ้ลสวยๆ */}
-          <h3 className="text-[9px] md:text-[15px] font-mono text-white tracking-widest font-bold normal-case mt-4 md:mt-8 opacity-80">
-            ©2026 Ground System Engineering Division: GSE
+          {/* 🌟 2. ฟันธง: ลูกเล่นตัวนำ G S E D ใหญ่พิเศษสีส้มทอง ตัดกับสีฟ้าด้านบน */}
+          <h3 className="font-mono text-slate-300 tracking-widest font-bold mt-5 md:mt-10 opacity-95 flex items-baseline justify-center flex-wrap gap-x-1.5 gap-y-1">
+            <span className="text-[10px] md:text-[14px]">©2026</span>
+            <span>
+              <span className="text-[16px] md:text-[22px] text-orange-500 font-black drop-shadow-[0_0_8px_rgba(249,115,22,0.8)]">G</span>
+              <span className="text-[10px] md:text-[14px]">round</span>
+            </span>
+            <span>
+              <span className="text-[16px] md:text-[22px] text-orange-500 font-black drop-shadow-[0_0_8px_rgba(249,115,22,0.8)]">S</span>
+              <span className="text-[10px] md:text-[14px]">ystem</span>
+            </span>
+            <span>
+              <span className="text-[16px] md:text-[22px] text-orange-500 font-black drop-shadow-[0_0_8px_rgba(249,115,22,0.8)]">E</span>
+              <span className="text-[10px] md:text-[14px]">ngineering</span>
+            </span>
+            <span>
+              <span className="text-[10px] md:text-[14px]">Division:</span>
+            </span>
+            <span className="text-[15px] md:text-[20px] text-orange-400 font-black drop-shadow-[0_0_10px_rgba(249,115,22,1)] ml-1">
+              GSE
+            </span>
           </h3>
         </div>
       </div>
