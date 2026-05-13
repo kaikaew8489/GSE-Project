@@ -661,13 +661,36 @@ useEffect(() => {
     type: null,
   });
 
-  // 🌟 ฟันธง: ตัวแปรควบคุม Popup ประเมินความพึงพอใจ
-  const [ratingModal, setRatingModal] = useState({
-    isOpen: false,
-    ticketId: null,
-    rating: 0,
-    comment: '',
-  });
+ // 🌟 ฟันธง: ตัวแปรควบคุม Popup ประเมินความพึงพอใจ
+ const [ratingModal, setRatingModal] = useState({
+  isOpen: false,
+  ticketId: null,
+  rating: 0,
+  comment: '',
+});
+
+// 🌟 ฟันธง: เก็บคำสำเร็จรูปที่ User เลือก
+const [selectedTags, setSelectedTags] = useState([]);
+  
+// 🌟 ฟันธง: มาตรฐานคำสำเร็จรูปตามเกณฑ์ ISO/ITIL แยกตาม 1-5 ดาวแบบเจาะลึก
+const tagsByRating = {
+  5: ['💡 ซ่อมเสร็จก่อนกำหนด', '🛠️ แก้ปัญหาเด็ดขาด', '🤝 บริการดีเยี่ยม/สุภาพ', '🛡️ ให้คำแนะนำป้องกัน'],
+  4: ['💡 เวลาซ่อมตามมาตรฐาน', '🛠️ ใช้งานได้ตามปกติ', '🤝 ตอบสนองรวดเร็ว', '🧹 พื้นที่ซ่อมเรียบร้อย'],
+  3: ['⏱️ ซ่อมเสร็จแต่นานไปนิด', '🛠️ เป็นการแก้ไขชั่วคราว', '💬 ขาดการอัปเดตสถานะ', '🧹 งานยังไม่ค่อยเรียบร้อย'],
+  2: ['⏱️ ซ่อมล่าช้ากว่ากำหนด SLA', '🛠️ ปัญหาเดิมเป็นซ้ำ', '📞 ติดต่อช่างยาก', '🛑 กระทบงานส่วนอื่น'],
+  1: ['⛔ ทิ้งงาน/ล่าช้าขั้นวิกฤต', '🛠️ ซ่อมไม่สำเร็จ', '😡 บริการไม่สุภาพ', '💥 ทำให้ระบบอื่นพัง']
+};
+const toggleTag = (tag) => {
+  let newTags;
+  if (selectedTags.includes(tag)) {
+    newTags = selectedTags.filter(t => t !== tag);
+  } else {
+    newTags = [...selectedTags, tag];
+  }
+  setSelectedTags(newTags);
+  // ดึงคำไปยัดใส่กล่องข้อความอัตโนมัติ
+  setRatingModal(prev => ({ ...prev, comment: newTags.join(' ') }));
+};
 
 
   const [actionText, setActionText] = useState('');
@@ -977,6 +1000,7 @@ useEffect(() => {
     });
     
     setRatingModal({ isOpen: false, ticketId: null, rating: 0, comment: '' });
+    setSelectedTags([]); // 🌟 ฟันธง: ล้างค่าปุ่มคำสำเร็จรูปที่กดค้างไว้
   };
 
   // 🌟 ฟันธง: ตัวคำนวณสถิติที่รองรับปฏิทินย้อนหลังแบบ 100%
@@ -2398,7 +2422,7 @@ const renderTracking = () => (
                                     { text: 'text-rose-400', fill: '#fb7185', drop: 'drop-shadow-[0_0_10px_rgba(251,113,133,0.8)]', border: 'border-rose-500', glow: 'shadow-[0_0_15px_rgba(225,29,72,0.3)]', flare: 'bg-rose-500/20' };
 
     return (
-      <div className="mt-3 animate-in slide-in-from-top-2 duration-500">
+      <div className="mt-3 mb-5 animate-in slide-in-from-top-2 duration-500">
         {currentUserRole === 'technician' ? (
           // 👨‍🔧 มุมมองช่าง/หัวหน้า: กล่องเรืองแสง โชว์คอมเมนต์เต็มรูปแบบ
           <div className={`bg-slate-900 border-[2px] border-solid ${rColor.border} rounded-xl p-4 ${rColor.glow} relative overflow-hidden`}>
@@ -3036,9 +3060,9 @@ const renderTracking = () => (
 
                     {t.status === 'completed' && (
                     <button
-                       onClick={() => setRatingModal({ isOpen: true, ticketId: t.id, rating: 0, comment: '' })} // 🌟 เรียก Popup ประเมิน
-                      className="w-full bg-gradient-to-r from-emerald-500 to-emerald-600 text-white border border-emerald-400 font-bold py-4 rounded-xl flex justify-center items-center gap-2 shadow-[0_0_15px_rgba(16,185,129,0.4)] hover:shadow-[0_0_25px_rgba(16,185,129,0.6)] active:scale-95 transition-all">
-                      <ThumbsUp size={18} /> ยืนยันผลการซ่อมบำรุง
+                       onClick={() => setRatingModal({ isOpen: true, ticketId: t.id, rating: 0, comment: '', techName: t.techName })} // 🌟 ดึงชื่อช่างไปด้วย!
+                      className="w-full bg-gradient-to-r from-emerald-500 to-emerald-600 text-white border border-emerald-400 font-bold py-4 rounded-xl flex justify-center items-center gap-2 shadow-[0_0_15px_rgba(16,185,129,0.4)] hover:shadow-[0_0_25px_rgba(16,185,129,0.6)] active:scale-95 transition-all text-[16px]">
+                      <Star size={20} className="animate-pulse text-yellow-300" fill="currentColor" /> ยืนยันผลและให้คะแนนช่าง
                       </button>
                           )}
                           
@@ -3240,26 +3264,39 @@ const renderTracking = () => (
                        rating === 1 ? { text: 'text-rose-400', fill: '#fb7185', drop: 'drop-shadow-[0_0_15px_rgba(244,63,94,1)]', border: 'border-rose-500', shadow: 'shadow-[0_0_60px_rgba(244,63,94,0.4)]', flare: 'bg-rose-500/80', btnFrom: 'from-rose-500', btnTo: 'to-rose-600', btnGlow: 'shadow-[0_0_20px_rgba(225,29,72,0.8)]', btnHover: 'hover:shadow-[0_0_30px_rgba(225,29,72,1)]', ring: 'focus:border-rose-500 focus:ring-rose-500/50', iconGlow: 'shadow-[0_0_25px_rgba(244,63,94,0.9)]' } :
                                       { text: 'text-slate-500', fill: 'none', drop: '', border: 'border-slate-700', shadow: 'shadow-[0_0_40px_rgba(0,0,0,0.5)]', flare: 'bg-blue-500/10', btnFrom: 'from-slate-700', btnTo: 'to-slate-800', btnGlow: '', btnHover: '', ring: 'focus:border-slate-400 focus:ring-slate-400/50', iconGlow: 'shadow-[0_0_15px_rgba(255,255,255,0.1)]' };
 
+        // 🌟 ฟันธง: ลบ onClick ออกจาก Background บังคับให้คลิกนอกกรอบไม่ได้ ต้องกดยกเลิกเท่านั้น!
         return (
-        <div className="fixed inset-0 z-[160] flex items-center justify-center bg-slate-950/90 backdrop-blur-md p-6 animate-in fade-in" onClick={() => setRatingModal({ ...ratingModal, isOpen: false })}>
-          
+          <div className="fixed inset-0 z-[160] flex items-center justify-center bg-slate-950/90 backdrop-blur-md p-6 animate-in fade-in">
+                  
           {/* 💥 แสงเฟลอร์หลังกล่อง สว่างขั้นสุด 80-90% ตามดาว */}
           <div className={`absolute w-[450px] h-[450px] rounded-full blur-[100px] animate-pulse pointer-events-none z-0 transition-colors duration-500 ${rColor.flare}`}></div>
 
           <div className={`relative z-10 bg-slate-900 border-[3px] border-solid rounded-[2.5rem] w-full max-w-sm overflow-hidden p-8 text-center space-y-6 transition-all duration-500 ${rColor.border} ${rColor.shadow}`} onClick={(e) => e.stopPropagation()}>
             
-            {/* 🌟 ไอคอนด้านบน ขอบสีขาวสว่าง พร้อมแสงเฟลอร์รอบวงกลมและดาวเด้งดึ๋ง */}
-            <div className={`w-20 h-20 rounded-full flex items-center justify-center mx-auto border-[3px] border-white bg-slate-950 transition-all duration-500 ${rColor.iconGlow}`}>
-              <Star size={40} className={`${rating > 0 ? "animate-bounce" : ""} ${rColor.text}`} fill={rating > 0 ? rColor.fill : "none"} />
+            {/* 🌟 สไตล์ Grab: โพรไฟล์ช่างผู้รับผิดชอบ */}
+            <div className="flex flex-col items-center mb-2 animate-in slide-in-from-top-4">
+              <div className={`w-20 h-20 rounded-full flex items-center justify-center mx-auto border-[3px] border-white bg-slate-800 transition-all duration-500 shadow-[0_0_20px_rgba(255,255,255,0.15)] mb-3 overflow-hidden ${rColor.iconGlow}`}>
+                {/* 🌟 ใช้ไอคอน User เสมือนเป็นรูปโปรไฟล์ช่าง */}
+                <User size={45} className={`mt-3 transition-colors duration-500 ${rating > 0 ? rColor.text : 'text-slate-400'}`} fill="currentColor" />
+              </div>
+              
+              <h3 className="text-xl md:text-2xl font-black text-white tracking-tight drop-shadow-md">
+                {ratingModal.techName || 'ทีมช่าง ฝวด.'}
+              </h3>
+              
+              <p className="text-[12px] md:text-[14px] text-slate-400 font-bold mt-1.5 flex items-center gap-1.5">
+                รหัสงาน 
+                {/* 🌟 ฟันธง: ขยายรหัส GSE ให้ใหญ่ขึ้น และเปลี่ยนสีตามดาวอัตโนมัติ */}
+                <span className={`text-[16px] md:text-[18px] font-black font-mono tracking-wider transition-colors duration-300 drop-shadow-sm ${rating > 0 ? rColor.text : 'text-orange-400'}`}>
+                  {ratingModal.ticketId}
+                </span>
+              </p>
             </div>
 
             <div>
-              <h3 className="text-2xl font-black text-white tracking-tight drop-shadow-md">
-                ความพึงพอใจของผู้แจ้ง
+              <h3 className={`text-[15px] md:text-[17px] font-black tracking-widest mt-4 mb-1 transition-colors duration-300 ${rating > 0 ? rColor.text : 'text-slate-200'}`}>
+                คุณพึงพอใจการซ่อมระดับไหน?
               </h3>
-              <p className="text-[13px] text-slate-400 font-bold mt-2">
-                รหัสงาน: <span className="text-blue-400">{ratingModal.ticketId}</span>
-              </p>
             </div>
 
             {/* โซนให้ดาว สีเปลี่ยนเป๊ะตามเฉด 1-5 */}
@@ -3280,23 +3317,48 @@ const renderTracking = () => (
               ))}
             </div>
             
-            {/* คำอธิบายระดับดาว สี Dynamic */}
+            {/* คำอธิบายระดับดาว สี Dynamic (ฟันธง: มาตรฐานคำเดียว + Emoji สากล) */}
             <div className="h-7 -mt-4 mb-2">
-              <span className={`text-[15px] font-black tracking-widest animate-in fade-in zoom-in duration-300 ${rColor.text}`}>
-                {rating === 5 ? 'ยอดเยี่ยมที่สุด 🤩' : 
-                 rating === 4 ? 'ดีมาก / ประทับใจ 🙂' : 
-                 rating === 3 ? 'ดี / ตามมาตรฐาน 😐' : 
-                 rating === 2 ? 'พอใช้ / ปรับปรุงนิดหน่อย 😕' : 
-                 rating === 1 ? 'ไม่ประทับใจ / ล่าช้า 😞' : 'โปรดแตะเลือกจำนวนดาว'}
+              <span className={`text-[17px] md:text-[19px] font-black tracking-widest animate-in fade-in zoom-in duration-300 ${rColor.text}`}>
+                {rating === 5 ? 'ยอดเยี่ยม 😍' : 
+                 rating === 4 ? 'ดีมาก 😁' : 
+                 rating === 3 ? 'ดี 😊' : 
+                 rating === 2 ? 'พอใช้ 😐' : 
+                 rating === 1 ? 'ปรับปรุง 😞' : 'โปรดแตะเลือกจำนวนดาว'}
               </span>
             </div>
+
+            {/* 🌟 สไตล์ Grab: คำสำเร็จรูป (Quick Tags) เลือกปุ๊บ พิมพ์ให้ปั๊บ! */}
+            {rating > 0 && (
+              <div className="mb-4 animate-in slide-in-from-top-3 duration-500 text-left">
+                <p className={`text-[13px] font-bold mb-2 ${rColor.text}`}>
+                  ท่านประทับใจส่วนไหนเป็นพิเศษ? (เลือกได้หลายข้อ)
+                </p>
+                <div className="flex flex-wrap gap-2">
+                {(tagsByRating[rating] || []).map((tag, index) => (
+                    <button
+                      key={index}
+                      type="button"
+                      onClick={() => toggleTag(tag)}
+                      className={`px-3 py-1.5 rounded-full text-[12px] font-bold border-2 transition-all active:scale-95 duration-300 ${
+                        selectedTags.includes(tag)
+                          ? `bg-gradient-to-r ${rColor.btnFrom} ${rColor.btnTo} text-white ${rColor.border} shadow-md drop-shadow-md` 
+                          : `bg-slate-800 text-slate-300 border-slate-600 hover:${rColor.text} hover:border-slate-400` // 🌟 ฟันธง: ปุ่มที่ยังไม่กด จะมีลูกเล่นเปลี่ยนสีตอนเอาเมาส์ชี้
+                      }`}
+                    >
+                      {tag}
+                    </button>
+                  ))}
+                </div>
+              </div>
+            )}
 
             {/* 🌟 กล่องคอมเมนต์ Default สีเทา พอกดพิมพ์ (Focus) หรือมีดาว ค่อยเรืองแสงตามดาว */}
             <div className="text-left space-y-1.5">
               <textarea
                 value={ratingModal.comment}
                 onChange={(e) => setRatingModal({ ...ratingModal, comment: e.target.value })}
-                placeholder="พิมพ์คำชื่นชมช่าง หรือข้อเสนอแนะเพิ่มเติม..."
+                placeholder="พิมพ์ข้อเสนอแนะเพิ่มเติม..."
                 rows={3}
                 className={`w-full bg-slate-800 border-[2px] border-solid border-slate-600 rounded-2xl px-4 py-3 text-white font-bold text-sm outline-none transition-all shadow-inner ${rating > 0 ? rColor.ring : 'focus:border-slate-400 focus:ring-slate-400/50'}`}
               />
@@ -3306,7 +3368,7 @@ const renderTracking = () => (
               {/* ปุ่มยกเลิก สี Rose วาบๆ */}
               <button
                 type="button"
-                onClick={() => setRatingModal({ ...ratingModal, isOpen: false })}
+                onClick={() => setRatingModal({ isOpen: false, ticketId: null, rating: 0, comment: '', techName: '' })}
                 className="flex-[0.8] py-4 rounded-xl font-bold text-rose-200 bg-rose-900/40 border-[2px] border-solid border-rose-500/50 hover:bg-rose-600 hover:border-rose-400 hover:text-white hover:shadow-[0_0_20px_rgba(225,29,72,0.8)] hover:-translate-y-1 active:scale-95 transition-all duration-300"
               >
                 ยกเลิก
