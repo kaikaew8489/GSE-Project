@@ -1133,7 +1133,7 @@ const toggleTag = (tag) => {
       // 🌟 3. กรองตาม "สถานะ (Tab)"
       if (filterStatus === 'all') return true;
       if (filterStatus === 'fixing') return ['acknowledged', 'in_progress', 'on_hold'].includes(t.status);
-      if (filterStatus === 'completed') return ['completed', 'verified'].includes(t.status);
+      if (filterStatus === 'completed') return t.status === 'verified';
       if (filterStatus === 'on_hold') return t.status === 'on_hold';
       if (filterStatus === 'verify') return t.status === 'completed';
         
@@ -1861,13 +1861,17 @@ const toggleTag = (tag) => {
                 </label>
                 <input
                   name="reporterContact"
-                  autoComplete="tel" // 🌟 ฟันธง: สั่งให้มือถือดึงเบอร์โทรมาเสนออัตโนมัติ
                   value={formData.reporterContact}
                   onChange={handlePhoneChange}
                   maxLength={12}
-                  className={`w-full bg-white border-2 border-solid ...โค้ดสีเดิม...`}
+                  className={`w-full bg-white border-2 border-solid border-orange-500 ${
+                    formErrors.reporterContact
+                      ? 'border-rose-500 focus:border-rose-500 ring-1 ring-rose-500/30'
+                      : 'border-2 border-orange-500 focus:border-orange-500 focus:ring-2 focus:ring-orange-500/30'
+                  } rounded-2xl px-5 py-4 text-sm font-bold text-slate-800 outline-none font-mono tracking-widest shadow-sm transition-all`}
                   placeholder="0X-XXXX-XXXX"
                 />
+
                 {formErrors.reporterContact && (
                   <div className="text-rose-500 text-[11px] font-bold mt-1 px-1">
                     ⚠️ {formErrors.reporterContact}
@@ -1936,11 +1940,14 @@ const toggleTag = (tag) => {
 
                 <textarea
                   name="description"
-                  autoComplete="on" // 🌟 ฟันธง: สั่งเบราว์เซอร์จดจำประวัติการพิมพ์อาการเสีย
                   value={formData.description}
                   onChange={handleInputChange}
-                  rows="3"
-                  className={`w-full bg-white border ...โค้ดสีเดิม...`}
+                  rows={3}
+                  className={`w-full bg-white border ${
+                    formErrors.description
+                      ? 'border-rose-500 focus:border-rose-500 ring-1 ring-rose-500/30'
+                      : 'border-2 border-orange-400 focus:border-orange-500 focus:ring-2 focus:ring-orange-500/30'
+                  } rounded-2xl px-5 py-4 outline-none text-sm font-bold text-slate-800 shadow-sm resize-none transition-all`}
                   placeholder="อธิบายรายละเอียดอาการเสีย..."
                 />
 
@@ -1959,10 +1966,9 @@ const toggleTag = (tag) => {
 
                 <input
                   name="assetNumber"
-                  autoComplete="on" // 🌟 ฟันธง: จดจำเลขครุภัณฑ์ที่เคยกรอก
                   value={formData.assetNumber}
                   onChange={handleInputChange}
-                  className="w-full bg-white border-2 border-orange-400 ...โค้ดสีเดิม..."
+                  className="w-full bg-white border-2 border-orange-400 focus:border-orange-500 focus:ring-2 focus:ring-orange-500/30 rounded-2xl px-5 py-4 text-sm font-bold text-slate-800 outline-none font-mono tracking-widest shadow-sm transition-all"
                   placeholder="ระบุหมายเลข..."
                 />
 
@@ -3381,13 +3387,12 @@ const renderTracking = () => (
             {/* 🌟 กล่องคอมเมนต์ Default สีเทา พอกดพิมพ์ (Focus) หรือมีดาว ค่อยเรืองแสงตามดาว */}
             <div className="text-left space-y-1.5">
             <textarea
-                name="ratingComment" // 🌟 เพิ่มชื่อให้ช่องนี้
-                autoComplete="on"    // 🌟 สั่งให้จดจำคำคอมเมนต์เก่าๆ
+                name="ratingComment"
                 value={ratingModal.comment}
                 onChange={(e) => setRatingModal({ ...ratingModal, comment: e.target.value })}
                 placeholder="พิมพ์ข้อเสนอแนะเพิ่มเติม..."
                 rows={3}
-                className={`w-full bg-slate-800 border-[2px] ...โค้ดสีเดิม...`}
+                className={`w-full bg-slate-800 border-[2px] border-solid border-slate-600 rounded-2xl px-4 py-3 text-white font-bold text-sm outline-none transition-all shadow-inner ${rating > 0 ? rColor.ring : 'focus:border-slate-400 focus:ring-slate-400/50'}`}
               />
             </div>
 
