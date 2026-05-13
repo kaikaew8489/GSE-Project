@@ -914,7 +914,7 @@ const toggleTag = (tag) => {
         reporter: formData.reporter,
         phone: formData.reporterContact,
         primaryTech: primaryTech,
-        status: 'NEW' // 🌟 ส่งสถานะให้ GAS รู้ว่าเป็นงานใหม่
+        status: 'NEW', // 🌟 ส่งสถานะให้ GAS รู้ว่าเป็นงานใหม่
         building: formData.building, // 🌟 พิกัด: เพิ่มตรงนี้
         room: formData.room          // 🌟 พิกัด: เพิ่มตรงนี้
       })
