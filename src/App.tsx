@@ -914,6 +914,7 @@ const toggleTag = (tag) => {
         reporter: formData.reporter,
         phone: formData.reporterContact,
         primaryTech: primaryTech,
+        status: 'NEW' // 🌟 ส่งสถานะให้ GAS รู้ว่าเป็นงานใหม่
         building: formData.building, // 🌟 พิกัด: เพิ่มตรงนี้
         room: formData.room          // 🌟 พิกัด: เพิ่มตรงนี้
       })
@@ -981,11 +982,37 @@ const toggleTag = (tag) => {
         cancelledAt: new Date().toISOString(),
       };
 
-    await updateTicketStatus(ticketId, updates);
-    setActionModal({ isOpen: false, ticketId: null, type: null });
-    setActionText('');
-    setSelectedTech('');
-  };
+      await updateTicketStatus(ticketId, updates);
+
+      // 🌟 ฟันธง: ส่งแจ้งเตือน Flex Message เข้า LINE เมื่อมีการรับงาน หรือ ปิดงาน
+      if (type === 'accept' || type === 'finish') {
+        const target = tickets.find((t) => t.id === ticketId);
+        if (target) {
+          try {
+            fetch("วhttps://script.google.com/macros/s/AKfycbxBoB_e637WkWMeSuX9NP3BSKcSiE8J3dSXmlzNV9aeiq6DRUvn81bSp6w-B0nzCVA5/exec", {
+              method: 'POST',
+              mode: 'no-cors',
+              headers: { 'Content-Type': 'text/plain;charset=utf-8' }, 
+              body: JSON.stringify({
+                ticketId: target.id,
+                equipment: target.equipment,
+                description: target.description,
+                reporter: target.reporter,
+                phone: target.reporterContact || "N/A",
+                primaryTech: selectedTech || target.techName || "ทีมช่าง ฝวด.",
+                building: target.building,
+                room: target.room,
+                status: type === 'accept' ? 'ACCEPTED' : 'COMPLETED' // 🌟 สั่งเปลี่ยนสีกรอบ
+              })
+            });
+          } catch (err) { console.error("Line Notify Error:", err); }
+        }
+      }
+  
+      setActionModal({ isOpen: false, ticketId: null, type: null });
+      setActionText('');
+      setSelectedTech('');
+    };
 
 
   // 🌟 ฟันธง: ฟังก์ชันส่งผลประเมินและปิดงานสมบูรณ์
