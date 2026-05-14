@@ -3350,8 +3350,9 @@ const renderTracking = () => (
           {/* 💥 แสงเฟลอร์หลังกล่อง สว่างขั้นสุด 80-90% ตามดาว */}
           <div className={`absolute w-[450px] h-[450px] rounded-full blur-[100px] animate-pulse pointer-events-none z-0 transition-colors duration-500 ${rColor.flare}`}></div>
 
-          <div className={`relative z-10 bg-slate-900 border-[3px] border-solid rounded-[2.5rem] w-full max-w-sm overflow-hidden p-8 text-center space-y-6 transition-all duration-500 ${rColor.border} ${rColor.shadow}`} onClick={(e) => e.stopPropagation()}>
-            
+         {/* 🌟 ฟันธง: ถอด overflow-hidden ออก แล้วใส่ max-h-[85vh] overflow-y-auto overscroll-contain scrollbar-hide เข้าไปแทน! */}
+          {/* 🌟 ฟันธง: ถอด overflow-hidden ออก แล้วใส่ max-h-[85vh] overflow-y-auto overscroll-contain scrollbar-hide เข้าไปแทน! */}
+          <div className={`relative z-10 bg-slate-900 border-[3px] border-solid rounded-[2.5rem] w-full max-w-sm max-h-[85vh] overflow-y-auto overscroll-contain scrollbar-hide p-8 text-center space-y-6 transition-all duration-500 ${rColor.border} ${rColor.shadow}`} onClick={(e) => e.stopPropagation()}>            
             {/* 🌟 สไตล์ Grab: โพรไฟล์ช่างผู้รับผิดชอบ */}
             <div className="flex flex-col items-center mb-2 animate-in slide-in-from-top-4">
               <div className={`w-20 h-20 rounded-full flex items-center justify-center mx-auto border-[3px] border-white bg-slate-800 transition-all duration-500 shadow-[0_0_20px_rgba(255,255,255,0.15)] mb-3 overflow-hidden ${rColor.iconGlow}`}>
