@@ -3602,7 +3602,7 @@ const renderTracking = () => (
 
       {/* 🧭 Navigation Bar (ฟันธง: ย้ายเมนูออกมานอกกรอบหลัก + ใส่ transform-gpu บังคับมือถือวาดกราฟิกแยกชั้น ป้องกันตัวหนังสือหาย 1,000,000%) */}
 
-      <div className={`fixed bottom-4 left-1/2 -translate-x-1/2 w-[calc(100%-2rem)] max-w-[416px] py-2 md:py-3 bg-slate-900/90 backdrop-blur-xl border-2 border-solid border-orange-500 rounded-2xl z-[9999] shadow-[0_10px_30px_rgba(249,115,22,0.4)] transform-gpu ${activeTab === 'report' ? 'md:max-w-2xl' : 'md:max-w-[992px]'}`}>
+      <div className={`fixed bottom-4 left-1/2 -translate-x-1/2 w-[calc(100%-2rem)] max-w-[416px] py-2 md:py-3 bg-slate-900/90 backdrop-blur-xl border-2 border-solid border-orange-500 rounded-2xl z-[60] shadow-[0_10px_30px_rgba(249,115,22,0.4)] transform-gpu ${activeTab === 'report' ? 'md:max-w-2xl' : 'md:max-w-[992px]'}`}>
      
       <div className="w-full flex justify-evenly items-center px-1 md:px-8">
           
@@ -3860,6 +3860,13 @@ export default function App() {
 
   return (
     <ErrorBoundary>
+      {/* 🌟 ฟันธง: ฝังสมองกลสั่งตาย Pull-to-Refresh ของ Android (S25 Ultra หายแน่นอน!) 🌟 */}
+      <style>{`
+        body, html {
+          overscroll-behavior-y: none !important;
+        }
+      `}</style>
+      
       {hasStarted ? (
         <MainApp onGoHome={handleGoHome} initialRole={role} />
       ) : (
