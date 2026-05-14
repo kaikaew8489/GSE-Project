@@ -3602,7 +3602,7 @@ const renderTracking = () => (
 
       {/* 🧭 Navigation Bar (ฟันธง: ย้ายเมนูออกมานอกกรอบหลัก + ใส่ transform-gpu บังคับมือถือวาดกราฟิกแยกชั้น ป้องกันตัวหนังสือหาย 1,000,000%) */}
 
-      <div className={`fixed bottom-4 left-1/2 -translate-x-1/2 w-[calc(100%-2rem)] max-w-[416px] py-2 md:py-3 bg-slate-900/90 backdrop-blur-xl border-2 border-solid border-orange-500 rounded-2xl z-[60] shadow-[0_10px_30px_rgba(249,115,22,0.4)] transform-gpu ${activeTab === 'report' ? 'md:max-w-2xl' : 'md:max-w-[992px]'}`}>
+      <div className={`fixed bottom-4 left-1/2 -translate-x-1/2 w-[calc(100%-2rem)] max-w-[416px] py-2 md:py-3 bg-slate-900/90 backdrop-blur-xl border-2 border-solid border-orange-500 rounded-2xl z-[40] shadow-[0_10px_30px_rgba(249,115,22,0.4)] transform-gpu ${activeTab === 'report' ? 'md:max-w-2xl' : 'md:max-w-[992px]'}`}>
      
       <div className="w-full flex justify-evenly items-center px-1 md:px-8">
           
@@ -3842,6 +3842,14 @@ function LandingPage({ onStart }) {
 // 🚀 ส่วนควบคุมระบบ (App Component)
 // ==========================================
 export default function App() {
+  // 🌟 ฟันธง 1: ฉีดยาชาล็อกหน้าจอ ดับเครื่องชนระบบ Pull-to-Refresh ของ Android 1,000,000%
+  useEffect(() => {
+    document.body.style.overscrollBehavior = 'none';
+    document.documentElement.style.overscrollBehavior = 'none';
+    document.body.style.overflow = 'hidden'; // สั่งห้าม Body สไลด์เด็ดขาด!
+    document.documentElement.style.overflow = 'hidden'; 
+  }, []);
+
   const [hasStarted, setHasStarted] = useState(() => sessionStorage.getItem('hasStarted') === 'true');
   const [role, setRole] = useState(() => sessionStorage.getItem('role') || 'reporter');
 
@@ -3860,13 +3868,6 @@ export default function App() {
 
   return (
     <ErrorBoundary>
-      {/* 🌟 ฟันธง: ฝังสมองกลสั่งตาย Pull-to-Refresh ของ Android (S25 Ultra หายแน่นอน!) 🌟 */}
-      <style>{`
-        body, html {
-          overscroll-behavior-y: none !important;
-        }
-      `}</style>
-      
       {hasStarted ? (
         <MainApp onGoHome={handleGoHome} initialRole={role} />
       ) : (
