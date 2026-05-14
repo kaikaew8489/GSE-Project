@@ -3346,8 +3346,11 @@ const renderTracking = () => (
         </div>
       </div>
 
-      {/* 🎯 ฟันธงแก้ตรงนี้! เพิ่มเงื่อนไขบีบความกว้างกล่อง Scrollbar ให้แนบชิดติดขอบฟอร์ม (md:max-w-2xl mx-auto) */}
-      <div className={`relative z-10 flex-1 overflow-y-auto overflow-x-hidden w-full scrollbar-hide pb-28 ${activeTab === 'report' ? 'md:max-w-2xl mx-auto' : ''}`}>
+      {/* 🎯 ฟันธงวิชามาร: ยัด style ฝังลงแกน React บังคับ Chrome Android ห้ามดึงรีเฟรชเด็ดขาด! */}
+      <div 
+        className={`relative z-10 flex-1 overflow-y-auto overflow-x-hidden w-full scrollbar-hide pb-28 ${activeTab === 'report' ? 'md:max-w-2xl mx-auto' : ''}`}
+        style={{ overscrollBehavior: 'none', touchAction: 'pan-y' }}
+      >
         {activeTab === 'dashboard' && currentUserRole === 'technician' && renderDashboard()}
         {activeTab === 'report' && renderReport()}
         {activeTab === 'tracking' && renderTracking()}
@@ -3718,8 +3721,11 @@ function LandingPage({ onStart }) {
               </p>
             </div>
 
-            {/* 👩‍🔧 น้องมาสคอต (ฟันธง: เปลี่ยนค่า mb ให้จอ PC เป็นบวก md:mb-4 เพื่อดันปุ่มสีส้มให้ถอยหนีลงไป ไม่ทับเท้า) */}
-            <div className="relative z-30 w-[50%] md:w-[70%] max-w-[280px] md:max-w-[360px] mb-1 md:mb-2 pointer-events-none drop-shadow-[0_20px_20px_rgba(0,0,0,0.8)] transition-all duration-500">
+            {/* 👩‍🔧 น้องมาสคอต (ฟันธงวิชามาร: ล็อกกุญแจมือด้วย style= ยัดลง HTML ตรงๆ Chrome แหกไม่ได้ 100%) */}
+            <div 
+              className="relative z-30 mx-auto mb-2 md:mb-4 pointer-events-none drop-shadow-[0_20px_20px_rgba(0,0,0,0.8)] transition-all duration-500"
+              style={{ width: '50%', maxWidth: '280px', minHeight: '150px' }} 
+            >
               <img
                 src="/mascot.webp"
                 alt="Mascot"
