@@ -233,7 +233,7 @@ const technicianList = [
   { name: 'นายนวัตกรณ์ ไก่แก้ว', phone: '08-3529-3836', photo: '/korn.webp' },
   { name: 'นายทศพล ชินนิวัฒน์', phone: '08-1513-7854', photo: '/tos.webp' },
   { name: 'นายนรัตว์ ศรีสวัสดิ์พงษ์', phone: '08-6361-4399', photo: '/narat.webp' },
-  { name: 'นายประมินทร์ พิชิตการค้า', phone: '08-1135-1599', photo: '/pramin' },
+  { name: 'นายประมินทร์ พิชิตการค้า', phone: '08-1135-1599', photo: '/pramin.webp' },
   { name: 'นายธนกาญจน์ ไตรปิฎก', phone: '06-2463-5544', photo: '/karn.webp' },
   { name: 'นายชุติพงษ์ ลาวงศ์เกิด', phone: '09-8938-9839', photo: '/neng.webp' },
   { name: 'นายวิชญ์ภาส ดรบัณฑิต', phone: '09-1415-5194', photo: '/top.webp' },
@@ -3369,13 +3369,13 @@ const renderTracking = () => (
 
         // 🌟 ฟันธง: ลบ onClick ออกจาก Background บังคับให้คลิกนอกกรอบไม่ได้ ต้องกดยกเลิกเท่านั้น!
         return (
-          <div className="fixed inset-0 z-[160] flex items-center justify-center bg-slate-950/90 backdrop-blur-md p-6 animate-in fade-in">
-                  
-          {/* 💥 แสงเฟลอร์หลังกล่อง สว่างขั้นสุด 80-90% ตามดาว */}
-          <div className={`absolute w-[450px] h-[450px] rounded-full blur-[100px] animate-pulse pointer-events-none z-0 transition-colors duration-500 ${rColor.flare}`}></div>
+          <div className="fixed inset-0 z-[160] flex items-center justify-center bg-slate-950/90 backdrop-blur-md p-4 animate-in fade-in" onClick={() => setRatingModal({ isOpen: false, ticketId: null, rating: 0, comment: '', techName: '' })}>
+            
+            {/* 💥 แสงเฟลอร์หลังกล่อง สว่างขั้นสุด 80-90% ตามดาว */}
+            <div className={`absolute w-[450px] h-[450px] rounded-full blur-[100px] animate-pulse pointer-events-none z-0 transition-colors duration-500 ${rColor.flare}`}></div>
 
-          {/* 🌟 ฟันธงแก้ไขข้อ 1: ปรับ max-h-[80vh] และใส่ pb-12 ป้องกันปุ่มติดขอบล่างจอตอนไถ */}
-          <div className={`relative z-10 bg-slate-900 border-[3px] border-solid rounded-[2.5rem] w-full max-w-sm max-h-[80vh] overflow-y-auto overscroll-contain scrollbar-hide px-8 pt-8 pb-12 text-center transition-all duration-500 ${rColor.border} ${rColor.shadow}`} onClick={(e) => e.stopPropagation()}>            
+            {/* 🌟 ฟันธง: เพิ่ม max-h-[85vh] และ overflow-y-auto ตรงบรรทัดนี้ครับ! 🌟 */}
+            <div className={`relative z-10 bg-slate-900 border-[3px] border-solid rounded-[2.5rem] w-full max-w-sm max-h-[85vh] overflow-y-auto scrollbar-hide px-6 pt-8 pb-10 text-center transition-all duration-500 ${rColor.border} ${rColor.shadow}`} onClick={(e) => e.stopPropagation()}>            
             
             {/* 🌟 สไตล์ Grab: โพรไฟล์ช่างผู้รับผิดชอบ */}
             <div className="flex flex-col items-center mb-6 animate-in slide-in-from-top-4">
@@ -3500,10 +3500,10 @@ const renderTracking = () => (
         );
       })()}
 
-{/* 🌟 หน้าต่าง Popup กราบขอบพระคุณ (Thank You Modal) - ฟันธง: อัปเกรดสีตรงเป๊ะ 5 ระดับดาว 🌟 */}
+{/* 🌟 หน้าต่าง Popup กราบขอบพระคุณ (Thank You Modal) - ฟันธง: อัปเกรดแสงเฟลอร์ + ดึงรหัส GSE + โชว์ดาว 5 ระดับสี 🌟 */}
 {showThanksModal && (() => {
         const rating = ratingModal.rating;
-        // 🌟 สมองกลสี: แยก 5 ระดับให้ตรงกับหน้าประเมินเป๊ะๆ 100% (5=เขียว, 4=ฟ้า, 3=เหลือง, 2=ส้ม, 1=แดง)
+        // 🌟 เซ็ตสีและแสงเฟลอร์ (เขียว / ฟ้า / เหลือง / ส้ม / แดงชมพู) แบบ Full Option ทุกจุด
         const tColor = rating === 5 ? { 
             border: 'border-emerald-500', text: 'text-emerald-400', flare: 'bg-emerald-500', 
             glow: 'shadow-[0_0_40px_rgba(16,185,129,0.3)]', boxBg: 'bg-emerald-950/40',
@@ -3561,7 +3561,7 @@ const renderTracking = () => (
                 </p>
               </div>
 
-              {/* 🌟🌟 ฟันธง: โชว์ผลคะแนนดาว (Confirmation) ให้ผู้ใช้ชื่นใจ 🌟🌟 */}
+              {/* 🌟🌟 ฟันธง: โชว์ผลคะแนนดาว (Confirmation) กลับมาแล้วครับ! 🌟🌟 */}
               <div className="flex justify-center items-center gap-1.5 mt-2 mb-1 relative z-10">
                 {[1, 2, 3, 4, 5].map((star) => (
                   <Star 
