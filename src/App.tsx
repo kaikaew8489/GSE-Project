@@ -3350,14 +3350,18 @@ const renderTracking = () => (
           {/* 💥 แสงเฟลอร์หลังกล่อง สว่างขั้นสุด 80-90% ตามดาว */}
           <div className={`absolute w-[450px] h-[450px] rounded-full blur-[100px] animate-pulse pointer-events-none z-0 transition-colors duration-500 ${rColor.flare}`}></div>
 
-         {/* 🌟 ฟันธง: ถอด overflow-hidden ออก แล้วใส่ max-h-[85vh] overflow-y-auto overscroll-contain scrollbar-hide เข้าไปแทน! */}
-          {/* 🌟 ฟันธง: ถอด overflow-hidden ออก แล้วใส่ max-h-[85vh] overflow-y-auto overscroll-contain scrollbar-hide เข้าไปแทน! */}
-          <div className={`relative z-10 bg-slate-900 border-[3px] border-solid rounded-[2.5rem] w-full max-w-sm max-h-[85vh] overflow-y-auto overscroll-contain scrollbar-hide p-8 text-center space-y-6 transition-all duration-500 ${rColor.border} ${rColor.shadow}`} onClick={(e) => e.stopPropagation()}>            
+          {/* 🌟 ฟันธงแก้ไขข้อ 1: ปรับ max-h-[80vh] และใส่ pb-12 ป้องกันปุ่มติดขอบล่างจอตอนไถ */}
+          <div className={`relative z-10 bg-slate-900 border-[3px] border-solid rounded-[2.5rem] w-full max-w-sm max-h-[80vh] overflow-y-auto overscroll-contain scrollbar-hide px-8 pt-8 pb-12 text-center transition-all duration-500 ${rColor.border} ${rColor.shadow}`} onClick={(e) => e.stopPropagation()}>            
+            
             {/* 🌟 สไตล์ Grab: โพรไฟล์ช่างผู้รับผิดชอบ */}
-            <div className="flex flex-col items-center mb-2 animate-in slide-in-from-top-4">
+            <div className="flex flex-col items-center mb-6 animate-in slide-in-from-top-4">
               <div className={`w-20 h-20 rounded-full flex items-center justify-center mx-auto border-[3px] border-white bg-slate-800 transition-all duration-500 shadow-[0_0_20px_rgba(255,255,255,0.15)] mb-3 overflow-hidden ${rColor.iconGlow}`}>
-                {/* 🌟 ใช้ไอคอน User เสมือนเป็นรูปโปรไฟล์ช่าง */}
-                <User size={45} className={`mt-3 transition-colors duration-500 ${rating > 0 ? rColor.text : 'text-slate-400'}`} fill="currentColor" />
+                {/* 🌟 ฟันธงแก้ไขข้อ 4: รองรับรูปช่าง (ถ้ามี techPhotoUrl) ไม่งั้นใช้ไอคอน */}
+                {ratingModal.techPhotoUrl ? (
+                   <img src={ratingModal.techPhotoUrl} className="w-full h-full object-cover" alt="ช่าง ฝวด." />
+                ) : (
+                   <User size={45} className={`mt-3 transition-colors duration-500 ${rating > 0 ? rColor.text : 'text-slate-400'}`} fill="currentColor" />
+                )}
               </div>
               
               <h3 className="text-xl md:text-2xl font-black text-white tracking-tight drop-shadow-md">
@@ -3366,21 +3370,20 @@ const renderTracking = () => (
               
               <p className="text-[12px] md:text-[14px] text-slate-400 font-bold mt-1.5 flex items-center gap-1.5">
                 รหัสงาน 
-                {/* 🌟 ฟันธง: ขยายรหัส GSE ให้ใหญ่ขึ้น และเปลี่ยนสีตามดาวอัตโนมัติ */}
                 <span className={`text-[16px] md:text-[18px] font-black font-mono tracking-wider transition-colors duration-300 drop-shadow-sm ${rating > 0 ? rColor.text : 'text-orange-400'}`}>
                   {ratingModal.ticketId}
                 </span>
               </p>
             </div>
 
-            <div>
-              <h3 className={`text-[15px] md:text-[17px] font-black tracking-widest mt-4 mb-1 transition-colors duration-300 ${rating > 0 ? rColor.text : 'text-slate-200'}`}>
+            <div className="mb-4">
+              <h3 className={`text-[15px] md:text-[17px] font-black tracking-widest transition-colors duration-300 ${rating > 0 ? rColor.text : 'text-slate-200'}`}>
                 คุณพึงพอใจการซ่อมระดับไหน?
               </h3>
             </div>
 
-            {/* โซนให้ดาว สีเปลี่ยนเป๊ะตามเฉด 1-5 */}
-            <div className="flex justify-center gap-1.5 py-2">
+            {/* 🌟 ฟันธงแก้ไขข้อ 3: เพิ่มกรอบล้อมรอบดาว เปลี่ยนสีตามกรอบหน้าต่างหลัก */}
+            <div className={`inline-flex items-center justify-center gap-1.5 py-4 px-6 rounded-3xl border-[2px] border-solid bg-slate-900/50 mb-6 transition-colors duration-500 ${rColor.border}`}>
               {[1, 2, 3, 4, 5].map((star) => (
                 <button
                   key={star}
@@ -3397,8 +3400,8 @@ const renderTracking = () => (
               ))}
             </div>
             
-            {/* คำอธิบายระดับดาว สี Dynamic (ฟันธง: มาตรฐานคำเดียว + Emoji สากล) */}
-            <div className="h-7 -mt-4 mb-2">
+            {/* คำอธิบายระดับดาว สี Dynamic */}
+            <div className="h-7 mb-6">
               <span className={`text-[17px] md:text-[19px] font-black tracking-widest animate-in fade-in zoom-in duration-300 ${rColor.text}`}>
                 {rating === 5 ? 'ยอดเยี่ยม 😍' : 
                  rating === 4 ? 'ดีมาก 😁' : 
@@ -3408,22 +3411,22 @@ const renderTracking = () => (
               </span>
             </div>
 
-            {/* 🌟 สไตล์ Grab: คำสำเร็จรูป (Quick Tags) เลือกปุ๊บ พิมพ์ให้ปั๊บ! */}
+            {/* 🌟 ฟันธงแก้ไขข้อ 2: Quick Tags (จัดเรียงสวยงาม ตัดคำตรงบล็อก ไม่แหว่ง) */}
             {rating > 0 && (
-              <div className="mb-4 animate-in slide-in-from-top-3 duration-500 text-left">
-                <p className={`text-[13px] font-bold mb-2 ${rColor.text}`}>
+              <div className="mb-6 animate-in slide-in-from-top-3 duration-500 text-left">
+                <p className={`text-[13px] font-bold mb-3 text-center ${rColor.text}`}>
                   ท่านประทับใจส่วนไหนเป็นพิเศษ? (เลือกได้หลายข้อ)
                 </p>
-                <div className="flex flex-wrap gap-2">
+                <div className="flex flex-wrap justify-center gap-2 px-2">
                 {(tagsByRating[rating] || []).map((tag, index) => (
                     <button
                       key={index}
                       type="button"
                       onClick={() => toggleTag(tag)}
-                      className={`px-3 py-1.5 rounded-full text-[12px] font-bold border-2 transition-all active:scale-95 duration-300 ${
+                      className={`px-3 py-1.5 rounded-full text-[12px] font-black whitespace-nowrap border-[2px] border-solid transition-all active:scale-95 duration-300 ${
                         selectedTags.includes(tag)
                           ? `bg-gradient-to-r ${rColor.btnFrom} ${rColor.btnTo} text-white ${rColor.border} shadow-md drop-shadow-md` 
-                          : `bg-slate-800 text-slate-300 border-slate-600 hover:${rColor.text} hover:border-slate-400` // 🌟 ฟันธง: ปุ่มที่ยังไม่กด จะมีลูกเล่นเปลี่ยนสีตอนเอาเมาส์ชี้
+                          : `bg-slate-800 text-slate-300 border-slate-600 hover:${rColor.text} hover:border-slate-400`
                       }`}
                     >
                       {tag}
@@ -3433,8 +3436,8 @@ const renderTracking = () => (
               </div>
             )}
 
-            {/* 🌟 กล่องคอมเมนต์ Default สีเทา พอกดพิมพ์ (Focus) หรือมีดาว ค่อยเรืองแสงตามดาว */}
-            <div className="text-left space-y-1.5">
+            {/* 🌟 กล่องคอมเมนต์ */}
+            <div className="text-left mb-6">
             <textarea
                 name="ratingComment"
                 value={ratingModal.comment}
@@ -3445,8 +3448,8 @@ const renderTracking = () => (
               />
             </div>
 
-            <div className="flex gap-3 pt-2">
-              {/* ปุ่มยกเลิก สี Rose วาบๆ */}
+            {/* 🌟 โซนปุ่มกด (ดันให้ห่างจากขอบล่างด้วย pb-12 ในกรอบแม่แล้ว) */}
+            <div className="flex gap-3">
               <button
                 type="button"
                 onClick={() => setRatingModal({ isOpen: false, ticketId: null, rating: 0, comment: '', techName: '' })}
@@ -3455,7 +3458,6 @@ const renderTracking = () => (
                 ยกเลิก
               </button>
               
-              {/* ปุ่มยืนยัน สีเปลี่ยนตามดาว พร้อมเอฟเฟกต์ลอยเรืองแสง */}
               <button
                 type="button"
                 onClick={executeRatingSubmit}
