@@ -227,18 +227,17 @@ const buildingList = [
   'ฐานจาน Orbital',
   'ฐานจาน CGC',
   'อาคาร SI',
-  'อาคาร สภ.',
 ];
 
 const technicianList = [
-  { name: 'นายนวัตกรณ์ ไก่แก้ว', phone: '08-3529-3836' },
-  { name: 'นายทศพล ชินนิวัฒน์', phone: '08-1513-7854' },
-  { name: 'นายนรัตว์ ศรีสวัสดิ์พงษ์', phone: '08-6361-4399' },
-  { name: 'นายประมินทร์ พิชิตการค้า', phone: '08-1135-1599' },
-  { name: 'นายธนกาญจน์ ไตรปิฎก', phone: '06-2463-5544' },
-  { name: 'นายชุติพงษ์ ลาวงศ์เกิด', phone: '09-8938-9839' },
-  { name: 'นายวิชญ์ภาส ดรบัณฑิต', phone: '-' },
-  { name: 'น.ส.จินวะรา สุรัตนกุล', phone: '08-2480-2280' },
+  { name: 'นายนวัตกรณ์ ไก่แก้ว', phone: '08-3529-3836', photo: '/korn.webp' },
+  { name: 'นายทศพล ชินนิวัฒน์', phone: '08-1513-7854', photo: '/tos.webp' },
+  { name: 'นายนรัตว์ ศรีสวัสดิ์พงษ์', phone: '08-6361-4399', photo: '/narat.webp' },
+  { name: 'นายประมินทร์ พิชิตการค้า', phone: '08-1135-1599', photo: '/pramin' },
+  { name: 'นายธนกาญจน์ ไตรปิฎก', phone: '06-2463-5544', photo: '/karn.webp' },
+  { name: 'นายชุติพงษ์ ลาวงศ์เกิด', phone: '09-8938-9839', photo: '/neng.webp' },
+  { name: 'นายวิชญ์ภาส ดรบัณฑิต', phone: '09-1415-5194', photo: '/top.webp' },
+  { name: 'น.ส.จินวะรา สุรัตนกุล', phone: '08-2480-2280', photo: '/jun.webp' },
 ];
 
 // ==========================================
@@ -661,13 +660,17 @@ useEffect(() => {
     type: null,
   });
 
- // 🌟 ฟันธง: ตัวแปรควบคุม Popup ประเมินความพึงพอใจ
- const [ratingModal, setRatingModal] = useState({
+// 🌟 ฟันธง: ตัวแปรควบคุม Popup ประเมินความพึงพอใจ
+const [ratingModal, setRatingModal] = useState({
   isOpen: false,
   ticketId: null,
   rating: 0,
   comment: '',
 });
+
+// 🌟 ฟันธง: ตัวแปรควบคุม Popup กราบขอบพระคุณ (หน้าต่างที่ 2 ต่อจากประเมิน)
+const [showThanksModal, setShowThanksModal] = useState(false);
+
 
 // 🌟 ฟันธง: เก็บคำสำเร็จรูปที่ User เลือก
 const [selectedTags, setSelectedTags] = useState([]);
@@ -1014,21 +1017,30 @@ const toggleTag = (tag) => {
       setSelectedTech('');
     };
 
+// 🌟 ฟันธง: ฟังก์ชันส่งผลประเมินและปิดงานสมบูรณ์
+const executeRatingSubmit = async () => {
+  if (ratingModal.rating === 0) return; 
+  
+  await updateTicketStatus(ratingModal.ticketId, {
+    status: 'verified',
+    rating: ratingModal.rating,
+    ratingComment: ratingModal.comment,
+    verifiedAt: new Date().toISOString(),
+  });
+  
+  // 🌟 ฟันธงแก้บั๊กสีชมพูค้าง: ปิดแค่หน้าต่างประเมิน แต่ "ห้ามล้างค่าดาว" เพื่อให้หน้าขอบคุณเอาสีไปใช้ต่อ!
+  setRatingModal(prev => ({ ...prev, isOpen: false }));
+  setSelectedTags([]); 
 
-  // 🌟 ฟันธง: ฟังก์ชันส่งผลประเมินและปิดงานสมบูรณ์
-  const executeRatingSubmit = async () => {
-    if (ratingModal.rating === 0) return; // ป้องกันการกดส่งถ้ายังไม่ให้ดาว
-    
-    await updateTicketStatus(ratingModal.ticketId, {
-      status: 'verified',
-      rating: ratingModal.rating,
-      ratingComment: ratingModal.comment,
-      verifiedAt: new Date().toISOString(),
-    });
-    
-    setRatingModal({ isOpen: false, ticketId: null, rating: 0, comment: '' });
-    setSelectedTags([]); // 🌟 ฟันธง: ล้างค่าปุ่มคำสำเร็จรูปที่กดค้างไว้
-  };
+  setShowThanksModal(true); 
+  
+  // ตั้งเวลาปิดหน้าต่างอัตโนมัติ (ท่านแก้ตัวเลข 8000 เป็นเวลาที่ต้องการได้เลยครับ 8000 = 8 วินาที)
+  setTimeout(() => {
+    setShowThanksModal(false);
+    // ค่อยมาล้างค่าระบบจริงๆ หลังจากหน้าต่างขอบคุณปิดลงไปแล้ว
+    setRatingModal({ isOpen: false, ticketId: null, rating: 0, comment: '', techName: '' });
+  }, 8000); 
+};
 
   // 🌟 ฟันธง: ตัวคำนวณสถิติที่รองรับปฏิทินย้อนหลังแบบ 100%
   const stats = useMemo(() => {
@@ -3073,8 +3085,8 @@ const renderTracking = () => (
                           {isPending && (
                             <div className="flex flex-col gap-2.5">
                               {waitingMin > 60 && (
-                                <div className="bg-green-600/20 border-2 border-solid border-orange-800 text-rose-600 text-[12px] font-bold px-4 py-2.5 rounded-xl flex items-center gap-2 mb-1">
-                                  <AlertTriangle size={14} className="animate-pulse shrink-0" />
+                                <div className="bg-green-600/20 border-2 border-solid border-orange-800 text-rose-600 text-[14px] font-bold px-4 py-2.5 rounded-xl flex items-center gap-2 mb-1">
+                                  <AlertTriangle size={15} className="animate-pulse shrink-0" />
                                   รอดำเนินการเกิน 1 ชั่วโมง (SLA Breach)
                                 </div>
                               )}
@@ -3089,13 +3101,13 @@ const renderTracking = () => (
                                   }
                                   className="flex-[1] bg-orange text-rose-500 border border-orange-500 font-bold py-3.5 rounded-xl flex justify-center items-center gap-1.5 active:scale-95 text-[18px] transition-colors shadow-sm hover:bg-rose-50"
                                 >
-                                  <XCircle size={20} /> ยกเลิก
+                                  <XCircle size={22} /> ยกเลิก
                                 </button>
                                 <a
                                   href="tel:เบอร์โทรส่วนกลางทีมช่าง" // 🌟 ใส่เบอร์ของทีมช่างที่รับหน้าเสื่อ
-                                  className="flex-[1.5] bg-gradient-to-r from-orange-500 to-amber-500 text-white border-2 border-solid border-white/50 font-black py-4 rounded-2xl flex justify-center items-center gap-1.5 sm:gap-2 shadow-[0_0_15px_rgba(249,115,22,0.4)] hover:shadow-[0_0_25px_rgba(249,115,22,0.8)] active:scale-95 transition-all text-[16px] sm:text-[18px] md:text-[22px] tracking-wide whitespace-nowrap"
+                                  className="flex-[1.5] bg-gradient-to-r from-orange-500 to-amber-500 text-white border-2 border-solid border-white/50 font-black py-4 rounded-2xl flex justify-center items-center gap-1.5 sm:gap-2 shadow-[0_0_15px_rgba(249,115,22,0.4)] hover:shadow-[0_0_25px_rgba(249,115,22,0.8)] active:scale-95 transition-all text-[16px] sm:text-[18px] md:text-[16px] tracking-wide whitespace-nowrap"
                                 >
-                                  <PhoneCall size={20} className="animate-pulse shrink-0" />
+                                  <PhoneCall size={22} className="animate-pulse shrink-0" />
                                   สายด่วนช่างผู้รับผิดชอบ
                                 </a>
                               </div>
@@ -3110,7 +3122,7 @@ const renderTracking = () => (
                               </div>
                               <a
                                 href="tel:0835293836" // 🌟 เบอร์สายตรง หน.ฝวด. (เบอร์ท่านหัวหน้า)
-                                className="flex-[1.5] bg-gradient-to-r from-rose-600 to-red-700 text-white border-2 border-solid border-white/50 font-black py-4 rounded-2xl flex justify-center items-center gap-1.5 sm:gap-2 shadow-[0_0_15px_rgba(225,29,72,0.4)] hover:shadow-[0_0_25px_rgba(225,29,72,0.8)] active:scale-95 transition-all text-[15px] sm:text-[18px] md:text-[22px] tracking-wide whitespace-nowrap"
+                                className="flex-[1.5] bg-gradient-to-r from-rose-600 to-red-700 text-white border-2 border-solid border-white/50 font-black py-4 rounded-2xl flex justify-center items-center gap-1.5 sm:gap-2 shadow-[0_0_15px_rgba(225,29,72,0.4)] hover:shadow-[0_0_25px_rgba(225,29,72,0.8)] active:scale-95 transition-all text-[13px] sm:text-[15px] md:text-[22px] tracking-wide whitespace-nowrap"
                               >
                                 <PhoneCall size={20} className="animate-pulse shrink-0" />
                                 สายด่วน หน.ฝวด. (กรณีล่าช้า)
@@ -3118,13 +3130,25 @@ const renderTracking = () => (
                             </div>
                           )}
 
-                    {t.status === 'completed' && (
-                    <button
-                       onClick={() => setRatingModal({ isOpen: true, ticketId: t.id, rating: 0, comment: '', techName: t.techName })} // 🌟 ดึงชื่อช่างไปด้วย!
-                      className="w-full bg-gradient-to-r from-emerald-500 to-emerald-600 text-white border border-emerald-400 font-bold py-4 rounded-xl flex justify-center items-center gap-2 shadow-[0_0_15px_rgba(16,185,129,0.4)] hover:shadow-[0_0_25px_rgba(16,185,129,0.6)] active:scale-95 transition-all text-[16px]">
-                      <Star size={20} className="animate-pulse text-yellow-300" fill="currentColor" /> ยืนยันผลและให้คะแนนช่าง
-                      </button>
-                          )}
+{t.status === 'completed' && (
+  <button
+    onClick={() => {
+      // 🌟 ฟันธง: ค้นหาข้อมูลช่างจากชื่อ แล้วดึงรูป (photo) ส่งไปให้หน้าต่าง Popup
+      const techData = technicianList.find(x => x.name === t.techName);
+      setRatingModal({ 
+        isOpen: true, 
+        ticketId: t.id, 
+        rating: 0, 
+        comment: '', 
+        techName: t.techName,
+        techPhotoUrl: techData ? techData.photo : '' 
+      });
+    }}
+    className="w-full bg-gradient-to-r from-emerald-500 to-emerald-600 text-white border border-emerald-400 font-bold py-4 rounded-xl flex justify-center items-center gap-2 shadow-[0_0_15px_rgba(16,185,129,0.4)] hover:shadow-[0_0_25px_rgba(16,185,129,0.6)] active:scale-95 transition-all text-[16px]"
+  >
+    <Star size={20} className="animate-pulse text-yellow-300" fill="currentColor" /> ยืนยันผลและให้คะแนนช่าง
+  </button>
+)}
                           
                           {t.status === 'verified' && (
                             <div className="w-full bg-emerald-50 border border-emerald-200 py-3.5 rounded-xl flex justify-center items-center gap-2 text-emerald-600 font-bold text-xs shadow-inner">
@@ -3473,6 +3497,106 @@ const renderTracking = () => (
             </div>
           </div>
         </div>
+        );
+      })()}
+
+{/* 🌟 หน้าต่าง Popup กราบขอบพระคุณ (Thank You Modal) - ฟันธง: อัปเกรดสีตรงเป๊ะ 5 ระดับดาว 🌟 */}
+{showThanksModal && (() => {
+        const rating = ratingModal.rating;
+        // 🌟 สมองกลสี: แยก 5 ระดับให้ตรงกับหน้าประเมินเป๊ะๆ 100% (5=เขียว, 4=ฟ้า, 3=เหลือง, 2=ส้ม, 1=แดง)
+        const tColor = rating === 5 ? { 
+            border: 'border-emerald-500', text: 'text-emerald-400', flare: 'bg-emerald-500', 
+            glow: 'shadow-[0_0_40px_rgba(16,185,129,0.3)]', boxBg: 'bg-emerald-950/40',
+            boxGlow: 'shadow-[0_0_25px_rgba(16,185,129,0.4)]',
+            btnHover: 'hover:bg-emerald-600 hover:border-emerald-400 hover:text-white hover:shadow-[0_0_25px_rgba(16,185,129,0.8)]'
+          } : rating === 4 ? { 
+            border: 'border-cyan-500', text: 'text-cyan-400', flare: 'bg-cyan-500', 
+            glow: 'shadow-[0_0_40px_rgba(34,211,238,0.3)]', boxBg: 'bg-cyan-950/40',
+            boxGlow: 'shadow-[0_0_25px_rgba(34,211,238,0.4)]',
+            btnHover: 'hover:bg-cyan-600 hover:border-cyan-400 hover:text-white hover:shadow-[0_0_25px_rgba(34,211,238,0.8)]'
+          } : rating === 3 ? { 
+            border: 'border-yellow-500', text: 'text-yellow-400', flare: 'bg-yellow-500', 
+            glow: 'shadow-[0_0_40px_rgba(250,204,21,0.3)]', boxBg: 'bg-yellow-950/40',
+            boxGlow: 'shadow-[0_0_25px_rgba(250,204,21,0.4)]',
+            btnHover: 'hover:bg-yellow-600 hover:border-yellow-400 hover:text-white hover:shadow-[0_0_25px_rgba(250,204,21,0.8)]'
+          } : rating === 2 ? { 
+            border: 'border-orange-500', text: 'text-orange-400', flare: 'bg-orange-500', 
+            glow: 'shadow-[0_0_40px_rgba(249,115,22,0.3)]', boxBg: 'bg-orange-950/40',
+            boxGlow: 'shadow-[0_0_25px_rgba(249,115,22,0.4)]',
+            btnHover: 'hover:bg-orange-600 hover:border-orange-400 hover:text-white hover:shadow-[0_0_25px_rgba(249,115,22,0.8)]'
+          } : { 
+            border: 'border-rose-500', text: 'text-rose-400', flare: 'bg-rose-500', 
+            glow: 'shadow-[0_0_40px_rgba(225,29,72,0.3)]', boxBg: 'bg-rose-950/40',
+            boxGlow: 'shadow-[0_0_25px_rgba(225,29,72,0.4)]',
+            btnHover: 'hover:bg-rose-600 hover:border-rose-400 hover:text-white hover:shadow-[0_0_25px_rgba(225,29,72,0.8)]'
+          };
+
+        return (
+          <div className="fixed inset-0 z-[200] flex items-center justify-center bg-slate-950/90 backdrop-blur-md p-6 animate-in fade-in" onClick={() => setShowThanksModal(false)}>
+            
+            {/* 💥 แสงเฟลอร์ด้านหลังสุดของหน้าต่าง */}
+            <div className={`absolute w-[400px] h-[400px] rounded-full blur-[100px] opacity-60 pointer-events-none z-0 animate-pulse ${tColor.flare}`}></div>
+
+            <div className={`relative z-10 bg-slate-900 border-[3px] border-solid ${tColor.border} rounded-[2.5rem] w-full max-w-sm p-8 text-center space-y-4 animate-in zoom-in-95 duration-300 ${tColor.glow}`} onClick={(e) => e.stopPropagation()}>
+              
+              {/* 💥 ส่วนรูปโปรไฟล์ช่าง + เพิ่มแสงเฟลอร์ด้านหลังรูปให้สว่างวาบ */}
+              <div className="relative mx-auto w-24 h-24 mt-2 mb-2">
+                <div className={`absolute -inset-2 blur-[20px] rounded-full opacity-70 animate-pulse ${tColor.flare}`}></div>
+                <div className="relative w-24 h-24 rounded-full overflow-hidden border-[3px] border-solid border-white shadow-lg bg-slate-800 flex items-center justify-center z-10">
+                  {ratingModal.techPhotoUrl ? (
+                    <img src={ratingModal.techPhotoUrl} className="w-full h-full object-cover" alt="ช่าง" />
+                  ) : (
+                    <User size={50} className="text-slate-300" />
+                  )}
+                </div>
+              </div>
+
+              {/* 💥 ชื่อช่างและซับไตเติล (โชว์รหัส GSE) */}
+              <div className="space-y-1 relative z-10">
+                <h3 className="text-[20px] md:text-[22px] font-black text-white leading-tight drop-shadow-md">
+                  กระผม {ratingModal.techName || 'ทีมช่าง ฝวด.'}
+                </h3>
+                <p className="text-[12px] font-bold text-slate-400 tracking-widest uppercase">
+                  ผู้รับผิดชอบหลักรหัส <span className={`font-black ${tColor.text} drop-shadow-sm`}>{ratingModal.ticketId}</span>
+                </p>
+              </div>
+
+              {/* 🌟🌟 ฟันธง: โชว์ผลคะแนนดาว (Confirmation) ให้ผู้ใช้ชื่นใจ 🌟🌟 */}
+              <div className="flex justify-center items-center gap-1.5 mt-2 mb-1 relative z-10">
+                {[1, 2, 3, 4, 5].map((star) => (
+                  <Star 
+                    key={star} 
+                    size={28} 
+                    className={`transition-all duration-500 ${rating >= star ? `${tColor.text} drop-shadow-[0_0_8px_rgba(255,255,255,0.3)] scale-110` : 'text-slate-700/50'}`} 
+                    fill={rating >= star ? "currentColor" : "none"} 
+                    strokeWidth={rating >= star ? 0 : 1.5}
+                  />
+                ))}
+              </div>
+
+              {/* 🌟🌟 พื้นที่น้องมาสคอตตรงกลาง 🌟🌟 */}
+              <div className="w-full flex justify-center py-1 relative z-10">
+                 <img src="/mascot.webp" alt="GSE Mascot" className="h-28 md:h-32 object-contain drop-shadow-[0_10px_10px_rgba(0,0,0,0.5)] hover:scale-105 transition-transform" />
+              </div>
+
+              {/* 💥 กรอบข้อความขอบคุณ */}
+              <div className={`p-4 rounded-2xl border-[2px] border-solid ${tColor.border} ${tColor.boxBg} ${tColor.boxGlow} relative z-10 transition-all duration-300`}>
+                <p className={`text-[13px] md:text-[14px] font-bold leading-relaxed px-1 ${tColor.text}`}>
+                  {rating >= 4 ? 'กราบขอบพระคุณอย่างสูงครับ! ผมจะรักษามาตรฐานนี้เพื่อบริการท่านให้ดีที่สุดต่อไปครับ' :
+                   rating === 3 ? 'ขอบพระคุณสำหรับผลการประเมินครับ ผมจะนำข้อเสนอแนะของท่านไปพัฒนาการทำงานให้ดียิ่งขึ้นครับ' :
+                   'กราบขออภัยอย่างสูงครับ ผมน้อมรับทุกคำติชมและจะรีบนำไปปรับปรุงงานบริการให้ดีขึ้นอย่างเร่งด่วนครับ'}
+                </p>
+              </div>
+
+              {/* 💥 ปุ่มปิดหน้าต่าง */}
+              <button 
+                onClick={() => setShowThanksModal(false)}
+                className={`relative z-10 w-full py-4 mt-2 rounded-xl font-black text-slate-200 bg-slate-800 border-[2px] border-solid border-slate-400 active:scale-95 transition-all duration-300 tracking-widest shadow-md ${tColor.btnHover}`}
+              >
+                ปิดหน้าต่าง
+              </button>
+            </div>
+          </div>
         );
       })()}
 
