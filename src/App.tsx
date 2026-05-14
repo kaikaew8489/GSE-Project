@@ -3177,8 +3177,8 @@ const renderTracking = () => (
             'bg-orange-500/40'
           }`}></div>
 
-          {/* 📦 จุดที่ 2: ตัวกล่อง Popup (แยกสีกรอบและเงา) */}
-          <div className={`relative z-10 bg-slate-900 border-[2px] border-solid rounded-[2rem] w-full max-w-sm md:max-w-md overflow-hidden p-8 md:p-10 text-center space-y-7 ${
+          {/* 📦 จุดที่ 2: ตัวกล่อง Popup (🌟 ฟันธง: ใส่ max-h-[80vh] และ overflow-y-auto ให้ไถได้ ปุ่มไม่โดนบังแน่นอน!) */}
+          <div className={`relative z-10 bg-slate-900 border-[2px] border-solid rounded-[2rem] w-full max-w-sm md:max-w-md overflow-y-auto scrollbar-hide overscroll-none max-h-[80vh] p-6 md:p-8 text-center space-y-5 ${
             actionModal.type === 'finish' ? 'border-emerald-500 shadow-[0_0_50px_rgba(16,185,129,0.5)]' :
             actionModal.type === 'hold' || actionModal.type === 'cancel' ? 'border-rose-500 shadow-[0_0_50px_rgba(225,29,72,0.5)]' : 
             'border-orange-500 shadow-[0_0_50px_rgba(249,115,22,0.6)]'
@@ -3347,8 +3347,8 @@ const renderTracking = () => (
       </div>
 
       {/* 🎯 ฟันธงแก้ตรงนี้! เพิ่มเงื่อนไขบีบความกว้างกล่อง Scrollbar ให้แนบชิดติดขอบฟอร์ม (md:max-w-2xl mx-auto) */}
-      <div className={`relative z-10 flex-1 overflow-y-auto overflow-x-hidden w-full scrollbar-hide pb-28 ${activeTab === 'report' ? 'md:max-w-2xl mx-auto' : ''}`}>
-        {activeTab === 'dashboard' && currentUserRole === 'technician' && renderDashboard()}
+{/* 🎯 ฟันธงแก้ตรงนี้! เพิ่ม overscroll-none ป้องกันมือถือดึงจอลงเพื่อรีเฟรช (Pull-to-Refresh) 1,000,000% */}
+<div className={`relative z-10 flex-1 overflow-y-auto overflow-x-hidden w-full scrollbar-hide overscroll-none pb-28 ${activeTab === 'report' ? 'md:max-w-2xl mx-auto' : ''}`}>        {activeTab === 'dashboard' && currentUserRole === 'technician' && renderDashboard()}
         {activeTab === 'report' && renderReport()}
         {activeTab === 'tracking' && renderTracking()}
       </div>
