@@ -3369,13 +3369,13 @@ const renderTracking = () => (
 
         // 🌟 ฟันธง: ลบ onClick ออกจาก Background บังคับให้คลิกนอกกรอบไม่ได้ ต้องกดยกเลิกเท่านั้น!
         return (
-          <div className="fixed inset-0 z-[160] flex items-center justify-center bg-slate-950/90 backdrop-blur-md p-4 animate-in fade-in" onClick={() => setRatingModal({ isOpen: false, ticketId: null, rating: 0, comment: '', techName: '' })}>
-            
-            {/* 💥 แสงเฟลอร์หลังกล่อง สว่างขั้นสุด 80-90% ตามดาว */}
-            <div className={`absolute w-[450px] h-[450px] rounded-full blur-[100px] animate-pulse pointer-events-none z-0 transition-colors duration-500 ${rColor.flare}`}></div>
+          <div className="fixed inset-0 z-[160] flex items-center justify-center bg-slate-950/90 backdrop-blur-md p-6 animate-in fade-in">
+                  
+          {/* 💥 แสงเฟลอร์หลังกล่อง สว่างขั้นสุด 80-90% ตามดาว */}
+          <div className={`absolute w-[450px] h-[450px] rounded-full blur-[100px] animate-pulse pointer-events-none z-0 transition-colors duration-500 ${rColor.flare}`}></div>
 
-            {/* 🌟 ฟันธง: เพิ่ม max-h-[85vh] และ overflow-y-auto ตรงบรรทัดนี้ครับ! 🌟 */}
-            <div className={`relative z-10 bg-slate-900 border-[3px] border-solid rounded-[2.5rem] w-full max-w-sm max-h-[85vh] overflow-y-auto scrollbar-hide px-6 pt-8 pb-10 text-center transition-all duration-500 ${rColor.border} ${rColor.shadow}`} onClick={(e) => e.stopPropagation()}>            
+          {/* 🌟 ฟันธงแก้ไขข้อ 1: ปรับ max-h-[80vh] และใส่ pb-12 ป้องกันปุ่มติดขอบล่างจอตอนไถ */}
+          <div className={`relative z-10 bg-slate-900 border-[3px] border-solid rounded-[2.5rem] w-full max-w-sm max-h-[80vh] overflow-y-auto overscroll-contain scrollbar-hide px-8 pt-8 pb-12 text-center transition-all duration-500 ${rColor.border} ${rColor.shadow}`} onClick={(e) => e.stopPropagation()}>            
             
             {/* 🌟 สไตล์ Grab: โพรไฟล์ช่างผู้รับผิดชอบ */}
             <div className="flex flex-col items-center mb-6 animate-in slide-in-from-top-4">
@@ -3500,10 +3500,10 @@ const renderTracking = () => (
         );
       })()}
 
-{/* 🌟 หน้าต่าง Popup กราบขอบพระคุณ (Thank You Modal) - ฟันธง: อัปเกรดแสงเฟลอร์ + ดึงรหัส GSE + โชว์ดาว 5 ระดับสี 🌟 */}
+{/* 🌟 หน้าต่าง Popup กราบขอบพระคุณ (Thank You Modal) - ฟันธง: อัปเกรดสีตรงเป๊ะ 5 ระดับดาว 🌟 */}
 {showThanksModal && (() => {
         const rating = ratingModal.rating;
-        // 🌟 เซ็ตสีและแสงเฟลอร์ (เขียว / ฟ้า / เหลือง / ส้ม / แดงชมพู) แบบ Full Option ทุกจุด
+        // 🌟 สมองกลสี: แยก 5 ระดับให้ตรงกับหน้าประเมินเป๊ะๆ 100% (5=เขียว, 4=ฟ้า, 3=เหลือง, 2=ส้ม, 1=แดง)
         const tColor = rating === 5 ? { 
             border: 'border-emerald-500', text: 'text-emerald-400', flare: 'bg-emerald-500', 
             glow: 'shadow-[0_0_40px_rgba(16,185,129,0.3)]', boxBg: 'bg-emerald-950/40',
@@ -3561,7 +3561,7 @@ const renderTracking = () => (
                 </p>
               </div>
 
-              {/* 🌟🌟 ฟันธง: โชว์ผลคะแนนดาว (Confirmation) กลับมาแล้วครับ! 🌟🌟 */}
+              {/* 🌟🌟 ฟันธง: โชว์ผลคะแนนดาว (Confirmation) ให้ผู้ใช้ชื่นใจ 🌟🌟 */}
               <div className="flex justify-center items-center gap-1.5 mt-2 mb-1 relative z-10">
                 {[1, 2, 3, 4, 5].map((star) => (
                   <Star 
@@ -3574,14 +3574,10 @@ const renderTracking = () => (
                 ))}
               </div>
 
-             {/* 👩‍🔧 น้องมาสคอต (ฟันธง: ล็อกขนาดตายตัว ป้องกันมือถือเบ่งกล้ามทะลุจอ 100%) */}
-            <div className="relative z-30 w-48 sm:w-56 md:w-72 lg:w-80 mx-auto mb-2 md:mb-4 pointer-events-none drop-shadow-[0_20px_20px_rgba(0,0,0,0.8)] transition-all duration-500">
-              <img
-                src="/mascot.webp"
-                alt="Mascot"
-                className="w-full h-auto object-contain object-bottom hover:scale-105 transition-transform duration-500"
-              />
-            </div>
+              {/* 🌟🌟 พื้นที่น้องมาสคอตตรงกลาง 🌟🌟 */}
+              <div className="w-full flex justify-center py-1 relative z-10">
+                 <img src="/mascot.webp" alt="GSE Mascot" className="h-28 md:h-32 object-contain drop-shadow-[0_10px_10px_rgba(0,0,0,0.5)] hover:scale-105 transition-transform" />
+              </div>
 
               {/* 💥 กรอบข้อความขอบคุณ */}
               <div className={`p-4 rounded-2xl border-[2px] border-solid ${tColor.border} ${tColor.boxBg} ${tColor.boxGlow} relative z-10 transition-all duration-300`}>
