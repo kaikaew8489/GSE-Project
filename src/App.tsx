@@ -3337,11 +3337,14 @@ const renderTracking = () => (
         </div>
 
         <div className="relative w-12 h-14 shrink-0 z-0 pointer-events-none">
+           {/* 🌟 ฟันธงวิชามาร: ยัด width="65" และ style ลง HTML ตรงๆ ห้ามมาสคอตขยายร่างตอนรีเฟรช 1,000,000% */}
            <img 
              src={activeTab === 'dashboard' ? "/mascot-dashboard.webp" : activeTab === 'report' ? "/mascot-report.webp" : (activeTab === 'tracking' && currentUserRole === 'technician') ? "/mascot-tech.webp" : "/mascot-track.webp"}
              key={activeTab + currentUserRole}
              alt="GSE Mascot" 
-             className="absolute bottom-[-10px] right-[-10px] w-[65px] max-w-none h-auto object-contain drop-shadow-[0_5px_5px_rgba(0,0,0,0.4)] animate-in slide-in-from-right-4 fade-in duration-500"
+             width="65"
+             style={{ width: '65px', height: 'auto', position: 'absolute', bottom: '-10px', right: '-10px', maxWidth: 'none' }}
+             className="object-contain drop-shadow-[0_5px_5px_rgba(0,0,0,0.4)] animate-in slide-in-from-right-4 fade-in duration-500"
            />
         </div>
       </div>
@@ -3728,10 +3731,12 @@ function LandingPage({ onStart }) {
               className="relative z-30 mx-auto mb-1 md:mb-2 pointer-events-none drop-shadow-[0_20px_20px_rgba(0,0,0,0.8)] transition-all duration-500"
               style={{ width: '50%', maxWidth: '280px' }} 
             >
-              <img
+            {/* 🌟 ฟันธงวิชามาร: ยัด width="280" และ style ลง HTML ตรงๆ */}
+            <img
                 src="/mascot.webp"
                 alt="Mascot"
-                style={{ width: '100%', height: 'auto' }}
+                width="280"
+                style={{ width: '100%', maxWidth: '280px', height: 'auto' }}
                 className="object-contain object-bottom hover:scale-105 transition-transform duration-500"
               />
             </div>
