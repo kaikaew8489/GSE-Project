@@ -3574,10 +3574,14 @@ const renderTracking = () => (
                 ))}
               </div>
 
-              {/* 🌟🌟 พื้นที่น้องมาสคอตตรงกลาง 🌟🌟 */}
-              <div className="w-full flex justify-center py-1 relative z-10">
-                 <img src="/mascot.webp" alt="GSE Mascot" className="h-28 md:h-32 object-contain drop-shadow-[0_10px_10px_rgba(0,0,0,0.5)] hover:scale-105 transition-transform" />
-              </div>
+             {/* 👩‍🔧 น้องมาสคอต (ฟันธง: ล็อกขนาดตายตัว ป้องกันมือถือเบ่งกล้ามทะลุจอ 100%) */}
+            <div className="relative z-30 w-48 sm:w-56 md:w-72 lg:w-80 mx-auto mb-2 md:mb-4 pointer-events-none drop-shadow-[0_20px_20px_rgba(0,0,0,0.8)] transition-all duration-500">
+              <img
+                src="/mascot.webp"
+                alt="Mascot"
+                className="w-full h-auto object-contain object-bottom hover:scale-105 transition-transform duration-500"
+              />
+            </div>
 
               {/* 💥 กรอบข้อความขอบคุณ */}
               <div className={`p-4 rounded-2xl border-[2px] border-solid ${tColor.border} ${tColor.boxBg} ${tColor.boxGlow} relative z-10 transition-all duration-300`}>
