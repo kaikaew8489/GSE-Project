@@ -3346,10 +3346,12 @@ const renderTracking = () => (
         </div>
       </div>
 
-      {/* 🎯 ฟันธงวิชามาร: ยัด style ฝังลงแกน React บังคับ Chrome Android ห้ามดึงรีเฟรชเด็ดขาด! */}
+      {/* 👇👇👇 วางทับเฉพาะก้อนนี้ครับ 👇👇👇 */}
+      {/* 🎯 ฟันธงแก้ตรงนี้! เพิ่มเงื่อนไขบีบความกว้างกล่อง Scrollbar ให้แนบชิดติดขอบฟอร์ม (md:max-w-2xl mx-auto) */}
+      {/* 🌟 ฟันธงวิชามาร: ยัด style overscrollBehaviorY ฝังลงกล่อง React บังคับ Chrome Android ห้ามดึงรีเฟรชเด็ดขาด! */}
       <div 
         className={`relative z-10 flex-1 overflow-y-auto overflow-x-hidden w-full scrollbar-hide pb-28 ${activeTab === 'report' ? 'md:max-w-2xl mx-auto' : ''}`}
-        style={{ overscrollBehavior: 'none', touchAction: 'pan-y' }}
+        style={{ overscrollBehaviorY: 'contain' }}
       >
         {activeTab === 'dashboard' && currentUserRole === 'technician' && renderDashboard()}
         {activeTab === 'report' && renderReport()}
@@ -3721,15 +3723,16 @@ function LandingPage({ onStart }) {
               </p>
             </div>
 
-            {/* 👩‍🔧 น้องมาสคอต (ฟันธงวิชามาร: ล็อกกุญแจมือด้วย style= ยัดลง HTML ตรงๆ Chrome แหกไม่ได้ 100%) */}
-            <div 
-              className="relative z-30 mx-auto mb-2 md:mb-4 pointer-events-none drop-shadow-[0_20px_20px_rgba(0,0,0,0.8)] transition-all duration-500"
-              style={{ width: '50%', maxWidth: '280px', minHeight: '150px' }} 
+           {/* 👩‍🔧 น้องมาสคอต (ฟันธงวิชามาร: ฝัง style กุญแจมือ ล็อกขนาดถาวร ต่อให้ CSS พัง รูปก็ห้ามทะลุจอ 100%) */}
+           <div 
+              className="relative z-30 mx-auto mb-1 md:mb-2 pointer-events-none drop-shadow-[0_20px_20px_rgba(0,0,0,0.8)] transition-all duration-500"
+              style={{ width: '50%', maxWidth: '280px' }} 
             >
               <img
                 src="/mascot.webp"
                 alt="Mascot"
-                className="w-full h-auto object-contain object-bottom hover:scale-105 transition-transform duration-500"
+                style={{ width: '100%', height: 'auto' }}
+                className="object-contain object-bottom hover:scale-105 transition-transform duration-500"
               />
             </div>
           </div>
