@@ -15,6 +15,18 @@
     <title>ระบบแจ้งซ่อม ฝวด. (GSE)</title>
     
     <script src="https://cdn.tailwindcss.com"></script>
+
+    <style>
+      html, body {
+        /* ล็อกแกน Y (ขึ้น-ลง) ห้ามดึงจอเพื่อรีเฟรชเด็ดขาด */
+        overscroll-behavior-y: none !important;
+        /* ล็อกแกน X (ซ้าย-ขวา) ห้ามปัดจอเพื่อย้อนกลับ */
+        overscroll-behavior-x: none !important;
+        /* บังคับไม่ให้เกิดพื้นที่สีขาว/ดำ นอกขอบแอปเวลาดึง */
+        background-color: #0f172a; 
+      }
+    </style>
+
   </head>
   <body>
     <div id="root"></div>
