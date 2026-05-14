@@ -3584,11 +3584,11 @@ function LandingPage({ onStart }) {
               {/* 🌟 ฟันธง: ติ่งสามเหลี่ยมใช้เทคนิค CSS หมุนกล่องให้โค้งมน เนียนกริบ 100% */}
               <div className="absolute left-1/2 -translate-x-1/2 -bottom-[11px] w-5 h-5 bg-slate-900 border-b-[2px] border-r-[2px] border-solid border-orange-500 transform rotate-45 rounded-sm"></div>
 
-              <p className="text-[18px] md:text-[22px] font-bold text-slate-100 leading-relaxed relative z-20 shadow-none">
+              <p className="text-[20px] md:text-[22px] font-bold text-slate-100 leading-relaxed relative z-20 shadow-none">
                 ระบบมีปัญหาใช่มั้ยคะ?
                 <br />
                 <span className="text-orange-500 font-black text-[16px] md:text-[22px] mt-1 md:mt-2 inline-flex items-center justify-center gap-2 drop-shadow-sm whitespace-nowrap">
-                  กดแจ้งซ่อมด้านล่างได้เลยค่ะ!
+                  กดแจ้งซ่อมได้เลยค่ะ!
                   <span className="text-[30px] md:text-[45px] leading-[0] block transform translate-y-1 md:translate-y-2 drop-shadow-md">👇</span>
                 </span>
               </p>
