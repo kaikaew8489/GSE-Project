@@ -25,6 +25,7 @@ import {
   Send,
   Loader2,
   ChevronRight,
+  Zap,
   ChevronDown,
   XCircle,
   RotateCcw,
@@ -37,7 +38,6 @@ import {
   PhoneCall,
   Flame,
   Settings,
-  Star, // <--- 🌟 ฟันธง: เติมบรรทัดนี้เข้าไปครับ
 } from 'lucide-react';
 
 // ==========================================
@@ -660,33 +660,6 @@ useEffect(() => {
     ticketId: null,
     type: null,
   });
-
- // 🌟 ฟันธง: ตัวแปรควบคุม Popup ประเมินความพึงพอใจ
- const [ratingModal, setRatingModal] = useState({
-  isOpen: false,
-  ticketId: null,
-  rating: 0,
-  comment: '',
-});
-
-// 🌟 ฟันธง: เก็บคำสำเร็จรูปที่ User เลือก และกำหนดคำศัพท์ (Grab Style)
-const [selectedTags, setSelectedTags] = useState([]);
-const praiseTags = ['💡 ซ่อมเสร็จไว', '🛠️ แก้ตรงจุด', '🤝 สุภาพ/ยิ้มแย้ม', '🧹 ทำความสะอาด'];
-const issueTags = ['⏱️ ซ่อมช้า', '🛠️ ซ่อมไม่หาย', '🤝 พูดจาไม่สุภาพ', '🧹 ไม่สะอาด'];
-
-const toggleTag = (tag) => {
-  let newTags;
-  if (selectedTags.includes(tag)) {
-    newTags = selectedTags.filter(t => t !== tag);
-  } else {
-    newTags = [...selectedTags, tag];
-  }
-  setSelectedTags(newTags);
-  // ดึงคำไปยัดใส่กล่องข้อความอัตโนมัติ
-  setRatingModal(prev => ({ ...prev, comment: newTags.join(' ') }));
-};
-
-
   const [actionText, setActionText] = useState('');
   const [selectedTech, setSelectedTech] = useState('');
   const [lightboxImg, setLightboxImg] = useState(null);
@@ -982,21 +955,6 @@ const toggleTag = (tag) => {
   };
 
 
-  // 🌟 ฟันธง: ฟังก์ชันส่งผลประเมินและปิดงานสมบูรณ์
-  const executeRatingSubmit = async () => {
-    if (ratingModal.rating === 0) return; // ป้องกันการกดส่งถ้ายังไม่ให้ดาว
-    
-    await updateTicketStatus(ratingModal.ticketId, {
-      status: 'verified',
-      rating: ratingModal.rating,
-      ratingComment: ratingModal.comment,
-      verifiedAt: new Date().toISOString(),
-    });
-    
-    setRatingModal({ isOpen: false, ticketId: null, rating: 0, comment: '' });
-    setSelectedTags([]); // 🌟 ฟันธง: ล้างค่าปุ่มคำสำเร็จรูปที่กดค้างไว้
-  };
-
   // 🌟 ฟันธง: ตัวคำนวณสถิติที่รองรับปฏิทินย้อนหลังแบบ 100%
   const stats = useMemo(() => {
     try {
@@ -1043,11 +1001,6 @@ const toggleTag = (tag) => {
         fixing: filteredByTime.filter((t) => ['acknowledged', 'in_progress', 'on_hold'].includes(t.status)).length,
         done: filteredByTime.filter((t) => ['completed', 'verified'].includes(t.status)).length,
         cancelled: filteredByTime.filter((t) => t.status === 'cancelled').length,
-        // 🌟 ฟันธง: เพิ่มสมองกลคำนวณคะแนนดาวเฉลี่ย (CSAT)
-        ratedCount: filteredByTime.filter((t) => t.rating > 0).length,
-        avgRating: filteredByTime.filter((t) => t.rating > 0).length > 0 
-          ? (filteredByTime.filter((t) => t.rating > 0).reduce((sum, t) => sum + t.rating, 0) / filteredByTime.filter((t) => t.rating > 0).length).toFixed(1) 
-          : 0,
       };
     } catch (err) {
       console.error("Stats Error:", err);
@@ -1467,42 +1420,9 @@ const toggleTag = (tag) => {
             </div>
           </div>
         </div>
-        
-{/* 🌟 ฟันธง: กล่องสรุปคะแนนประเมิน SLA (CSAT KPI) จะโชว์ก็ต่อเมื่อมีงานที่ซ่อมเสร็จแล้ว */}
-{stats.done > 0 && (
-          <div className="bg-slate-800/60 backdrop-blur-xl p-5 rounded-[1.5rem] border-[2px] border-solid border-yellow-500/80 shadow-[0_0_20px_rgba(250,204,21,0.2)] mt-4 relative overflow-hidden flex items-center justify-between hover:shadow-[0_0_30px_rgba(250,204,21,0.4)] transition-all">
-            
-            {/* แสงเฟลอร์หลังกล่อง สีทองอร่าม */}
-            <div className="absolute -left-10 -top-10 w-32 h-32 bg-yellow-500/30 blur-[30px] rounded-full pointer-events-none animate-pulse"></div>
-            
-            <div className="relative z-10 flex flex-col">
-              <span className="text-[13px] font-black text-yellow-400 uppercase tracking-widest drop-shadow-sm mb-1">
-                คะแนนความพึงพอใจเฉลี่ย
-              </span>
-              <div className="flex items-center gap-3 mt-1">
-                <span className="text-5xl font-black text-white drop-shadow-[0_0_15px_rgba(255,255,255,0.8)] tracking-tighter">
-                  {stats.avgRating > 0 ? stats.avgRating : '-'}
-                </span>
-                <div className="flex flex-col">
-                  <div className="flex gap-0.5">
-                    {[1, 2, 3, 4, 5].map(s => (
-                      <Star key={s} size={16} fill={Math.round(stats.avgRating) >= s ? "#facc15" : "none"} stroke={Math.round(stats.avgRating) >= s ? "#facc15" : "#475569"} strokeWidth={2} className={Math.round(stats.avgRating) >= s ? "drop-shadow-[0_0_8px_rgba(250,204,21,0.8)]" : ""} />
-                    ))}
-                  </div>
-                  <span className="text-[11px] font-bold text-slate-400 mt-1">
-                    จากผู้แจ้ง <span className="text-yellow-400 font-black">{stats.ratedCount}</span> รายการ
-                  </span>
-                </div>
-              </div>
-            </div>
 
-            {/* โลโก้ขวา */}
-            <div className="relative z-10 bg-slate-900 border-[2px] border-solid border-yellow-500/50 p-3.5 rounded-2xl shadow-[0_0_15px_rgba(250,204,21,0.3)] flex flex-col items-center justify-center shrink-0">
-               <Star size={32} className="text-yellow-400 mb-1 animate-bounce" fill="currentColor" />
-               <span className="text-[10px] font-black text-yellow-500 tracking-widest uppercase">CSAT KPI</span>
-            </div>
-          </div>
-        )}
+
+
         {/* ================= เริ่มกล่อง: งานที่รอเกินกำหนด ================= */}
         {(longestPendingTicket || longestFixingTicket) && (
           <div className="bg-slate-800/60 backdrop-blur-xl p-5 rounded-[1rem] border-2 border-solid border-orange-500/80 shadow-[0_0_20px_rgba(249,115,22,0.15)] mt-6 overflow-hidden">
@@ -2405,70 +2325,6 @@ const renderTracking = () => (
                       {statusLabel}
                     </div>
                   </div>
-
-                {/* 🌟 ฟันธง: โชว์ดาวและผลประเมิน (แยกมุมมองผู้แจ้ง vs ช่าง/หัวหน้า) พร้อมระบบ Dynamic Color */}
-  {t.status === 'verified' && t.rating && (() => {
-    // สมองกลเปลี่ยนสีตามจำนวนดาว 1-5
-    const rColor = t.rating === 5 ? { text: 'text-emerald-400', fill: '#34d399', drop: 'drop-shadow-[0_0_10px_rgba(52,211,153,0.8)]', border: 'border-emerald-500', glow: 'shadow-[0_0_15px_rgba(52,211,153,0.3)]', flare: 'bg-emerald-500/20' } :
-                   t.rating === 4 ? { text: 'text-teal-400', fill: '#2dd4bf', drop: 'drop-shadow-[0_0_10px_rgba(45,212,191,0.8)]', border: 'border-teal-500', glow: 'shadow-[0_0_15px_rgba(45,212,191,0.3)]', flare: 'bg-teal-500/20' } :
-                   t.rating === 3 ? { text: 'text-amber-400', fill: '#fbbf24', drop: 'drop-shadow-[0_0_10px_rgba(251,191,36,0.8)]', border: 'border-amber-500', glow: 'shadow-[0_0_15px_rgba(251,191,36,0.3)]', flare: 'bg-amber-500/20' } :
-                   t.rating === 2 ? { text: 'text-orange-400', fill: '#fb923c', drop: 'drop-shadow-[0_0_10px_rgba(251,146,60,0.8)]', border: 'border-orange-500', glow: 'shadow-[0_0_15px_rgba(251,146,60,0.3)]', flare: 'bg-orange-500/20' } :
-                                    { text: 'text-rose-400', fill: '#fb7185', drop: 'drop-shadow-[0_0_10px_rgba(251,113,133,0.8)]', border: 'border-rose-500', glow: 'shadow-[0_0_15px_rgba(225,29,72,0.3)]', flare: 'bg-rose-500/20' };
-
-    return (
-      <div className="mt-3 mb-5 animate-in slide-in-from-top-2 duration-500">
-        {currentUserRole === 'technician' ? (
-          // 👨‍🔧 มุมมองช่าง/หัวหน้า: กล่องเรืองแสง โชว์คอมเมนต์เต็มรูปแบบ
-          <div className={`bg-slate-900 border-[2px] border-solid ${rColor.border} rounded-xl p-4 ${rColor.glow} relative overflow-hidden`}>
-             {/* แสงวิบวับหลังกล่อง (Dynamic Flare) */}
-             <div className={`absolute -right-10 -top-10 w-32 h-32 ${rColor.flare} blur-[25px] rounded-full pointer-events-none`}></div>
-             <div className="relative z-10">
-               <div className="flex justify-between items-center mb-3 border-b border-slate-700/50 pb-3">
-                 <span className={`text-[13px] font-black ${rColor.text} uppercase tracking-widest flex items-center gap-1.5 drop-shadow-sm`}>
-                   <Star size={16} className={rColor.text} fill="currentColor"/> ผลการประเมิน
-                 </span>
-                 <div className="flex gap-1">
-                    {[1, 2, 3, 4, 5].map((s) => (
-                      <Star key={s} size={18} fill={t.rating >= s ? rColor.fill : "none"} stroke={t.rating >= s ? rColor.fill : "#475569"} strokeWidth={2} className={t.rating >= s ? rColor.drop : ""} />
-                    ))}
-                 </div>
-               </div>
-               
-               {/* กล่องโชว์คอมเมนต์ผู้แจ้ง (ตกแต่งให้มีเส้นขอบซ้ายนำสายตา) */}
-               {t.ratingComment ? (
-                 <div className={`bg-slate-950 p-4 rounded-xl border border-solid ${rColor.border} shadow-inner relative overflow-hidden`}>
-                   <div className={`absolute top-0 left-0 w-1.5 h-full ${rColor.text.replace('text-', 'bg-')}`}></div>
-                   <p className={`text-[13px] sm:text-[14px] font-bold ${rColor.text} leading-relaxed italic pl-1`}>
-                     <span className="text-xl leading-none opacity-50 mr-1">"</span>
-                     {t.ratingComment}
-                     <span className="text-xl leading-none opacity-50 ml-1">"</span>
-                   </p>
-                 </div>
-               ) : (
-                 <div className="bg-slate-950/50 p-3 rounded-xl border border-slate-800 flex justify-center">
-                   <p className="text-[12px] font-bold text-slate-500 italic">- ไม่มีข้อเสนอแนะเพิ่มเติม -</p>
-                 </div>
-               )}
-             </div>
-          </div>
-        ) : (
-          // 👤 มุมมองผู้แจ้ง (Reporter): กรอบเข้ม เรืองแสงตามดาว ดูพรีเมียม
-          <div className={`flex flex-col sm:flex-row sm:items-center justify-between bg-slate-900/80 p-3.5 rounded-xl border-[2px] border-solid ${rColor.border} ${rColor.glow} relative overflow-hidden`}>
-            <div className={`absolute -left-10 -bottom-10 w-24 h-24 ${rColor.flare} blur-[20px] rounded-full pointer-events-none`}></div>
-            <span className={`text-[11px] sm:text-[12px] font-black ${rColor.text} uppercase tracking-widest ml-1 relative z-10 mb-2 sm:mb-0 drop-shadow-sm`}>
-              คุณให้คะแนนงานนี้:
-            </span>
-            <div className="flex gap-1 relative z-10">
-              {[1, 2, 3, 4, 5].map((s) => (
-                <Star key={s} size={16} fill={t.rating >= s ? rColor.fill : "none"} stroke={t.rating >= s ? rColor.fill : "#475569"} strokeWidth={2} className={t.rating >= s ? rColor.drop : ""} />
-              ))}
-            </div>
-          </div>
-        )}
-      </div>
-    );
-  })()}
-
                   <h3
                     className={`text-lg font-black mb-1.5 leading-tight ${
                       isCancelled
@@ -3052,12 +2908,13 @@ const renderTracking = () => (
                             </div>
                           )}
 
-                    {t.status === 'completed' && (
-                    <button
-                       onClick={() => setRatingModal({ isOpen: true, ticketId: t.id, rating: 0, comment: '', techName: t.techName })} // 🌟 ดึงชื่อช่างไปด้วย!
-                      className="w-full bg-gradient-to-r from-emerald-500 to-emerald-600 text-white border border-emerald-400 font-bold py-4 rounded-xl flex justify-center items-center gap-2 shadow-[0_0_15px_rgba(16,185,129,0.4)] hover:shadow-[0_0_25px_rgba(16,185,129,0.6)] active:scale-95 transition-all text-[16px]">
-                      <Star size={20} className="animate-pulse text-yellow-300" fill="currentColor" /> ยืนยันผลและให้คะแนนช่าง
-                      </button>
+                          {t.status === 'completed' && (
+                            <button
+                              onClick={() => updateTicketStatus(t.id, { status: 'verified' })}
+                              className="w-full bg-gradient-to-r from-emerald-500 to-emerald-600 text-white border border-emerald-400 font-bold py-4 rounded-xl flex justify-center items-center gap-2 shadow-[0_0_15px_rgba(16,185,129,0.4)] hover:shadow-[0_0_25px_rgba(16,185,129,0.6)] active:scale-95 transition-all"
+                            >
+                              <ThumbsUp size={18} /> ยืนยันผลการซ่อมบำรุง
+                            </button>
                           )}
                           
                           {t.status === 'verified' && (
@@ -3246,146 +3103,6 @@ const renderTracking = () => (
 
       </div> 
       {/* 🌟 ปิดกรอบเนื้อหาหลักของแอป */}
-
-{/* 🌟 หน้าต่าง Popup ประเมินความพึงพอใจ (CSAT) - ฟันธง: อัปเกรด UI V.Max กรอบขาว+เด้งดึ๋ง+แสงสว่าง 80% 🌟 */}
-{ratingModal.isOpen && (() => {
-        // สมองกลเปลี่ยนสีตามจำนวนดาว 1-5 แบบ Full Dynamic (อัปเกรดแสง Flare 80-90%)
-        const rating = ratingModal.rating;
-        const rColor = rating === 5 ? { text: 'text-emerald-400', fill: '#34d399', drop: 'drop-shadow-[0_0_15px_rgba(52,211,153,1)]', border: 'border-emerald-500', shadow: 'shadow-[0_0_60px_rgba(52,211,153,0.4)]', flare: 'bg-emerald-500/80', btnFrom: 'from-emerald-500', btnTo: 'to-emerald-600', btnGlow: 'shadow-[0_0_20px_rgba(16,185,129,0.8)]', btnHover: 'hover:shadow-[0_0_30px_rgba(16,185,129,1)]', ring: 'focus:border-emerald-500 focus:ring-emerald-500/50', iconGlow: 'shadow-[0_0_25px_rgba(52,211,153,0.9)]' } :
-                       rating === 4 ? { text: 'text-cyan-400', fill: '#22d3ee', drop: 'drop-shadow-[0_0_15px_rgba(34,211,238,1)]', border: 'border-cyan-500', shadow: 'shadow-[0_0_60px_rgba(34,211,238,0.4)]', flare: 'bg-cyan-500/80', btnFrom: 'from-cyan-500', btnTo: 'to-cyan-600', btnGlow: 'shadow-[0_0_20px_rgba(6,182,212,0.8)]', btnHover: 'hover:shadow-[0_0_30px_rgba(6,182,212,1)]', ring: 'focus:border-cyan-500 focus:ring-cyan-500/50', iconGlow: 'shadow-[0_0_25px_rgba(34,211,238,0.9)]' } :
-                       rating === 3 ? { text: 'text-yellow-400', fill: '#facc15', drop: 'drop-shadow-[0_0_15px_rgba(250,204,21,1)]', border: 'border-yellow-500', shadow: 'shadow-[0_0_60px_rgba(250,204,21,0.4)]', flare: 'bg-yellow-500/90', btnFrom: 'from-yellow-500', btnTo: 'to-yellow-600', btnGlow: 'shadow-[0_0_20px_rgba(234,179,8,0.8)]', btnHover: 'hover:shadow-[0_0_30px_rgba(234,179,8,1)]', ring: 'focus:border-yellow-500 focus:ring-yellow-500/50', iconGlow: 'shadow-[0_0_25px_rgba(250,204,21,0.9)]' } :
-                       rating === 2 ? { text: 'text-orange-400', fill: '#fb923c', drop: 'drop-shadow-[0_0_15px_rgba(251,146,60,1)]', border: 'border-orange-500', shadow: 'shadow-[0_0_60px_rgba(251,146,60,0.4)]', flare: 'bg-orange-500/90', btnFrom: 'from-orange-500', btnTo: 'to-orange-600', btnGlow: 'shadow-[0_0_20px_rgba(249,115,22,0.8)]', btnHover: 'hover:shadow-[0_0_30px_rgba(249,115,22,1)]', ring: 'focus:border-orange-500 focus:ring-orange-500/50', iconGlow: 'shadow-[0_0_25px_rgba(251,146,60,0.9)]' } :
-                       rating === 1 ? { text: 'text-rose-400', fill: '#fb7185', drop: 'drop-shadow-[0_0_15px_rgba(244,63,94,1)]', border: 'border-rose-500', shadow: 'shadow-[0_0_60px_rgba(244,63,94,0.4)]', flare: 'bg-rose-500/80', btnFrom: 'from-rose-500', btnTo: 'to-rose-600', btnGlow: 'shadow-[0_0_20px_rgba(225,29,72,0.8)]', btnHover: 'hover:shadow-[0_0_30px_rgba(225,29,72,1)]', ring: 'focus:border-rose-500 focus:ring-rose-500/50', iconGlow: 'shadow-[0_0_25px_rgba(244,63,94,0.9)]' } :
-                                      { text: 'text-slate-500', fill: 'none', drop: '', border: 'border-slate-700', shadow: 'shadow-[0_0_40px_rgba(0,0,0,0.5)]', flare: 'bg-blue-500/10', btnFrom: 'from-slate-700', btnTo: 'to-slate-800', btnGlow: '', btnHover: '', ring: 'focus:border-slate-400 focus:ring-slate-400/50', iconGlow: 'shadow-[0_0_15px_rgba(255,255,255,0.1)]' };
-
-        // 🌟 ฟันธง: ลบ onClick ออกจาก Background บังคับให้คลิกนอกกรอบไม่ได้ ต้องกดยกเลิกเท่านั้น!
-        return (
-          <div className="fixed inset-0 z-[160] flex items-center justify-center bg-slate-950/90 backdrop-blur-md p-6 animate-in fade-in">
-                  
-          {/* 💥 แสงเฟลอร์หลังกล่อง สว่างขั้นสุด 80-90% ตามดาว */}
-          <div className={`absolute w-[450px] h-[450px] rounded-full blur-[100px] animate-pulse pointer-events-none z-0 transition-colors duration-500 ${rColor.flare}`}></div>
-
-          <div className={`relative z-10 bg-slate-900 border-[3px] border-solid rounded-[2.5rem] w-full max-w-sm overflow-hidden p-8 text-center space-y-6 transition-all duration-500 ${rColor.border} ${rColor.shadow}`} onClick={(e) => e.stopPropagation()}>
-            
-            {/* 🌟 สไตล์ Grab: โพรไฟล์ช่างผู้รับผิดชอบ */}
-            <div className="flex flex-col items-center mb-2 animate-in slide-in-from-top-4">
-              <div className={`w-20 h-20 rounded-full flex items-center justify-center mx-auto border-[3px] border-white bg-slate-800 transition-all duration-500 shadow-[0_0_20px_rgba(255,255,255,0.15)] mb-3 overflow-hidden ${rColor.iconGlow}`}>
-                {/* 🌟 ใช้ไอคอน User เสมือนเป็นรูปโปรไฟล์ช่าง */}
-                <User size={45} className={`mt-3 transition-colors duration-500 ${rating > 0 ? rColor.text : 'text-slate-400'}`} fill="currentColor" />
-              </div>
-              
-              <h3 className="text-xl md:text-2xl font-black text-white tracking-tight drop-shadow-md">
-                {ratingModal.techName || 'ทีมช่าง ฝวด.'}
-              </h3>
-              
-              <p className="text-[12px] md:text-[14px] text-slate-400 font-bold mt-1.5 flex items-center gap-1.5">
-                รหัสงาน 
-                {/* 🌟 ฟันธง: ขยายรหัส GSE ให้ใหญ่ขึ้น และเปลี่ยนสีตามดาวอัตโนมัติ */}
-                <span className={`text-[16px] md:text-[18px] font-black font-mono tracking-wider transition-colors duration-300 drop-shadow-sm ${rating > 0 ? rColor.text : 'text-orange-400'}`}>
-                  {ratingModal.ticketId}
-                </span>
-              </p>
-            </div>
-
-            <div>
-              <h3 className={`text-[15px] md:text-[17px] font-black tracking-widest mt-4 mb-1 transition-colors duration-300 ${rating > 0 ? rColor.text : 'text-slate-200'}`}>
-                คุณพึงพอใจการซ่อมระดับไหน?
-              </h3>
-            </div>
-
-            {/* โซนให้ดาว สีเปลี่ยนเป๊ะตามเฉด 1-5 */}
-            <div className="flex justify-center gap-1.5 py-2">
-              {[1, 2, 3, 4, 5].map((star) => (
-                <button
-                  key={star}
-                  type="button"
-                  onClick={() => setRatingModal({ ...ratingModal, rating: star })}
-                  className={`transition-all duration-300 transform hover:scale-125 active:scale-90 ${
-                    rating >= star 
-                      ? `${rColor.text} ${rColor.drop}` 
-                      : 'text-slate-600 hover:text-slate-400'
-                  }`}
-                >
-                  <Star size={44} fill={rating >= star ? rColor.fill : 'none'} strokeWidth={rating >= star ? 0 : 1.5} />
-                </button>
-              ))}
-            </div>
-            
-            {/* คำอธิบายระดับดาว สี Dynamic (ฟันธง: มาตรฐานคำเดียว + Emoji สากล) */}
-            <div className="h-7 -mt-4 mb-2">
-              <span className={`text-[17px] md:text-[19px] font-black tracking-widest animate-in fade-in zoom-in duration-300 ${rColor.text}`}>
-                {rating === 5 ? 'ยอดเยี่ยม 😍' : 
-                 rating === 4 ? 'ดีมาก 😁' : 
-                 rating === 3 ? 'ดี 😊' : 
-                 rating === 2 ? 'พอใช้ 😐' : 
-                 rating === 1 ? 'ปรับปรุง 😞' : 'โปรดแตะเลือกจำนวนดาว'}
-              </span>
-            </div>
-
-            {/* 🌟 สไตล์ Grab: คำสำเร็จรูป (Quick Tags) เลือกปุ๊บ พิมพ์ให้ปั๊บ! */}
-            {rating > 0 && (
-              <div className="mb-4 animate-in slide-in-from-top-3 duration-500 text-left">
-                <p className={`text-[13px] font-bold mb-2 ${rColor.text}`}>
-                  ท่านประทับใจส่วนไหนเป็นพิเศษ? (เลือกได้หลายข้อ)
-                </p>
-                <div className="flex flex-wrap gap-2">
-                  {(rating >= 4 ? praiseTags : issueTags).map((tag, index) => (
-                    <button
-                      key={index}
-                      type="button"
-                      onClick={() => toggleTag(tag)}
-                      className={`px-3 py-1.5 rounded-full text-[12px] font-bold border-2 transition-all active:scale-95 duration-300 ${
-                        selectedTags.includes(tag)
-                          ? `bg-gradient-to-r ${rColor.btnFrom} ${rColor.btnTo} text-white ${rColor.border} shadow-md drop-shadow-md` 
-                          : `bg-slate-800 text-slate-300 border-slate-600 hover:${rColor.text} hover:border-slate-400` // 🌟 ฟันธง: ปุ่มที่ยังไม่กด จะมีลูกเล่นเปลี่ยนสีตอนเอาเมาส์ชี้
-                      }`}
-                    >
-                      {tag}
-                    </button>
-                  ))}
-                </div>
-              </div>
-            )}
-
-            {/* 🌟 กล่องคอมเมนต์ Default สีเทา พอกดพิมพ์ (Focus) หรือมีดาว ค่อยเรืองแสงตามดาว */}
-            <div className="text-left space-y-1.5">
-              <textarea
-                value={ratingModal.comment}
-                onChange={(e) => setRatingModal({ ...ratingModal, comment: e.target.value })}
-                placeholder="พิมพ์ข้อเสนอแนะเพิ่มเติม..."
-                rows={3}
-                className={`w-full bg-slate-800 border-[2px] border-solid border-slate-600 rounded-2xl px-4 py-3 text-white font-bold text-sm outline-none transition-all shadow-inner ${rating > 0 ? rColor.ring : 'focus:border-slate-400 focus:ring-slate-400/50'}`}
-              />
-            </div>
-
-            <div className="flex gap-3 pt-2">
-              {/* ปุ่มยกเลิก สี Rose วาบๆ */}
-              <button
-                type="button"
-                onClick={() => setRatingModal({ isOpen: false, ticketId: null, rating: 0, comment: '', techName: '' })}
-                className="flex-[0.8] py-4 rounded-xl font-bold text-rose-200 bg-rose-900/40 border-[2px] border-solid border-rose-500/50 hover:bg-rose-600 hover:border-rose-400 hover:text-white hover:shadow-[0_0_20px_rgba(225,29,72,0.8)] hover:-translate-y-1 active:scale-95 transition-all duration-300"
-              >
-                ยกเลิก
-              </button>
-              
-              {/* ปุ่มยืนยัน สีเปลี่ยนตามดาว พร้อมเอฟเฟกต์ลอยเรืองแสง */}
-              <button
-                type="button"
-                onClick={executeRatingSubmit}
-                disabled={rating === 0}
-                className={`flex-[1.2] py-4 rounded-xl font-black text-white border-[2px] border-solid active:scale-95 transition-all duration-300 ${
-                  rating === 0 
-                    ? 'bg-slate-800 border-slate-600 text-slate-500 opacity-50 cursor-not-allowed' 
-                    : `bg-gradient-to-r ${rColor.btnFrom} ${rColor.btnTo} ${rColor.border} ${rColor.btnGlow} ${rColor.btnHover} hover:-translate-y-1`
-                }`}
-              >
-                ยืนยันการประเมิน
-              </button>
-            </div>
-          </div>
-        </div>
-        );
-      })()}
 
       {/* 🧭 Navigation Bar (ฟันธง: ย้ายเมนูออกมานอกกรอบหลัก + ใส่ transform-gpu บังคับมือถือวาดกราฟิกแยกชั้น ป้องกันตัวหนังสือหาย 1,000,000%) */}
 
