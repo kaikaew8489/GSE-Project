@@ -3168,7 +3168,7 @@ const renderTracking = () => (
 
       {/* 🛠️ Action Modals (ฟันธง: อัปเกรดกล่องอเนกประสงค์ ให้แปลงร่างได้ 5 รูปแบบ พร้อมแสงเฟลอร์ระดับ Sci-Fi) */}
       {actionModal.isOpen && (
-        <div className="fixed inset-0 z-[150] flex items-center justify-center bg-slate-900/80 backdrop-blur-md p-6 animate-in fade-in" onClick={() => setActionModal({ isOpen: false, ticketId: null, type: null })}>
+        <div className="fixed inset-0 z-[150] overflow-y-auto flex items-start justify-center pt-10 pb-40 bg-slate-900/80 backdrop-blur-md p-6 animate-in fade-in" onClick={() => setActionModal({ isOpen: false, ticketId: null, type: null })}>
           
           {/* 💥 จุดที่ 1: พลังแสงเฟลอร์ ทะลุอยู่ด้านหลัง (แยกสีตามประเภทงาน) */}
           <div className={`absolute w-[300px] h-[300px] rounded-full blur-[80px] animate-pulse pointer-events-none z-0 ${
@@ -3178,7 +3178,7 @@ const renderTracking = () => (
           }`}></div>
 
           {/* 📦 จุดที่ 2: ตัวกล่อง Popup (แยกสีกรอบและเงา) */}
-          <div className={`relative z-10 bg-slate-900 border-[2px] border-solid rounded-[2rem] w-full max-w-sm md:max-w-md overflow-hidden p-8 md:p-10 text-center space-y-7 ${
+          <div className={`relative z-10 bg-slate-900 border-[2px] border-solid rounded-[2rem] w-full max-w-sm md:max-w-md m-auto max-h-[75vh] overflow-y-auto [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none] p-8 md:p-10 text-center space-y-7 ${
             actionModal.type === 'finish' ? 'border-emerald-500 shadow-[0_0_50px_rgba(16,185,129,0.5)]' :
             actionModal.type === 'hold' || actionModal.type === 'cancel' ? 'border-rose-500 shadow-[0_0_50px_rgba(225,29,72,0.5)]' : 
             'border-orange-500 shadow-[0_0_50px_rgba(249,115,22,0.6)]'
