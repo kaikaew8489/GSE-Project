@@ -1015,6 +1015,12 @@ const toggleTag = (tag) => {
       setActionModal({ isOpen: false, ticketId: null, type: null });
       setActionText('');
       setSelectedTech('');
+
+      // 🌟 ฟันธง: สลับแท็บอัตโนมัติ กระโดดตามสถานะงานไปเลย! 
+      if (type === 'finish') setFilterStatus('verify');
+      else if (type === 'accept') setFilterStatus('fixing');
+      else if (type === 'hold') setFilterStatus('on_hold');
+      else if (type === 'cancel') setFilterStatus('cancelled');
     };
 
 // 🌟 ฟันธง: ฟังก์ชันส่งผลประเมินและปิดงานสมบูรณ์
@@ -1032,7 +1038,9 @@ const executeRatingSubmit = async () => {
   setRatingModal(prev => ({ ...prev, isOpen: false }));
   setSelectedTags([]); 
 
-  setShowThanksModal(true); 
+  setFilterStatus('completed'); // 🌟 ฟันธง: ประเมินดาวเสร็จปุ๊บ กระโดดไปแท็บ "เสร็จสิ้น" อัตโนมัติ
+
+  setShowThanksModal(true);
   
   // ตั้งเวลาปิดหน้าต่างอัตโนมัติ (ท่านแก้ตัวเลข 8000 เป็นเวลาที่ต้องการได้เลยครับ 8000 = 8 วินาที)
   setTimeout(() => {
