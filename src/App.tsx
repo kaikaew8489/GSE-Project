@@ -1296,8 +1296,8 @@ const executeRatingSubmit = async () => {
              </button>
 
              {showDatePicker && (
-              <div className="fixed inset-0 z-[300] bg-slate-900/80 backdrop-blur-md flex items-center justify-center p-4 animate-in fade-in" onClick={() => setShowDatePicker(false)}>
-                <div className="relative bg-slate-900 border-[2px] border-solid border-white rounded-[2rem] shadow-[0_0_60px_rgba(249,115,22,0.8)] w-full max-w-[340px] p-7 text-center animate-in zoom-in-95 overflow-hidden flex flex-col my-auto" onClick={(e) => e.stopPropagation()}>
+              <div className="fixed inset-0 z-[300] bg-slate-900/80 backdrop-blur-md overflow-y-auto flex items-start justify-center px-4 pt-10 pb-40 animate-in fade-in" onClick={() => setShowDatePicker(false)}>
+                <div className="relative bg-slate-900 border-[2px] border-solid border-white rounded-[2rem] shadow-[0_0_60px_rgba(249,115,22,0.8)] w-full max-w-[340px] p-5 md:p-7 text-center animate-in zoom-in-95 overflow-hidden flex flex-col scale-[0.95] sm:scale-100 origin-top" onClick={(e) => e.stopPropagation()}>
                   <div className="absolute -top-20 -left-20 w-40 h-40 bg-orange-500/80 rounded-full blur-[50px] pointer-events-none z-0"></div>
                   <div className="absolute -bottom-20 -right-20 w-40 h-40 bg-amber-500/80 rounded-full blur-[50px] pointer-events-none z-0"></div>
                   
@@ -1365,7 +1365,7 @@ const executeRatingSubmit = async () => {
             </button>
             
             {showMonthPicker && (
-              <div className="fixed inset-0 z-[300] bg-slate-900/80 backdrop-blur-md flex items-center justify-center p-4 animate-in fade-in" onClick={() => setShowMonthPicker(false)}>
+              <div className="fixed inset-0 z-[300] bg-slate-900/80 backdrop-blur-md overflow-y-auto flex items-start justify-center px-4 pt-10 pb-40 animate-in fade-in" onClick={() => setShowMonthPicker(false)}>
                 <div className="relative bg-slate-900 border-[2px] border-solid border-white rounded-[2rem] shadow-[0_0_60px_rgba(249,115,22,0.8)] w-full max-w-[340px] p-7 text-center animate-in zoom-in-95 overflow-hidden flex flex-col my-auto" onClick={(e) => e.stopPropagation()}>
                   <div className="absolute -top-20 -right-20 w-40 h-40 bg-orange-500/80 rounded-full blur-[50px] pointer-events-none z-0"></div>
                   <div className="absolute -bottom-20 -left-20 w-40 h-40 bg-amber-500/80 rounded-full blur-[50px] pointer-events-none z-0"></div>
@@ -2276,7 +2276,7 @@ const renderTracking = () => (
               <Calendar size={14} className={trackTimeframe === 'custom_date' ? 'text-white animate-pulse' : 'text-cyan-400'}/> ระบุวัน
             </button>
             {showTrackDatePicker && (
-              <div className="fixed inset-0 z-[300] bg-slate-900/80 backdrop-blur-md flex items-center justify-center p-4 animate-in fade-in" onClick={() => setShowTrackDatePicker(false)}>
+              <div className="fixed inset-0 z-[300] bg-slate-900/80 backdrop-blur-md overflow-y-auto flex items-start justify-center px-4 pt-10 pb-40 animate-in fade-in" onClick={() => setShowTrackDatePicker(false)}>
                 <div className="relative bg-slate-900 border-[2px] border-solid border-white rounded-[2rem] shadow-[0_0_60px_rgba(6,182,212,0.8)] w-full max-w-[340px] p-7 text-center animate-in zoom-in-95 overflow-hidden flex flex-col my-auto" onClick={(e) => e.stopPropagation()}>
                   <div className="absolute -top-20 -left-20 w-40 h-40 bg-cyan-500/60 rounded-full blur-[50px] pointer-events-none z-0"></div>
                   <div className="absolute -bottom-20 -right-20 w-40 h-40 bg-blue-500/60 rounded-full blur-[50px] pointer-events-none z-0"></div>
@@ -2340,7 +2340,7 @@ const renderTracking = () => (
             </button>
             
             {showTrackMonthPicker && (
-              <div className="fixed inset-0 z-[300] bg-slate-900/80 backdrop-blur-md flex items-center justify-center p-4 animate-in fade-in" onClick={() => setShowTrackMonthPicker(false)}>
+              <div className="fixed inset-0 z-[300] bg-slate-900/80 backdrop-blur-md overflow-y-auto flex items-start justify-center px-4 pt-10 pb-40 animate-in fade-in" onClick={() => setShowTrackMonthPicker(false)}>
                 <div className="relative bg-slate-900 border-[2px] border-solid border-white rounded-[2rem] shadow-[0_0_60px_rgba(6,182,212,0.8)] w-full max-w-[340px] p-7 text-center animate-in zoom-in-95 overflow-hidden flex flex-col my-auto" onClick={(e) => e.stopPropagation()}>
                   <div className="absolute -top-20 -right-20 w-40 h-40 bg-cyan-500/60 rounded-full blur-[50px] pointer-events-none z-0"></div>
                   <div className="absolute -bottom-20 -left-20 w-40 h-40 bg-blue-500/60 rounded-full blur-[50px] pointer-events-none z-0"></div>
