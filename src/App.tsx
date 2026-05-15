@@ -3337,17 +3337,25 @@ const renderTracking = () => (
         </div>
 
         <div className="relative w-12 h-14 shrink-0 z-0 pointer-events-none">
+           {/* 🌟 ฟันธงวิชามาร: ยัด width="65" และ style ลง HTML ตรงๆ ห้ามมาสคอตขยายร่างตอนรีเฟรช 1,000,000% */}
            <img 
              src={activeTab === 'dashboard' ? "/mascot-dashboard.webp" : activeTab === 'report' ? "/mascot-report.webp" : (activeTab === 'tracking' && currentUserRole === 'technician') ? "/mascot-tech.webp" : "/mascot-track.webp"}
              key={activeTab + currentUserRole}
              alt="GSE Mascot" 
-             className="absolute bottom-[-10px] right-[-10px] w-[65px] max-w-none h-auto object-contain drop-shadow-[0_5px_5px_rgba(0,0,0,0.4)] animate-in slide-in-from-right-4 fade-in duration-500"
+             width="65"
+             style={{ width: '65px', height: 'auto', position: 'absolute', bottom: '-10px', right: '-10px', maxWidth: 'none' }}
+             className="object-contain drop-shadow-[0_5px_5px_rgba(0,0,0,0.4)] animate-in slide-in-from-right-4 fade-in duration-500"
            />
         </div>
       </div>
 
+      {/* 👇👇👇 วางทับเฉพาะก้อนนี้ครับ 👇👇👇 */}
       {/* 🎯 ฟันธงแก้ตรงนี้! เพิ่มเงื่อนไขบีบความกว้างกล่อง Scrollbar ให้แนบชิดติดขอบฟอร์ม (md:max-w-2xl mx-auto) */}
-      <div className={`relative z-10 flex-1 overflow-y-auto overflow-x-hidden w-full scrollbar-hide pb-28 ${activeTab === 'report' ? 'md:max-w-2xl mx-auto' : ''}`}>
+      {/* 🌟 ฟันธงวิชามาร: ยัด style overscrollBehaviorY ฝังลงกล่อง React บังคับ Chrome Android ห้ามดึงรีเฟรชเด็ดขาด! */}
+      <div 
+        className={`relative z-10 flex-1 overflow-y-auto overflow-x-hidden w-full scrollbar-hide pb-28 ${activeTab === 'report' ? 'md:max-w-2xl mx-auto' : ''}`}
+        style={{ overscrollBehaviorY: 'contain' }}
+      >
         {activeTab === 'dashboard' && currentUserRole === 'technician' && renderDashboard()}
         {activeTab === 'report' && renderReport()}
         {activeTab === 'tracking' && renderTracking()}
@@ -3718,12 +3726,18 @@ function LandingPage({ onStart }) {
               </p>
             </div>
 
-            {/* 👩‍🔧 น้องมาสคอต (ฟันธง: เปลี่ยนค่า mb ให้จอ PC เป็นบวก md:mb-4 เพื่อดันปุ่มสีส้มให้ถอยหนีลงไป ไม่ทับเท้า) */}
-            <div className="relative z-30 w-[50%] md:w-[70%] max-w-[280px] md:max-w-[360px] mb-1 md:mb-2 pointer-events-none drop-shadow-[0_20px_20px_rgba(0,0,0,0.8)] transition-all duration-500">
-              <img
+           {/* 👩‍🔧 น้องมาสคอต (ฟันธงวิชามาร: ฝัง style กุญแจมือ ล็อกขนาดถาวร ต่อให้ CSS พัง รูปก็ห้ามทะลุจอ 100%) */}
+           <div 
+              className="relative z-30 mx-auto mb-1 md:mb-2 pointer-events-none drop-shadow-[0_20px_20px_rgba(0,0,0,0.8)] transition-all duration-500"
+              style={{ width: '50%', maxWidth: '280px' }} 
+            >
+            {/* 🌟 ฟันธงวิชามาร: ยัด width="280" และ style ลง HTML ตรงๆ */}
+            <img
                 src="/mascot.webp"
                 alt="Mascot"
-                className="w-full h-auto object-contain object-bottom hover:scale-105 transition-transform duration-500"
+                width="280"
+                style={{ width: '100%', maxWidth: '280px', height: 'auto' }}
+                className="object-contain object-bottom hover:scale-105 transition-transform duration-500"
               />
             </div>
           </div>
@@ -3859,8 +3873,7 @@ function LandingPage({ onStart }) {
 
     </div>
   );
-} 
-
+} // <--- 🌟 ฟันธง: วงเล็บปีกกาตัวนี้แหละครับที่หายไป ทำให้พัง! 🌟
 
 // ==========================================
 // 🚀 ส่วนควบคุมระบบ (App Component)
