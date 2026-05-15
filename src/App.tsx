@@ -3431,7 +3431,10 @@ const renderTracking = () => (
                 <button
                   key={star}
                   type="button"
-                  onClick={() => setRatingModal({ ...ratingModal, rating: star })}
+                  onClick={() => {
+                    setRatingModal({ ...ratingModal, rating: star, comment: '' });
+                    setSelectedTags([]);
+                  }}
                   className={`transition-all duration-300 transform hover:scale-125 active:scale-90 ${
                     rating >= star 
                       ? `${rColor.text} ${rColor.drop}` 
