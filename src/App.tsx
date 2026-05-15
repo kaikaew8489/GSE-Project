@@ -3383,7 +3383,7 @@ const renderTracking = () => (
             <div className={`absolute w-[450px] h-[450px] rounded-full blur-[100px] animate-pulse pointer-events-none z-0 transition-colors duration-500 ${rColor.flare}`}></div>
 
             {/* 🌟 ฟันธง: เพิ่ม max-h-[85vh] และ overflow-y-auto ตรงบรรทัดนี้ครับ! 🌟 */}
-            <div className={`relative z-10 bg-slate-900 border-[3px] border-solid rounded-[2.5rem] w-full max-w-sm max-h-[85vh] overflow-y-auto scrollbar-hide px-6 pt-8 pb-10 text-center transition-all duration-500 ${rColor.border} ${rColor.shadow}`} onClick={(e) => e.stopPropagation()}>            
+            <div className={`relative z-10 bg-slate-900 border-[3px] border-solid rounded-[2.5rem] w-full max-w-sm max-h-[85vh] overflow-y-auto [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none] px-6 pt-8 pb-10 text-center transition-all duration-500 ${rColor.border} ${rColor.shadow}`} onClick={(e) => e.stopPropagation()}>            
             
             {/* 🌟 สไตล์ Grab: โพรไฟล์ช่างผู้รับผิดชอบ */}
             <div className="flex flex-col items-center mb-6 animate-in slide-in-from-top-4">
