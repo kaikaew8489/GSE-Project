@@ -1296,8 +1296,8 @@ const executeRatingSubmit = async () => {
              </button>
 
              {showDatePicker && (
-              <div className="fixed inset-0 z-[300] bg-slate-900/80 backdrop-blur-md overflow-y-auto flex items-start justify-center px-4 pt-10 pb-40 animate-in fade-in" onClick={() => setShowDatePicker(false)}>
-                <div className="relative bg-slate-900 border-[2px] border-solid border-white rounded-[2rem] shadow-[0_0_60px_rgba(249,115,22,0.8)] w-full max-w-[340px] p-5 md:p-7 text-center animate-in zoom-in-95 overflow-hidden flex flex-col scale-[0.95] sm:scale-100 origin-top" onClick={(e) => e.stopPropagation()}>
+              <div className="fixed inset-0 z-[300] bg-slate-900/80 backdrop-blur-md flex items-center justify-center p-4 animate-in fade-in" onClick={() => setShowDatePicker(false)}>
+                <div className="relative bg-slate-900 border-[2px] border-solid border-white rounded-[2rem] shadow-[0_0_60px_rgba(249,115,22,0.8)] w-full max-w-[340px] p-7 text-center animate-in zoom-in-95 overflow-hidden flex flex-col my-auto" onClick={(e) => e.stopPropagation()}>
                   <div className="absolute -top-20 -left-20 w-40 h-40 bg-orange-500/80 rounded-full blur-[50px] pointer-events-none z-0"></div>
                   <div className="absolute -bottom-20 -right-20 w-40 h-40 bg-amber-500/80 rounded-full blur-[50px] pointer-events-none z-0"></div>
                   
@@ -1365,7 +1365,7 @@ const executeRatingSubmit = async () => {
             </button>
             
             {showMonthPicker && (
-              <div className="fixed inset-0 z-[300] bg-slate-900/80 backdrop-blur-md overflow-y-auto flex items-start justify-center px-4 pt-10 pb-40 animate-in fade-in" onClick={() => setShowMonthPicker(false)}>
+              <div className="fixed inset-0 z-[300] bg-slate-900/80 backdrop-blur-md flex items-center justify-center p-4 animate-in fade-in" onClick={() => setShowMonthPicker(false)}>
                 <div className="relative bg-slate-900 border-[2px] border-solid border-white rounded-[2rem] shadow-[0_0_60px_rgba(249,115,22,0.8)] w-full max-w-[340px] p-7 text-center animate-in zoom-in-95 overflow-hidden flex flex-col my-auto" onClick={(e) => e.stopPropagation()}>
                   <div className="absolute -top-20 -right-20 w-40 h-40 bg-orange-500/80 rounded-full blur-[50px] pointer-events-none z-0"></div>
                   <div className="absolute -bottom-20 -left-20 w-40 h-40 bg-amber-500/80 rounded-full blur-[50px] pointer-events-none z-0"></div>
@@ -2276,7 +2276,7 @@ const renderTracking = () => (
               <Calendar size={14} className={trackTimeframe === 'custom_date' ? 'text-white animate-pulse' : 'text-cyan-400'}/> ระบุวัน
             </button>
             {showTrackDatePicker && (
-              <div className="fixed inset-0 z-[300] bg-slate-900/80 backdrop-blur-md overflow-y-auto flex items-start justify-center px-4 pt-10 pb-40 animate-in fade-in" onClick={() => setShowTrackDatePicker(false)}>
+              <div className="fixed inset-0 z-[300] bg-slate-900/80 backdrop-blur-md flex items-center justify-center p-4 animate-in fade-in" onClick={() => setShowTrackDatePicker(false)}>
                 <div className="relative bg-slate-900 border-[2px] border-solid border-white rounded-[2rem] shadow-[0_0_60px_rgba(6,182,212,0.8)] w-full max-w-[340px] p-7 text-center animate-in zoom-in-95 overflow-hidden flex flex-col my-auto" onClick={(e) => e.stopPropagation()}>
                   <div className="absolute -top-20 -left-20 w-40 h-40 bg-cyan-500/60 rounded-full blur-[50px] pointer-events-none z-0"></div>
                   <div className="absolute -bottom-20 -right-20 w-40 h-40 bg-blue-500/60 rounded-full blur-[50px] pointer-events-none z-0"></div>
@@ -2340,7 +2340,7 @@ const renderTracking = () => (
             </button>
             
             {showTrackMonthPicker && (
-              <div className="fixed inset-0 z-[300] bg-slate-900/80 backdrop-blur-md overflow-y-auto flex items-start justify-center px-4 pt-10 pb-40 animate-in fade-in" onClick={() => setShowTrackMonthPicker(false)}>
+              <div className="fixed inset-0 z-[300] bg-slate-900/80 backdrop-blur-md flex items-center justify-center p-4 animate-in fade-in" onClick={() => setShowTrackMonthPicker(false)}>
                 <div className="relative bg-slate-900 border-[2px] border-solid border-white rounded-[2rem] shadow-[0_0_60px_rgba(6,182,212,0.8)] w-full max-w-[340px] p-7 text-center animate-in zoom-in-95 overflow-hidden flex flex-col my-auto" onClick={(e) => e.stopPropagation()}>
                   <div className="absolute -top-20 -right-20 w-40 h-40 bg-cyan-500/60 rounded-full blur-[50px] pointer-events-none z-0"></div>
                   <div className="absolute -bottom-20 -left-20 w-40 h-40 bg-blue-500/60 rounded-full blur-[50px] pointer-events-none z-0"></div>
@@ -3337,25 +3337,17 @@ const renderTracking = () => (
         </div>
 
         <div className="relative w-12 h-14 shrink-0 z-0 pointer-events-none">
-           {/* 🌟 ฟันธงวิชามาร: ยัด width="65" และ style ลง HTML ตรงๆ ห้ามมาสคอตขยายร่างตอนรีเฟรช 1,000,000% */}
            <img 
              src={activeTab === 'dashboard' ? "/mascot-dashboard.webp" : activeTab === 'report' ? "/mascot-report.webp" : (activeTab === 'tracking' && currentUserRole === 'technician') ? "/mascot-tech.webp" : "/mascot-track.webp"}
              key={activeTab + currentUserRole}
              alt="GSE Mascot" 
-             width="65"
-             style={{ width: '65px', height: 'auto', position: 'absolute', bottom: '-10px', right: '-10px', maxWidth: 'none' }}
-             className="object-contain drop-shadow-[0_5px_5px_rgba(0,0,0,0.4)] animate-in slide-in-from-right-4 fade-in duration-500"
+             className="absolute bottom-[-10px] right-[-10px] w-[65px] max-w-none h-auto object-contain drop-shadow-[0_5px_5px_rgba(0,0,0,0.4)] animate-in slide-in-from-right-4 fade-in duration-500"
            />
         </div>
       </div>
 
-      {/* 👇👇👇 วางทับเฉพาะก้อนนี้ครับ 👇👇👇 */}
       {/* 🎯 ฟันธงแก้ตรงนี้! เพิ่มเงื่อนไขบีบความกว้างกล่อง Scrollbar ให้แนบชิดติดขอบฟอร์ม (md:max-w-2xl mx-auto) */}
-      {/* 🌟 ฟันธงวิชามาร: ยัด style overscrollBehaviorY ฝังลงกล่อง React บังคับ Chrome Android ห้ามดึงรีเฟรชเด็ดขาด! */}
-      <div 
-        className={`relative z-10 flex-1 overflow-y-auto overflow-x-hidden w-full scrollbar-hide pb-28 ${activeTab === 'report' ? 'md:max-w-2xl mx-auto' : ''}`}
-        style={{ overscrollBehaviorY: 'contain' }}
-      >
+      <div className={`relative z-10 flex-1 overflow-y-auto overflow-x-hidden w-full scrollbar-hide pb-28 ${activeTab === 'report' ? 'md:max-w-2xl mx-auto' : ''}`}>
         {activeTab === 'dashboard' && currentUserRole === 'technician' && renderDashboard()}
         {activeTab === 'report' && renderReport()}
         {activeTab === 'tracking' && renderTracking()}
@@ -3726,18 +3718,12 @@ function LandingPage({ onStart }) {
               </p>
             </div>
 
-           {/* 👩‍🔧 น้องมาสคอต (ฟันธงวิชามาร: ฝัง style กุญแจมือ ล็อกขนาดถาวร ต่อให้ CSS พัง รูปก็ห้ามทะลุจอ 100%) */}
-           <div 
-              className="relative z-30 mx-auto mb-1 md:mb-2 pointer-events-none drop-shadow-[0_20px_20px_rgba(0,0,0,0.8)] transition-all duration-500"
-              style={{ width: '50%', maxWidth: '280px' }} 
-            >
-            {/* 🌟 ฟันธงวิชามาร: ยัด width="280" และ style ลง HTML ตรงๆ */}
-            <img
+            {/* 👩‍🔧 น้องมาสคอต (ฟันธง: เปลี่ยนค่า mb ให้จอ PC เป็นบวก md:mb-4 เพื่อดันปุ่มสีส้มให้ถอยหนีลงไป ไม่ทับเท้า) */}
+            <div className="relative z-30 w-[50%] md:w-[70%] max-w-[280px] md:max-w-[360px] mb-1 md:mb-2 pointer-events-none drop-shadow-[0_20px_20px_rgba(0,0,0,0.8)] transition-all duration-500">
+              <img
                 src="/mascot.webp"
                 alt="Mascot"
-                width="280"
-                style={{ width: '100%', maxWidth: '280px', height: 'auto' }}
-                className="object-contain object-bottom hover:scale-105 transition-transform duration-500"
+                className="w-full h-auto object-contain object-bottom hover:scale-105 transition-transform duration-500"
               />
             </div>
           </div>
