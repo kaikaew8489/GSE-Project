@@ -3909,7 +3909,6 @@ export default function App() {
     sessionStorage.removeItem('hasStarted');
     sessionStorage.removeItem('activeTab');
   };
-
   return (
     <ErrorBoundary>
       {hasStarted ? (
@@ -3919,4 +3918,4 @@ export default function App() {
       )}
     </ErrorBoundary>
   );
-}
+} // <--- เติมตัวนี้เข้าไปครับ!
