@@ -3060,14 +3060,17 @@ const renderTracking = () => (
                             </div>
                           )}
 
-                          {/* 🌟🌟 ฟันธง: แทรกปุ่มดึงงานกลับ (Undo) ตรงนี้ครับ 🌟🌟 */}
-                          {t.status === 'completed' && (
+                         {/* 🌟🌟 ฟันธง: แทรกปุ่มดึงงานกลับ (Undo) ตรงนี้ครับ 🌟🌟 */}
+                         {t.status === 'completed' && (
                             <button
-                              onClick={() => updateTicketStatus(t.id, { 
-                                status: 'in_progress', 
-                                completedAt: null, 
-                                cause: null 
-                              })}
+                              onClick={() => { 
+                                updateTicketStatus(t.id, { 
+                                  status: 'in_progress', 
+                                  completedAt: null, 
+                                  cause: null 
+                                });
+                                setFilterStatus('fixing'); /* 🌟 ฟันธง: เติมคำสั่งสลับแท็บตรงนี้ครับ! */
+                              }}
                               className="w-full bg-orange-100 text-orange-800 border-2 border-orange-400 font-bold py-3.5 rounded-xl hover:bg-orange-100 hover:text-orange-800 active:scale-95 transition-all text-[15px] shadow-sm flex justify-center items-center gap-2 mt-3 hover:shadow-[0_0_15px_rgba(249,115,22,0.4)]"
                             >
                               <RotateCcw size={18} className="animate-spin-slow" /> ดึงงานกลับมาแก้ไขผลการซ่อม
