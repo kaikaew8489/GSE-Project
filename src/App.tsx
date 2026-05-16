@@ -1305,7 +1305,7 @@ const executeRatingSubmit = async () => {
 
              {showDatePicker && (
               <div className="fixed inset-0 z-[300] bg-slate-900/80 backdrop-blur-md flex items-center justify-center p-4 pb-32 animate-in fade-in" onClick={() => setShowDatePicker(false)}>
-                <div className="relative bg-slate-900 border-[2px] border-solid border-white rounded-[2rem] shadow-[0_0_60px_rgba(249,115,22,0.8)] w-full max-w-[340px] p-7 text-center animate-in zoom-in-95 flex flex-col my-auto h-auto h-auto max-h-[75vh] md:max-h-none overflow-y-auto [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]" onClick={(e) => e.stopPropagation()}>
+                <div className="relative bg-slate-900 border-[2px] border-solid border-white rounded-[2rem] shadow-[0_0_60px_rgba(249,115,22,0.8)] w-full max-w-[300px] sm:max-w-[340px] p-4 sm:p-5 md:p-7 text-center animate-in zoom-in-95 flex flex-col h-auto" onClick={(e) => e.stopPropagation()}>
                   <div className="absolute -top-20 -left-20 w-40 h-40 bg-orange-500/80 rounded-full blur-[50px] pointer-events-none z-0"></div>
                   <div className="absolute -bottom-20 -right-20 w-40 h-40 bg-amber-500/80 rounded-full blur-[50px] pointer-events-none z-0"></div>
                   
@@ -3391,7 +3391,7 @@ const renderTracking = () => (
             <div className={`absolute w-[450px] h-[450px] rounded-full blur-[100px] animate-pulse pointer-events-none z-0 transition-colors duration-500 ${rColor.flare}`}></div>
 
             {/* 🌟 ฟันธง: เพิ่ม max-h-[85vh] และ overflow-y-auto ตรงบรรทัดนี้ครับ! 🌟 */}
-            <div className={`relative z-10 bg-slate-900 border-[3px] border-solid rounded-[2.5rem] w-full max-w-sm h-auto max-h-[75vh] md:max-h-none overflow-y-auto [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none] px-6 pt-8 pb-10 [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none] px-6 pt-8 pb-10 text-center transition-all duration-500 ${rColor.border} ${rColor.shadow}`} onClick={(e) => e.stopPropagation()}>            
+            <div className={`relative m-auto z-10 bg-slate-900 border-[3px] border-solid rounded-[2.5rem] w-[90%] max-w-[320px] sm:max-w-sm h-auto px-4 pt-6 pb-6 sm:px-6 sm:pt-8 sm:pb-10 text-center transition-all duration-500 ${rColor.border} ${rColor.shadow}`} onClick={(e) => e.stopPropagation()}>            
             
             {/* 🌟 สไตล์ Grab: โพรไฟล์ช่างผู้รับผิดชอบ */}
             <div className="flex flex-col items-center mb-6 animate-in slide-in-from-top-4">
