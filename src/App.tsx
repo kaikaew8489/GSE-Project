@@ -3417,7 +3417,7 @@ const renderTracking = () => (
             </div>
 
             <div className="mb-4">
-              <h3 className={`text-[15px] md:text-[17px] font-black tracking-widest transition-colors duration-300 ${rating > 0 ? rColor.text : 'text-slate-200'}`}>
+            <h3 className={`text-[14px] sm:text-[15px] md:text-[17px] font-black tracking-widest transition-colors duration-300 ${rating > 0 ? rColor.text : 'text-slate-200'}`}>
                 คุณพึงพอใจการซ่อมระดับไหน?
               </h3>
             </div>
