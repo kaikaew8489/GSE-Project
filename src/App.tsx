@@ -1015,12 +1015,6 @@ const toggleTag = (tag) => {
       setActionModal({ isOpen: false, ticketId: null, type: null });
       setActionText('');
       setSelectedTech('');
-
-      // 🌟 ฟันธง: สลับแท็บอัตโนมัติ กระโดดตามสถานะงานไปเลย! 
-      if (type === 'finish') setFilterStatus('verify');
-      else if (type === 'accept') setFilterStatus('fixing');
-      else if (type === 'hold') setFilterStatus('on_hold');
-      else if (type === 'cancel') setFilterStatus('cancelled');
     };
 
 // 🌟 ฟันธง: ฟังก์ชันส่งผลประเมินและปิดงานสมบูรณ์
@@ -1038,9 +1032,7 @@ const executeRatingSubmit = async () => {
   setRatingModal(prev => ({ ...prev, isOpen: false }));
   setSelectedTags([]); 
 
-  setFilterStatus('completed'); // 🌟 ฟันธง: ประเมินดาวเสร็จปุ๊บ กระโดดไปแท็บ "เสร็จสิ้น" อัตโนมัติ
-
-  setShowThanksModal(true);
+  setShowThanksModal(true); 
   
   // ตั้งเวลาปิดหน้าต่างอัตโนมัติ (ท่านแก้ตัวเลข 8000 เป็นเวลาที่ต้องการได้เลยครับ 8000 = 8 วินาที)
   setTimeout(() => {
@@ -1304,12 +1296,13 @@ const executeRatingSubmit = async () => {
              </button>
 
              {showDatePicker && (
-              <div className="fixed inset-0 z-[300] bg-slate-900/80 backdrop-blur-md flex items-center justify-center p-4 pb-32 animate-in fade-in" onClick={() => setShowDatePicker(false)}>
-                <div className="relative bg-slate-900 border-[2px] border-solid border-white rounded-[2rem] shadow-[0_0_60px_rgba(249,115,22,0.8)] w-full max-w-[300px] sm:max-w-[340px] p-4 sm:p-5 md:p-7 text-center animate-in zoom-in-95 flex flex-col h-auto" onClick={(e) => e.stopPropagation()}>
+              <div className="fixed inset-0 z-[300] bg-slate-900/80 backdrop-blur-md flex items-center justify-center p-4 animate-in fade-in" onClick={() => setShowDatePicker(false)}>
+                <div className="relative bg-slate-900 border-[2px] border-solid border-white rounded-[2rem] shadow-[0_0_60px_rgba(249,115,22,0.8)] w-full max-w-[340px] p-7 text-center animate-in zoom-in-95 overflow-hidden flex flex-col my-auto" onClick={(e) => e.stopPropagation()}>
                   <div className="absolute -top-20 -left-20 w-40 h-40 bg-orange-500/80 rounded-full blur-[50px] pointer-events-none z-0"></div>
                   <div className="absolute -bottom-20 -right-20 w-40 h-40 bg-amber-500/80 rounded-full blur-[50px] pointer-events-none z-0"></div>
                   
-                  <div className="relative z-10 flex justify-between items-center mb-4 pb-3 sm:mb-6 sm:pb-5 border-b border-white/20">                    <button onClick={() => { if (calMonth === 0) { setCalMonth(11); setCalYear(y => y - 1); } else setCalMonth(m => m - 1); }} className="p-2.5 bg-slate-800 text-white rounded-xl hover:bg-orange-500 transition-colors border border-slate-600 active:scale-95 shadow-inner"><ChevronDown size={22} className="rotate-90" /></button>
+                  <div className="relative z-10 flex justify-between items-center mb-6 pb-5 border-b border-white/20">
+                    <button onClick={() => { if (calMonth === 0) { setCalMonth(11); setCalYear(y => y - 1); } else setCalMonth(m => m - 1); }} className="p-2.5 bg-slate-800 text-white rounded-xl hover:bg-orange-500 transition-colors border border-slate-600 active:scale-95 shadow-inner"><ChevronDown size={22} className="rotate-90" /></button>
                     <div className="flex flex-col items-center">
                       <span className="text-[12px] font-black text-white tracking-widest uppercase mb-0.5 md:mb-2.5 drop-shadow-[0_0_8px_rgba(255,255,255,0.8)]">เลือกวันที่</span>
                       <span className="text-xl font-black text-orange-400 tracking-widest drop-shadow-[0_0_15px_rgba(249,115,22,0.9)]">
@@ -1323,7 +1316,8 @@ const executeRatingSubmit = async () => {
                     <div className="grid grid-cols-7 gap-1 mb-3">
                       {['อา', 'จ', 'อ', 'พ', 'พฤ', 'ศ', 'ส'].map(day => (<div key={day} className={`text-[13px] font-black ${day === 'อา' ? 'text-rose-400' : day === 'ส' ? 'text-sky-400' : 'text-slate-300'}`}>{day}</div>))}
                     </div>
-                    <div className="grid grid-cols-7 gap-1 sm:gap-1.5">                      {Array.from({ length: new Date(calYear, calMonth, 1).getDay() }).map((_, i) => (<div key={`empty-${i}`} />))}
+                    <div className="grid grid-cols-7 gap-1.5">
+                      {Array.from({ length: new Date(calYear, calMonth, 1).getDay() }).map((_, i) => (<div key={`empty-${i}`} />))}
                       {Array.from({ length: new Date(calYear, calMonth + 1, 0).getDate() }).map((_, i) => {
                         const day = i + 1;
                         const dateString = `${calYear}-${String(calMonth + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
@@ -1338,7 +1332,8 @@ const executeRatingSubmit = async () => {
                           <button 
                             key={day} 
                             onClick={() => { setCustomDate(dateString); setDashTimeframe('custom_date'); setShowDatePicker(false); }}
-                            className={`aspect-square flex items-center justify-center rounded-lg sm:rounded-xl text-[14px] sm:text-[15px] font-black transition-all duration-300 active:scale-95 ${                              isSelected 
+                            className={`aspect-square flex items-center justify-center rounded-xl text-[15px] font-black transition-all duration-300 active:scale-95 ${
+                              isSelected 
                                 ? 'bg-orange-500 text-white shadow-[0_0_20px_rgba(249,115,22,0.9)] border-[2px] border-solid border-white scale-110 z-20' 
                                 : isToday 
                                 ? 'bg-orange-500/80 text-white shadow-[0_0_25px_rgba(249,115,22,1)] border-[2px] border-solid border-orange-300 z-10 animate-pulse' 
@@ -1371,12 +1366,11 @@ const executeRatingSubmit = async () => {
             
             {showMonthPicker && (
               <div className="fixed inset-0 z-[300] bg-slate-900/80 backdrop-blur-md flex items-center justify-center p-4 animate-in fade-in" onClick={() => setShowMonthPicker(false)}>
-                <div className="relative bg-slate-900 border-[2px] border-solid border-white rounded-[2rem] shadow-[0_0_60px_rgba(249,115,22,0.8)] w-full max-w-[340px] p-7 text-center animate-in zoom-in-95 flex flex-col my-auto h-auto h-auto max-h-[75vh] md:max-h-none overflow-y-auto [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]" onClick={(e) => e.stopPropagation()}>
+                <div className="relative bg-slate-900 border-[2px] border-solid border-white rounded-[2rem] shadow-[0_0_60px_rgba(249,115,22,0.8)] w-full max-w-[340px] p-7 text-center animate-in zoom-in-95 overflow-hidden flex flex-col my-auto" onClick={(e) => e.stopPropagation()}>
                   <div className="absolute -top-20 -right-20 w-40 h-40 bg-orange-500/80 rounded-full blur-[50px] pointer-events-none z-0"></div>
-                
                   <div className="absolute -bottom-20 -left-20 w-40 h-40 bg-amber-500/80 rounded-full blur-[50px] pointer-events-none z-0"></div>
                   
-                  <div className="relative z-10 flex justify-between items-center mb-4 pb-3 sm:mb-6 sm:pb-5 border-b border-white/20">
+                  <div className="relative z-10 flex justify-between items-center mb-6 pb-5 border-b border-white/20">
                     <button onClick={() => setPickerYear(y => y - 1)} className="p-2.5 bg-slate-800 text-white rounded-xl hover:bg-orange-500 transition-colors border border-slate-600"><ChevronDown size={22} className="rotate-90" /></button>
                     <div className="flex flex-col items-center">
                       <span className="text-[12px] font-black text-white tracking-widest uppercase mb-0.5 md:mb-2.5 drop-shadow-[0_0_8px_rgba(255,255,255,0.8)]">
@@ -1388,7 +1382,7 @@ const executeRatingSubmit = async () => {
                     </div>
                     <button onClick={() => setPickerYear(y => y + 1)} className="p-2.5 bg-slate-800 text-white rounded-xl hover:bg-orange-500 transition-colors border border-slate-600"><ChevronDown size={22} className="-rotate-90" /></button>
                   </div>
-                  <div className="relative z-10 grid grid-cols-3 gap-2 sm:gap-3">
+                  <div className="relative z-10 grid grid-cols-3 gap-3">
                     {['ม.ค.', 'ก.พ.', 'มี.ค.', 'เม.ย.', 'พ.ค.', 'มิ.ย.', 'ก.ค.', 'ส.ค.', 'ก.ย.', 'ต.ค.', 'พ.ย.', 'ธ.ค.'].map((m, i) => {
                       const monthValue = `${pickerYear}-${String(i + 1).padStart(2, '0')}`;
                       const isSelected = customMonth === monthValue;
@@ -1398,7 +1392,8 @@ const executeRatingSubmit = async () => {
                         <button 
                           key={m} 
                           onClick={() => { setCustomMonth(monthValue); setDashTimeframe('custom'); setShowMonthPicker(false); }}
-                          className={`py-2.5 sm:py-3.5 rounded-lg sm:rounded-xl text-[14px] sm:text-[15px] font-black transition-all duration-300 active:scale-95 ${                            isSelected 
+                          className={`py-3.5 rounded-xl text-[15px] font-black transition-all duration-300 active:scale-95 ${
+                            isSelected 
                               ? 'bg-orange-500 text-white shadow-[0_0_20px_rgba(249,115,22,0.9)] border-[2px] border-solid border-white scale-110 z-10' 
                               : isCurrentMonth 
                               ? 'bg-orange-500/80 text-white shadow-[0_0_25px_rgba(249,115,22,1)] border-[2px] border-solid border-orange-300 z-10 animate-pulse' 
@@ -2085,7 +2080,7 @@ const executeRatingSubmit = async () => {
               </div>
 
               {/* 🌟 2. โซนแสดงรูปและกรอบเส้นปะ */}
-              <div className={formData.images.length === 0 ? "flex w-full" : "grid grid-cols-3 gap-2 sm:gap-3"}>
+              <div className={formData.images.length === 0 ? "flex w-full" : "grid grid-cols-3 gap-3"}>
                 
                 {/* 🖼️ รูปที่ถูกเลือกแล้วจะมาเรียงตรงนี้ */}
                 {formData.images.map((img, i) => (
@@ -2164,7 +2159,7 @@ const executeRatingSubmit = async () => {
 
      {/* 🌟 หน้าต่าง Popup ยืนยันข้อมูล (อัปเกรดแสงเฟลอร์ส้มวาบๆ + ปุ่มเรืองแสง) */}
      {confirmSubmitModal && (
-        <div className="fixed inset-0 z-[150] flex items-center justify-center bg-slate-900/80 backdrop-blur-md p-6 pb-32 animate-in fade-in">
+        <div className="fixed inset-0 z-[150] flex items-center justify-center bg-slate-900/80 backdrop-blur-md p-6 animate-in fade-in">
           
           {/* 💥 พลังแสงเฟลอร์สีส้มวาบๆ ทะลุอยู่ด้านหลังกล่อง */}
           <div className="absolute w-[300px] h-[300px] bg-orange-500/40 rounded-full blur-[80px] animate-pulse pointer-events-none z-0"></div>
@@ -2180,10 +2175,10 @@ const executeRatingSubmit = async () => {
 
             {/* ข้อความยืนยัน */}
             <div>
-            <h3 className="text-2xl sm:text-3xl font-black text-white tracking-tight drop-shadow-md mb-1.5 sm:mb-2">
+              <h3 className="text-3xl font-black text-white tracking-tight drop-shadow-md mb-2">
                 ยืนยันข้อมูล?
               </h3>
-              <p className="text-[16px] sm:text-[18px] text-slate-300 font-bold leading-relaxed">
+              <p className="text-[18px] text-slate-300 font-bold leading-relaxed">
                 โปรดตรวจสอบข้อมูลให้ถูกต้อง<br />
                 ก่อนส่งเข้าระบบ
               </p>
@@ -2282,11 +2277,11 @@ const renderTracking = () => (
             </button>
             {showTrackDatePicker && (
               <div className="fixed inset-0 z-[300] bg-slate-900/80 backdrop-blur-md flex items-center justify-center p-4 animate-in fade-in" onClick={() => setShowTrackDatePicker(false)}>
-                <div className="relative bg-slate-900 border-[2px] border-solid border-white rounded-[2rem] shadow-[0_0_60px_rgba(6,182,212,0.8)] w-full max-w-[340px] p-7 text-center animate-in zoom-in-95 flex flex-col my-auto h-auto h-auto max-h-[75vh] md:max-h-none overflow-y-auto [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none] p-8 md:p-10 [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]" onClick={(e) => e.stopPropagation()}>
+                <div className="relative bg-slate-900 border-[2px] border-solid border-white rounded-[2rem] shadow-[0_0_60px_rgba(6,182,212,0.8)] w-full max-w-[340px] p-7 text-center animate-in zoom-in-95 overflow-hidden flex flex-col my-auto" onClick={(e) => e.stopPropagation()}>
                   <div className="absolute -top-20 -left-20 w-40 h-40 bg-cyan-500/60 rounded-full blur-[50px] pointer-events-none z-0"></div>
                   <div className="absolute -bottom-20 -right-20 w-40 h-40 bg-blue-500/60 rounded-full blur-[50px] pointer-events-none z-0"></div>
                   
-                  <div className="relative z-10 flex justify-between items-center mb-4 pb-3 sm:mb-6 sm:pb-5 border-b border-white/20">
+                  <div className="relative z-10 flex justify-between items-center mb-6 pb-5 border-b border-white/20">
                     <button onClick={() => { if (trackCalMonth === 0) { setTrackCalMonth(11); setTrackCalYear(y => y - 1); } else setTrackCalMonth(m => m - 1); }} className="p-2.5 bg-slate-800 text-white rounded-xl hover:bg-cyan-500 transition-colors border border-slate-600 active:scale-95 shadow-inner"><ChevronDown size={22} className="rotate-90" /></button>
                     <div className="flex flex-col items-center">
                       <span className="text-[12px] font-black text-white tracking-widest uppercase mb-2 drop-shadow-[0_0_8px_rgba(255,255,255,0.8)]">เลือกวันที่</span>
@@ -2298,7 +2293,7 @@ const renderTracking = () => (
                     <div className="grid grid-cols-7 gap-1 mb-3">
                       {['อา', 'จ', 'อ', 'พ', 'พฤ', 'ศ', 'ส'].map(day => (<div key={day} className={`text-[13px] font-black ${day === 'อา' ? 'text-rose-400' : day === 'ส' ? 'text-sky-400' : 'text-slate-300'}`}>{day}</div>))}
                     </div>
-                    <div className="grid grid-cols-7 gap-1 sm:gap-1.5">
+                    <div className="grid grid-cols-7 gap-1.5">
                       {Array.from({ length: new Date(trackCalYear, trackCalMonth, 1).getDay() }).map((_, i) => (<div key={`empty-${i}`} />))}
                       {Array.from({ length: new Date(trackCalYear, trackCalMonth + 1, 0).getDate() }).map((_, i) => {
                         const day = i + 1;
@@ -2346,11 +2341,11 @@ const renderTracking = () => (
             
             {showTrackMonthPicker && (
               <div className="fixed inset-0 z-[300] bg-slate-900/80 backdrop-blur-md flex items-center justify-center p-4 animate-in fade-in" onClick={() => setShowTrackMonthPicker(false)}>
-                <div className="relative bg-slate-900 border-[2px] border-solid border-white rounded-[2rem] shadow-[0_0_60px_rgba(6,182,212,0.8)] w-full max-w-[340px] p-7 text-center animate-in zoom-in-95 flex flex-col my-auto h-auto max-h-[75vh] md:max-h-none overflow-y-auto [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]" onClick={(e) => e.stopPropagation()}>
+                <div className="relative bg-slate-900 border-[2px] border-solid border-white rounded-[2rem] shadow-[0_0_60px_rgba(6,182,212,0.8)] w-full max-w-[340px] p-7 text-center animate-in zoom-in-95 overflow-hidden flex flex-col my-auto" onClick={(e) => e.stopPropagation()}>
                   <div className="absolute -top-20 -right-20 w-40 h-40 bg-cyan-500/60 rounded-full blur-[50px] pointer-events-none z-0"></div>
                   <div className="absolute -bottom-20 -left-20 w-40 h-40 bg-blue-500/60 rounded-full blur-[50px] pointer-events-none z-0"></div>
                   
-                  <div className="relative z-10 flex justify-between items-center mb-4 pb-3 sm:mb-6 sm:pb-5 border-b border-white/20">
+                  <div className="relative z-10 flex justify-between items-center mb-6 pb-5 border-b border-white/20">
                     <button onClick={() => setTrackCalYear(y => y - 1)} className="p-2.5 bg-slate-800 text-white rounded-xl hover:bg-cyan-500 transition-colors active:scale-95 shadow-inner border border-slate-600"><ChevronDown size={22} className="rotate-90" /></button>
                     <div className="flex flex-col items-center">
                       <span className="text-[12px] font-black text-white tracking-widest uppercase mb-2 drop-shadow-[0_0_8px_rgba(255,255,255,0.8)]">เลือกเดือน</span>
@@ -2359,7 +2354,7 @@ const renderTracking = () => (
                     <button onClick={() => setTrackCalYear(y => y + 1)} className="p-2.5 bg-slate-800 text-white rounded-xl hover:bg-cyan-500 transition-colors active:scale-95 shadow-inner border border-slate-600"><ChevronDown size={22} className="-rotate-90" /></button>
                   </div>
 
-                  <div className="relative z-10 grid grid-cols-3 gap-2 sm:gap-3">
+                  <div className="relative z-10 grid grid-cols-3 gap-3">
                     {['ม.ค.', 'ก.พ.', 'มี.ค.', 'เม.ย.', 'พ.ค.', 'มิ.ย.', 'ก.ค.', 'ส.ค.', 'ก.ย.', 'ต.ค.', 'พ.ย.', 'ธ.ค.'].map((m, i) => {
                       const monthValue = `${trackCalYear}-${String(i + 1).padStart(2, '0')}`;
                       const isSelected = trackMonth === monthValue;
@@ -2369,7 +2364,7 @@ const renderTracking = () => (
                         <button 
                           key={m} 
                           onClick={() => { setTrackMonth(monthValue); setTrackTimeframe('custom_month'); setShowTrackMonthPicker(false); }}
-                          className={`py-2.5 sm:py-3.5 rounded-lg sm:rounded-xl text-[14px] sm:text-[15px] font-black transition-all duration-300 active:scale-95 ${
+                          className={`py-3.5 rounded-xl text-[15px] font-black transition-all duration-300 active:scale-95 ${
                             isSelected 
                               ? 'bg-gradient-to-r from-cyan-600 to-blue-600 text-white shadow-[0_0_20px_rgba(6,182,212,0.9)] border-[2px] border-solid border-cyan-300 scale-110 z-10' 
                               : isCurrentMonth 
@@ -3065,17 +3060,14 @@ const renderTracking = () => (
                             </div>
                           )}
 
-                         {/* 🌟🌟 ฟันธง: แทรกปุ่มดึงงานกลับ (Undo) ตรงนี้ครับ 🌟🌟 */}
-                         {t.status === 'completed' && (
+                          {/* 🌟🌟 ฟันธง: แทรกปุ่มดึงงานกลับ (Undo) ตรงนี้ครับ 🌟🌟 */}
+                          {t.status === 'completed' && (
                             <button
-                              onClick={() => { 
-                                updateTicketStatus(t.id, { 
-                                  status: 'in_progress', 
-                                  completedAt: null, 
-                                  cause: null 
-                                });
-                                setFilterStatus('fixing'); /* 🌟 ฟันธง: เติมคำสั่งสลับแท็บตรงนี้ครับ! */
-                              }}
+                              onClick={() => updateTicketStatus(t.id, { 
+                                status: 'in_progress', 
+                                completedAt: null, 
+                                cause: null 
+                              })}
                               className="w-full bg-orange-100 text-orange-800 border-2 border-orange-400 font-bold py-3.5 rounded-xl hover:bg-orange-100 hover:text-orange-800 active:scale-95 transition-all text-[15px] shadow-sm flex justify-center items-center gap-2 mt-3 hover:shadow-[0_0_15px_rgba(249,115,22,0.4)]"
                             >
                               <RotateCcw size={18} className="animate-spin-slow" /> ดึงงานกลับมาแก้ไขผลการซ่อม
@@ -3176,7 +3168,7 @@ const renderTracking = () => (
 
       {/* 🛠️ Action Modals (ฟันธง: อัปเกรดกล่องอเนกประสงค์ ให้แปลงร่างได้ 5 รูปแบบ พร้อมแสงเฟลอร์ระดับ Sci-Fi) */}
       {actionModal.isOpen && (
-        <div className="fixed inset-0 z-[150] overflow-y-auto flex items-start justify-center pt-10 pb-40 bg-slate-900/80 backdrop-blur-md p-6 animate-in fade-in" onClick={() => setActionModal({ isOpen: false, ticketId: null, type: null })}>
+        <div className="fixed inset-0 z-[150] flex items-center justify-center bg-slate-900/80 backdrop-blur-md p-6 animate-in fade-in" onClick={() => setActionModal({ isOpen: false, ticketId: null, type: null })}>
           
           {/* 💥 จุดที่ 1: พลังแสงเฟลอร์ ทะลุอยู่ด้านหลัง (แยกสีตามประเภทงาน) */}
           <div className={`absolute w-[300px] h-[300px] rounded-full blur-[80px] animate-pulse pointer-events-none z-0 ${
@@ -3186,7 +3178,7 @@ const renderTracking = () => (
           }`}></div>
 
           {/* 📦 จุดที่ 2: ตัวกล่อง Popup (แยกสีกรอบและเงา) */}
-          <div className={`relative z-10 bg-slate-900 border-[2px] border-solid rounded-[2rem] w-full max-w-sm md:max-w-md m-auto h-auto max-h-[75vh] md:max-h-none overflow-y-auto [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none] p-8 md:p-10 text-center space-y-7 ${
+          <div className={`relative z-10 bg-slate-900 border-[2px] border-solid rounded-[2rem] w-full max-w-sm md:max-w-md overflow-hidden p-8 md:p-10 text-center space-y-7 ${
             actionModal.type === 'finish' ? 'border-emerald-500 shadow-[0_0_50px_rgba(16,185,129,0.5)]' :
             actionModal.type === 'hold' || actionModal.type === 'cancel' ? 'border-rose-500 shadow-[0_0_50px_rgba(225,29,72,0.5)]' : 
             'border-orange-500 shadow-[0_0_50px_rgba(249,115,22,0.6)]'
@@ -3345,24 +3337,19 @@ const renderTracking = () => (
         </div>
 
         <div className="relative w-12 h-14 shrink-0 z-0 pointer-events-none">
-           {/* 🌟 ฟันธงวิชามาร: ยัด width="65" และ style ลง HTML ตรงๆ ห้ามมาสคอตขยายร่างตอนรีเฟรช 1,000,000% */}
            <img 
              src={activeTab === 'dashboard' ? "/mascot-dashboard.webp" : activeTab === 'report' ? "/mascot-report.webp" : (activeTab === 'tracking' && currentUserRole === 'technician') ? "/mascot-tech.webp" : "/mascot-track.webp"}
              key={activeTab + currentUserRole}
              alt="GSE Mascot" 
-             width="65"
-             style={{ width: '65px', height: 'auto', position: 'absolute', bottom: '-10px', right: '-10px', maxWidth: 'none' }}
-             className="object-contain drop-shadow-[0_5px_5px_rgba(0,0,0,0.4)] animate-in slide-in-from-right-4 fade-in duration-500"
+             className="absolute bottom-[-10px] right-[-10px] w-[65px] max-w-none h-auto object-contain drop-shadow-[0_5px_5px_rgba(0,0,0,0.4)] animate-in slide-in-from-right-4 fade-in duration-500"
            />
         </div>
       </div>
 
-      {/* 👇👇👇 วางทับเฉพาะก้อนนี้ครับ 👇👇👇 */}
-      {/* 🎯 ฟันธงแก้ตรงนี้! เพิ่มเงื่อนไขบีบความกว้างกล่อง Scrollbar ให้แนบชิดติดขอบฟอร์ม (md:max-w-2xl mx-auto) */}
-      {/* 🌟 ฟันธงวิชามาร: ยัด style overscrollBehaviorY ฝังลงกล่อง React บังคับ Chrome Android ห้ามดึงรีเฟรชเด็ดขาด! */}
+      {/* 🎯 ฟันธงวิชามาร: ยัด style ฝังลงแกน React บังคับ Chrome Android ห้ามดึงรีเฟรชเด็ดขาด! */}
       <div 
         className={`relative z-10 flex-1 overflow-y-auto overflow-x-hidden w-full scrollbar-hide pb-28 ${activeTab === 'report' ? 'md:max-w-2xl mx-auto' : ''}`}
-        style={{ overscrollBehaviorY: 'contain' }}
+        style={{ overscrollBehavior: 'none', touchAction: 'pan-y' }}
       >
         {activeTab === 'dashboard' && currentUserRole === 'technician' && renderDashboard()}
         {activeTab === 'report' && renderReport()}
@@ -3385,13 +3372,13 @@ const renderTracking = () => (
 
         // 🌟 ฟันธง: ลบ onClick ออกจาก Background บังคับให้คลิกนอกกรอบไม่ได้ ต้องกดยกเลิกเท่านั้น!
         return (
-          <div className="fixed inset-0 z-[160] flex items-center justify-center bg-slate-950/90 backdrop-blur-md p-4 pb-32 animate-in fade-in" onClick={() => setRatingModal({ isOpen: false, ticketId: null, rating: 0, comment: '', techName: '' })}>
+          <div className="fixed inset-0 z-[160] flex items-center justify-center bg-slate-950/90 backdrop-blur-md p-4 animate-in fade-in" onClick={() => setRatingModal({ isOpen: false, ticketId: null, rating: 0, comment: '', techName: '' })}>
             
             {/* 💥 แสงเฟลอร์หลังกล่อง สว่างขั้นสุด 80-90% ตามดาว */}
             <div className={`absolute w-[450px] h-[450px] rounded-full blur-[100px] animate-pulse pointer-events-none z-0 transition-colors duration-500 ${rColor.flare}`}></div>
 
             {/* 🌟 ฟันธง: เพิ่ม max-h-[85vh] และ overflow-y-auto ตรงบรรทัดนี้ครับ! 🌟 */}
-            <div className={`relative m-auto z-10 bg-slate-900 border-[3px] border-solid rounded-[2.5rem] w-[90%] max-w-[320px] sm:max-w-sm h-auto px-4 pt-6 pb-6 sm:px-6 sm:pt-8 sm:pb-10 text-center transition-all duration-500 ${rColor.border} ${rColor.shadow}`} onClick={(e) => e.stopPropagation()}>            
+            <div className={`relative z-10 bg-slate-900 border-[3px] border-solid rounded-[2.5rem] w-full max-w-sm max-h-[85vh] overflow-y-auto scrollbar-hide px-6 pt-8 pb-10 text-center transition-all duration-500 ${rColor.border} ${rColor.shadow}`} onClick={(e) => e.stopPropagation()}>            
             
             {/* 🌟 สไตล์ Grab: โพรไฟล์ช่างผู้รับผิดชอบ */}
             <div className="flex flex-col items-center mb-6 animate-in slide-in-from-top-4">
@@ -3417,7 +3404,7 @@ const renderTracking = () => (
             </div>
 
             <div className="mb-4">
-            <h3 className={`text-[14px] sm:text-[15px] md:text-[17px] font-black tracking-widest transition-colors duration-300 ${rating > 0 ? rColor.text : 'text-slate-200'}`}>
+              <h3 className={`text-[15px] md:text-[17px] font-black tracking-widest transition-colors duration-300 ${rating > 0 ? rColor.text : 'text-slate-200'}`}>
                 คุณพึงพอใจการซ่อมระดับไหน?
               </h3>
             </div>
@@ -3428,17 +3415,14 @@ const renderTracking = () => (
                 <button
                   key={star}
                   type="button"
-                  onClick={() => {
-                    setRatingModal({ ...ratingModal, rating: star, comment: '' });
-                    setSelectedTags([]);
-                  }}
+                  onClick={() => setRatingModal({ ...ratingModal, rating: star })}
                   className={`transition-all duration-300 transform hover:scale-125 active:scale-90 ${
                     rating >= star 
                       ? `${rColor.text} ${rColor.drop}` 
                       : 'text-slate-600 hover:text-slate-400'
                   }`}
                 >
-                  <Star className="size-9 sm:size-10 md:size-[44px]" fill={rating >= star ? rColor.fill : 'none'} strokeWidth={rating >= star ? 0 : 1.5} />
+                  <Star size={44} fill={rating >= star ? rColor.fill : 'none'} strokeWidth={rating >= star ? 0 : 1.5} />
                 </button>
               ))}
             </div>
@@ -3621,7 +3605,7 @@ const renderTracking = () => (
 
       {/* 🧭 Navigation Bar (ฟันธง: ย้ายเมนูออกมานอกกรอบหลัก + ใส่ transform-gpu บังคับมือถือวาดกราฟิกแยกชั้น ป้องกันตัวหนังสือหาย 1,000,000%) */}
 
-      <div className={`fixed bottom-4 left-1/2 -translate-x-1/2 w-[calc(100%-2rem)] max-w-[416px] py-2 md:py-3 bg-slate-900/90 backdrop-blur-xl border-2 border-solid border-orange-500 rounded-2xl z-[50] shadow-[0_10px_30px_rgba(249,115,22,0.4)] transform-gpu ${activeTab === 'report' ? 'md:max-w-2xl' : 'md:max-w-[992px]'}`}>
+      <div className={`fixed bottom-4 left-1/2 -translate-x-1/2 w-[calc(100%-2rem)] max-w-[416px] py-2 md:py-3 bg-slate-900/90 backdrop-blur-xl border-2 border-solid border-orange-500 rounded-2xl z-[9999] shadow-[0_10px_30px_rgba(249,115,22,0.4)] transform-gpu ${activeTab === 'report' ? 'md:max-w-2xl' : 'md:max-w-[992px]'}`}>
      
       <div className="w-full flex justify-evenly items-center px-1 md:px-8">
           
@@ -3737,18 +3721,15 @@ function LandingPage({ onStart }) {
               </p>
             </div>
 
-           {/* 👩‍🔧 น้องมาสคอต (ฟันธงวิชามาร: ฝัง style กุญแจมือ ล็อกขนาดถาวร ต่อให้ CSS พัง รูปก็ห้ามทะลุจอ 100%) */}
-           <div 
-              className="relative z-30 mx-auto mb-1 md:mb-2 pointer-events-none drop-shadow-[0_20px_20px_rgba(0,0,0,0.8)] transition-all duration-500"
-              style={{ width: '50%', maxWidth: '280px' }} 
+            {/* 👩‍🔧 น้องมาสคอต (ฟันธงวิชามาร: ล็อกกุญแจมือด้วย style= ยัดลง HTML ตรงๆ Chrome แหกไม่ได้ 100%) */}
+            <div 
+              className="relative z-30 mx-auto mb-2 md:mb-4 pointer-events-none drop-shadow-[0_20px_20px_rgba(0,0,0,0.8)] transition-all duration-500"
+              style={{ width: '50%', maxWidth: '280px', minHeight: '150px' }} 
             >
-            {/* 🌟 ฟันธงวิชามาร: ยัด width="280" และ style ลง HTML ตรงๆ */}
-            <img
+              <img
                 src="/mascot.webp"
                 alt="Mascot"
-                width="280"
-                style={{ width: '100%', maxWidth: '280px', height: 'auto' }}
-                className="object-contain object-bottom hover:scale-105 transition-transform duration-500"
+                className="w-full h-auto object-contain object-bottom hover:scale-105 transition-transform duration-500"
               />
             </div>
           </div>
@@ -3905,6 +3886,7 @@ export default function App() {
     sessionStorage.removeItem('hasStarted');
     sessionStorage.removeItem('activeTab');
   };
+
   return (
     <ErrorBoundary>
       {hasStarted ? (
@@ -3914,4 +3896,4 @@ export default function App() {
       )}
     </ErrorBoundary>
   );
-} // <--- เติมตัวนี้เข้าไปครับ!
+}
