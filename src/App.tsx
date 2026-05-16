@@ -1309,8 +1309,7 @@ const executeRatingSubmit = async () => {
                   <div className="absolute -top-20 -left-20 w-40 h-40 bg-orange-500/80 rounded-full blur-[50px] pointer-events-none z-0"></div>
                   <div className="absolute -bottom-20 -right-20 w-40 h-40 bg-amber-500/80 rounded-full blur-[50px] pointer-events-none z-0"></div>
                   
-                  <div className="relative z-10 flex justify-between items-center mb-6 pb-5 border-b border-white/20">
-                    <button onClick={() => { if (calMonth === 0) { setCalMonth(11); setCalYear(y => y - 1); } else setCalMonth(m => m - 1); }} className="p-2.5 bg-slate-800 text-white rounded-xl hover:bg-orange-500 transition-colors border border-slate-600 active:scale-95 shadow-inner"><ChevronDown size={22} className="rotate-90" /></button>
+                  <div className="relative z-10 flex justify-between items-center mb-4 pb-3 sm:mb-6 sm:pb-5 border-b border-white/20">                    <button onClick={() => { if (calMonth === 0) { setCalMonth(11); setCalYear(y => y - 1); } else setCalMonth(m => m - 1); }} className="p-2.5 bg-slate-800 text-white rounded-xl hover:bg-orange-500 transition-colors border border-slate-600 active:scale-95 shadow-inner"><ChevronDown size={22} className="rotate-90" /></button>
                     <div className="flex flex-col items-center">
                       <span className="text-[12px] font-black text-white tracking-widest uppercase mb-0.5 md:mb-2.5 drop-shadow-[0_0_8px_rgba(255,255,255,0.8)]">เลือกวันที่</span>
                       <span className="text-xl font-black text-orange-400 tracking-widest drop-shadow-[0_0_15px_rgba(249,115,22,0.9)]">
@@ -1324,8 +1323,7 @@ const executeRatingSubmit = async () => {
                     <div className="grid grid-cols-7 gap-1 mb-3">
                       {['อา', 'จ', 'อ', 'พ', 'พฤ', 'ศ', 'ส'].map(day => (<div key={day} className={`text-[13px] font-black ${day === 'อา' ? 'text-rose-400' : day === 'ส' ? 'text-sky-400' : 'text-slate-300'}`}>{day}</div>))}
                     </div>
-                    <div className="grid grid-cols-7 gap-1.5">
-                      {Array.from({ length: new Date(calYear, calMonth, 1).getDay() }).map((_, i) => (<div key={`empty-${i}`} />))}
+                    <div className="grid grid-cols-7 gap-1 sm:gap-1.5">                      {Array.from({ length: new Date(calYear, calMonth, 1).getDay() }).map((_, i) => (<div key={`empty-${i}`} />))}
                       {Array.from({ length: new Date(calYear, calMonth + 1, 0).getDate() }).map((_, i) => {
                         const day = i + 1;
                         const dateString = `${calYear}-${String(calMonth + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
@@ -1340,8 +1338,7 @@ const executeRatingSubmit = async () => {
                           <button 
                             key={day} 
                             onClick={() => { setCustomDate(dateString); setDashTimeframe('custom_date'); setShowDatePicker(false); }}
-                            className={`aspect-square flex items-center justify-center rounded-xl text-[15px] font-black transition-all duration-300 active:scale-95 ${
-                              isSelected 
+                            className={`aspect-square flex items-center justify-center rounded-lg sm:rounded-xl text-[14px] sm:text-[15px] font-black transition-all duration-300 active:scale-95 ${                              isSelected 
                                 ? 'bg-orange-500 text-white shadow-[0_0_20px_rgba(249,115,22,0.9)] border-[2px] border-solid border-white scale-110 z-20' 
                                 : isToday 
                                 ? 'bg-orange-500/80 text-white shadow-[0_0_25px_rgba(249,115,22,1)] border-[2px] border-solid border-orange-300 z-10 animate-pulse' 
@@ -1379,7 +1376,7 @@ const executeRatingSubmit = async () => {
                 
                   <div className="absolute -bottom-20 -left-20 w-40 h-40 bg-amber-500/80 rounded-full blur-[50px] pointer-events-none z-0"></div>
                   
-                  <div className="relative z-10 flex justify-between items-center mb-6 pb-5 border-b border-white/20">
+                  <div className="relative z-10 flex justify-between items-center mb-4 pb-3 sm:mb-6 sm:pb-5 border-b border-white/20">
                     <button onClick={() => setPickerYear(y => y - 1)} className="p-2.5 bg-slate-800 text-white rounded-xl hover:bg-orange-500 transition-colors border border-slate-600"><ChevronDown size={22} className="rotate-90" /></button>
                     <div className="flex flex-col items-center">
                       <span className="text-[12px] font-black text-white tracking-widest uppercase mb-0.5 md:mb-2.5 drop-shadow-[0_0_8px_rgba(255,255,255,0.8)]">
@@ -1391,7 +1388,7 @@ const executeRatingSubmit = async () => {
                     </div>
                     <button onClick={() => setPickerYear(y => y + 1)} className="p-2.5 bg-slate-800 text-white rounded-xl hover:bg-orange-500 transition-colors border border-slate-600"><ChevronDown size={22} className="-rotate-90" /></button>
                   </div>
-                  <div className="relative z-10 grid grid-cols-3 gap-3">
+                  <div className="relative z-10 grid grid-cols-3 gap-2 sm:gap-3">
                     {['ม.ค.', 'ก.พ.', 'มี.ค.', 'เม.ย.', 'พ.ค.', 'มิ.ย.', 'ก.ค.', 'ส.ค.', 'ก.ย.', 'ต.ค.', 'พ.ย.', 'ธ.ค.'].map((m, i) => {
                       const monthValue = `${pickerYear}-${String(i + 1).padStart(2, '0')}`;
                       const isSelected = customMonth === monthValue;
@@ -1401,8 +1398,7 @@ const executeRatingSubmit = async () => {
                         <button 
                           key={m} 
                           onClick={() => { setCustomMonth(monthValue); setDashTimeframe('custom'); setShowMonthPicker(false); }}
-                          className={`py-3.5 rounded-xl text-[15px] font-black transition-all duration-300 active:scale-95 ${
-                            isSelected 
+                          className={`py-2.5 sm:py-3.5 rounded-lg sm:rounded-xl text-[14px] sm:text-[15px] font-black transition-all duration-300 active:scale-95 ${                            isSelected 
                               ? 'bg-orange-500 text-white shadow-[0_0_20px_rgba(249,115,22,0.9)] border-[2px] border-solid border-white scale-110 z-10' 
                               : isCurrentMonth 
                               ? 'bg-orange-500/80 text-white shadow-[0_0_25px_rgba(249,115,22,1)] border-[2px] border-solid border-orange-300 z-10 animate-pulse' 
@@ -2089,7 +2085,7 @@ const executeRatingSubmit = async () => {
               </div>
 
               {/* 🌟 2. โซนแสดงรูปและกรอบเส้นปะ */}
-              <div className={formData.images.length === 0 ? "flex w-full" : "grid grid-cols-3 gap-3"}>
+              <div className={formData.images.length === 0 ? "flex w-full" : "grid grid-cols-3 gap-2 sm:gap-3"}>
                 
                 {/* 🖼️ รูปที่ถูกเลือกแล้วจะมาเรียงตรงนี้ */}
                 {formData.images.map((img, i) => (
@@ -2184,10 +2180,10 @@ const executeRatingSubmit = async () => {
 
             {/* ข้อความยืนยัน */}
             <div>
-              <h3 className="text-3xl font-black text-white tracking-tight drop-shadow-md mb-2">
+            <h3 className="text-2xl sm:text-3xl font-black text-white tracking-tight drop-shadow-md mb-1.5 sm:mb-2">
                 ยืนยันข้อมูล?
               </h3>
-              <p className="text-[18px] text-slate-300 font-bold leading-relaxed">
+              <p className="text-[16px] sm:text-[18px] text-slate-300 font-bold leading-relaxed">
                 โปรดตรวจสอบข้อมูลให้ถูกต้อง<br />
                 ก่อนส่งเข้าระบบ
               </p>
@@ -2290,7 +2286,7 @@ const renderTracking = () => (
                   <div className="absolute -top-20 -left-20 w-40 h-40 bg-cyan-500/60 rounded-full blur-[50px] pointer-events-none z-0"></div>
                   <div className="absolute -bottom-20 -right-20 w-40 h-40 bg-blue-500/60 rounded-full blur-[50px] pointer-events-none z-0"></div>
                   
-                  <div className="relative z-10 flex justify-between items-center mb-6 pb-5 border-b border-white/20">
+                  <div className="relative z-10 flex justify-between items-center mb-4 pb-3 sm:mb-6 sm:pb-5 border-b border-white/20">
                     <button onClick={() => { if (trackCalMonth === 0) { setTrackCalMonth(11); setTrackCalYear(y => y - 1); } else setTrackCalMonth(m => m - 1); }} className="p-2.5 bg-slate-800 text-white rounded-xl hover:bg-cyan-500 transition-colors border border-slate-600 active:scale-95 shadow-inner"><ChevronDown size={22} className="rotate-90" /></button>
                     <div className="flex flex-col items-center">
                       <span className="text-[12px] font-black text-white tracking-widest uppercase mb-2 drop-shadow-[0_0_8px_rgba(255,255,255,0.8)]">เลือกวันที่</span>
@@ -2302,7 +2298,7 @@ const renderTracking = () => (
                     <div className="grid grid-cols-7 gap-1 mb-3">
                       {['อา', 'จ', 'อ', 'พ', 'พฤ', 'ศ', 'ส'].map(day => (<div key={day} className={`text-[13px] font-black ${day === 'อา' ? 'text-rose-400' : day === 'ส' ? 'text-sky-400' : 'text-slate-300'}`}>{day}</div>))}
                     </div>
-                    <div className="grid grid-cols-7 gap-1.5">
+                    <div className="grid grid-cols-7 gap-1 sm:gap-1.5">
                       {Array.from({ length: new Date(trackCalYear, trackCalMonth, 1).getDay() }).map((_, i) => (<div key={`empty-${i}`} />))}
                       {Array.from({ length: new Date(trackCalYear, trackCalMonth + 1, 0).getDate() }).map((_, i) => {
                         const day = i + 1;
@@ -2354,7 +2350,7 @@ const renderTracking = () => (
                   <div className="absolute -top-20 -right-20 w-40 h-40 bg-cyan-500/60 rounded-full blur-[50px] pointer-events-none z-0"></div>
                   <div className="absolute -bottom-20 -left-20 w-40 h-40 bg-blue-500/60 rounded-full blur-[50px] pointer-events-none z-0"></div>
                   
-                  <div className="relative z-10 flex justify-between items-center mb-6 pb-5 border-b border-white/20">
+                  <div className="relative z-10 flex justify-between items-center mb-4 pb-3 sm:mb-6 sm:pb-5 border-b border-white/20">
                     <button onClick={() => setTrackCalYear(y => y - 1)} className="p-2.5 bg-slate-800 text-white rounded-xl hover:bg-cyan-500 transition-colors active:scale-95 shadow-inner border border-slate-600"><ChevronDown size={22} className="rotate-90" /></button>
                     <div className="flex flex-col items-center">
                       <span className="text-[12px] font-black text-white tracking-widest uppercase mb-2 drop-shadow-[0_0_8px_rgba(255,255,255,0.8)]">เลือกเดือน</span>
@@ -2363,7 +2359,7 @@ const renderTracking = () => (
                     <button onClick={() => setTrackCalYear(y => y + 1)} className="p-2.5 bg-slate-800 text-white rounded-xl hover:bg-cyan-500 transition-colors active:scale-95 shadow-inner border border-slate-600"><ChevronDown size={22} className="-rotate-90" /></button>
                   </div>
 
-                  <div className="relative z-10 grid grid-cols-3 gap-3">
+                  <div className="relative z-10 grid grid-cols-3 gap-2 sm:gap-3">
                     {['ม.ค.', 'ก.พ.', 'มี.ค.', 'เม.ย.', 'พ.ค.', 'มิ.ย.', 'ก.ค.', 'ส.ค.', 'ก.ย.', 'ต.ค.', 'พ.ย.', 'ธ.ค.'].map((m, i) => {
                       const monthValue = `${trackCalYear}-${String(i + 1).padStart(2, '0')}`;
                       const isSelected = trackMonth === monthValue;
@@ -2373,7 +2369,7 @@ const renderTracking = () => (
                         <button 
                           key={m} 
                           onClick={() => { setTrackMonth(monthValue); setTrackTimeframe('custom_month'); setShowTrackMonthPicker(false); }}
-                          className={`py-3.5 rounded-xl text-[15px] font-black transition-all duration-300 active:scale-95 ${
+                          className={`py-2.5 sm:py-3.5 rounded-lg sm:rounded-xl text-[14px] sm:text-[15px] font-black transition-all duration-300 active:scale-95 ${
                             isSelected 
                               ? 'bg-gradient-to-r from-cyan-600 to-blue-600 text-white shadow-[0_0_20px_rgba(6,182,212,0.9)] border-[2px] border-solid border-cyan-300 scale-110 z-10' 
                               : isCurrentMonth 
@@ -3442,7 +3438,7 @@ const renderTracking = () => (
                       : 'text-slate-600 hover:text-slate-400'
                   }`}
                 >
-                  <Star size={44} fill={rating >= star ? rColor.fill : 'none'} strokeWidth={rating >= star ? 0 : 1.5} />
+                  <Star className="size-9 sm:size-10 md:size-[44px]" fill={rating >= star ? rColor.fill : 'none'} strokeWidth={rating >= star ? 0 : 1.5} />
                 </button>
               ))}
             </div>
