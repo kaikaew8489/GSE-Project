@@ -3379,8 +3379,8 @@ const renderTracking = () => (
             <div className={`absolute w-[450px] h-[450px] rounded-full blur-[100px] animate-pulse pointer-events-none z-0 transition-colors duration-500 ${rColor.flare}`}></div>
 
             {/* 🌟 ฟันธง: เพิ่ม max-h-[85vh] และ overflow-y-auto ตรงบรรทัดนี้ครับ! 🌟 */}
-            {/* 🌟 ฟันธงแก้บั๊กกรอบกระพริบ: เปลี่ยนเป็น transition-all duration-300 และยัด transform-gpu บังคับใช้การ์ดจอ! */}
-            <div className={`relative z-10 bg-slate-900 border-[3px] border-solid rounded-[2.5rem] w-full max-w-sm max-h-[85vh] overflow-y-auto overscroll-contain scrollbar-hide px-6 pt-8 pb-10 text-center transition-all duration-300 transform-gpu ${rColor.border} ${rColor.shadow}`} onClick={(e) => e.stopPropagation()}>nter transition-colors duration-500 ${rColor.border} ${rColor.shadow}`} onClick={(e) => e.stopPropagation()}>            
+            {/* 🌟 ฟันธงแก้บั๊กกรอบกระพริบ และ ฟันธงแก้ไถไม่สุด: เปลี่ยน pb-10 เป็น pb-28 เพื่อดันปุ่มหนีแถบเมนูด้านล่าง! */}
+            <div className={`relative z-10 bg-slate-900 border-[3px] border-solid rounded-[2.5rem] w-full max-w-sm max-h-[85vh] overflow-y-auto overscroll-contain scrollbar-hide px-6 pt-8 pb-28 text-center transition-all duration-300 transform-gpu ${rColor.border} ${rColor.shadow}`} onClick={(e) => e.stopPropagation()}>        
             
             {/* 🌟 สไตล์ Grab: โพรไฟล์ช่างผู้รับผิดชอบ */}
             <div className="flex flex-col items-center mb-6 animate-in slide-in-from-top-4">
