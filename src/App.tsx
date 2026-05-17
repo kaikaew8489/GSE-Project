@@ -2210,8 +2210,8 @@ const executeRatingSubmit = async () => {
 const renderTracking = () => (
   <div className="p-4 space-y-6 pb-32 animate-in slide-in-from-left-4 duration-500 text-left">
     
-    {/* 🌟 ฟันธงข้อ 3 & 4: มัดรวมทุกเมนูควบคุมให้อยู่ในกล่อง Sticky เดียวกัน (อัปเกรด รีดไขมัน ลดความอ้วน!) */}
-    <div className="relative pt-1 pb-4 space-y-3 mb-2 border-b-2 border-slate-700/50">
+    {/* 🌟 ฟันธงข้อ 3 & 4: มัดรวมทุกเมนูควบคุม (อัปเกรด รีดไขมัน ปล่อยให้เลื่อนตามหน้าจอได้อิสระ!) */}
+    <div className="relative pt-1 pb-4 space-y-3 mb-2 border-b-2 border-slate-700/50 animate-in fade-in duration-500">
       
       {/* 1. ช่องค้นหา (ย้ายมาบนสุด เล็กลง กระชับขึ้น) */}
       {/* 🌟 ฟันธง: ช่องค้นหา (Search Bar) */}
@@ -3178,7 +3178,8 @@ const renderTracking = () => (
           }`}></div>
 
           {/* 📦 จุดที่ 2: ตัวกล่อง Popup (แยกสีกรอบและเงา) */}
-          <div className={`relative z-10 bg-slate-900 border-[2px] border-solid rounded-[2rem] w-full max-w-sm md:max-w-md overflow-hidden p-8 md:p-10 text-center space-y-7 ${
+          {/* 🌟 ฟันธงแก้บั๊ก: เปลี่ยน overflow-hidden เป็น overflow-y-auto max-h-[85vh] เพื่อให้ไถขึ้นลงเวลาคีย์บอร์ดเด้งได้! */}
+          <div className={`relative z-10 bg-slate-900 border-[2px] border-solid rounded-[2rem] w-full max-w-sm md:max-w-md overflow-y-auto max-h-[85vh] scrollbar-hide p-8 md:p-10 text-center space-y-7 ${
             actionModal.type === 'finish' ? 'border-emerald-500 shadow-[0_0_50px_rgba(16,185,129,0.5)]' :
             actionModal.type === 'hold' || actionModal.type === 'cancel' ? 'border-rose-500 shadow-[0_0_50px_rgba(225,29,72,0.5)]' : 
             'border-orange-500 shadow-[0_0_50px_rgba(249,115,22,0.6)]'
@@ -3378,11 +3379,12 @@ const renderTracking = () => (
             <div className={`absolute w-[450px] h-[450px] rounded-full blur-[100px] animate-pulse pointer-events-none z-0 transition-colors duration-500 ${rColor.flare}`}></div>
 
             {/* 🌟 ฟันธง: เพิ่ม max-h-[85vh] และ overflow-y-auto ตรงบรรทัดนี้ครับ! 🌟 */}
-            <div className={`relative z-10 bg-slate-900 border-[3px] border-solid rounded-[2.5rem] w-full max-w-sm max-h-[85vh] overflow-y-auto scrollbar-hide px-6 pt-8 pb-10 text-center transition-all duration-500 ${rColor.border} ${rColor.shadow}`} onClick={(e) => e.stopPropagation()}>            
+            {/* 🌟 ฟันธงแก้บั๊กดาวกระพริบ: เปลี่ยน transition-all เป็น transition-colors และเพิ่ม overscroll-contain */}
+            <div className={`relative z-10 bg-slate-900 border-[3px] border-solid rounded-[2.5rem] w-full max-w-sm max-h-[85vh] overflow-y-auto overscroll-contain scrollbar-hide px-6 pt-8 pb-10 text-center transition-colors duration-500 ${rColor.border} ${rColor.shadow}`} onClick={(e) => e.stopPropagation()}>            
             
             {/* 🌟 สไตล์ Grab: โพรไฟล์ช่างผู้รับผิดชอบ */}
             <div className="flex flex-col items-center mb-6 animate-in slide-in-from-top-4">
-              <div className={`w-20 h-20 rounded-full flex items-center justify-center mx-auto border-[3px] border-white bg-slate-800 transition-all duration-500 shadow-[0_0_20px_rgba(255,255,255,0.15)] mb-3 overflow-hidden ${rColor.iconGlow}`}>
+            <div className={`w-16 h-16 sm:w-20 sm:h-20 rounded-full flex items-center justify-center mx-auto border-[3px] border-white bg-slate-800 transition-all duration-500 shadow-[0_0_20px_rgba(255,255,255,0.15)] mb-3 overflow-hidden ${rColor.iconGlow}`}>
                 {/* 🌟 ฟันธงแก้ไขข้อ 4: รองรับรูปช่าง (ถ้ามี techPhotoUrl) ไม่งั้นใช้ไอคอน */}
                 {ratingModal.techPhotoUrl ? (
                    <img src={ratingModal.techPhotoUrl} className="w-full h-full object-cover" alt="ช่าง ฝวด." />
@@ -3540,7 +3542,7 @@ const renderTracking = () => (
           };
 
         return (
-          <div className="fixed inset-0 z-[200] flex items-center justify-center bg-slate-950/90 backdrop-blur-md p-6 animate-in fade-in" onClick={() => setShowThanksModal(false)}>
+          <div className="fixed inset-0 z-[200] flex items-center justify-center pb-[110px] md:pb-4 bg-slate-950/90 backdrop-blur-md p-4 animate-in fade-in" onClick={() => setShowThanksModal(false)}>
             
             {/* 💥 แสงเฟลอร์ด้านหลังสุดของหน้าต่าง */}
             <div className={`absolute w-[400px] h-[400px] rounded-full blur-[100px] opacity-60 pointer-events-none z-0 animate-pulse ${tColor.flare}`}></div>
