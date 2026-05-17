@@ -2211,7 +2211,7 @@ const renderTracking = () => (
   <div className="p-4 space-y-6 pb-32 animate-in slide-in-from-left-4 duration-500 text-left">
     
     {/* 🌟 ฟันธงข้อ 3 & 4: มัดรวมทุกเมนูควบคุมให้อยู่ในกล่อง Sticky เดียวกัน (อัปเกรด รีดไขมัน ลดความอ้วน!) */}
-    <div className="sticky top-0 z-40 bg-slate-900/95 backdrop-blur-xl pt-3 pb-2 space-y-2 -mx-4 px-4 sm:mx-0 sm:px-0 border-b-2 border-slate-700/80 shadow-[0_10px_20px_rgba(0,0,0,0.6)]">
+    <div className="relative pt-1 pb-4 space-y-3 mb-2 border-b-2 border-slate-700/50">
       
       {/* 1. ช่องค้นหา (ย้ายมาบนสุด เล็กลง กระชับขึ้น) */}
       {/* 🌟 ฟันธง: ช่องค้นหา (Search Bar) */}
@@ -3415,14 +3415,19 @@ const renderTracking = () => (
                 <button
                   key={star}
                   type="button"
-                  onClick={() => setRatingModal({ ...ratingModal, rating: star })}
+                  onClick={() => {
+                    // 🌟 ฟันธงแก้บั๊ก: อัปเดตดาวดวงใหม่ พร้อมสั่งล้างกล่องคอมเมนต์ และล้างแท็กของดาวดวงเก่าทิ้ง!
+                    setRatingModal({ ...ratingModal, rating: star, comment: '' });
+                    setSelectedTags([]); 
+                  }}
                   className={`transition-all duration-300 transform hover:scale-125 active:scale-90 ${
                     rating >= star 
                       ? `${rColor.text} ${rColor.drop}` 
                       : 'text-slate-600 hover:text-slate-400'
                   }`}
                 >
-                  <Star size={44} fill={rating >= star ? rColor.fill : 'none'} strokeWidth={rating >= star ? 0 : 1.5} />
+                  {/* 🌟 (แถม) ผมปรับขนาดดาวให้ย่อ-ขยายออโต้บนมือถือให้ด้วยในตัวเลยครับ */}
+                  <Star className="w-9 h-9 sm:w-11 sm:h-11" fill={rating >= star ? rColor.fill : 'none'} strokeWidth={rating >= star ? 0 : 1.5} />
                 </button>
               ))}
             </div>
@@ -3540,7 +3545,7 @@ const renderTracking = () => (
             {/* 💥 แสงเฟลอร์ด้านหลังสุดของหน้าต่าง */}
             <div className={`absolute w-[400px] h-[400px] rounded-full blur-[100px] opacity-60 pointer-events-none z-0 animate-pulse ${tColor.flare}`}></div>
 
-            <div className={`relative z-10 bg-slate-900 border-[3px] border-solid ${tColor.border} rounded-[2.5rem] w-full max-w-sm p-8 text-center space-y-4 animate-in zoom-in-95 duration-300 ${tColor.glow}`} onClick={(e) => e.stopPropagation()}>
+            <div className={`relative m-auto z-10 bg-slate-900 border-[3px] border-solid ${tColor.border} rounded-[2.5rem] w-[90%] max-w-[320px] sm:max-w-sm p-5 sm:p-8 text-center space-y-3 sm:space-y-4 animate-in zoom-in-95 duration-300 ${tColor.glow}`} onClick={(e) => e.stopPropagation()}>
               
               {/* 💥 ส่วนรูปโปรไฟล์ช่าง + เพิ่มแสงเฟลอร์ด้านหลังรูปให้สว่างวาบ */}
               <div className="relative mx-auto w-24 h-24 mt-2 mb-2">
@@ -3579,7 +3584,7 @@ const renderTracking = () => (
 
               {/* 🌟🌟 พื้นที่น้องมาสคอตตรงกลาง 🌟🌟 */}
               <div className="w-full flex justify-center py-1 relative z-10">
-                 <img src="/mascot.webp" alt="GSE Mascot" className="h-28 md:h-32 object-contain drop-shadow-[0_10px_10px_rgba(0,0,0,0.5)] hover:scale-105 transition-transform" />
+              <img src="/mascot.webp" alt="GSE Mascot" className="h-20 sm:h-28 object-contain drop-shadow-[0_10px_10px_rgba(0,0,0,0.5)] hover:scale-105 transition-transform" />
               </div>
 
               {/* 💥 กรอบข้อความขอบคุณ */}
