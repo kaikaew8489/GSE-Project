@@ -540,6 +540,41 @@ useEffect(() => {
   const [pickerYear, setPickerYear] = useState(new Date().getFullYear()); // พ.ศ. ที่กำลังเลือกดู
   const [customDate, setCustomDate] = useState(''); // 🌟 เพิ่มตัวแปรเก็บค่าระบุวันที่
   const [showDatePicker, setShowDatePicker] = useState(false); // 🌟 ควบคุมป๊อปอัปปฏิทินรายวัน
+
+  // 🌟 ฟันธง: ตัวแปรควบคุม Popup แป้นพิมพ์เบอร์โทร
+  const [showPhoneKeypad, setShowPhoneKeypad] = useState(false);
+
+  // 🌟 สมองกล: เวลากดปุ่มตัวเลขบนแป้น
+  const handleKeypadPress = (num) => {
+    let current = formData.reporterContact ? String(formData.reporterContact).replace(/\D/g, '') : '';
+    if (current.length < 10) {
+      current += num;
+      let formatted = current;
+      if (current.length > 6) {
+        formatted = `${current.substring(0, 2)}-${current.substring(2, 6)}-${current.substring(6)}`;
+      } else if (current.length > 2) {
+        formatted = `${current.substring(0, 2)}-${current.substring(2)}`;
+      }
+      setFormData(prev => ({ ...prev, reporterContact: formatted }));
+      if (formErrors.reporterContact) setFormErrors(prev => ({ ...prev, reporterContact: null }));
+    }
+  };
+
+  // 🌟 สมองกล: เวลากดปุ่มลบ (Backspace)
+  const handleKeypadDelete = () => {
+    let current = formData.reporterContact ? String(formData.reporterContact).replace(/\D/g, '') : '';
+    if (current.length > 0) {
+      current = current.slice(0, -1);
+      let formatted = current;
+      if (current.length > 6) {
+        formatted = `${current.substring(0, 2)}-${current.substring(2, 6)}-${current.substring(6)}`;
+      } else if (current.length > 2) {
+        formatted = `${current.substring(0, 2)}-${current.substring(2)}`;
+      }
+      setFormData(prev => ({ ...prev, reporterContact: formatted }));
+    }
+  };
+
   const [calMonth, setCalMonth] = useState(new Date().getMonth());
   const [calYear, setCalYear] = useState(new Date().getFullYear());
   
@@ -1880,21 +1915,23 @@ const executeRatingSubmit = async () => {
                   <Phone size={12} className="text-emerald-500" /> เบอร์โทรศัพท์{' '}
                   <span className="text-rose-500">*</span>
                 </label>
-                <input
-                  name="reporterContact"
-                  value={formData.reporterContact}
-                  onChange={handlePhoneChange}
-                  maxLength={12}
-                  className={`w-full bg-white border-2 border-solid border-orange-500 ${
+                
+                {/* 🌟 ฟันธง: เปลี่ยน Input เป็นปุ่มกด เพื่อเรียก Popup แป้นพิมพ์ตัวเลขอัจฉริยะ */}
+                <div
+                  onClick={() => setShowPhoneKeypad(true)}
+                  className={`w-full bg-white border-2 border-solid cursor-pointer flex items-center ${
                     formErrors.reporterContact
-                      ? 'border-rose-500 focus:border-rose-500 ring-1 ring-rose-500/30'
-                      : 'border-2 border-orange-500 focus:border-orange-500 focus:ring-2 focus:ring-orange-500/30'
-                  } rounded-2xl px-5 py-4 text-sm font-bold text-slate-800 outline-none font-mono tracking-widest shadow-sm transition-all`}
-                  placeholder="0X-XXXX-XXXX"
-                />
+                      ? 'border-rose-500 ring-1 ring-rose-500/30'
+                      : 'border-orange-500 hover:border-orange-400 hover:shadow-[0_0_15px_rgba(249,115,22,0.4)]'
+                  } rounded-2xl px-5 py-4 shadow-sm transition-all`}
+                >
+                  <span className={`text-sm font-bold font-mono tracking-widest ${formData.reporterContact ? 'text-slate-800' : 'text-slate-400'}`}>
+                    {formData.reporterContact || '0X-XXXX-XXXX (แตะเพื่อระบุเบอร์)'}
+                  </span>
+                </div>
 
                 {formErrors.reporterContact && (
-                  <div className="text-rose-500 text-[11px] font-bold mt-1 px-1">
+                  <div className="text-rose-500 text-[11px] font-bold mt-1 px-1 animate-in fade-in">
                     ⚠️ {formErrors.reporterContact}
                   </div>
                 )}
@@ -3803,6 +3840,80 @@ function LandingPage({ onStart }) {
         </div>
       </div>
 
+{/* 🌟 หน้าต่าง Popup แป้นพิมพ์ตัวเลข (Numpad อัจฉริยะ) 🌟 */}
+{showPhoneKeypad && (
+        <div className="fixed inset-0 z-[300] bg-slate-950/90 backdrop-blur-md flex items-center justify-center p-4 animate-in fade-in zoom-in-95 duration-300" onClick={() => setShowPhoneKeypad(false)}>
+          
+          {/* 💥 แสงเฟลอร์หลังกล่อง สีมรกตอวกาศ */}
+          <div className="absolute w-[350px] h-[350px] bg-emerald-500/30 rounded-full blur-[80px] animate-pulse pointer-events-none z-0"></div>
+
+          <div className="relative z-10 bg-slate-900 border-[3px] border-solid border-emerald-500 rounded-[2.5rem] w-full max-w-[320px] p-6 text-center shadow-[0_0_50px_rgba(16,185,129,0.4)] flex flex-col" onClick={(e) => e.stopPropagation()}>
+            
+            {/* หัวข้อ */}
+            <div className="flex items-center justify-center gap-2 mb-4">
+              <Phone size={20} className="text-emerald-400 animate-bounce" />
+              <h3 className="text-lg font-black text-white tracking-widest uppercase drop-shadow-[0_0_8px_rgba(255,255,255,0.8)]">
+                ระบุเบอร์ติดต่อ
+              </h3>
+            </div>
+
+            {/* จอแสดงผลตัวเลข (Display) */}
+            <div className="bg-slate-950 border-[2px] border-solid border-emerald-500/50 rounded-2xl p-4 mb-6 shadow-inner relative flex items-center justify-center min-h-[64px]">
+              <span className={`text-2xl font-black font-mono tracking-widest ${formData.reporterContact ? 'text-emerald-400 drop-shadow-[0_0_10px_rgba(52,211,153,0.8)]' : 'text-slate-600'}`}>
+                {formData.reporterContact || '0X-XXXX-XXXX'}
+              </span>
+              {/* แถบเคอร์เซอร์กระพริบ */}
+              <div className="w-0.5 h-6 bg-emerald-400 ml-1 animate-pulse"></div>
+            </div>
+
+            {/* แป้นพิมพ์ 3x4 Grid */}
+            <div className="grid grid-cols-3 gap-3 mb-6">
+              {[1, 2, 3, 4, 5, 6, 7, 8, 9].map((num) => (
+                <button
+                  key={num}
+                  onClick={() => handleKeypadPress(String(num))}
+                  className="bg-slate-800 border-[2px] border-solid border-slate-600 text-white text-2xl font-black font-mono aspect-square rounded-2xl active:scale-90 active:bg-emerald-500 active:border-emerald-400 transition-all duration-200 shadow-sm hover:border-emerald-500/50 hover:shadow-[0_0_15px_rgba(52,211,153,0.3)] flex items-center justify-center"
+                >
+                  {num}
+                </button>
+              ))}
+              
+              {/* ปุ่มเคลียร์ (ล้างทั้งหมด) */}
+              <button
+                onClick={() => setFormData(prev => ({ ...prev, reporterContact: '' }))}
+                className="bg-slate-800/50 border-[2px] border-solid border-slate-700 text-rose-400 text-sm font-black uppercase aspect-square rounded-2xl active:scale-90 active:bg-rose-500 active:text-white transition-all duration-200 flex items-center justify-center"
+              >
+                Clear
+              </button>
+              
+              {/* ปุ่มเลข 0 */}
+              <button
+                onClick={() => handleKeypadPress('0')}
+                className="bg-slate-800 border-[2px] border-solid border-slate-600 text-white text-2xl font-black font-mono aspect-square rounded-2xl active:scale-90 active:bg-emerald-500 active:border-emerald-400 transition-all duration-200 shadow-sm hover:border-emerald-500/50 hover:shadow-[0_0_15px_rgba(52,211,153,0.3)] flex items-center justify-center"
+              >
+                0
+              </button>
+              
+              {/* ปุ่มลบ (Backspace) */}
+              <button
+                onClick={handleKeypadDelete}
+                className="bg-slate-800 border-[2px] border-solid border-slate-600 text-orange-400 text-xl font-black aspect-square rounded-2xl active:scale-90 active:bg-orange-500 active:border-orange-400 active:text-white transition-all duration-200 shadow-sm hover:border-orange-500/50 hover:shadow-[0_0_15px_rgba(249,115,22,0.3)] flex items-center justify-center"
+              >
+                <X size={28} strokeWidth={3} />
+              </button>
+            </div>
+
+            {/* ปุ่มยืนยัน (ตกลง) */}
+            <button
+              onClick={() => setShowPhoneKeypad(false)}
+              className="w-full bg-gradient-to-r from-emerald-500 to-teal-500 text-white font-black text-[18px] py-4 rounded-xl border-[2px] border-solid border-emerald-300 shadow-[0_0_20px_rgba(16,185,129,0.6)] active:scale-95 transition-all duration-300 tracking-widest uppercase"
+            >
+              ตกลง
+            </button>
+            
+          </div>
+        </div>
+      )}
 
     {/* 🌟 หน้าต่าง Popup คู่มือ (อัปเกรดขยายกรอบบน-ล่างให้เต็มจอมือถือ) */}
       {showManual && (
