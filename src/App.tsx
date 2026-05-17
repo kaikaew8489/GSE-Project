@@ -987,7 +987,7 @@ const toggleTag = (tag) => {
 
       await updateTicketStatus(ticketId, updates);
 
-      // 🌟 ฟันธง: ส่งแจ้งเตือน Flex Message เข้า LINE เมื่อมีการรับงาน หรือ ปิดงาน
+      // 🌟 ฟันธง: ส่งแจ้งเตือน Flex Message เข้า LINE เมื่อมีการรับงาน หรือ ปิดงาน หรือกำลังซ่อม
       if (type === 'accept' || type === 'finish') {
         const target = tickets.find((t) => t.id === ticketId);
         if (target) {
