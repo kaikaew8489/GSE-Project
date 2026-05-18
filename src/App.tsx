@@ -1881,25 +1881,26 @@ const executeRatingSubmit = async () => {
 
               <div className="space-y-1.5" id="field-reporterContact">
                 <label className="text-[13px] font-black text-slate-200 uppercase tracking-[0.2em] ml-1 flex items-center gap-1.5">
-                  <Phone size={12} className="text-emerald-500" /> เบอร์โทรศัพท์{' '}
-                  <span className="text-rose-500">*</span>
+                  <Phone size={12} className="text-emerald-500" /> เบอร์โทรศัพท์ <span className="text-rose-500">*</span>
                 </label>
                 
-                <input
+                {/* 🌟 ฟันธง: คาถาสามประสาน บังคับเด้งแป้นตัวเลขบนมือถือทุกรุ่น 1,000,000% */}
+                <input 
                   type="tel" 
-                  inputMode="numeric"
-                  name="reporterContact"
-                  value={formData.reporterContact}
-                  onChange={handlePhoneChange}
-                  maxLength={12}
+                  inputMode="numeric" 
+                  pattern="[0-9]*" 
+                  name="reporterContact" 
+                  value={formData.reporterContact} 
+                  onChange={handlePhoneChange} 
+                  maxLength={12} 
                   className={`w-full bg-white border-2 border-solid border-orange-500 ${
-                    formErrors.reporterContact
-                      ? 'border-rose-500 focus:border-rose-500 ring-1 ring-rose-500/30'
+                    formErrors.reporterContact 
+                      ? 'border-rose-500 focus:border-rose-500 ring-1 ring-rose-500/30' 
                       : 'border-2 border-orange-500 focus:border-orange-500 focus:ring-2 focus:ring-orange-500/30'
-                  } rounded-2xl px-5 py-4 text-sm font-bold text-slate-800 outline-none font-mono tracking-widest shadow-sm transition-all`}
-                  placeholder="0X-XXXX-XXXX"
+                  } rounded-2xl px-5 py-4 text-sm font-bold text-slate-800 outline-none font-mono tracking-widest shadow-sm transition-all`} 
+                  placeholder="0X-XXXX-XXXX" 
                 />
-
+                
                 {formErrors.reporterContact && (
                   <div className="text-rose-500 text-[11px] font-bold mt-1 px-1">
                     ⚠️ {formErrors.reporterContact}
