@@ -1300,28 +1300,29 @@ const executeRatingSubmit = async () => {
              </button>
 
              {showDatePicker && (
-              <div className="fixed inset-0 z-[300] bg-slate-900/80 backdrop-blur-md flex p-4 animate-in fade-in" onClick={() => setShowDatePicker(false)}>
-                <div className="relative m-auto bg-slate-900 border-[2px] border-solid border-white rounded-[2rem] shadow-[0_0_60px_rgba(255,255,255,0.2)] w-[90%] max-w-[320px] sm:max-w-[340px] p-4 sm:p-5 md:p-7 text-center animate-in zoom-in-95 flex flex-col h-auto max-h-[calc(100dvh-130px)] overflow-y-auto overscroll-contain [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]" onClick={(e) => e.stopPropagation()}>
+              <div className="fixed inset-0 z-[300] bg-slate-900/80 backdrop-blur-md flex p-4 animate-in fade-in items-center justify-center" onClick={() => setShowDatePicker(false)}>
+                {/* 🌟 PC อัปเกรด: ขยายกล่องใหญ่เบิ้ม md:max-w-[550px] เพิ่ม Padding md:p-10 */}
+                <div className="relative m-auto bg-slate-900 border-[2px] border-solid border-white rounded-[2rem] shadow-[0_0_60px_rgba(255,255,255,0.2)] w-[90%] max-w-[320px] sm:max-w-[340px] md:max-w-[550px] p-4 sm:p-5 md:p-10 text-center animate-in zoom-in-95 flex flex-col h-auto max-h-[75vh] md:max-h-none overflow-y-auto overscroll-contain [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]" onClick={(e) => e.stopPropagation()}>
 
-                  <div className="absolute -top-20 -left-20 w-40 h-40 bg-orange-500/80 rounded-full blur-[50px] pointer-events-none z-0"></div>
-                  <div className="absolute -bottom-20 -right-20 w-40 h-40 bg-amber-500/80 rounded-full blur-[50px] pointer-events-none z-0"></div>
+                  <div className="absolute -top-20 -left-20 w-40 h-40 md:w-60 md:h-60 bg-orange-500/80 rounded-full blur-[50px] pointer-events-none z-0"></div>
+                  <div className="absolute -bottom-20 -right-20 w-40 h-40 md:w-60 md:h-60 bg-amber-500/80 rounded-full blur-[50px] pointer-events-none z-0"></div>
                   
-                  <div className="relative z-10 flex justify-between items-center mb-6 pb-5 border-b border-white/20">
-                    <button onClick={() => { if (calMonth === 0) { setCalMonth(11); setCalYear(y => y - 1); } else setCalMonth(m => m - 1); }} className="p-2.5 bg-slate-800 text-white rounded-xl hover:bg-orange-500 transition-colors border border-slate-600 active:scale-95 shadow-inner"><ChevronDown className="w-[22px] h-[22px] rotate-90" /></button>
+                  <div className="relative z-10 flex justify-between items-center mb-6 md:mb-8 pb-5 md:pb-6 border-b border-white/20">
+                    <button onClick={() => { if (calMonth === 0) { setCalMonth(11); setCalYear(y => y - 1); } else setCalMonth(m => m - 1); }} className="p-2.5 md:p-4 bg-slate-800 text-white rounded-xl md:rounded-2xl hover:bg-orange-500 transition-colors border border-slate-600 active:scale-95 shadow-inner"><ChevronDown className="w-5 h-5 md:w-8 md:h-8 rotate-90" /></button>
                     <div className="flex flex-col items-center">
-                      <span className="text-[12px] md:text-[14px] font-black text-white tracking-widest uppercase mb-0.5 md:mb-2.5 drop-shadow-[0_0_8px_rgba(255,255,255,0.8)]">เลือกวันที่</span>
-                      <span className="text-xl md:text-2xl font-black text-orange-400 tracking-widest drop-shadow-[0_0_15px_rgba(249,115,22,0.9)]">
+                      <span className="text-[12px] md:text-[18px] font-black text-white tracking-widest uppercase mb-0.5 md:mb-2 drop-shadow-[0_0_8px_rgba(255,255,255,0.8)]">เลือกวันที่</span>
+                      <span className="text-xl md:text-3xl font-black text-orange-400 tracking-widest drop-shadow-[0_0_15px_rgba(249,115,22,0.9)]">
                         {['มกราคม', 'กุมภาพันธ์', 'มีนาคม', 'เมษายน', 'พฤษภาคม', 'มิถุนายน', 'กรกฎาคม', 'สิงหาคม', 'กันยายน', 'ตุลาคม', 'พฤศจิกายน', 'ธันวาคม'][calMonth]} {calYear + 543}
                       </span>
                     </div>
-                    <button onClick={() => { if (calMonth === 11) { setCalMonth(0); setCalYear(y => y + 1); } else setCalMonth(m => m + 1); }} className="p-2.5 bg-slate-800 text-white rounded-xl hover:bg-orange-500 transition-colors border border-slate-600 active:scale-95 shadow-inner"><ChevronDown className="w-[22px] h-[22px] -rotate-90" /></button>
+                    <button onClick={() => { if (calMonth === 11) { setCalMonth(0); setCalYear(y => y + 1); } else setCalMonth(m => m + 1); }} className="p-2.5 md:p-4 bg-slate-800 text-white rounded-xl md:rounded-2xl hover:bg-orange-500 transition-colors border border-slate-600 active:scale-95 shadow-inner"><ChevronDown className="w-5 h-5 md:w-8 md:h-8 -rotate-90" /></button>
                   </div>
                   
                   <div className="relative z-10">
-                    <div className="grid grid-cols-7 gap-1 mb-3">
-                      {['อา', 'จ', 'อ', 'พ', 'พฤ', 'ศ', 'ส'].map(day => (<div key={day} className={`text-[13px] md:text-[15px] font-black ${day === 'อา' ? 'text-rose-400' : day === 'ส' ? 'text-sky-400' : 'text-slate-300'}`}>{day}</div>))}
+                    <div className="grid grid-cols-7 gap-1 md:gap-2 mb-3 md:mb-5">
+                      {['อา', 'จ', 'อ', 'พ', 'พฤ', 'ศ', 'ส'].map(day => (<div key={day} className={`text-[13px] md:text-[20px] font-black ${day === 'อา' ? 'text-rose-400' : day === 'ส' ? 'text-sky-400' : 'text-slate-300'}`}>{day}</div>))}
                     </div>
-                    <div className="grid grid-cols-7 gap-1.5 md:gap-2">
+                    <div className="grid grid-cols-7 gap-1.5 md:gap-3">
                       {Array.from({ length: new Date(calYear, calMonth, 1).getDay() }).map((_, i) => (<div key={`empty-${i}`} />))}
                       {Array.from({ length: new Date(calYear, calMonth + 1, 0).getDate() }).map((_, i) => {
                         const day = i + 1;
@@ -1329,7 +1330,6 @@ const executeRatingSubmit = async () => {
                         const isSelected = customDate === dateString;
                         const todayLocal = new Date(sysTime); 
                         const isToday = todayLocal.getFullYear() === calYear && todayLocal.getMonth() === calMonth && todayLocal.getDate() === day;
-                        
                         const isSunday = new Date(dateString).getDay() === 0;
                         const isSaturday = new Date(dateString).getDay() === 6;
 
@@ -1337,7 +1337,7 @@ const executeRatingSubmit = async () => {
                           <button 
                             key={day} 
                             onClick={() => { setCustomDate(dateString); setDashTimeframe('custom_date'); setShowDatePicker(false); }}
-                            className={`aspect-square flex items-center justify-center rounded-xl text-[15px] md:text-[18px] font-black transition-all duration-300 active:scale-95 ${
+                            className={`aspect-square flex items-center justify-center rounded-xl md:rounded-2xl text-[15px] md:text-[22px] font-black transition-all duration-300 active:scale-95 ${
                               isSelected 
                                 ? 'bg-orange-500 text-white shadow-[0_0_20px_rgba(249,115,22,0.9)] border-[2px] border-solid border-white scale-110 z-20' 
                                 : isToday 
@@ -1351,10 +1351,11 @@ const executeRatingSubmit = async () => {
                       })}
                     </div>
                   </div>
-                  <button onClick={() => setShowDatePicker(false)} className="relative z-10 mt-8 w-full py-4 rounded-xl font-black text-white bg-orange-500 hover:bg-rose-500 border-[2px] border-solid border-white shadow-[0_0_20px_rgba(249,115,22,0.7)] active:scale-95 tracking-widest uppercase md:text-[18px]">ยกเลิก</button>
+                  <button onClick={() => setShowDatePicker(false)} className="relative z-10 mt-8 md:mt-10 w-full py-4 md:py-6 rounded-xl md:rounded-2xl font-black text-white bg-orange-500 hover:bg-rose-500 border-[2px] border-solid border-white shadow-[0_0_20px_rgba(249,115,22,0.7)] active:scale-95 tracking-widest uppercase md:text-[22px]">ยกเลิก</button>
                 </div>
               </div>
              )}
+
           </div>
 
           {/* 🌟 ปฏิทิน ระบุเดือน (เปลี่ยน Hover เป็น Cyan) */}
@@ -1371,26 +1372,26 @@ const executeRatingSubmit = async () => {
             </button>
             
             {showMonthPicker && (
-              <div className="fixed inset-0 z-[300] bg-slate-900/80 backdrop-blur-md flex p-4 animate-in fade-in" onClick={() => setShowDatePicker(false)}>
+              <div className="fixed inset-0 z-[300] bg-slate-900/80 backdrop-blur-md flex p-4 animate-in fade-in items-center justify-center" onClick={() => setShowMonthPicker(false)}>
+                {/* 🌟 PC อัปเกรด: ขยายกล่องให้ใหญ่เบิ้ม */}
+                <div className="relative m-auto bg-slate-900 border-[2px] border-solid border-white rounded-[2rem] shadow-[0_0_60px_rgba(255,255,255,0.2)] w-[90%] max-w-[320px] sm:max-w-[340px] md:max-w-[550px] p-4 sm:p-5 md:p-10 text-center animate-in zoom-in-95 flex flex-col h-auto max-h-[75vh] md:max-h-none overflow-y-auto overscroll-contain [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]" onClick={(e) => e.stopPropagation()}>
 
-                <div className="relative m-auto bg-slate-900 border-[2px] border-solid border-white rounded-[2rem] shadow-[0_0_60px_rgba(255,255,255,0.2)] w-[90%] max-w-[320px] sm:max-w-[340px] p-4 sm:p-5 md:p-7 text-center animate-in zoom-in-95 flex flex-col h-auto max-h-[calc(100dvh-130px)] overflow-y-auto overscroll-contain [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]" onClick={(e) => e.stopPropagation()}>
-
-                  <div className="absolute -top-20 -right-20 w-40 h-40 bg-orange-500/80 rounded-full blur-[50px] pointer-events-none z-0"></div>
-                  <div className="absolute -bottom-20 -left-20 w-40 h-40 bg-amber-500/80 rounded-full blur-[50px] pointer-events-none z-0"></div>
+                  <div className="absolute -top-20 -right-20 w-40 h-40 md:w-60 md:h-60 bg-orange-500/80 rounded-full blur-[50px] pointer-events-none z-0"></div>
+                  <div className="absolute -bottom-20 -left-20 w-40 h-40 md:w-60 md:h-60 bg-amber-500/80 rounded-full blur-[50px] pointer-events-none z-0"></div>
                   
-                  <div className="relative z-10 flex justify-between items-center mb-6 pb-5 border-b border-white/20">
-                    <button onClick={() => setPickerYear(y => y - 1)} className="p-2.5 bg-slate-800 text-white rounded-xl hover:bg-orange-500 transition-colors border border-slate-600"><ChevronDown className="w-[22px] h-[22px] rotate-90" /></button>
+                  <div className="relative z-10 flex justify-between items-center mb-6 md:mb-8 pb-5 md:pb-6 border-b border-white/20">
+                    <button onClick={() => setPickerYear(y => y - 1)} className="p-2.5 md:p-4 bg-slate-800 text-white rounded-xl md:rounded-2xl hover:bg-orange-500 transition-colors border border-slate-600 active:scale-95 shadow-inner"><ChevronDown className="w-5 h-5 md:w-8 md:h-8 rotate-90" /></button>
                     <div className="flex flex-col items-center">
-                      <span className="text-[12px] md:text-[14px] font-black text-white tracking-widest uppercase mb-0.5 md:mb-2.5 drop-shadow-[0_0_8px_rgba(255,255,255,0.8)]">
+                      <span className="text-[12px] md:text-[18px] font-black text-white tracking-widest uppercase mb-0.5 md:mb-2 drop-shadow-[0_0_8px_rgba(255,255,255,0.8)]">
                         เลือกเดือน
                       </span>
-                      <span className="text-2xl md:text-3xl font-black text-orange-400 tracking-widest drop-shadow-[0_0_15px_rgba(249,115,22,0.9)]">
+                      <span className="text-2xl md:text-4xl font-black text-orange-400 tracking-widest drop-shadow-[0_0_15px_rgba(249,115,22,0.9)]">
                         {pickerYear + 543}
                       </span>
                     </div>
-                    <button onClick={() => setPickerYear(y => y + 1)} className="p-2.5 bg-slate-800 text-white rounded-xl hover:bg-orange-500 transition-colors border border-slate-600"><ChevronDown className="w-[22px] h-[22px] -rotate-90" /></button>
+                    <button onClick={() => setPickerYear(y => y + 1)} className="p-2.5 md:p-4 bg-slate-800 text-white rounded-xl md:rounded-2xl hover:bg-orange-500 transition-colors border border-slate-600 active:scale-95 shadow-inner"><ChevronDown className="w-5 h-5 md:w-8 md:h-8 -rotate-90" /></button>
                   </div>
-                  <div className="relative z-10 grid grid-cols-3 gap-3 md:gap-4">
+                  <div className="relative z-10 grid grid-cols-3 gap-3 md:gap-5">
                     {['ม.ค.', 'ก.พ.', 'มี.ค.', 'เม.ย.', 'พ.ค.', 'มิ.ย.', 'ก.ค.', 'ส.ค.', 'ก.ย.', 'ต.ค.', 'พ.ย.', 'ธ.ค.'].map((m, i) => {
                       const monthValue = `${pickerYear}-${String(i + 1).padStart(2, '0')}`;
                       const isSelected = customMonth === monthValue;
@@ -1400,7 +1401,7 @@ const executeRatingSubmit = async () => {
                         <button 
                           key={m} 
                           onClick={() => { setCustomMonth(monthValue); setDashTimeframe('custom'); setShowMonthPicker(false); }}
-                          className={`py-3.5 rounded-xl text-[15px] md:text-[18px] font-black transition-all duration-300 active:scale-95 ${
+                          className={`py-3.5 md:py-6 rounded-xl md:rounded-2xl text-[15px] md:text-[24px] font-black transition-all duration-300 active:scale-95 ${
                             isSelected 
                               ? 'bg-orange-500 text-white shadow-[0_0_20px_rgba(249,115,22,0.9)] border-[2px] border-solid border-white scale-110 z-10' 
                               : isCurrentMonth 
@@ -1413,10 +1414,12 @@ const executeRatingSubmit = async () => {
                       )
                     })}
                   </div>
-                  <button onClick={() => setShowMonthPicker(false)} className="relative z-10 mt-8 w-full py-4 rounded-xl font-black text-white bg-orange-500 hover:bg-rose-500 border-[2px] border-solid border-white shadow-[0_0_20px_rgba(249,115,22,0.7)] active:scale-95 tracking-widest uppercase md:text-[18px]">ยกเลิก</button>
+                  <button onClick={() => setShowMonthPicker(false)} className="relative z-10 mt-8 md:mt-10 w-full py-4 md:py-6 rounded-xl md:rounded-2xl font-black text-white bg-orange-500 hover:bg-rose-500 border-[2px] border-solid border-white shadow-[0_0_20px_rgba(249,115,22,0.7)] active:scale-95 tracking-widest uppercase md:text-[22px]">ยกเลิก</button>
                 </div>
               </div>
             )}
+
+
           </div>
         </div>
 
@@ -1823,106 +1826,133 @@ const executeRatingSubmit = async () => {
               <User size={24} className="text-orange-500"/> ข้อมูลผู้แจ้งซ่อม
             </div>
 
-            <div className="space-y-4">
-              <SearchableDropdown
-                id="field-reporter"
-                label={
-                  <span className="text-[14px] sm:text-[15px] font-black tracking-wide">
-                    ชื่อ-นามสกุล <span className="text-rose-500">*</span>
-                  </span>
-                }
-                icon={<User size={16} className="text-emerald-300"/>}
-                placeholder="เลือกชื่อหรือพิมพ์ค้นหา"
-                options={employeeList.map((e) => String(e.name))}
-                value={formData.reporter}
-                onChange={handleReporterChange}
-                error={formErrors.reporter}
+            {/* ==========================================================
+              🚀 1. โซนข้อมูลผู้แจ้งซ่อม (กางอาณาเขตบังคับฟอนต์ 18px)
+             ========================================================== */}
+          {/* ==========================================================
+              🚀 1. โซนข้อมูลผู้แจ้งซ่อม (กางอาณาเขตฟอนต์ 18px + Numpad คีย์บอร์ด)
+             ========================================================== */}
+          <div className="space-y-4 [&_input]:md:text-[18px] [&_span]:md:text-[18px]">
+            
+           <SearchableDropdown
+              id="field-reporter"
+              label={
+                <span className="text-[14px] md:text-[18px] font-black tracking-wide">
+                  ชื่อ-นามสกุล <span className="text-rose-500">*</span>
+                </span>
+              }
+              icon={<User size={16} className="md:w-5 md:h-5 text-emerald-300"/>}
+              placeholder="เลือกชื่อหรือพิมพ์ค้นหา"
+              options={employeeList.map((e) => String(e.name))}
+              value={formData.reporter}
+              onChange={handleReporterChange}
+              error={formErrors.reporter}
+            />
+
+            <div className="space-y-1.5">
+              <label className="text-[14px] md:text-[18px] font-black text-slate-200 uppercase tracking-wide ml-1 flex items-center gap-1.5">
+                <Briefcase size={16} className="md:w-5 md:h-5 text-emerald-500" /> ตำแหน่ง
+              </label>
+              <input
+                value={formData.position}
+                readOnly
+                className="w-full bg-slate-50 border-2 border-solid border-orange-500 rounded-2xl px-5 py-4 text-sm md:text-[18px] font-bold text-slate-500 outline-none cursor-not-allowed shadow-inner"
+                placeholder="-"
               />
+            </div>
 
-              <div className="space-y-1.5">
-                <label className="text-[14px] sm:text-[15px] font-black text-slate-200 uppercase tracking-wide ml-1 flex items-center gap-1.5">
-                  <Briefcase size={16} className="text-emerald-500" /> ตำแหน่ง
-                </label>
-                <input
-                  value={formData.position}
-                  readOnly
-                  className="w-full bg-slate-50 border-2 border-solid border-orange-500 rounded-2xl px-5 py-4 text-sm font-bold text-slate-500 outline-none cursor-not-allowed shadow-inner"
-                  placeholder="-"
-                />
+            <div className="space-y-1.5">
+              <label className="text-[14px] md:text-[18px] font-black text-slate-200 uppercase tracking-wide ml-1 flex items-center gap-1.5">
+                <Users size={16} className="md:w-5 md:h-5 text-emerald-500" /> ฝ่าย
+              </label>
+              <input
+                value={formData.department}
+                readOnly
+                className="w-full bg-slate-50 border-2 border-solid border-orange-500 rounded-2xl px-5 py-4 text-sm md:text-[18px] font-bold text-slate-500 outline-none cursor-not-allowed shadow-inner"
+                placeholder="-"
+              />
+            </div>
+
+            <div className="space-y-1.5">
+              <label className="text-[14px] md:text-[18px] font-black text-slate-200 uppercase tracking-wide ml-1 flex items-center gap-1.5">
+                <Landmark size={16} className="md:w-5 md:h-5 text-emerald-500" /> สำนัก
+              </label>
+              <input
+                value={formData.bureau}
+                readOnly
+                className="w-full bg-slate-50 border-2 border-solid border-orange-500 rounded-2xl px-5 py-4 text-sm md:text-[18px] font-bold text-slate-500 outline-none cursor-not-allowed shadow-inner"
+                placeholder="สำนักปฏิบัติการดาวเทียม"
+              />
+            </div>
+
+            <div className="space-y-1.5" id="field-reporterContact">
+              <label className="text-[14px] md:text-[18px] font-black text-slate-200 uppercase tracking-wide ml-1 flex items-center gap-1.5">
+                <Phone size={16} className="md:w-5 md:h-5 text-emerald-500" /> เบอร์โทรศัพท์ <span className="text-rose-500">*</span>
+              </label>
+              
+              <div 
+                onClick={() => setShowNumpad(true)}
+                className={`w-full bg-white border-2 border-solid border-orange-500 flex items-center ${
+                  formErrors.reporterContact ? 'border-rose-500 ring-1 ring-rose-500/30' : 'hover:border-orange-600 hover:ring-2 hover:ring-orange-500/30'
+                } rounded-2xl px-5 py-4 cursor-pointer shadow-sm transition-all`}
+              >
+                <span className={`text-[15px] md:text-[18px] font-bold font-mono tracking-widest ${formData.reporterContact ? 'text-slate-800' : 'text-slate-400'}`}>
+                  {formData.reporterContact || '0X-XXXX-XXXX'}
+                </span>
               </div>
+              
+              {formErrors.reporterContact && (
+                <div className="text-rose-500 text-[11px] md:text-[14px] font-bold mt-1 px-1">⚠️ {formErrors.reporterContact}</div>
+              )}
 
-              <div className="space-y-1.5">
-                <label className="text-[14px] sm:text-[15px] font-black text-slate-200 uppercase tracking-wide ml-1 flex items-center gap-1.5">
-                  <Users size={16} className="text-emerald-500" /> ฝ่าย
-                </label>
-                <input
-                  value={formData.department}
-                  readOnly
-                  className="w-full bg-slate-50 border-2 border-solid border-orange-500 rounded-2xl px-5 py-4 text-sm font-bold text-slate-500 outline-none cursor-not-allowed shadow-inner"
-                  placeholder="-"
-                />
-              </div>
-
-              <div className="space-y-1.5">
-                <label className="text-[14px] sm:text-[15px] font-black text-slate-200 uppercase tracking-wide ml-1 flex items-center gap-1.5">
-                  <Landmark size={16} className="text-emerald-500" /> สำนัก
-                </label>
-                <input
-                  value={formData.bureau}
-                  readOnly
-                  className="w-full bg-slate-50 border-2 border-solid border-orange-500 rounded-2xl px-5 py-4 text-sm font-bold text-slate-500 outline-none cursor-not-allowed shadow-inner"
-                  placeholder="สำนักปฏิบัติการดาวเทียม"
-                />
-              </div>
-
-              <div className="space-y-1.5" id="field-reporterContact">
-                <label className="text-[14px] sm:text-[15px] font-black text-slate-200 uppercase tracking-wide ml-1 flex items-center gap-1.5">
-                  <Phone size={16} className="text-emerald-500" /> เบอร์โทรศัพท์ <span className="text-rose-500">*</span>
-                </label>
-                
-                {/* 🌟 ช่องแสดงเบอร์ (กดแล้วเรียก Numpad ไซไฟ) */}
-                <div 
-                  onClick={() => setShowNumpad(true)}
-                  className={`w-full bg-white border-2 border-solid border-orange-500 flex items-center ${
-                    formErrors.reporterContact ? 'border-rose-500 ring-1 ring-rose-500/30' : 'hover:border-orange-600 hover:ring-2 hover:ring-orange-500/30'
-                  } rounded-2xl px-5 py-4 cursor-pointer shadow-sm transition-all`}
-                >
-                  <span className={`text-[15px] font-bold font-mono tracking-widest ${formData.reporterContact ? 'text-slate-800' : 'text-slate-400'}`}>
-                    {formData.reporterContact || '0X-XXXX-XXXX'}
-                  </span>
-                </div>
-                
-                {formErrors.reporterContact && (
-                  <div className="text-rose-500 text-[11px] font-bold mt-1 px-1">⚠️ {formErrors.reporterContact}</div>
-                )}
-
-                {/* 🌟 2. หน้าต่าง Numpad ไซไฟอวกาศ (ดีไซน์เดียวกับปฏิทินเดือน 100%) */}
+                {/* 🌟 Numpad ไซไฟอวกาศ (รับคำสั่งคีย์บอร์ด + ขยายร่าง PC) */}
                 {showNumpad && (
-                  <div className="fixed inset-0 z-[10000] flex items-center justify-center bg-slate-900/80 backdrop-blur-md p-4 animate-in fade-in duration-300" onClick={() => setShowNumpad(false)}>
-                    
-                    {/* แสงเฟลอร์หลังกล่อง สีฟ้า (Cyan Glow) แบบโปร่งแสงเนียนๆ */}
-                    <div className="absolute w-[350px] h-[350px] bg-cyan-500/40 rounded-full blur-[100px] pointer-events-none z-0 animate-pulse"></div>
+                  <div 
+                    className="fixed inset-0 z-[10000] flex items-center justify-center bg-slate-900/80 backdrop-blur-md p-4 animate-in fade-in duration-300 outline-none" 
+                    onClick={() => setShowNumpad(false)}
+                    tabIndex={0}
+                    ref={el => el && el.focus()}
+                    onKeyDown={(e) => {
+                      if (e.key >= '0' && e.key <= '9') {
+                        let current = formData.reporterContact ? formData.reporterContact.replace(/\D/g, '') : '';
+                        if (current.length < 10) current += e.key;
+                        let formatted = current;
+                        if (current.length > 6) formatted = `${current.substring(0, 2)}-${current.substring(2, 6)}-${current.substring(6)}`;
+                        else if (current.length > 2) formatted = `${current.substring(0, 2)}-${current.substring(2)}`;
+                        setFormData(prev => ({ ...prev, reporterContact: formatted }));
+                        if (formErrors.reporterContact) setFormErrors(prev => ({ ...prev, reporterContact: null }));
+                      } else if (e.key === 'Backspace') {
+                        let current = formData.reporterContact ? formData.reporterContact.replace(/\D/g, '') : '';
+                        current = current.slice(0, -1);
+                        let formatted = current;
+                        if (current.length > 6) formatted = `${current.substring(0, 2)}-${current.substring(2, 6)}-${current.substring(6)}`;
+                        else if (current.length > 2) formatted = `${current.substring(0, 2)}-${current.substring(2)}`;
+                        setFormData(prev => ({ ...prev, reporterContact: formatted }));
+                      } else if (e.key === 'Escape' || e.key === 'Enter') {
+                        setShowNumpad(false);
+                      } else if (e.key === 'Delete' || e.key.toLowerCase() === 'c') {
+                        setFormData(prev => ({ ...prev, reporterContact: '' }));
+                      }
+                    }}
+                  >
+                    <div className="absolute w-[350px] h-[350px] md:w-[600px] md:h-[600px] bg-cyan-500/40 rounded-full blur-[100px] pointer-events-none z-0 animate-pulse"></div>
 
-                    {/* 🌟 กรอบนอกสุด: ปรับ z-[10000] ลอยทับเมนูด้านล่าง และ max-h-[85dvh] ให้ปุ่มยืนยันไม่โดนตัด */}
-                    <div className="relative m-auto z-10 w-[90%] max-w-[320px] sm:max-w-[340px] bg-slate-900 border-[2px] border-solid border-white rounded-[2rem] p-4 sm:p-6 shadow-[0_0_60px_rgba(6,182,212,0.6)] flex flex-col gap-4 sm:gap-5 transition-all duration-300 max-h-[85dvh] overflow-y-auto overscroll-contain scrollbar-hide" onClick={(e) => e.stopPropagation()}>
-
-                       {/* หัวข้อ (ไอคอนสีเขียว + ตัวหนังสือส้มเรืองแสง ไม่มีอีโมจิแดง) */}
-                       <div className="text-center mb-1 pb-3 border-b border-white/20">
-                         <h3 className="font-black tracking-widest text-[16px] sm:text-[18px] flex items-center justify-center gap-2 text-orange-400 drop-shadow-[0_0_10px_rgba(249,115,22,0.8)]">
-                           <Phone size={20} className="text-emerald-400 drop-shadow-sm" />
+                    <div className="relative m-auto z-10 w-[90%] max-w-[320px] sm:max-w-[340px] md:max-w-[500px] bg-slate-900 border-[2px] border-solid border-white rounded-[2rem] p-4 sm:p-6 md:p-10 shadow-[0_0_60px_rgba(6,182,212,0.6)] flex flex-col gap-4 sm:gap-5 md:gap-7 transition-all duration-300 max-h-[85dvh] overflow-y-auto overscroll-contain scrollbar-hide" onClick={(e) => e.stopPropagation()}>
+                       <div className="text-center mb-1 md:mb-2 pb-3 md:pb-5 border-b border-white/20">
+                         <h3 className="font-black tracking-widest text-[16px] sm:text-[18px] md:text-[24px] flex items-center justify-center gap-2 text-orange-400 drop-shadow-[0_0_10px_rgba(249,115,22,0.8)]">
+                           <Phone size={20} className="md:w-8 md:h-8 text-emerald-400 drop-shadow-sm" />
                            ระบุเบอร์โทรศัพท์
                          </h3>
+                         <span className="text-slate-400 text-[10px] md:text-[14px] mt-1 hidden md:block">* สามารถพิมพ์ตัวเลขจากคีย์บอร์ดได้ทันที</span>
                        </div>
                        
-                       {/* จอแสดงผลตัวเลข (ตัวเลขสีฟ้า + กรอบในสีฟ้า) */}
-                       <div className="bg-slate-950 border-[2px] border-solid border-cyan-500/50 rounded-2xl py-4 px-4 text-center shadow-inner flex items-center justify-center min-h-[70px]">
-                         <span className={`text-[24px] sm:text-[28px] font-mono font-black tracking-widest ${formData.reporterContact ? 'text-cyan-400 drop-shadow-[0_0_12px_rgba(34,211,238,0.9)]' : 'text-slate-700'}`}>
+                       <div className="bg-slate-950 border-[2px] border-solid border-cyan-500/50 rounded-2xl py-4 md:py-6 px-4 text-center shadow-inner flex items-center justify-center min-h-[70px] md:min-h-[90px]">
+                         <span className={`text-[24px] sm:text-[28px] md:text-[40px] font-mono font-black tracking-widest ${formData.reporterContact ? 'text-cyan-400 drop-shadow-[0_0_12px_rgba(34,211,238,0.9)]' : 'text-slate-700'}`}>
                            {formData.reporterContact || '0X-XXXX-XXXX'}
                          </span>
                        </div>
 
-                       {/* แป้นพิมพ์ตัวเลข (ปุ่มสไตล์ Sci-Fi อัปเกรด Hover) */}
-                       <div className="grid grid-cols-3 gap-2.5 sm:gap-3">
+                       <div className="grid grid-cols-3 gap-2.5 sm:gap-3 md:gap-4">
                          {[1, 2, 3, 4, 5, 6, 7, 8, 9].map(num => (
                            <button 
                              key={num} type="button" 
@@ -1935,22 +1965,20 @@ const executeRatingSubmit = async () => {
                                setFormData(prev => ({ ...prev, reporterContact: formatted }));
                                if (formErrors.reporterContact) setFormErrors(prev => ({ ...prev, reporterContact: null }));
                              }} 
-                             className="bg-slate-800 border-[2px] border-solid border-slate-600 text-slate-200 text-2xl font-black py-3 sm:py-3.5 rounded-xl active:scale-95 transition-all shadow-md hover:bg-cyan-600/90 hover:border-cyan-400 hover:text-white hover:shadow-[0_0_20px_rgba(34,211,238,0.7)]"
+                             className="bg-slate-800 border-[2px] border-solid border-slate-600 text-slate-200 text-2xl md:text-4xl font-black py-3 sm:py-3.5 md:py-6 rounded-xl md:rounded-2xl active:scale-95 transition-all shadow-md hover:bg-cyan-600/90 hover:border-cyan-400 hover:text-white hover:shadow-[0_0_20px_rgba(34,211,238,0.7)]"
                            >
                              {num}
                            </button>
                          ))}
                          
-                         {/* 🌟 ปุ่ม C ล้างทั้งหมด */}
                          <button 
                            type="button" 
                            onClick={() => setFormData(prev => ({ ...prev, reporterContact: '' }))} 
-                           className="bg-slate-800 border-[2px] border-solid border-slate-600 text-orange-400 text-[18px] font-black py-3 sm:py-3.5 rounded-xl active:scale-95 transition-all shadow-md hover:bg-orange-600 hover:border-orange-400 hover:text-white hover:shadow-[0_0_20px_rgba(249,115,22,0.7)] uppercase tracking-widest flex items-center justify-center gap-1"
+                           className="bg-slate-800 border-[2px] border-solid border-slate-600 text-orange-400 text-[18px] md:text-[24px] font-black py-3 sm:py-3.5 md:py-6 rounded-xl md:rounded-2xl active:scale-95 transition-all shadow-md hover:bg-orange-600 hover:border-orange-400 hover:text-white hover:shadow-[0_0_20px_rgba(249,115,22,0.7)] uppercase tracking-widest flex items-center justify-center gap-1"
                          >
-                           <RotateCcw size={20} strokeWidth={3} /> ล้าง
+                           <RotateCcw size={20} className="md:w-7 md:h-7" strokeWidth={3} /> ล้าง
                          </button>
                          
-                         {/* ปุ่ม เลข 0 */}
                          <button 
                            type="button" 
                            onClick={() => {
@@ -1962,12 +1990,11 @@ const executeRatingSubmit = async () => {
                              setFormData(prev => ({ ...prev, reporterContact: formatted }));
                              if (formErrors.reporterContact) setFormErrors(prev => ({ ...prev, reporterContact: null }));
                            }} 
-                           className="bg-slate-800 border-[2px] border-solid border-slate-600 text-slate-200 text-2xl font-black py-3 sm:py-3.5 rounded-xl active:scale-95 transition-all shadow-md hover:bg-cyan-600/90 hover:border-cyan-400 hover:text-white hover:shadow-[0_0_20px_rgba(34,211,238,0.7)]"
+                           className="bg-slate-800 border-[2px] border-solid border-slate-600 text-slate-200 text-2xl md:text-4xl font-black py-3 sm:py-3.5 md:py-6 rounded-xl md:rounded-2xl active:scale-95 transition-all shadow-md hover:bg-cyan-600/90 hover:border-cyan-400 hover:text-white hover:shadow-[0_0_20px_rgba(34,211,238,0.7)]"
                          >
                            0
                          </button>
                          
-                         {/* ปุ่ม ลบทีละตัว (X) */}
                          <button 
                            type="button" 
                            onClick={() => {
@@ -1978,169 +2005,165 @@ const executeRatingSubmit = async () => {
                              else if (current.length > 2) formatted = `${current.substring(0, 2)}-${current.substring(2)}`;
                              setFormData(prev => ({ ...prev, reporterContact: formatted }));
                            }} 
-                           className="bg-slate-800 border-[2px] border-solid border-slate-600 text-rose-500 flex items-center justify-center py-3 sm:py-3.5 rounded-xl active:scale-95 transition-all shadow-md hover:bg-rose-600 hover:border-rose-400 hover:text-white hover:shadow-[0_0_20px_rgba(225,29,72,0.7)]"
+                           className="bg-slate-800 border-[2px] border-solid border-slate-600 text-rose-500 flex items-center justify-center py-3 sm:py-3.5 md:py-6 rounded-xl md:rounded-2xl active:scale-95 transition-all shadow-md hover:bg-rose-600 hover:border-rose-400 hover:text-white hover:shadow-[0_0_20px_rgba(225,29,72,0.7)]"
                          >
-                           <X size={28} strokeWidth={3.5}/>
+                           <X size={28} className="md:w-10 md:h-10" strokeWidth={3.5}/>
                          </button>
                        </div>
 
-                       {/* ปุ่มยืนยัน */}
                        <button 
                          type="button" 
                          onClick={() => setShowNumpad(false)} 
-                         className="w-full bg-gradient-to-r from-emerald-500 to-teal-500 text-white font-black py-3.5 sm:py-4 rounded-xl border-[2px] border-solid border-emerald-300 shadow-[0_0_15px_rgba(16,185,129,0.4)] active:scale-95 transition-all duration-300 text-[15px] sm:text-[16px] tracking-widest uppercase hover:brightness-110"
+                         className="w-full bg-gradient-to-r from-emerald-500 to-teal-500 text-white font-black py-3.5 sm:py-4 md:py-5 rounded-xl md:rounded-2xl border-[2px] border-solid border-emerald-300 shadow-[0_0_15px_rgba(16,185,129,0.4)] active:scale-95 transition-all duration-300 text-[15px] sm:text-[16px] md:text-[22px] tracking-widest uppercase hover:brightness-110 mt-1 md:mt-2"
                        >
-                         ยืนยัน
+                         ยืนยัน (Enter)
                        </button>
                     </div>
                   </div>
                 )}
               </div>
             </div>
-          </div>
+ 
+           {/* ==========================================================
+               🚀 2. โซนรายละเอียดการแจ้งซ่อม (กางอาณาเขตฟอนต์ 18px)
+              ========================================================== */}
+             <div className="space-y-5 mt-5 [&_input]:md:text-[18px] [&_span]:md:text-[18px]">
+               
+               <SearchableDropdown
+                 id="field-equipmentCategory"
+                 label={
+                   <span className="text-[14px] md:text-[18px] font-black tracking-wide">
+                     กลุ่มงาน / ภารกิจรับผิดชอบ <span className="text-rose-500">*</span>
+                   </span>
+                 }
+                 icon={<Activity size={16} className="md:w-5 md:h-5 text-yellow-500" />}
+                 placeholder="เลือกกลุ่มภารกิจของ ฝวด."
+                 options={Object.keys(equipmentCategories)}
+                 value={formData.equipmentCategory}
+                 onChange={(val) => {
+                   setFormData({ 
+                     ...formData, 
+                     equipmentCategory: val, 
+                     equipment: ''
+                   });
+                   if (formErrors.equipmentCategory) setFormErrors({ ...formErrors, equipmentCategory: null });
+                 }}
+                 error={formErrors.equipmentCategory}
+               />
+ 
+               <SearchableDropdown
+                 id="field-equipment"
+                 label={
+                   <span className="text-[14px] md:text-[18px] font-black tracking-wide">
+                     รายการอุปกรณ์ / ระบบ <span className="text-rose-500">*</span>
+                   </span>
+                 }
+                 icon={<Monitor size={16} className="md:w-5 md:h-5 text-yellow-500" />}
+                 placeholder={formData.equipmentCategory ? "เลือกอุปกรณ์หรือพิมพ์ค้นหา" : "กรุณาเลือกกลุ่มงานก่อน"}
+                 options={formData.equipmentCategory ? equipmentCategories[formData.equipmentCategory] : []}
+                 value={formData.equipment}
+                 onChange={(val) => {
+                   setFormData({ ...formData, equipment: val });
+                   if (formErrors.equipment) setFormErrors({ ...formErrors, equipment: null });
+                 }}
+                 error={formErrors.equipment}
+               />
+ 
+               <div className="space-y-1.5" id="field-description">
+                 <label className="text-[14px] md:text-[18px] font-black text-slate-200 uppercase tracking-wide ml-1 flex items-center gap-1.5">
+                   <AlertCircle size={16} className="md:w-5 md:h-5 text-yellow-500" />{' '}
+                   อาการเสีย / รายละเอียดปัญหา{' '}
+                   <span className="text-rose-500">*</span>
+                 </label>
+ 
+                 <textarea
+                   name="description"
+                   value={formData.description}
+                   onChange={handleInputChange}
+                   rows={3}
+                   className={`w-full bg-white border ${
+                     formErrors.description
+                       ? 'border-rose-500 focus:border-rose-500 ring-1 ring-rose-500/30'
+                       : 'border-2 border-orange-400 focus:border-orange-500 focus:ring-2 focus:ring-orange-500/30'
+                   } rounded-2xl px-5 py-4 outline-none text-sm md:text-[18px] font-bold text-slate-800 shadow-sm resize-none transition-all`}
+                   placeholder="อธิบายรายละเอียดอาการเสีย..."
+                 />
+ 
+                 {formErrors.description && (
+                   <div className="text-rose-500 text-[11px] md:text-[14px] font-bold mt-1.5 ml-1 animate-in fade-in">
+                     ⚠️ {formErrors.description}
+                   </div>
+                 )}
+               </div>
+ 
+               <div className="space-y-1.5">
+                 <label className="text-[14px] md:text-[18px] font-black text-slate-200 uppercase tracking-wide ml-1 flex items-center gap-1.5">
+                   <Hash size={16} className="md:w-5 md:h-5 text-yellow-500" />{' '}
+                   หมายเลขครุภัณฑ์ (หากมี)
+                 </label>
+ 
+                 <input
+                   name="assetNumber"
+                   value={formData.assetNumber}
+                   onChange={handleInputChange}
+                   className="w-full bg-white border-2 border-orange-400 focus:border-orange-500 focus:ring-2 focus:ring-orange-500/30 rounded-2xl px-5 py-4 text-sm md:text-[18px] font-bold text-slate-800 outline-none font-mono tracking-widest shadow-sm transition-all"
+                   placeholder="ระบุหมายเลข..."
+                 />
+               </div>
+ 
+               <SearchableDropdown
+                 id="field-building"
+                 label={
+                   <span className="text-[14px] md:text-[18px] font-black tracking-wide">
+                     อาคาร / ตึก <span className="text-rose-500">*</span>
+                   </span>
+                 }
+                 icon={<Building size={16} className="md:w-5 md:h-5 text-yellow-500" />}
+                 placeholder="เลือกอาคารหรือพิมพ์ค้นหา"
+                 options={buildingList}
+                 value={formData.building}
+                 onChange={(val) => {
+                   setFormData({ ...formData, building: val });
+                   if (formErrors.building)
+                     setFormErrors({ ...formErrors, building: null });
+                 }}
+                 error={formErrors.building}
+               />
+ 
+               <div className="space-y-1.5" id="field-room">
+                 <label className="text-[14px] md:text-[18px] font-black text-slate-200 uppercase tracking-wide ml-1 flex items-center gap-1.5">
+                   <DoorOpen size={16} className="md:w-5 md:h-5 text-yellow-500" /> สถานที่ /
+                   ห้อง <span className="text-rose-500">*</span>
+                 </label>
+                 <input
+                   name="room"
+                   value={formData.room}
+                   onChange={handleInputChange}
+                   className={`w-full bg-white border ${
+                     formErrors.room
+                       ? 'border-rose-500 focus:border-rose-500 ring-1 ring-rose-500/30'
+                       : 'border-2 border-orange-400 focus:border-orange-500 focus:ring-2 focus:ring-orange-500/30'
+                   } rounded-2xl px-5 py-4 text-sm md:text-[18px] font-bold text-slate-800 outline-none shadow-sm transition-all`}
+                   placeholder="ระบุสถานที่หรือห้อง"
+                 />
+                 {formErrors.room && (
+                   <div className="text-rose-500 text-[11px] md:text-[14px] font-bold mt-1.5 ml-1 animate-in fade-in">
+                     ⚠️ {formErrors.room}
+                   </div>
+                 )}
+               </div>
 
-          {/* ================= กรอบที่ 2: รายละเอียดการแจ้งซ่อม ================= */}
-          <div className="relative bg-slate-800/60 backdrop-blur-xl border-2 border-solid border-white-500/80 rounded-[1rem] p-6 pt-10 shadow-[0_0_40px_rgba(0,0,0,0.4)] text-left mt-6">
-            <div className="absolute -top-4 left-6 bg-emerald-50 text-emerald-600 px-4 py-2.5 rounded-xl font-black text-[18px] shadow-sm border-2 border-solid border-green-500 flex items-center gap-2 tracking-widest uppercase">
-              <Wrench size={24} className="text-orange-500" />{' '}
-              รายละเอียดการแจ้งซ่อม
-            </div>
-
-            <div className="space-y-5">
-              <SearchableDropdown
-                id="field-equipmentCategory"
-                label={
-                  <span className="text-[14px] sm:text-[15px] font-black tracking-wide">
-                    กลุ่มงาน / ภารกิจรับผิดชอบ <span className="text-rose-500">*</span>
-                  </span>
-                }
-                icon={<Activity size={16} className="text-yellow-500" />}
-                placeholder="เลือกกลุ่มภารกิจของ ฝวด."
-                options={Object.keys(equipmentCategories)}
-                value={formData.equipmentCategory}
-                onChange={(val) => {
-                  setFormData({ 
-                    ...formData, 
-                    equipmentCategory: val, 
-                    equipment: ''
-                  });
-                  if (formErrors.equipmentCategory) setFormErrors({ ...formErrors, equipmentCategory: null });
-                }}
-                error={formErrors.equipmentCategory}
-              />
-
-              <SearchableDropdown
-                id="field-equipment"
-                label={
-                  <span className="text-[14px] sm:text-[15px] font-black tracking-wide">
-                    รายการอุปกรณ์ / ระบบ <span className="text-rose-500">*</span>
-                  </span>
-                }
-                icon={<Monitor size={16} className="text-yellow-500" />}
-                placeholder={formData.equipmentCategory ? "เลือกอุปกรณ์หรือพิมพ์ค้นหา" : "กรุณาเลือกกลุ่มงานก่อน"}
-                options={formData.equipmentCategory ? equipmentCategories[formData.equipmentCategory] : []}
-                value={formData.equipment}
-                onChange={(val) => {
-                  setFormData({ ...formData, equipment: val });
-                  if (formErrors.equipment) setFormErrors({ ...formErrors, equipment: null });
-                }}
-                error={formErrors.equipment}
-              />
-
-              <div className="space-y-1.5" id="field-description">
-                <label className="text-[14px] sm:text-[15px] font-black text-slate-200 uppercase tracking-wide ml-1 flex items-center gap-1.5">
-                  <AlertCircle size={16} className="text-yellow-500" />{' '}
-                  อาการเสีย / รายละเอียดปัญหา{' '}
-                  <span className="text-rose-500">*</span>
-                </label>
-
-                <textarea
-                  name="description"
-                  value={formData.description}
-                  onChange={handleInputChange}
-                  rows={3}
-                  className={`w-full bg-white border ${
-                    formErrors.description
-                      ? 'border-rose-500 focus:border-rose-500 ring-1 ring-rose-500/30'
-                      : 'border-2 border-orange-400 focus:border-orange-500 focus:ring-2 focus:ring-orange-500/30'
-                  } rounded-2xl px-5 py-4 outline-none text-sm font-bold text-slate-800 shadow-sm resize-none transition-all`}
-                  placeholder="อธิบายรายละเอียดอาการเสีย..."
-                />
-
-                {formErrors.description && (
-                  <div className="text-rose-500 text-[11px] font-bold mt-1.5 ml-1 animate-in fade-in">
-                    ⚠️ {formErrors.description}
-                  </div>
-                )}
-              </div>
-
-              <div className="space-y-1.5">
-                <label className="text-[14px] sm:text-[15px] font-black text-slate-200 uppercase tracking-wide ml-1 flex items-center gap-1.5">
-                  <Hash size={16} className="text-yellow-500" />{' '}
-                  หมายเลขครุภัณฑ์ (หากมี)
-                </label>
-
-                <input
-                  name="assetNumber"
-                  value={formData.assetNumber}
-                  onChange={handleInputChange}
-                  className="w-full bg-white border-2 border-orange-400 focus:border-orange-500 focus:ring-2 focus:ring-orange-500/30 rounded-2xl px-5 py-4 text-sm font-bold text-slate-800 outline-none font-mono tracking-widest shadow-sm transition-all"
-                  placeholder="ระบุหมายเลข..."
-                />
-              </div>
-
-              <SearchableDropdown
-                id="field-building"
-                label={
-                  <span className="text-[14px] sm:text-[15px] font-black tracking-wide">
-                    อาคาร / ตึก <span className="text-rose-500">*</span>
-                  </span>
-                }
-                icon={<Building size={16} className="text-yellow-500" />}
-                placeholder="เลือกอาคารหรือพิมพ์ค้นหา"
-                options={buildingList}
-                value={formData.building}
-                onChange={(val) => {
-                  setFormData({ ...formData, building: val });
-                  if (formErrors.building)
-                    setFormErrors({ ...formErrors, building: null });
-                }}
-                error={formErrors.building}
-              />
-
-              <div className="space-y-1.5" id="field-room">
-                <label className="text-[14px] sm:text-[15px] font-black text-slate-200 uppercase tracking-wide ml-1 flex items-center gap-1.5">
-                  <DoorOpen size={16} className="text-yellow-500" /> สถานที่ /
-                  ห้อง <span className="text-rose-500">*</span>
-                </label>
-                <input
-                  name="room"
-                  value={formData.room}
-                  onChange={handleInputChange}
-                  className={`w-full bg-white border ${
-                    formErrors.room
-                      ? 'border-rose-500 focus:border-rose-500 ring-1 ring-rose-500/30'
-                      : 'border-2 border-orange-400 focus:border-orange-500 focus:ring-2 focus:ring-orange-500/30'
-                  } rounded-2xl px-5 py-4 text-sm font-bold text-slate-800 outline-none shadow-sm transition-all`}
-                  placeholder="ระบุสถานที่หรือห้อง"
-                />
-                {formErrors.room && (
-                  <div className="text-rose-500 text-[11px] font-bold mt-1.5 ml-1 animate-in fade-in">
-                    ⚠️ {formErrors.room}
-                  </div>
-                )}
-              </div>
-
+              {/* 🌟 จุดที่ 3.3: สวิตช์เวร SSC นอกเวลาทำการ */}
               <div className="pt-4 border-t border-slate-100 flex items-center justify-between">
                 <div>
-                  <label className="text-[14px] font-black text-rose-500 uppercase tracking-widest flex items-center gap-1.5">
+                  <label className="text-[14px] md:text-[18px] font-black text-rose-500 uppercase tracking-widest flex items-center gap-1.5">
                     <AlertTriangle
                       size={16}
-                      className={formData.isSsc ? 'animate-pulse' : ''}
+                      className={`md:w-5 md:h-5 ${formData.isSsc ? 'animate-pulse' : ''}`}
                     />{' '}
                     แจ้งด่วนนอกเวลาทำการ (เวร SSC)
                   </label>
-                  <p className="text-[13px] font-bold text-slate-300 mt-0.5 ml-5">
+                  <p className="text-[13px] md:text-[16px] font-bold text-slate-300 mt-0.5 ml-5 md:ml-6">
                     เลือกเพื่อส่งแจ้งเตือนไปยังวิศวกรเวร SSC
                   </p>
                 </div>
@@ -2148,35 +2171,33 @@ const executeRatingSubmit = async () => {
                   onClick={() =>
                     setFormData({ ...formData, isSsc: !formData.isSsc })
                   }
-                  className={`w-12 h-6 rounded-full flex items-center px-1 cursor-pointer transition-all shadow-inner ${
+                  className={`w-12 h-6 md:w-16 md:h-8 rounded-full flex items-center px-1 cursor-pointer transition-all shadow-inner ${
                     formData.isSsc
                       ? 'bg-rose-500 justify-end'
                       : 'bg-slate-200 justify-start'
                   }`}
                 >
-                  <div className="w-4 h-4 bg-white rounded-full shadow-sm"></div>
+                  <div className="w-4 h-4 md:w-6 md:h-6 bg-white rounded-full shadow-sm"></div>
                 </div>
               </div>
 
+            {/* 🌟 จุดที่ 3.4: โซนแนบรูปภาพประกอบ */}
             <div
               className="space-y-4 pt-5 border-t border-slate-600/50"
               id="field-images"
             >
-              {/* 🌟 1. ส่วนหัวข้อและตัวนับ 0/6 รูป */}
               <div className="flex justify-between items-center ml-1 mb-2">
-                <label className="text-[14px] sm:text-[15px] font-black text-slate-200 uppercase tracking-wide flex items-center gap-1.5">
-                  <Camera size={16} className="text-yellow-500" />{' '}
+                <label className="text-[14px] md:text-[18px] font-black text-slate-200 uppercase tracking-wide flex items-center gap-1.5">
+                  <Camera size={16} className="md:w-5 md:h-5 text-yellow-500" />{' '}
                   แนบรูปภาพประกอบ <span className="text-rose-500">*</span>
                 </label>
-                <div className="bg-orange-500/20 border border-orange-400/50 text-orange-300 text-[12px] font-black px-3 py-1 rounded-lg shadow-[0_0_10px_rgba(249,115,22,0.4)] backdrop-blur-sm">
+                <div className="bg-orange-500/20 border border-orange-400/50 text-orange-300 text-[12px] md:text-[16px] font-black px-3 py-1 rounded-lg shadow-[0_0_10px_rgba(249,115,22,0.4)] backdrop-blur-sm">
                   {formData.images.length} / 6 รูป
                 </div>
               </div>
 
-              {/* 🌟 2. โซนแสดงรูปและกรอบเส้นปะ */}
               <div className={formData.images.length === 0 ? "flex w-full" : "grid grid-cols-3 gap-3"}>
                 
-                {/* 🖼️ รูปที่ถูกเลือกแล้วจะมาเรียงตรงนี้ */}
                 {formData.images.map((img, i) => (
                   <div
                     key={i}
@@ -2198,11 +2219,10 @@ const executeRatingSubmit = async () => {
                   </div>
                 ))}
 
-                {/* 🎯 3. กรอบเส้นปะ (ลูกเล่นอัจฉริยะ) */}
                 {formData.images.length < 6 && (
                   <label 
                     className={`border-2 border-dashed border-slate-100/80 bg-slate-800/40 hover:bg-slate-500/50 hover:border-orange-500 rounded-2xl flex flex-col items-center justify-center transition-all cursor-pointer shadow-sm active:scale-95 group hover:border-orange-500 hover:bg-orange-500/10 hover:shadow-[0_0_20px_rgba(249,115,22,0.3)]
-                    ${formData.images.length === 0 ? 'w-full h-36' : 'aspect-square'}`}
+                    ${formData.images.length === 0 ? 'w-full h-36 md:h-48' : 'aspect-square'}`}
                   >
                     <input
                       type="file"
@@ -2211,8 +2231,8 @@ const executeRatingSubmit = async () => {
                       onChange={handleImageUpload}
                       className="hidden"
                     />
-                    <Camera size={formData.images.length === 0 ? 50 : 38} className="text-emerald-400 mb-2 group-hover:text-orange-400 transition-colors" />
-                    <span className={`font-bold tracking-widest transition-colors ${formData.images.length === 0 ? 'text-[15px] text-slate-300 group-hover:text-orange-300' : 'text-[11px] text-emerald-500 group-hover:text-orange-400'}`}>
+                    <Camera size={formData.images.length === 0 ? 50 : 38} className="text-emerald-400 mb-2 group-hover:text-orange-400 transition-colors md:scale-120" />
+                    <span className={`font-bold tracking-widest transition-colors ${formData.images.length === 0 ? 'text-[15px] md:text-[18px] text-slate-300 group-hover:text-orange-300' : 'text-[11px] md:text-[14px] text-emerald-500 group-hover:text-orange-400'}`}>
                       {formData.images.length === 0 ? 'คลิกเพื่อเพิ่มรูปภาพ' : 'เพิ่มรูป'}
                     </span>
                   </label>
@@ -2483,57 +2503,59 @@ const renderTracking = () => (
             </button>
 
             {showTrackDatePicker && (
-              <div className="fixed inset-0 z-[300] bg-slate-900/80 backdrop-blur-md flex p-4 animate-in fade-in items-center justify-center" onClick={() => setShowTrackDatePicker(false)}>
-                <div className="relative z-10 m-auto bg-slate-900 border-[2px] border-solid border-white rounded-[2rem] shadow-[0_0_60px_rgba(6,182,212,0.8)] w-[90%] max-w-[320px] sm:max-w-[340px] p-4 sm:p-5 md:p-7 text-center animate-in zoom-in-95 flex flex-col h-auto max-h-[75vh] md:max-h-none overflow-y-auto overscroll-contain [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]" onClick={(e) => e.stopPropagation()}>
-                  <div className="absolute -top-20 -left-20 w-40 h-40 bg-cyan-500/60 rounded-full blur-[50px] pointer-events-none z-0"></div>
-                  <div className="absolute -bottom-20 -right-20 w-40 h-40 bg-blue-500/60 rounded-full blur-[50px] pointer-events-none z-0"></div>
-                  
-                  <div className="relative z-10 flex justify-between items-center mb-6 pb-5 border-b border-white/20">
-                    <button onClick={() => { if (trackCalMonth === 0) { setTrackCalMonth(11); setTrackCalYear(y => y - 1); } else setTrackCalMonth(m => m - 1); }} className="p-2.5 bg-slate-800 text-white rounded-xl hover:bg-cyan-500 transition-colors border border-slate-600 active:scale-95 shadow-inner"><ChevronDown className="w-5 h-5 md:w-6 md:h-6 rotate-90" /></button>
-                    <div className="flex flex-col items-center">
-                      <span className="text-[12px] md:text-[14px] font-black text-white tracking-widest uppercase mb-2 drop-shadow-[0_0_8px_rgba(255,255,255,0.8)]">เลือกวันที่</span>
-                      <span className="text-xl md:text-2xl font-black text-orange-400 tracking-widest drop-shadow-[0_0_15px_rgba(249,115,22,0.9)]">{['มกราคม', 'กุมภาพันธ์', 'มีนาคม', 'เมษายน', 'พฤษภาคม', 'มิถุนายน', 'กรกฎาคม', 'สิงหาคม', 'กันยายน', 'ตุลาคม', 'พฤศจิกายน', 'ธันวาคม'][trackCalMonth]} {trackCalYear + 543}</span>
+                <div className="fixed inset-0 z-[300] bg-slate-900/80 backdrop-blur-md flex p-4 animate-in fade-in items-center justify-center" onClick={() => setShowTrackDatePicker(false)}>
+                  {/* 🌟 PC อัปเกรด: ธีมสีฟ้าไซไฟ */}
+                  <div className="relative z-10 m-auto bg-slate-900 border-[2px] border-solid border-white rounded-[2rem] shadow-[0_0_60px_rgba(6,182,212,0.8)] w-[90%] max-w-[320px] sm:max-w-[340px] md:max-w-[550px] p-4 sm:p-5 md:p-10 text-center animate-in zoom-in-95 flex flex-col h-auto max-h-[75vh] md:max-h-none overflow-y-auto overscroll-contain [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]" onClick={(e) => e.stopPropagation()}>
+                    
+                    <div className="absolute -top-20 -left-20 w-40 h-40 md:w-60 md:h-60 bg-cyan-500/60 rounded-full blur-[50px] pointer-events-none z-0"></div>
+                    <div className="absolute -bottom-20 -right-20 w-40 h-40 md:w-60 md:h-60 bg-blue-500/60 rounded-full blur-[50px] pointer-events-none z-0"></div>
+                    
+                    <div className="relative z-10 flex justify-between items-center mb-6 md:mb-8 pb-5 md:pb-6 border-b border-white/20">
+                      <button onClick={() => { if (trackCalMonth === 0) { setTrackCalMonth(11); setTrackCalYear(y => y - 1); } else setTrackCalMonth(m => m - 1); }} className="p-2.5 md:p-4 bg-slate-800 text-white rounded-xl md:rounded-2xl hover:bg-cyan-500 transition-colors border border-slate-600 active:scale-95 shadow-inner"><ChevronDown className="w-5 h-5 md:w-8 md:h-8 rotate-90" /></button>
+                      <div className="flex flex-col items-center">
+                        <span className="text-[12px] md:text-[18px] font-black text-white tracking-widest uppercase mb-0.5 md:mb-2 drop-shadow-[0_0_8px_rgba(255,255,255,0.8)]">เลือกวันที่</span>
+                        <span className="text-xl md:text-3xl font-black text-cyan-400 tracking-widest drop-shadow-[0_0_15px_rgba(6,182,212,0.9)]">{['มกราคม', 'กุมภาพันธ์', 'มีนาคม', 'เมษายน', 'พฤษภาคม', 'มิถุนายน', 'กรกฎาคม', 'สิงหาคม', 'กันยายน', 'ตุลาคม', 'พฤศจิกายน', 'ธันวาคม'][trackCalMonth]} {trackCalYear + 543}</span>
+                      </div>
+                      <button onClick={() => { if (trackCalMonth === 11) { setTrackCalMonth(0); setTrackCalYear(y => y + 1); } else setTrackCalMonth(m => m + 1); }} className="p-2.5 md:p-4 bg-slate-800 text-white rounded-xl md:rounded-2xl hover:bg-cyan-500 transition-colors border border-slate-600 active:scale-95 shadow-inner"><ChevronDown className="w-5 h-5 md:w-8 md:h-8 -rotate-90" /></button>
                     </div>
-                    <button onClick={() => { if (trackCalMonth === 11) { setTrackCalMonth(0); setTrackCalYear(y => y + 1); } else setTrackCalMonth(m => m + 1); }} className="p-2.5 bg-slate-800 text-white rounded-xl hover:bg-cyan-500 transition-colors border border-slate-600 active:scale-95 shadow-inner"><ChevronDown className="w-5 h-5 md:w-6 md:h-6 -rotate-90" /></button>
-                  </div>
-                  <div className="relative z-10">
-                    <div className="grid grid-cols-7 gap-1 mb-3">
-                      {['อา', 'จ', 'อ', 'พ', 'พฤ', 'ศ', 'ส'].map(day => (<div key={day} className={`text-[13px] md:text-[16px] font-black ${day === 'อา' ? 'text-rose-400' : day === 'ส' ? 'text-sky-400' : 'text-slate-300'}`}>{day}</div>))}
-                    </div>
-                    <div className="grid grid-cols-7 gap-1.5 md:gap-2">
-                      {Array.from({ length: new Date(trackCalYear, trackCalMonth, 1).getDay() }).map((_, i) => (<div key={`empty-${i}`} />))}
-                      {Array.from({ length: new Date(trackCalYear, trackCalMonth + 1, 0).getDate() }).map((_, i) => {
-                        const day = i + 1;
-                        const dateString = `${trackCalYear}-${String(trackCalMonth + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
-                        const isSelected = trackDate === dateString;
-                        const todayLocal = new Date(sysTime);
-                        const isToday = todayLocal.getFullYear() === trackCalYear && todayLocal.getMonth() === trackCalMonth && todayLocal.getDate() === day;
-                        
-                        const isSunday = new Date(dateString).getDay() === 0;
-                        const isSaturday = new Date(dateString).getDay() === 6;
+                    <div className="relative z-10">
+                      <div className="grid grid-cols-7 gap-1 md:gap-2 mb-3 md:mb-5">
+                        {['อา', 'จ', 'อ', 'พ', 'พฤ', 'ศ', 'ส'].map(day => (<div key={day} className={`text-[13px] md:text-[20px] font-black ${day === 'อา' ? 'text-rose-400' : day === 'ส' ? 'text-sky-400' : 'text-slate-300'}`}>{day}</div>))}
+                      </div>
+                      <div className="grid grid-cols-7 gap-1.5 md:gap-3">
+                        {Array.from({ length: new Date(trackCalYear, trackCalMonth, 1).getDay() }).map((_, i) => (<div key={`empty-${i}`} />))}
+                        {Array.from({ length: new Date(trackCalYear, trackCalMonth + 1, 0).getDate() }).map((_, i) => {
+                          const day = i + 1;
+                          const dateString = `${trackCalYear}-${String(trackCalMonth + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
+                          const isSelected = trackDate === dateString;
+                          const todayLocal = new Date(sysTime);
+                          const isToday = todayLocal.getFullYear() === trackCalYear && todayLocal.getMonth() === trackCalMonth && todayLocal.getDate() === day;
+                          const isSunday = new Date(dateString).getDay() === 0;
+                          const isSaturday = new Date(dateString).getDay() === 6;
 
-                        return (
-                          <button 
-                            key={day} 
-                            onClick={() => { setTrackDate(dateString); setTrackTimeframe('custom_date'); setShowTrackDatePicker(false); }}
-                            className={`aspect-square flex items-center justify-center rounded-xl text-[15px] md:text-[18px] font-black transition-all duration-300 active:scale-95 ${
-                              isSelected 
-                                ? 'bg-gradient-to-r from-cyan-600 to-blue-600 text-white shadow-[0_0_20px_rgba(6,182,212,0.9)] border-[2px] border-solid border-cyan-300 scale-110 z-20' 
-                                : isToday 
-                                ? 'bg-gradient-to-r from-orange-500 to-amber-500 text-white shadow-[0_0_25px_rgba(249,115,22,1)] border-[2px] border-solid border-orange-300 z-10 animate-pulse' 
-                                : 'bg-slate-800 ' + (isSunday ? 'text-rose-400 drop-shadow-[0_0_5px_rgba(251,113,133,0.8)]' : isSaturday ? 'text-sky-400 drop-shadow-[0_0_5px_rgba(56,189,248,0.8)]' : 'text-slate-200') + ' hover:bg-cyan-500/50 hover:border-cyan-400 border border-white/60 shadow-inner'
-                            }`}
-                          >
-                            {day}
-                          </button>
-                        );
-                      })}
+                          return (
+                            <button 
+                              key={day} 
+                              onClick={() => { setTrackDate(dateString); setTrackTimeframe('custom_date'); setShowTrackDatePicker(false); }}
+                              className={`aspect-square flex items-center justify-center rounded-xl md:rounded-2xl text-[15px] md:text-[22px] font-black transition-all duration-300 active:scale-95 ${
+                                isSelected 
+                                  ? 'bg-gradient-to-r from-cyan-600 to-blue-600 text-white shadow-[0_0_20px_rgba(6,182,212,0.9)] border-[2px] border-solid border-cyan-300 scale-110 z-20' 
+                                  : isToday 
+                                  ? 'bg-gradient-to-r from-orange-500 to-amber-500 text-white shadow-[0_0_25px_rgba(249,115,22,1)] border-[2px] border-solid border-orange-300 z-10 animate-pulse' 
+                                  : 'bg-slate-800 ' + (isSunday ? 'text-rose-400 drop-shadow-[0_0_5px_rgba(251,113,133,0.8)]' : isSaturday ? 'text-sky-400 drop-shadow-[0_0_5px_rgba(56,189,248,0.8)]' : 'text-slate-200') + ' hover:bg-cyan-500/50 hover:border-cyan-400 border border-white/60 shadow-inner'
+                              }`}
+                            >
+                              {day}
+                            </button>
+                          );
+                        })}
+                      </div>
                     </div>
+                    <button onClick={() => setShowTrackDatePicker(false)} className="relative z-10 mt-8 md:mt-10 w-full py-4 md:py-6 rounded-xl md:rounded-2xl font-black text-white bg-cyan-600 hover:bg-rose-500 border-[2px] border-solid border-white shadow-[0_0_20px_rgba(6,182,212,0.7)] transition-all duration-300 active:scale-95 tracking-widest uppercase md:text-[22px]">ยกเลิก</button>
                   </div>
-                  <button onClick={() => setShowTrackDatePicker(false)} className="relative z-10 mt-8 w-full py-4 md:py-5 rounded-xl font-black text-white bg-cyan-600 hover:bg-rose-500 border-[2px] border-solid border-white shadow-[0_0_20px_rgba(6,182,212,0.7)] transition-all duration-300 active:scale-95 tracking-widest uppercase md:text-[18px]">ยกเลิก</button>
                 </div>
-              </div>
-            )}
+              )}
+
           </div>
 
           {/* ระบุเดือน */}
@@ -2547,45 +2569,50 @@ const renderTracking = () => (
             </button>
             
             {showTrackMonthPicker && (
-              <div className="fixed inset-0 z-[300] bg-slate-900/80 backdrop-blur-md flex p-4 animate-in fade-in items-center justify-center" onClick={() => setShowTrackMonthPicker(false)}>
-                <div className="absolute w-[400px] h-[400px] bg-cyan-500/40 rounded-full blur-[80px] pointer-events-none z-0"></div>
-                <div className="relative z-10 m-auto bg-slate-900 border-[2px] border-solid border-white rounded-[2rem] shadow-[0_0_60px_rgba(6,182,212,0.8)] w-[90%] max-w-[320px] sm:max-w-[340px] p-4 sm:p-5 md:p-7 text-center animate-in zoom-in-95 flex flex-col h-auto max-h-[75vh] md:max-h-none overflow-y-auto overscroll-contain [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]" onClick={(e) => e.stopPropagation()}>
-                  <div className="relative z-10 flex justify-between items-center mb-6 pb-5 border-b border-white/20">
-                    <button onClick={() => setTrackCalYear(y => y - 1)} className="p-2.5 bg-slate-800 text-white rounded-xl hover:bg-cyan-500 transition-colors active:scale-95 shadow-inner border border-slate-600"><ChevronDown className="w-5 h-5 md:w-6 md:h-6 rotate-90" /></button>
-                    <div className="flex flex-col items-center">
-                      <span className="text-[12px] md:text-[14px] font-black text-white tracking-widest uppercase mb-2 drop-shadow-[0_0_8px_rgba(255,255,255,0.8)]">เลือกเดือน</span>
-                      <span className="text-2xl md:text-3xl font-black text-orange-400 tracking-widest drop-shadow-[0_0_15px_rgba(249,115,22,0.9)]">{trackCalYear + 543}</span>
+                <div className="fixed inset-0 z-[300] bg-slate-900/80 backdrop-blur-md flex p-4 animate-in fade-in items-center justify-center" onClick={() => setShowTrackMonthPicker(false)}>
+                  
+                  <div className="absolute w-[400px] h-[400px] md:w-[600px] md:h-[600px] bg-cyan-500/40 rounded-full blur-[80px] pointer-events-none z-0"></div>
+                  
+                  {/* 🌟 PC อัปเกรด */}
+                  <div className="relative z-10 m-auto bg-slate-900 border-[2px] border-solid border-white rounded-[2rem] shadow-[0_0_60px_rgba(6,182,212,0.8)] w-[90%] max-w-[320px] sm:max-w-[340px] md:max-w-[550px] p-4 sm:p-5 md:p-10 text-center animate-in zoom-in-95 flex flex-col h-auto max-h-[75vh] md:max-h-none overflow-y-auto overscroll-contain [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]" onClick={(e) => e.stopPropagation()}>
+                    
+                    <div className="relative z-10 flex justify-between items-center mb-6 md:mb-8 pb-5 md:pb-6 border-b border-white/20">
+                      <button onClick={() => setTrackCalYear(y => y - 1)} className="p-2.5 md:p-4 bg-slate-800 text-white rounded-xl md:rounded-2xl hover:bg-cyan-500 transition-colors active:scale-95 shadow-inner border border-slate-600"><ChevronDown className="w-5 h-5 md:w-8 md:h-8 rotate-90" /></button>
+                      <div className="flex flex-col items-center">
+                        <span className="text-[12px] md:text-[18px] font-black text-white tracking-widest uppercase mb-0.5 md:mb-2 drop-shadow-[0_0_8px_rgba(255,255,255,0.8)]">เลือกเดือน</span>
+                        <span className="text-2xl md:text-4xl font-black text-cyan-400 tracking-widest drop-shadow-[0_0_15px_rgba(6,182,212,0.9)]">{trackCalYear + 543}</span>
+                      </div>
+                      <button onClick={() => setTrackCalYear(y => y + 1)} className="p-2.5 md:p-4 bg-slate-800 text-white rounded-xl md:rounded-2xl hover:bg-cyan-500 transition-colors active:scale-95 shadow-inner border border-slate-600"><ChevronDown className="w-5 h-5 md:w-8 md:h-8 -rotate-90" /></button>
                     </div>
-                    <button onClick={() => setTrackCalYear(y => y + 1)} className="p-2.5 bg-slate-800 text-white rounded-xl hover:bg-cyan-500 transition-colors active:scale-95 shadow-inner border border-slate-600"><ChevronDown className="w-5 h-5 md:w-6 md:h-6 -rotate-90" /></button>
-                  </div>
 
-                  <div className="relative z-10 grid grid-cols-3 gap-3 md:gap-4">
-                    {['ม.ค.', 'ก.พ.', 'มี.ค.', 'เม.ย.', 'พ.ค.', 'มิ.ย.', 'ก.ค.', 'ส.ค.', 'ก.ย.', 'ต.ค.', 'พ.ย.', 'ธ.ค.'].map((m, i) => {
-                      const monthValue = `${trackCalYear}-${String(i + 1).padStart(2, '0')}`;
-                      const isSelected = trackMonth === monthValue;
-                      const todayLocal = new Date(sysTime);
-                      const isCurrentMonth = todayLocal.getFullYear() === trackCalYear && todayLocal.getMonth() === i;
-                      return (
-                        <button 
-                          key={m} 
-                          onClick={() => { setTrackMonth(monthValue); setTrackTimeframe('custom_month'); setShowTrackMonthPicker(false); }}
-                          className={`py-3.5 rounded-xl text-[15px] md:text-[18px] font-black transition-all duration-300 active:scale-95 ${
-                            isSelected 
-                              ? 'bg-gradient-to-r from-cyan-600 to-blue-600 text-white shadow-[0_0_20px_rgba(6,182,212,0.9)] border-[2px] border-solid border-cyan-300 scale-110 z-10' 
-                              : isCurrentMonth 
-                              ? 'bg-gradient-to-r from-orange-500 to-amber-500 text-white shadow-[0_0_25px_rgba(249,115,22,1)] border-[2px] border-solid border-orange-300 z-10 animate-pulse' 
-                              : 'bg-slate-800/80 text-slate-200 hover:bg-cyan-500/40 hover:border-cyan-400 border border-white/60 hover:shadow-[0_0_15px_rgba(6,182,212,0.4)] shadow-inner'
-                          }`}
-                        >
-                          {m}
-                        </button>
-                      )
-                    })}
+                    <div className="relative z-10 grid grid-cols-3 gap-3 md:gap-5">
+                      {['ม.ค.', 'ก.พ.', 'มี.ค.', 'เม.ย.', 'พ.ค.', 'มิ.ย.', 'ก.ค.', 'ส.ค.', 'ก.ย.', 'ต.ค.', 'พ.ย.', 'ธ.ค.'].map((m, i) => {
+                        const monthValue = `${trackCalYear}-${String(i + 1).padStart(2, '0')}`;
+                        const isSelected = trackMonth === monthValue;
+                        const todayLocal = new Date(sysTime);
+                        const isCurrentMonth = todayLocal.getFullYear() === trackCalYear && todayLocal.getMonth() === i;
+                        return (
+                          <button 
+                            key={m} 
+                            onClick={() => { setTrackMonth(monthValue); setTrackTimeframe('custom_month'); setShowTrackMonthPicker(false); }}
+                            className={`py-3.5 md:py-6 rounded-xl md:rounded-2xl text-[15px] md:text-[24px] font-black transition-all duration-300 active:scale-95 ${
+                              isSelected 
+                                ? 'bg-gradient-to-r from-cyan-600 to-blue-600 text-white shadow-[0_0_20px_rgba(6,182,212,0.9)] border-[2px] border-solid border-cyan-300 scale-110 z-10' 
+                                : isCurrentMonth 
+                                ? 'bg-gradient-to-r from-orange-500 to-amber-500 text-white shadow-[0_0_25px_rgba(249,115,22,1)] border-[2px] border-solid border-orange-300 z-10 animate-pulse' 
+                                : 'bg-slate-800/80 text-slate-200 hover:bg-cyan-500/40 hover:border-cyan-400 border border-white/60 hover:shadow-[0_0_15px_rgba(6,182,212,0.4)] shadow-inner'
+                            }`}
+                          >
+                            {m}
+                          </button>
+                        )
+                      })}
+                    </div>
+                    <button onClick={() => setShowTrackMonthPicker(false)} className="relative z-10 mt-8 md:mt-10 w-full py-4 md:py-6 rounded-xl md:rounded-2xl font-black text-white bg-cyan-600 hover:bg-rose-500 border-[2px] border-solid border-white shadow-[0_0_20px_rgba(6,182,212,0.7)] transition-all duration-300 active:scale-95 tracking-widest uppercase md:text-[22px]">ยกเลิก</button>
                   </div>
-                  <button onClick={() => setShowTrackMonthPicker(false)} className="relative z-10 mt-8 w-full py-4 md:py-5 rounded-xl font-black text-white bg-cyan-600 hover:bg-rose-500 border-[2px] border-solid border-white shadow-[0_0_20px_rgba(6,182,212,0.7)] transition-all duration-300 active:scale-95 tracking-widest uppercase md:text-[18px]">ยกเลิก</button>
                 </div>
-              </div>
-            )}
+              )}
+
           </div>
       </div>
 
@@ -2606,7 +2633,7 @@ const renderTracking = () => (
     </div> {/* สิ้นสุดกล่อง Sticky Header สุดอลังการ */}
 
     {/* 🌟 5. การ์ดรายการซ่อมบำรุง (อัปเกรดขยายขนาด PC) */}
-    <div className="grid grid-cols-1 lg:grid-cols-2 gap-5 lg:gap-8 font-sans">
+    <div className="flex flex-col gap-6 lg:gap-10 font-sans">
         {isDataLoading ? (
           <div className="flex flex-col items-center justify-center py-20 text-slate-400 opacity-80 lg:col-span-2">
             <Loader2 size={40} className="md:w-16 md:h-16 animate-spin mb-4 md:mb-6" />
