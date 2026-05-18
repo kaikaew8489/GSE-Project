@@ -1884,7 +1884,10 @@ const executeRatingSubmit = async () => {
                   <Phone size={12} className="text-emerald-500" /> เบอร์โทรศัพท์{' '}
                   <span className="text-rose-500">*</span>
                 </label>
+                
                 <input
+                  type="tel" 
+                  inputMode="numeric"
                   name="reporterContact"
                   value={formData.reporterContact}
                   onChange={handlePhoneChange}
