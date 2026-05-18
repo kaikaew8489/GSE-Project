@@ -1885,8 +1885,8 @@ const executeRatingSubmit = async () => {
                   <Phone size={12} className="text-emerald-500" /> เบอร์โทรศัพท์ <span className="text-rose-500">*</span>
                 </label>
                 
-               {/* 🌟 ช่องแสดงเบอร์ (กดแล้วเรียก Numpad ไซไฟที่อยู่ด้านล่างสุด) */}
-               <div 
+                {/* 🌟 ช่องแสดงเบอร์ (กดแล้วเรียก Numpad ไซไฟ) */}
+                <div 
                   onClick={() => setShowNumpad(true)}
                   className={`w-full bg-white border-2 border-solid border-orange-500 flex items-center ${
                     formErrors.reporterContact ? 'border-rose-500 ring-1 ring-rose-500/30' : 'hover:border-orange-600 hover:ring-2 hover:ring-orange-500/30'
@@ -1900,12 +1900,369 @@ const executeRatingSubmit = async () => {
                 {formErrors.reporterContact && (
                   <div className="text-rose-500 text-[11px] font-bold mt-1 px-1">⚠️ {formErrors.reporterContact}</div>
                 )}
+
+
+                {/* 🌟 2. หน้าต่าง Numpad ไซไฟอวกาศ (ดีไซน์เดียวกับปฏิทินเดือน 100%) */}
+                {showNumpad && (
+                  <div className="fixed inset-0 z-[400] flex items-center justify-center bg-slate-900/80 backdrop-blur-md p-4 pb-[110px] md:pb-4 animate-in fade-in duration-300" onClick={() => setShowNumpad(false)}>
+                    
+                    {/* แสงเฟลอร์หลังกล่อง สีฟ้า (Cyan Glow) แบบโปร่งแสงเนียนๆ */}
+                    <div className="absolute w-[350px] h-[350px] bg-cyan-500/40 rounded-full blur-[100px] pointer-events-none z-0 animate-pulse"></div>
+
+                    {/* 🌟 กรอบนอกสุด: สีขาว ล้อมรอบ 100% จัดกึ่งกลางจอเป๊ะ มีระบบเลื่อนถ้าจอมือถือเล็ก */}
+                    <div className="relative m-auto z-10 w-[90%] max-w-[320px] sm:max-w-[340px] bg-slate-900 border-[2px] border-solid border-white rounded-[2rem] p-4 sm:p-6 shadow-[0_0_60px_rgba(6,182,212,0.6)] flex flex-col gap-4 sm:gap-5 transition-all duration-300 max-h-[calc(100dvh-130px)] overflow-y-auto overscroll-contain scrollbar-hide" onClick={(e) => e.stopPropagation()}>
+                       
+                       {/* หัวข้อ (ไอคอนสีเขียว + ตัวหนังสือส้มเรืองแสง ไม่มีอีโมจิแดง) */}
+                       <div className="text-center mb-1 pb-3 border-b border-white/20">
+                         <h3 className="font-black tracking-widest text-[16px] sm:text-[18px] flex items-center justify-center gap-2 text-orange-400 drop-shadow-[0_0_10px_rgba(249,115,22,0.8)]">
+                           <Phone size={20} className="text-emerald-400 drop-shadow-sm" />
+                           ระบุเบอร์โทรศัพท์
+                         </h3>
+                       </div>
+                       
+                       {/* จอแสดงผลตัวเลข (ตัวเลขสีฟ้า + กรอบในสีฟ้า) */}
+                       <div className="bg-slate-950 border-[2px] border-solid border-cyan-500/50 rounded-2xl py-4 px-4 text-center shadow-inner flex items-center justify-center min-h-[70px]">
+                         <span className={`text-[24px] sm:text-[28px] font-mono font-black tracking-widest ${formData.reporterContact ? 'text-cyan-400 drop-shadow-[0_0_12px_rgba(34,211,238,0.9)]' : 'text-slate-700'}`}>
+                           {formData.reporterContact || '0X-XXXX-XXXX'}
+                         </span>
+                       </div>
+
+                       {/* แป้นพิมพ์ตัวเลข (ปุ่มสไตล์ Sci-Fi อัปเกรด Hover) */}
+                       <div className="grid grid-cols-3 gap-2.5 sm:gap-3">
+                         {[1, 2, 3, 4, 5, 6, 7, 8, 9].map(num => (
+                           <button 
+                             key={num} type="button" 
+                             onClick={() => {
+                               let current = formData.reporterContact ? formData.reporterContact.replace(/\D/g, '') : '';
+                               if (current.length < 10) current += num;
+                               let formatted = current;
+                               if (current.length > 6) formatted = `${current.substring(0, 2)}-${current.substring(2, 6)}-${current.substring(6)}`;
+                               else if (current.length > 2) formatted = `${current.substring(0, 2)}-${current.substring(2)}`;
+                               setFormData(prev => ({ ...prev, reporterContact: formatted }));
+                               if (formErrors.reporterContact) setFormErrors(prev => ({ ...prev, reporterContact: null }));
+                             }} 
+                             className="bg-slate-800 border-[2px] border-solid border-slate-600 text-slate-200 text-2xl font-black py-3 sm:py-3.5 rounded-xl active:scale-95 transition-all shadow-md hover:bg-cyan-600/90 hover:border-cyan-400 hover:text-white hover:shadow-[0_0_20px_rgba(34,211,238,0.7)]"
+                           >
+                             {num}
+                           </button>
+                         ))}
+                         
+                         {/* 🌟 ปุ่ม C ล้างทั้งหมด (อยู่ตำแหน่งล่างซ้าย ล่างเลข 7) */}
+                         <button 
+                           type="button" 
+                           onClick={() => setFormData(prev => ({ ...prev, reporterContact: '' }))} 
+                           className="bg-slate-800 border-[2px] border-solid border-slate-600 text-orange-400 text-[18px] font-black py-3 sm:py-3.5 rounded-xl active:scale-95 transition-all shadow-md hover:bg-orange-600 hover:border-orange-400 hover:text-white hover:shadow-[0_0_20px_rgba(249,115,22,0.7)] uppercase tracking-widest flex items-center justify-center gap-1"
+                         >
+                           <RotateCcw size={20} strokeWidth={3} /> ล้าง
+                         </button>
+                         
+                         {/* ปุ่ม เลข 0 */}
+                         <button 
+                           type="button" 
+                           onClick={() => {
+                             let current = formData.reporterContact ? formData.reporterContact.replace(/\D/g, '') : '';
+                             if (current.length < 10) current += '0';
+                             let formatted = current;
+                             if (current.length > 6) formatted = `${current.substring(0, 2)}-${current.substring(2, 6)}-${current.substring(6)}`;
+                             else if (current.length > 2) formatted = `${current.substring(0, 2)}-${current.substring(2)}`;
+                             setFormData(prev => ({ ...prev, reporterContact: formatted }));
+                             if (formErrors.reporterContact) setFormErrors(prev => ({ ...prev, reporterContact: null }));
+                           }} 
+                           className="bg-slate-800 border-[2px] border-solid border-slate-600 text-slate-200 text-2xl font-black py-3 sm:py-3.5 rounded-xl active:scale-95 transition-all shadow-md hover:bg-cyan-600/90 hover:border-cyan-400 hover:text-white hover:shadow-[0_0_20px_rgba(34,211,238,0.7)]"
+                         >
+                           0
+                         </button>
+                         
+                         {/* ปุ่ม ลบทีละตัว (X) */}
+                         <button 
+                           type="button" 
+                           onClick={() => {
+                             let current = formData.reporterContact ? formData.reporterContact.replace(/\D/g, '') : '';
+                             current = current.slice(0, -1);
+                             let formatted = current;
+                             if (current.length > 6) formatted = `${current.substring(0, 2)}-${current.substring(2, 6)}-${current.substring(6)}`;
+                             else if (current.length > 2) formatted = `${current.substring(0, 2)}-${current.substring(2)}`;
+                             setFormData(prev => ({ ...prev, reporterContact: formatted }));
+                           }} 
+                           className="bg-slate-800 border-[2px] border-solid border-slate-600 text-rose-500 flex items-center justify-center py-3 sm:py-3.5 rounded-xl active:scale-95 transition-all shadow-md hover:bg-rose-600 hover:border-rose-400 hover:text-white hover:shadow-[0_0_20px_rgba(225,29,72,0.7)]"
+                         >
+                           <X size={28} strokeWidth={3.5}/>
+                         </button>
+                       </div>
+
+                       {/* ปุ่มยืนยัน (เปลี่ยนเป็นสีเขียวมรกต เพื่อแยกความชัดเจนจากการล้างข้อมูล) */}
+                       <button 
+                         type="button" 
+                         onClick={() => setShowNumpad(false)} 
+                         className="w-full bg-gradient-to-r from-emerald-500 to-teal-500 text-white font-black py-3.5 sm:py-4 rounded-xl border-[2px] border-solid border-emerald-300 shadow-[0_0_15px_rgba(16,185,129,0.4)] active:scale-95 transition-all duration-300 text-[15px] sm:text-[16px] tracking-widest uppercase hover:brightness-110"
+                       >
+                         ยืนยัน
+                       </button>
+                    </div>
+                  </div>
+                )}
+              </div>
+                
+                {/* 🌟 2. หน้าต่าง Numpad ไซไฟอวกาศ อัปเกรดให้เหมือนปฏิทิน */}
+                {showNumpad && (
+                  <div className="fixed inset-0 z-[400] flex items-center justify-center bg-slate-950/90 backdrop-blur-md p-4 pb-[110px] md:pb-4 animate-in fade-in duration-300" onClick={() => setShowNumpad(false)}>
+                    
+                    {/* แสงเฟลอร์หลังกล่อง สีฟ้า (Cyan Glow) */}
+                    <div className="absolute w-[350px] h-[350px] bg-cyan-500/40 rounded-full blur-[100px] pointer-events-none z-0 animate-pulse"></div>
+
+                    {/* 🌟 กรอบนอกสุด: สีขาว ล้อมรอบ 100% พร้อมเงาสีฟ้า จัดกึ่งกลางจอเป๊ะ */}
+                    <div className="relative m-auto z-10 w-[90%] max-w-[320px] sm:max-w-[340px] bg-slate-900 border-[2px] border-solid border-white rounded-[2rem] p-5 sm:p-7 shadow-[0_0_60px_rgba(6,182,212,0.6)] flex flex-col gap-4 sm:gap-5 transition-all duration-300" onClick={(e) => e.stopPropagation()}>
+                       
+                       {/* หัวข้อ (ไอคอนสีเขียว + ตัวอักษรสีส้มเรืองแสง ตัดอีโมจิแดงทิ้ง) */}
+                       <div className="text-center mb-1 pb-3 border-b border-white/20">
+                         <h3 className="font-black tracking-widest text-[16px] sm:text-[18px] flex items-center justify-center gap-2 text-orange-400 drop-shadow-[0_0_10px_rgba(249,115,22,0.8)]">
+                           <Phone size={18} className="text-emerald-400 drop-shadow-sm" />
+                           ระบุเบอร์โทรศัพท์
+                         </h3>
+                       </div>
+                       
+                       {/* จอแสดงผลตัวเลข (ตัวเลขสีฟ้า + กรอบในสีฟ้า) */}
+                       <div className="bg-slate-950 border-[2px] border-solid border-cyan-500/50 rounded-2xl py-4 px-4 text-center shadow-inner flex items-center justify-center min-h-[70px]">
+                         <span className={`text-[20px] sm:text-[28px] font-mono font-black tracking-widest ${formData.reporterContact ? 'text-cyan-400 drop-shadow-[0_0_12px_rgba(34,211,238,0.9)]' : 'text-slate-700'}`}>
+                           {formData.reporterContact || '0X-XXXX-XXXX'}
+                         </span>
+                       </div>
+
+                       {/* แป้นพิมพ์ตัวเลข (ปุ่มสไตล์ Sci-Fi อัปเกรด Hover) */}
+                       <div className="grid grid-cols-3 gap-2.5 sm:gap-3">
+                         {[1, 2, 3, 4, 5, 6, 7, 8, 9].map(num => (
+                           <button 
+                             key={num} type="button" 
+                             onClick={() => {
+                               let current = formData.reporterContact ? formData.reporterContact.replace(/\D/g, '') : '';
+                               if (current.length < 10) current += num;
+                               let formatted = current;
+                               if (current.length > 6) formatted = `${current.substring(0, 2)}-${current.substring(2, 6)}-${current.substring(6)}`;
+                               else if (current.length > 2) formatted = `${current.substring(0, 2)}-${current.substring(2)}`;
+                               setFormData(prev => ({ ...prev, reporterContact: formatted }));
+                               if (formErrors.reporterContact) setFormErrors(prev => ({ ...prev, reporterContact: null }));
+                             }} 
+                             className="bg-slate-800 border-[2px] border-solid border-slate-600 text-slate-200 text-2xl font-black py-3 sm:py-3.5 rounded-xl active:scale-95 transition-all shadow-md hover:bg-cyan-600/90 hover:border-cyan-400 hover:text-white hover:shadow-[0_0_20px_rgba(34,211,238,0.7)]"
+                           >
+                             {num}
+                           </button>
+                         ))}
+                         
+                         <div className="empty"></div> {/* ช่องว่างมุมซ้ายล่าง */}
+                         
+                         {/* ปุ่ม เลข 0 */}
+                         <button 
+                           type="button" 
+                           onClick={() => {
+                             let current = formData.reporterContact ? formData.reporterContact.replace(/\D/g, '') : '';
+                             if (current.length < 10) current += '0';
+                             let formatted = current;
+                             if (current.length > 6) formatted = `${current.substring(0, 2)}-${current.substring(2, 6)}-${current.substring(6)}`;
+                             else if (current.length > 2) formatted = `${current.substring(0, 2)}-${current.substring(2)}`;
+                             setFormData(prev => ({ ...prev, reporterContact: formatted }));
+                             if (formErrors.reporterContact) setFormErrors(prev => ({ ...prev, reporterContact: null }));
+                           }} 
+                           className="bg-slate-800 border-[2px] border-solid border-slate-600 text-slate-200 text-2xl font-black py-3 sm:py-3.5 rounded-xl active:scale-95 transition-all shadow-md hover:bg-cyan-600/90 hover:border-cyan-400 hover:text-white hover:shadow-[0_0_20px_rgba(34,211,238,0.7)]"
+                         >
+                           0
+                         </button>
+                         
+                         {/* ปุ่ม ลบ (X) */}
+                         <button 
+                           type="button" 
+                           onClick={() => {
+                             let current = formData.reporterContact ? formData.reporterContact.replace(/\D/g, '') : '';
+                             current = current.slice(0, -1);
+                             let formatted = current;
+                             if (current.length > 6) formatted = `${current.substring(0, 2)}-${current.substring(2, 6)}-${current.substring(6)}`;
+                             else if (current.length > 2) formatted = `${current.substring(0, 2)}-${current.substring(2)}`;
+                             setFormData(prev => ({ ...prev, reporterContact: formatted }));
+                           }} 
+                           className="bg-slate-800 border-[2px] border-solid border-slate-600 text-rose-500 flex items-center justify-center py-3 sm:py-3.5 rounded-xl active:scale-95 transition-all shadow-md hover:bg-rose-600 hover:border-rose-400 hover:text-white hover:shadow-[0_0_20px_rgba(225,29,72,0.7)]"
+                         >
+                           <X size={28} strokeWidth={3.5}/>
+                         </button>
+                       </div>
+
+                       {/* 🌟 ปุ่มยืนยัน: บอดี้ส้ม -> Hover สีเขียวเรืองแสง (Success Green Glow) */}
+                       <button 
+                         type="button" 
+                         onClick={() => setShowNumpad(false)} 
+                         className="w-full mt-2 bg-gradient-to-r from-orange-500 to-amber-500 text-white font-black py-3.5 sm:py-4 rounded-xl border-[2px] border-solid border-orange-300 shadow-[0_0_15px_rgba(249,115,22,0.4)] active:scale-95 transition-all duration-300 text-[15px] sm:text-[16px] tracking-widest uppercase hover:from-emerald-500 hover:to-emerald-600 hover:border-emerald-300 hover:shadow-[0_0_25px_rgba(16,185,129,0.8)]"
+                       >
+                         ยืนยัน
+                       </button>
+                    </div>
+                  </div>
+                )} 
+              </div>
+
+            </div>
+
+          {/* ================= กรอบที่ 2: รายละเอียดการแจ้งซ่อม ================= */}
+          <div className="relative bg-slate-800/60 backdrop-blur-xl border-2 border-solid border-white-500/80 rounded-[1rem] p-6 pt-10 shadow-[0_0_40px_rgba(0,0,0,0.4)] text-left">
+            <div className="absolute -top-4 left-6 bg-emerald-50 text-emerald-600 px-4 py-2.5 rounded-xl font-black text-xs shadow-sm border-2 border-solid border-green-500 flex items-center gap-2 tracking-widest uppercase">
+              <Wrench size={20} className="text-orange-500" />{' '}
+              รายละเอียดการแจ้งซ่อม
+            </div>
+
+            <div className="space-y-5">
+              {/* 🌟 1. Dropdown ชั้นที่ 1: เลือกกลุ่มภารกิจงาน */}
+              <SearchableDropdown
+                id="field-equipmentCategory"
+                label={
+                  <>
+                    กลุ่มงาน / ภารกิจรับผิดชอบ <span className="text-rose-500">*</span>
+                  </>
+                }
+                icon={<Activity size={12} className="text-emerald-500" />}
+                placeholder="เลือกกลุ่มภารกิจของ ฝวด."
+                options={Object.keys(equipmentCategories)} // ดึงชื่อหัวข้อมาเป็นตัวเลือก
+                value={formData.equipmentCategory}
+                onChange={(val) => {
+                  setFormData({ 
+                    ...formData, 
+                    equipmentCategory: val, 
+                    equipment: '' // 🌟 สำคัญ: ถ้าเปลี่ยนกลุ่ม ต้องล้างค่าอุปกรณ์เดิมทิ้ง
+                  });
+                  if (formErrors.equipmentCategory) setFormErrors({ ...formErrors, equipmentCategory: null });
+                }}
+                error={formErrors.equipmentCategory}
+              />
+
+              {/* 🌟 2. Dropdown ชั้นที่ 2: เลือกอุปกรณ์ (โชว์เฉพาะของกลุ่มที่เลือก) */}
+              <SearchableDropdown
+                id="field-equipment"
+                label={
+                  <>
+                    รายการอุปกรณ์ / ระบบ <span className="text-rose-500">*</span>
+                  </>
+                }
+                icon={<Monitor size={12} className="text-emerald-500" />}
+                placeholder={formData.equipmentCategory ? "เลือกอุปกรณ์หรือพิมพ์ค้นหา" : "กรุณาเลือกกลุ่มงานก่อน"}
+                options={formData.equipmentCategory ? equipmentCategories[formData.equipmentCategory] : []} // 🌟 ฟิลเตอร์ข้อมูลตามกลุ่ม
+                value={formData.equipment}
+                onChange={(val) => {
+                  setFormData({ ...formData, equipment: val });
+                  if (formErrors.equipment) setFormErrors({ ...formErrors, equipment: null });
+                }}
+                error={formErrors.equipment}
+              />
+
+              <div className="space-y-1.5" id="field-description">
+                <label className="text-[13px] font-black text-slate-200 uppercase tracking-[0.2em] ml-1 flex items-center gap-1.5">
+                  <AlertCircle size={12} className="text-emerald-500" />{' '}
+                  อาการเสีย / รายละเอียดปัญหา{' '}
+                  <span className="text-rose-500">*</span>
+                </label>
+
+                <textarea
+                  name="description"
+                  value={formData.description}
+                  onChange={handleInputChange}
+                  rows={3}
+                  className={`w-full bg-white border ${
+                    formErrors.description
+                      ? 'border-rose-500 focus:border-rose-500 ring-1 ring-rose-500/30'
+                      : 'border-2 border-orange-400 focus:border-orange-500 focus:ring-2 focus:ring-orange-500/30'
+                  } rounded-2xl px-5 py-4 outline-none text-sm font-bold text-slate-800 shadow-sm resize-none transition-all`}
+                  placeholder="อธิบายรายละเอียดอาการเสีย..."
+                />
+
+                {formErrors.description && (
+                  <div className="text-rose-500 text-[11px] font-bold mt-1.5 ml-1 animate-in fade-in">
+                    ⚠️ {formErrors.description}
+                  </div>
+                )}
+              </div>
+
+              <div className="space-y-1.5">
+                <label className="text-[13px] font-black text-slate-200 uppercase tracking-[0.2em] ml-1 flex items-center gap-1.5">
+                  <Hash size={12} className="text-emerald-500" />{' '}
+                  หมายเลขครุภัณฑ์ (หากมี)
+                </label>
+
+                <input
+                  name="assetNumber"
+                  value={formData.assetNumber}
+                  onChange={handleInputChange}
+                  className="w-full bg-white border-2 border-orange-400 focus:border-orange-500 focus:ring-2 focus:ring-orange-500/30 rounded-2xl px-5 py-4 text-sm font-bold text-slate-800 outline-none font-mono tracking-widest shadow-sm transition-all"
+                  placeholder="ระบุหมายเลข..."
+                />
+
+              </div>
+              <SearchableDropdown
+                id="field-building"
+                label={
+                  <>
+                    อาคาร / ตึก <span className="text-rose-500">*</span>
+                  </>
+                }
+                icon={<Building size={12} className="text-emerald-500" />}
+                placeholder="เลือกอาคารหรือพิมพ์ค้นหา"
+                options={buildingList}
+                value={formData.building}
+                onChange={(val) => {
+                  setFormData({ ...formData, building: val });
+                  if (formErrors.building)
+                    setFormErrors({ ...formErrors, building: null });
+                }}
+                error={formErrors.building}
+              />
+
+              <div className="space-y-1.5" id="field-room">
+                <label className="text-[13px] font-black text-slate-200 uppercase tracking-[0.2em] ml-1 flex items-center gap-1.5">
+                  <DoorOpen size={12} className="text-emerald-500" /> สถานที่ /
+                  ห้อง <span className="text-rose-500">*</span>
+                </label>
+                <input
+                  name="room"
+                  value={formData.room}
+                  onChange={handleInputChange}
+                  className={`w-full bg-white border ${
+                    formErrors.room
+                      ? 'border-rose-500 focus:border-rose-500 ring-1 ring-rose-500/30'
+                      : 'border-2 border-orange-400 focus:border-orange-500 focus:ring-2 focus:ring-orange-500/30'
+                  } rounded-2xl px-5 py-4 text-sm font-bold text-slate-800 outline-none shadow-sm transition-all`}
+                  placeholder="ระบุสถานที่หรือห้อง"
+                />
+                {formErrors.room && (
+                  <div className="text-rose-500 text-[11px] font-bold mt-1.5 ml-1 animate-in fade-in">
+                    ⚠️ {formErrors.room}
+                  </div>
+                )}
+              </div>
+
+              <div className="pt-4 border-t border-slate-100 flex items-center justify-between">
+                <div>
+                  <label className="text-[12px] font-black text-yellow-300 uppercase tracking-widest flex items-center gap-1.5">
+                    <AlertTriangle
+                      size={14}
+                      className={formData.isSsc ? 'animate-pulse' : ''}
+                    />{' '}
+                    แจ้งด่วนนอกเวลาทำการ (เวร SSC)
+                  </label>
+                  <p className="text-[11px] font-bold text-slate-300 mt-0.5 ml-5">
+                    เลือกเพื่อส่งแจ้งเตือนไปยังวิศวกรเวร SSC
+                  </p>
+                </div>
+                <div
+                  onClick={() =>
+                    setFormData({ ...formData, isSsc: !formData.isSsc })
+                  }
+                  className={`w-12 h-6 rounded-full flex items-center px-1 cursor-pointer transition-all shadow-inner ${
+                    formData.isSsc
+                      ? 'bg-rose-500 justify-end'
+                      : 'bg-slate-200 justify-start'
+                  }`}
+                >
+                  <div className="w-4 h-4 bg-white rounded-full shadow-sm"></div>
+                </div>
               </div>
 
               {/* ================= จุดที่ให้วางทับ เริ่มตั้งแต่บรรทัดนี้ ================= */}
             <div
               className="space-y-4 pt-5 border-t border-slate-600/50"
-
               id="field-images"
             >
               {/* 🌟 1. ส่วนหัวข้อและตัวนับ 0/6 รูป */}
@@ -1994,15 +2351,14 @@ const executeRatingSubmit = async () => {
             </div>
 
 {/* 🌟 หน้าต่าง Numpad ไซไฟอวกาศ (ย้ายมาโซน VIP ลอยทับทุกสิ่ง 1,000,000%) */}
-
 {showNumpad && (
-          <div className="fixed inset-0 z-[9999] flex items-center justify-center bg-slate-900/80 backdrop-blur-md p-4 animate-in fade-in duration-300" onClick={() => setShowNumpad(false)}>
+          <div className="fixed inset-0 z-[400] flex items-center justify-center bg-slate-900/80 backdrop-blur-md p-4 animate-in fade-in duration-300" onClick={() => setShowNumpad(false)}>
             
-            {/* แสงเฟลอร์หลังกล่อง สีฟ้า (Cyan Glow) */}
+            {/* แสงเฟลอร์หลังกล่อง สีฟ้า (Cyan Glow) แบบโปร่งแสงเนียนๆ */}
             <div className="absolute w-[350px] h-[350px] bg-cyan-500/40 rounded-full blur-[100px] pointer-events-none z-0 animate-pulse"></div>
 
-            {/* 🌟 ลดความสูงเหลือ max-h-[80dvh] บังคับให้ไถ/สไลด์ได้ถ้ายาวเกินจอ */}
-            <div className="relative m-auto z-10 w-[90%] max-w-[320px] sm:max-w-[340px] bg-slate-900 border-[2px] border-solid border-white rounded-[2rem] p-4 sm:p-6 shadow-[0_0_60px_rgba(6,182,212,0.6)] flex flex-col gap-4 sm:gap-5 transition-all duration-300 max-h-[80dvh] overflow-y-auto overscroll-contain scrollbar-hide" onClick={(e) => e.stopPropagation()}>
+            {/* 🌟 กรอบนอกสุด: สีขาว ล้อมรอบ 100% จัดกึ่งกลางจอเป๊ะๆ (ลบ pb-[110px] ออก แก้บั๊กข้อความแหว่งบนมือถือ) */}
+            <div className="relative m-auto z-10 w-[90%] max-w-[320px] sm:max-w-[340px] bg-slate-900 border-[2px] border-solid border-white rounded-[2rem] p-4 sm:p-6 shadow-[0_0_60px_rgba(6,182,212,0.6)] flex flex-col gap-4 sm:gap-5 transition-all duration-300 max-h-[95dvh] overflow-y-auto overscroll-contain scrollbar-hide" onClick={(e) => e.stopPropagation()}>
                
                {/* หัวข้อ */}
                <div className="text-center mb-1 pb-3 border-b border-white/20">
@@ -2012,15 +2368,15 @@ const executeRatingSubmit = async () => {
                  </h3>
                </div>
                
-               {/* จอแสดงผลตัวเลข (กรอบสีฟ้าเรืองแสง + ตัวเลขสีฟ้า) */}
-               <div className="bg-slate-950 border-[2px] border-solid border-cyan-400 rounded-2xl py-4 px-4 text-center shadow-[0_0_15px_rgba(34,211,238,0.4)] flex items-center justify-center min-h-[70px] shrink-0">
+               {/* 🌟 จอแสดงผลตัวเลข (กรอบสีฟ้าเรืองแสง + ตัวเลขสีฟ้า) */}
+               <div className="bg-slate-950 border-[2px] border-solid border-cyan-400 rounded-2xl py-4 px-4 text-center shadow-[0_0_15px_rgba(34,211,238,0.4)] flex items-center justify-center min-h-[70px]">
                  <span className={`text-[24px] sm:text-[28px] font-mono font-black tracking-widest ${formData.reporterContact ? 'text-cyan-400 drop-shadow-[0_0_12px_rgba(34,211,238,0.9)]' : 'text-slate-500'}`}>
                    {formData.reporterContact || '0X-XXXX-XXXX'}
                  </span>
                </div>
 
                {/* แป้นพิมพ์ตัวเลข */}
-               <div className="grid grid-cols-3 gap-2.5 sm:gap-3 shrink-0">
+               <div className="grid grid-cols-3 gap-2.5 sm:gap-3">
                  {[1, 2, 3, 4, 5, 6, 7, 8, 9].map(num => (
                    <button 
                      key={num} type="button" 
@@ -2033,13 +2389,14 @@ const executeRatingSubmit = async () => {
                        setFormData(prev => ({ ...prev, reporterContact: formatted }));
                        if (formErrors.reporterContact) setFormErrors(prev => ({ ...prev, reporterContact: null }));
                      }} 
+                     /* 🌟 ปุ่มตัวเลข: กรอบขาวเรืองแสง */
                      className="bg-slate-800 border-[2px] border-solid border-white/80 text-slate-200 text-2xl font-black py-3 sm:py-3.5 rounded-xl active:scale-95 transition-all shadow-[0_0_10px_rgba(255,255,255,0.3)] hover:bg-cyan-600/90 hover:border-cyan-400 hover:text-white hover:shadow-[0_0_20px_rgba(34,211,238,0.7)]"
                    >
                      {num}
                    </button>
                  ))}
                  
-                 {/* ปุ่ม C สไตล์เครื่องคิดเลข */}
+                 {/* 🌟 ปุ่ม C ล้างทั้งหมด (กรอบขาวเรืองแสง) */}
                  <button 
                    type="button" 
                    onClick={() => setFormData(prev => ({ ...prev, reporterContact: '' }))} 
@@ -2048,7 +2405,7 @@ const executeRatingSubmit = async () => {
                    C
                  </button>
                  
-                 {/* ปุ่ม เลข 0 */}
+                 {/* 🌟 ปุ่ม เลข 0 (กรอบขาวเรืองแสง) */}
                  <button 
                    type="button" 
                    onClick={() => {
@@ -2065,7 +2422,7 @@ const executeRatingSubmit = async () => {
                    0
                  </button>
                  
-                 {/* ปุ่ม ลบทีละตัว X */}
+                 {/* 🌟 ปุ่ม ลบทีละตัว X (กรอบขาวเรืองแสง) */}
                  <button 
                    type="button" 
                    onClick={() => {
@@ -2081,33 +2438,19 @@ const executeRatingSubmit = async () => {
                    <X size={28} strokeWidth={3.5}/>
                  </button>
                </div>
-{/* 🌟 ปุ่มยืนยัน (อัปเกรดความฉลาด: ตรวจสอบ 10 หลักทันทีที่กดปิด Numpad) */}
-<button 
+
+               {/* 🌟 ปุ่มยืนยัน (ปกติสีส้ม -> ชี้/กด สีเขียว) */}
+               <button 
                  type="button" 
-                 onClick={() => {
-                   // 1. แอบนับจำนวนตัวเลขเพียวๆ (ไม่รวมขีด)
-                   const digits = formData.reporterContact ? formData.reporterContact.replace(/\D/g, '') : '';
-                   
-                   // 2. เช็คเงื่อนไขทันที
-                   if (digits.length > 0 && digits.length < 10) {
-                     // ถ้ากรอกแล้วแต่ไม่ครบ 10 หลัก -> สั่งโชว์ตัวแดงใต้กล่องทันที!
-                     setFormErrors(prev => ({ ...prev, reporterContact: 'กรุณาระบุเบอร์โทรศัพท์ให้ครบ 10 หลัก' }));
-                   } else {
-                     // ถ้าครบ 10 หลัก หรือ ไม่ได้กรอกอะไรเลย -> เคลียร์ตัวแดงทิ้งไป
-                     setFormErrors(prev => ({ ...prev, reporterContact: null }));
-                   }
-                   
-                   // 3. ปิดหน้าต่าง Numpad ตามปกติ
-                   setShowNumpad(false);
-                 }} 
-                 className="w-full mt-2 bg-gradient-to-r from-orange-500 to-amber-500 text-white font-black py-3.5 sm:py-4 rounded-xl border-[2px] border-solid border-orange-300 shadow-[0_0_15px_rgba(249,115,22,0.5)] active:scale-95 transition-all duration-300 text-[15px] sm:text-[16px] tracking-widest uppercase hover:from-emerald-500 hover:to-emerald-600 hover:border-emerald-300 hover:shadow-[0_0_25px_rgba(16,185,129,0.8)] shrink-0"
+                 onClick={() => setShowNumpad(false)} 
+                 className="w-full mt-2 bg-gradient-to-r from-orange-500 to-amber-500 text-white font-black py-3.5 sm:py-4 rounded-xl border-[2px] border-solid border-orange-300 shadow-[0_0_15px_rgba(249,115,22,0.5)] active:scale-95 transition-all duration-300 text-[15px] sm:text-[16px] tracking-widest uppercase hover:from-emerald-500 hover:to-emerald-600 hover:border-emerald-300 hover:shadow-[0_0_25px_rgba(16,185,129,0.8)]"
                >
                  ยืนยัน
                </button>
             </div>
           </div>
         )}
-
+        
 </form>
 
       )}
@@ -2300,11 +2643,12 @@ const renderTracking = () => (
             </button>
             
             {showTrackMonthPicker && (
-              <div className="fixed inset-0 z-[300] bg-slate-900/80 backdrop-blur-md flex p-4 animate-in fade-in items-center justify-center" onClick={() => setShowTrackMonthPicker(false)}>
-                
-                <div className="absolute w-[400px] h-[400px] bg-cyan-500/40 rounded-full blur-[80px] pointer-events-none z-0"></div>
-                
-                <div className="relative z-10 m-auto bg-slate-900 border-[2px] border-solid border-white rounded-[2rem] shadow-[0_0_60px_rgba(6,182,212,0.8)] w-[90%] max-w-[320px] sm:max-w-[340px] p-4 sm:p-5 md:p-7 text-center animate-in zoom-in-95 flex flex-col h-auto max-h-[75vh] md:max-h-none overflow-y-auto overscroll-contain [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]" onClick={(e) => e.stopPropagation()}>
+              <div className="fixed inset-0 z-[300] bg-slate-900/80 backdrop-blur-md flex p-4 animate-in fade-in" onClick={() => setShowDatePicker(false)}>
+
+                <div className="relative m-auto bg-slate-900 border-[2px] border-solid border-white rounded-[2rem] shadow-[0_0_60px_rgba(6,182,212,0.8)] w-[90%] max-w-[320px] sm:max-w-[340px] p-4 sm:p-5 md:p-7 text-center animate-in zoom-in-95 flex flex-col h-auto max-h-[75vh] md:max-h-none overflow-y-auto md:overflow-visible overscroll-contain [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]" onClick={(e) => e.stopPropagation()}>
+
+                  <div className="absolute -top-20 -right-20 w-40 h-40 bg-cyan-500/60 rounded-full blur-[50px] pointer-events-none z-0"></div>
+                  <div className="absolute -bottom-20 -left-20 w-40 h-40 bg-blue-500/60 rounded-full blur-[50px] pointer-events-none z-0"></div>
                   
                   <div className="relative z-10 flex justify-between items-center mb-6 pb-5 border-b border-white/20">
                     <button onClick={() => setTrackCalYear(y => y - 1)} className="p-2.5 bg-slate-800 text-white rounded-xl hover:bg-cyan-500 transition-colors active:scale-95 shadow-inner border border-slate-600"><ChevronDown size={22} className="rotate-90" /></button>
