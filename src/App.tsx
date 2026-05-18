@@ -1296,7 +1296,7 @@ const executeRatingSubmit = async () => {
              </button>
 
              {showDatePicker && (
-              <div className="fixed inset-0 z-[300] bg-slate-900/80 backdrop-blur-md flex items-center justify-center p-4 pb-[110px] md:pb-4 animate-in fade-in" onClick={() => setShowDatePicker(false)}>
+              <div className="fixed inset-0 z-[300] bg-slate-900/80 backdrop-blur-md flex p-4 animate-in fade-in" onClick={() => setShowDatePicker(false)}>
                 <div className="relative m-auto bg-slate-900 border-[2px] border-solid border-white rounded-[2rem] shadow-[0_0_60px_rgba(255,255,255,0.2)] w-[90%] max-w-[320px] sm:max-w-[340px] p-4 sm:p-5 md:p-7 text-center animate-in zoom-in-95 flex flex-col h-auto max-h-[calc(100dvh-130px)] overflow-y-auto overscroll-contain [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]" onClick={(e) => e.stopPropagation()}>
 
                   <div className="absolute -top-20 -left-20 w-40 h-40 bg-orange-500/80 rounded-full blur-[50px] pointer-events-none z-0"></div>
@@ -1355,7 +1355,8 @@ const executeRatingSubmit = async () => {
 
           {/* 🌟 ปฏิทิน ระบุเดือน (เปลี่ยน Hover เป็น Cyan) */}
           <div className="relative flex-1 min-w-[95px] shrink-0 flex justify-center snap-center">
-            <button onClick={() => setShowMonthPicker(true)}
+            <button onClick={() =>
+             setShowMonthPicker(true)}
               className={`w-full relative z-10 text-[13px] font-black py-2.5 rounded-xl transition-all duration-300 flex items-center justify-center gap-1.5 whitespace-nowrap ${
                 dashTimeframe === 'custom' 
                   ? 'bg-gradient-to-r from-orange-500 to-amber-500 text-white border-[2px] border-solid border-orange-300 shadow-[0_0_15px_rgba(249,115,22,0.8)] scale-[1.02] z-10' 
@@ -1366,7 +1367,8 @@ const executeRatingSubmit = async () => {
             </button>
             
             {showMonthPicker && (
-              <div className="fixed inset-0 z-[300] bg-slate-900/80 backdrop-blur-md flex items-center justify-center p-4 pb-[110px] md:pb-4 animate-in fade-in" onClick={() => setShowMonthPicker(false)}>
+              <div className="fixed inset-0 z-[300] bg-slate-900/80 backdrop-blur-md flex p-4 animate-in fade-in" onClick={() => setShowDatePicker(false)}>
+
                 <div className="relative m-auto bg-slate-900 border-[2px] border-solid border-white rounded-[2rem] shadow-[0_0_60px_rgba(255,255,255,0.2)] w-[90%] max-w-[320px] sm:max-w-[340px] p-4 sm:p-5 md:p-7 text-center animate-in zoom-in-95 flex flex-col h-auto max-h-[calc(100dvh-130px)] overflow-y-auto overscroll-contain [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]" onClick={(e) => e.stopPropagation()}>
 
                   <div className="absolute -top-20 -right-20 w-40 h-40 bg-orange-500/80 rounded-full blur-[50px] pointer-events-none z-0"></div>
@@ -2270,7 +2272,8 @@ const renderTracking = () => (
 
           {/* ระบุวัน */}
           <div className="relative flex-1">
-            <button onClick={() => setShowTrackDatePicker(true)} className={`w-full h-full py-1.5 rounded-lg font-black text-[12px] flex items-center justify-center gap-1.5 transition-all duration-300 whitespace-nowrap ${
+            <button onClick={() => 
+            setShowTrackDatePicker(true)} className={`w-full h-full py-1.5 rounded-lg font-black text-[12px] flex items-center justify-center gap-1.5 transition-all duration-300 whitespace-nowrap ${
               trackTimeframe === 'custom_date' 
                 ? 'bg-gradient-to-r from-cyan-600 to-blue-600 text-white shadow-[0_0_15px_rgba(6,182,212,0.8)] border-[2px] border-solid border-cyan-300 scale-[1.02] z-10' 
                 : 'bg-slate-950 text-cyan-300 border-[2px] border-solid border-cyan-400/30 shadow-[0_0_8px_rgba(34,211,238,0.3)] hover:bg-slate-900 hover:text-cyan-200 hover:border-cyan-300 hover:shadow-[0_0_15px_rgba(34,211,238,0.6)] hover:-translate-y-0.5'
@@ -2279,7 +2282,8 @@ const renderTracking = () => (
             </button>
 
             {showTrackDatePicker && (
-              <div className="fixed inset-0 z-[300] bg-slate-900/80 backdrop-blur-md flex items-center justify-center p-4 pb-[110px] md:pb-4 animate-in fade-in" onClick={() => setShowTrackDatePicker(false)}>
+              <div className="fixed inset-0 z-[300] bg-slate-900/80 backdrop-blur-md flex p-4 animate-in fade-in" onClick={() => setShowDatePicker(false)}>
+
                 <div className="relative m-auto bg-slate-900 border-[2px] border-solid border-white rounded-[2rem] shadow-[0_0_60px_rgba(6,182,212,0.8)] w-[90%] max-w-[320px] sm:max-w-[340px] p-4 sm:p-5 md:p-7 text-center animate-in zoom-in-95 flex flex-col h-auto max-h-[75vh] md:max-h-none overflow-y-auto md:overflow-visible overscroll-contain [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]" onClick={(e) => e.stopPropagation()}>
                   <div className="absolute -top-20 -left-20 w-40 h-40 bg-cyan-500/60 rounded-full blur-[50px] pointer-events-none z-0"></div>
                   <div className="absolute -bottom-20 -right-20 w-40 h-40 bg-blue-500/60 rounded-full blur-[50px] pointer-events-none z-0"></div>
@@ -2343,7 +2347,8 @@ const renderTracking = () => (
             </button>
             
             {showTrackMonthPicker && (
-              <div className="fixed inset-0 z-[300] bg-slate-900/80 backdrop-blur-md flex items-center justify-center p-4 pb-[110px] md:pb-4 animate-in fade-in" onClick={() => setShowTrackMonthPicker(false)}>
+              <div className="fixed inset-0 z-[300] bg-slate-900/80 backdrop-blur-md flex p-4 animate-in fade-in" onClick={() => setShowDatePicker(false)}>
+
                 <div className="relative m-auto bg-slate-900 border-[2px] border-solid border-white rounded-[2rem] shadow-[0_0_60px_rgba(6,182,212,0.8)] w-[90%] max-w-[320px] sm:max-w-[340px] p-4 sm:p-5 md:p-7 text-center animate-in zoom-in-95 flex flex-col h-auto max-h-[75vh] md:max-h-none overflow-y-auto md:overflow-visible overscroll-contain [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]" onClick={(e) => e.stopPropagation()}>
 
                   <div className="absolute -top-20 -right-20 w-40 h-40 bg-cyan-500/60 rounded-full blur-[50px] pointer-events-none z-0"></div>
@@ -3172,7 +3177,7 @@ const renderTracking = () => (
 
       {/* 🛠️ Action Modals (ฟันธง: อัปเกรดกล่องอเนกประสงค์ ให้แปลงร่างได้ 5 รูปแบบ พร้อมแสงเฟลอร์ระดับ Sci-Fi) */}
       {actionModal.isOpen && (
-        <div className="fixed inset-0 z-[150] flex items-center justify-center p-4 pb-[110px] md:pb-4 bg-slate-900/80 backdrop-blur-md animate-in fade-in" onClick={() => setActionModal({ isOpen: false, ticketId: null, type: null })}>
+        <div className="fixed inset-0 z-[150] flex p-4 bg-slate-900/80 backdrop-blur-md animate-in fade-in" onClick={() => setActionModal({ isOpen: false, ticketId: null, type: null })}>
         <div className={`absolute w-[300px] h-[300px] rounded-full blur-[80px] animate-pulse pointer-events-none z-0 ${actionModal.type === 'finish' ? 'bg-emerald-500/40' : actionModal.type === 'hold' || actionModal.type === 'cancel' ? 'bg-rose-500/40' : 'bg-orange-500/40'}`}></div>
         <div className={`relative m-auto z-10 bg-slate-900 border-[2px] border-solid rounded-[2rem] w-[95%] max-w-[320px] sm:max-w-sm md:max-w-md h-auto max-h-[calc(100dvh-130px)] overflow-y-auto overscroll-contain [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none] p-5 sm:p-8 md:p-10 text-center space-y-4 sm:space-y-7 ${actionModal.type === 'finish' ? 'border-emerald-500 shadow-[0_0_50px_rgba(16,185,129,0.5)]' : actionModal.type === 'hold' || actionModal.type === 'cancel' ? 'border-rose-500 shadow-[0_0_50px_rgba(225,29,72,0.5)]' : 'border-orange-500 shadow-[0_0_50px_rgba(249,115,22,0.6)]'}`} onClick={(e) => e.stopPropagation()}>
             
@@ -3365,7 +3370,7 @@ const renderTracking = () => (
         // 🌟 ฟันธง: ลบ onClick ออกจาก Background บังคับให้คลิกนอกกรอบไม่ได้ ต้องกดยกเลิกเท่านั้น!
         return (
           <div className="fixed inset-0 z-[160] flex items-center justify-center pb-[110px] md:pb-4 bg-slate-950/90 backdrop-blur-md p-4 animate-in fade-in" onClick={() => setRatingModal({ isOpen: false, ticketId: null, rating: 0, comment: '', techName: '' })}>
-            <div className={`absolute w-[450px] h-[450px] rounded-full blur-[100px] animate-pulse pointer-events-none z-0 transition-colors duration-500 ${rColor.flare}`}></div>
+            <div className={`absolute w-[450px] h-[450px] rounded-full blur-[100px] pointer-events-none z-0 transition-colors duration-700 ${rColor.flare}`}></div>
             <div className={`relative m-auto z-10 bg-slate-900 border-[3px] border-solid rounded-[2.5rem] w-[95%] max-w-[320px] sm:max-w-sm h-auto max-h-[calc(100dvh-130px)] overflow-y-auto overscroll-contain [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none] px-4 pt-5 pb-5 sm:px-6 sm:pt-8 sm:pb-8 text-center transition-all duration-300 transform-gpu ${rColor.border} ${rColor.shadow}`} onClick={(e) => e.stopPropagation()}>
             
             {/* 🌟 สไตล์ Grab: โพรไฟล์ช่างผู้รับผิดชอบ */}
@@ -3531,8 +3536,8 @@ const renderTracking = () => (
             <div className="fixed inset-0 z-[200] flex items-center justify-center pb-[110px] md:pb-4 bg-slate-950/90 backdrop-blur-md p-4 animate-in fade-in" onClick={() => setShowThanksModal(false)}>
               
               {/* 💥 แสงเฟลอร์ด้านหลังสุดของหน้าต่าง */}
-              <div className={`absolute w-[400px] h-[400px] rounded-full blur-[100px] opacity-60 pointer-events-none z-0 animate-pulse ${tColor.flare}`}></div>
-  
+              <div className={`absolute w-[400px] h-[400px] rounded-full blur-[100px] opacity-60 pointer-events-none z-0 transition-colors duration-700 ${tColor.flare}`}></div>
+
               <div className={`relative m-auto z-10 bg-slate-900 border-[3px] border-solid ${tColor.border} rounded-[2.5rem] w-[95%] max-w-[320px] sm:max-w-sm h-auto max-h-[calc(100dvh-130px)] overflow-y-auto overscroll-contain [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none] p-5 sm:p-8 text-center space-y-3 sm:space-y-4 animate-in zoom-in-95 duration-300 ${tColor.glow}`} onClick={(e) => e.stopPropagation()}>
               
               {/* 💥 ส่วนรูปโปรไฟล์ช่าง + เพิ่มแสงเฟลอร์ด้านหลังรูปให้สว่างวาบ */}
