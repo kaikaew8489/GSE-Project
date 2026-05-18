@@ -1297,7 +1297,7 @@ const executeRatingSubmit = async () => {
 
              {showDatePicker && (
               <div className="fixed inset-0 z-[300] bg-slate-900/80 backdrop-blur-md flex items-center justify-center p-4 animate-in fade-in" onClick={() => setShowDatePicker(false)}>
-                <div className="relative bg-slate-900 border-[2px] border-solid border-white rounded-[2rem] shadow-[0_0_60px_rgba(249,115,22,0.8)] w-full max-w-[340px] p-7 text-center animate-in zoom-in-95 overflow-hidden flex flex-col my-auto" onClick={(e) => e.stopPropagation()}>
+                <div className="relative bg-slate-900 border-[2px] border-solid border-white rounded-[2rem] shadow-[0_0_60px_rgba(249,115,22,0.8)] w-full max-w-[340px] px-6 pt-6 pb-28 text-center animate-in zoom-in-95 overflow-y-auto overscroll-contain max-h-[85vh] scrollbar-hide flex flex-col my-auto" onClick={(e) => e.stopPropagation()}>
                   <div className="absolute -top-20 -left-20 w-40 h-40 bg-orange-500/80 rounded-full blur-[50px] pointer-events-none z-0"></div>
                   <div className="absolute -bottom-20 -right-20 w-40 h-40 bg-amber-500/80 rounded-full blur-[50px] pointer-events-none z-0"></div>
                   
@@ -3179,7 +3179,7 @@ const renderTracking = () => (
 
           {/* 📦 จุดที่ 2: ตัวกล่อง Popup (แยกสีกรอบและเงา) */}
           {/* 🌟 ฟันธงแก้บั๊ก: เปลี่ยน overflow-hidden เป็น overflow-y-auto max-h-[85vh] เพื่อให้ไถขึ้นลงเวลาคีย์บอร์ดเด้งได้! */}
-          <div className={`relative z-10 bg-slate-900 border-[2px] border-solid rounded-[2rem] w-full max-w-sm md:max-w-md overflow-y-auto max-h-[85vh] scrollbar-hide p-8 md:p-10 text-center space-y-7 ${
+          <div className={`relative z-10 bg-slate-900 border-[2px] border-solid rounded-[2rem] w-full max-w-sm md:max-w-md overflow-y-auto max-h-[85vh] scrollbar-hide px-6 pt-8 pb-32 md:px-10 md:pt-10 md:pb-32 text-center space-y-7 ${
             actionModal.type === 'finish' ? 'border-emerald-500 shadow-[0_0_50px_rgba(16,185,129,0.5)]' :
             actionModal.type === 'hold' || actionModal.type === 'cancel' ? 'border-rose-500 shadow-[0_0_50px_rgba(225,29,72,0.5)]' : 
             'border-orange-500 shadow-[0_0_50px_rgba(249,115,22,0.6)]'
