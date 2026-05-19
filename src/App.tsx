@@ -41,6 +41,7 @@ import {
   Briefcase, 
   Users, 
   Landmark, 
+  Maximize2,
 } from 'lucide-react';
 
 // ==========================================
@@ -3922,7 +3923,7 @@ function LandingPage({ onStart }) {
               <div className="absolute left-1/2 -translate-x-1/2 -bottom-[11px] w-5 h-5 bg-slate-900 border-b-[2px] border-r-[2px] border-solid border-orange-500 transform rotate-45 rounded-sm"></div>
 
               <p className="text-[20px] md:text-[22px] font-bold text-slate-100 leading-relaxed relative z-20 shadow-none">
-                ระบบมีปัญหาใช่มั้ยคะ?
+                ระบบ/อุปกรณ์มีปัญหาใช่มั้ยคะ?
                 <br />
                 <span className="text-orange-500 font-black text-[16px] md:text-[22px] mt-1 md:mt-2 inline-flex items-center justify-center gap-2 drop-shadow-sm whitespace-nowrap">
                   กดแจ้งซ่อมได้เลยค่ะ!
@@ -4008,32 +4009,24 @@ function LandingPage({ onStart }) {
 
 
     {/* 🌟 หน้าต่าง Popup คู่มือ (อัปเกรดขยายกรอบบน-ล่างให้เต็มจอมือถือ) */}
+      {/* 🌟 หน้าต่าง Popup คู่มือ (อัปเกรดขยายกรอบบน-ล่างให้เต็มจอมือถือ + ซูมได้ 100%) */}
       {showManual && (
-        /* 🎯 จุดแก้ที่ 1: เปลี่ยน p-4 เป็น p-2 md:p-4 (เพื่อลดระยะห่างขอบจอมือถือลงครึ่งนึง) */
         <div className="fixed inset-0 z-[200] bg-slate-950/90 flex flex-col items-center justify-center p-2 md:p-4 backdrop-blur-md animate-in fade-in" onClick={() => setShowManual(false)}>
           
-          {/* 💥 แสงเฟลอร์ส้มด้านหลัง (ภาพรวม) */}
           <div className="absolute w-[300px] h-[300px] bg-orange-500/40 rounded-full blur-[100px] animate-pulse pointer-events-none z-0"></div>
 
-          {/* 🎯 จุดแก้ที่ 2: เปลี่ยน max-h-[85vh] เป็น max-h-[96vh] md:max-h-[90vh] (ปลดล็อกความสูงให้ยืดชิดบนล่าง!) */}
           <div className="w-full max-w-lg md:max-w-4xl bg-slate-900 border-[3px] md:border-[4px] border-solid border-orange-500 rounded-2xl md:rounded-[2rem] overflow-hidden shadow-[0_0_50px_rgba(249,115,22,0.6)] flex flex-col max-h-[96vh] md:max-h-[90vh] relative z-10 transition-all" onClick={(e) => e.stopPropagation()}>
             
-            {/* 🌟 1. ส่วนหัว (Header) จัดเรียงใหม่ แยก ซ้าย-กลาง-ขวา ชัดเจน */}
-            {/* ... (โค้ดส่วน Header และเนื้อหาคู่มือด้านล่างของท่าน เก็บไว้เหมือนเดิมทุกประการครับ) ... */}            
-            {/* 🌟 1. ส่วนหัว (Header) จัดเรียงใหม่ แยก ซ้าย-กลาง-ขวา ชัดเจน */}
+            {/* 🌟 1. ส่วนหัว (Header) แยก ซ้าย-กลาง-ขวา ชัดเจน */}
             <div className="relative py-4 px-4 md:px-8 bg-slate-950 flex items-center justify-between border-b-4 border-orange-500 shrink-0 min-h-[70px] md:min-h-[90px]">
-              {/* แสงแฟลอร์ส้มวาบๆ พื้นหลัง Header เบาๆ */}
               <div className="absolute inset-0 bg-orange-500/20 blur-[40px] pointer-events-none animate-pulse z-0"></div>
 
-              {/* 👈 โซนซ้ายสุด: ไอคอนกระดาษ */}
               <div className="relative z-10 p-2 md:p-3 bg-gradient-to-br from-orange-400 to-orange-600 rounded-xl md:rounded-2xl shadow-[0_0_20px_rgba(249,115,22,0.6)] animate-pulse shrink-0">
                 <FileText size={24} className="md:w-8 md:h-8 text-white drop-shadow-md" />
               </div>
 
-              {/* 🎯 โซนกลางเป๊ะๆ: กล่องข้อความ (ฟันธง: ใช้ absolute ดึงไว้กึ่งกลางสมบูรณ์แบบ) */}
               <div className="absolute left-1/2 -translate-x-1/2 z-10 flex justify-center items-center pointer-events-none w-full px-16 md:px-0">
                 <div className="relative pointer-events-auto">
-                  {/* ลดแสงเฟลอร์ด้านหลังกล่องข้อความลง (ความเข้มเหลือ 30% และลดเงาลงให้พอดี) */}
                   <div className="absolute -inset-1 bg-orange-500/30 blur-[10px] rounded-full animate-pulse z-0"></div>
                   <div className="relative z-10 bg-slate-800 border-[2px] md:border-[3px] border-solid border-orange-400 rounded-lg md:rounded-xl px-3 md:px-8 py-2 md:py-2.5 shadow-[0_0_10px_rgba(249,115,22,0.8)]">
                     <h3 className="text-white font-black tracking-widest text-[14px] sm:text-[15px] md:text-2xl drop-shadow-[0_0_5px_rgba(255,255,255,0.8)] whitespace-nowrap">
@@ -4043,22 +4036,35 @@ function LandingPage({ onStart }) {
                 </div>
               </div>
 
-              {/* 👉 โซนขวาสุด: กากบาทปิด (X) */}
               <button onClick={() => setShowManual(false)} className="relative z-20 bg-slate-900 border-2 border-solid border-orange-400 p-2 md:p-3 rounded-full transition-all shadow-[0_0_15px_rgba(249,115,22,0.6)] hover:shadow-[0_0_25px_rgba(225,29,72,1)] hover:-translate-y-1 active:scale-95 animate-pulse hover:bg-rose-600 hover:border-rose-400 group shrink-0">
                 <X size={20} className="md:w-6 md:h-6 text-rose-500 group-hover:text-white drop-shadow-[0_0_8px_rgba(225,29,72,0.8)] stroke-[3px] transition-colors" />
               </button>
             </div>
 
-            {/* 🌟 2. โซนแสดงรูปภาพคู่มือ (5 หน้า) */}
+            {/* 🌟 2. โซนแสดงรูปภาพคู่มือ (อัปเกรด: กดรูปเพื่อซูมขยาย) */}
             <div className="p-4 md:p-8 overflow-y-auto space-y-6 md:space-y-10 bg-slate-800 flex-1">
-              <img src="/manual-1-1.png" alt="คู่มือเข้าโปรแกรมหน้าแรก" className="w-full rounded-xl md:rounded-2xl shadow-[0_10px_30px_rgba(0,0,0,0.6)] border-[2px] border-solid border-slate-600" />
-              <img src="/manual-2-1.png" alt="คู่มือผู้แจ้งซ่อม-1" className="w-full rounded-xl md:rounded-2xl shadow-[0_10px_30px_rgba(0,0,0,0.6)] border-[2px] border-solid border-slate-600" />
-              <img src="/manual-2-2.png" alt="คู่มือผู้แจ้งซ่อม-2" className="w-full rounded-xl md:rounded-2xl shadow-[0_10px_30px_rgba(0,0,0,0.6)] border-[2px] border-solid border-slate-600" />
-              <img src="/manual-3-1.png" alt="คู่มือเจ้าหน้าที่ ฝวด.-1" className="w-full rounded-xl md:rounded-2xl shadow-[0_10px_30px_rgba(0,0,0,0.6)] border-[2px] border-solid border-slate-600" />
-              <img src="/manual-3-2.png" alt="คู่มือเจ้าหน้าที่ ฝวด.-2" className="w-full rounded-xl md:rounded-2xl shadow-[0_10px_30px_rgba(0,0,0,0.6)] border-[2px] border-solid border-slate-600" />
-              <img src="/manual-iPhone.png" alt="คู่มือตั้งค่าโทรศัพท์-iOS" className="w-full rounded-xl md:rounded-2xl shadow-[0_10px_30px_rgba(0,0,0,0.6)] border-[2px] border-solid border-slate-600" />
-              <img src="/manual-Android.png" alt="คู่มือการตั้งค่าโทรศัพท์-Android" className="w-full rounded-xl md:rounded-2xl shadow-[0_10px_30px_rgba(0,0,0,0.6)] border-[2px] border-solid border-slate-600" />
-              <img src="/manual-PC.png" alt="คู่มือตั้งค่าการแสดงผลบน-PC" className="w-full rounded-xl md:rounded-2xl shadow-[0_10px_30px_rgba(0,0,0,0.6)] border-[2px] border-solid border-slate-600" />
+              
+              {/* อาเรย์รูปภาพคู่มือ (ลูปเพื่อสร้างปุ่มขยายทีละรูปอัตโนมัติ) */}
+              {[
+                { src: '/manual-1-1.png', alt: 'คู่มือเข้าโปรแกรมหน้าแรก' },
+                { src: '/manual-2-1.png', alt: 'คู่มือผู้แจ้งซ่อม-1' },
+                { src: '/manual-2-2.png', alt: 'คู่มือผู้แจ้งซ่อม-2' },
+                { src: '/manual-3-1.png', alt: 'คู่มือเจ้าหน้าที่ ฝวด.-1' },
+                { src: '/manual-3-2.png', alt: 'คู่มือเจ้าหน้าที่ ฝวด.-2' },
+                { src: '/manual-iPhone.png', alt: 'คู่มือตั้งค่าโทรศัพท์-iOS' },
+                { src: '/manual-Android.png', alt: 'คู่มือการตั้งค่าโทรศัพท์-Android' },
+                { src: '/manual-PC.png', alt: 'คู่มือตั้งค่าการแสดงผลบน-PC' }
+              ].map((manual, index) => (
+                <div key={index} className="relative group">
+                  <img src={manual.src} alt={manual.alt} className="w-full rounded-xl md:rounded-2xl shadow-[0_10px_30px_rgba(0,0,0,0.6)] border-[2px] border-solid border-slate-600 transition-opacity" />
+                  
+                  {/* 🌟 ปุ่ม "คลิกเพื่อถ่างซูม" (เด้งเปิดรูปภาพตรงๆ ในแท็บใหม่) */}
+                  <a href={manual.src} target="_blank" rel="noopener noreferrer" className="absolute top-2 right-2 md:top-4 md:right-4 bg-orange-500/90 hover:bg-orange-600 text-white p-2 md:p-3 rounded-lg md:rounded-xl shadow-[0_0_15px_rgba(249,115,22,0.8)] border border-white/30 backdrop-blur-sm transition-all active:scale-95 flex items-center gap-1 md:gap-2 z-10 group-hover:opacity-100 md:opacity-0">
+                    <Maximize2 size={16} className="md:w-6 md:h-6" strokeWidth={2.5}/>
+                    <span className="text-[10px] md:text-[14px] font-black tracking-widest uppercase">ขยายซูม</span>
+                  </a>
+                </div>
+              ))}
               
               {/* ติ่งข้อความปิดท้ายคู่มือ */}
               <div className="text-center pt-6 pb-4 mt-8 border-t-2 border-dashed border-orange-500/30">
@@ -4075,6 +4081,7 @@ function LandingPage({ onStart }) {
 
     </div>
   );
+  
 } // <--- 🌟 ฟันธง: วงเล็บปีกกาตัวนี้แหละครับที่หายไป ทำให้พัง! 🌟
 
 // ==========================================
