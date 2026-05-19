@@ -4044,9 +4044,8 @@ function LandingPage({ onStart }) {
             {/* 🌟 2. โซนแสดงรูปภาพคู่มือ (อัปเกรด: กดรูปเพื่อซูมขยาย) */}
             <div className="p-4 md:p-8 overflow-y-auto space-y-6 md:space-y-10 bg-slate-800 flex-1">
               
-              {/* อาเรย์รูปภาพคู่มือ (ลูปเพื่อสร้างปุ่มขยายทีละรูปอัตโนมัติ) */}
-              {/* อาเรย์รูปภาพคู่มือ (ลูปเพื่อสร้างปุ่มขยายทีละรูปอัตโนมัติ) */}
-              {[
+           {/* อาเรย์รูปภาพคู่มือ (ลูปเพื่อสร้างปุ่มขยายทีละรูปอัตโนมัติ) */}
+           {[
                 { src: '/manual-1-1.png', alt: 'คู่มือเข้าโปรแกรมหน้าแรก' },
                 { src: '/manual-2-1.png', alt: 'คู่มือผู้แจ้งซ่อม-1' },
                 { src: '/manual-2-2.png', alt: 'คู่มือผู้แจ้งซ่อม-2' },
@@ -4056,15 +4055,18 @@ function LandingPage({ onStart }) {
                 { src: '/manual-Android.png', alt: 'คู่มือการตั้งค่าโทรศัพท์-Android' },
                 { src: '/manual-PC.png', alt: 'คู่มือตั้งค่าการแสดงผลบน-PC' }
               ].map((manual, index) => (
-                <div key={index} className="relative group">
+                <div key={index} className="flex flex-col items-center gap-3 md:gap-4">
+                  
+                  {/* 🖼️ รูปภาพคู่มือ (ไม่มีปุ่มไปบังทับแล้ว) */}
                   <img src={manual.src} alt={manual.alt} className="w-full rounded-xl md:rounded-2xl shadow-[0_10px_30px_rgba(0,0,0,0.6)] border-[2px] border-solid border-slate-600 transition-opacity" />
                   
-                  {/* 🌟 ปุ่ม "คลิกเพื่อถ่างซูม" (อัปเกรด: สว่างวาบ กระพริบเรียกแขก เห็นชัดบนมือถือ 100%) */}
+                  {/* 🌟 ปุ่ม "คลิกเพื่อถ่างซูม" (อัปเกรด: ย้ายมาจัดเรียงใต้รูปภาพ ทรงแคปซูลสวยหรู) */}
                   <a href={manual.src} target="_blank" rel="noopener noreferrer" 
-                     className="absolute top-2 right-2 md:top-4 md:right-4 bg-gradient-to-r from-orange-500 to-red-500 text-white p-2.5 md:p-4 rounded-xl md:rounded-2xl shadow-[0_0_20px_rgba(249,115,22,0.9)] border-[2px] border-solid border-white backdrop-blur-sm transition-all active:scale-95 flex items-center gap-1.5 md:gap-2 z-20 animate-pulse hover:scale-105">
-                    <Maximize2 size={18} className="md:w-6 md:h-6 drop-shadow-md" strokeWidth={2.5}/>
-                    <span className="text-[12px] md:text-[16px] font-black tracking-widest uppercase drop-shadow-md">ขยายซูมเต็มจอ</span>
+                     className="w-[85%] sm:w-[60%] md:w-[40%] bg-slate-900 border-[2px] border-solid border-orange-500/80 text-orange-400 p-3 md:p-4 rounded-full shadow-[0_0_15px_rgba(249,115,22,0.4)] backdrop-blur-sm transition-all active:scale-95 flex items-center justify-center gap-2 z-20 hover:bg-orange-500 hover:text-white hover:border-white hover:scale-105 group">
+                    <Maximize2 size={18} className="md:w-6 md:h-6 drop-shadow-md group-hover:scale-125 transition-transform" strokeWidth={2.5}/>
+                    <span className="text-[13px] md:text-[16px] font-black tracking-widest uppercase drop-shadow-md">แตะเพื่อขยายซูมเต็มจอ</span>
                   </a>
+                  
                 </div>
               ))}
               
