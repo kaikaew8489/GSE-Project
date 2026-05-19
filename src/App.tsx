@@ -996,6 +996,7 @@ const toggleTag = (tag) => {
   const executeActionModal = async () => {
     const { ticketId, type } = actionModal;
     let updates = {};
+    
     if (type === 'accept') {
       if (!selectedTech) return;
       const tech = technicianList.find((t) => t.name === selectedTech);
@@ -1006,27 +1007,49 @@ const toggleTag = (tag) => {
         techName: tech.name,
         techPhone: tech.phone || 'N/A',
       };
-    } else if (type === 'hold')
+    } else if (type === 'hold') {
       updates = {
         status: 'on_hold',
         holdReason: actionText,
         lastHoldAt: new Date().toISOString(),
       };
-    else if (type === 'finish')
+    } else if (type === 'finish') {
       updates = {
         status: 'completed',
         cause: actionText,
         completedAt: new Date().toISOString(),
       };
-    else if (type === 'ssc') updates = { sscNote: actionText };
-    else if (type === 'cancel')
+    } else if (type === 'ssc') {
+      updates = { sscNote: actionText };
+    } else if (type === 'cancel') {
       updates = {
         status: 'cancelled',
         cancelReason: actionText,
         cancelledAt: new Date().toISOString(),
       };
+    } 
+    // =========================================================================
+    // 🌟 ฟันธงเพิ่มจุดนี้: เงื่อนไขการกลับมาซ่อมต่อ (resume) คำนวณเวลาและบันทึกประวัติกล่องส้ม
+    // =========================================================================
+    else if (type === 'resume') {
+      const target = tickets.find((t) => t.id === ticketId);
+      let pauseDurationMs = 0;
+      
+      // คำนวณระยะเวลาที่เสียไปชาร์จรวมเข้าฐานข้อมูล Firestore
+      if (target && target.lastHoldAt) {
+        pauseDurationMs = new Date().getTime() - new Date(target.lastHoldAt).getTime();
+      }
+      
+      updates = {
+        status: 'in_progress',       // 1. ดีดสถานะกลับมา "กำลังซ่อม"
+        resumeReason: actionText,   // 2. บันทึกข้อความอะไหล่/รุ่น ลงตัวแปรเพื่อไปโชว์ในกล่องส้ม
+        totalPauseMs: ((target ? target.totalPauseMs : 0) || 0) + pauseDurationMs, // 3. สะสมเวลาหยุดซ่อม
+        lastHoldAt: null,           // 4. เคลียร์เวลาหยุดชั่วคราวให้เริ่มเดินเวลาซ่อมต่อ
+      };
+    }
+    // =========================================================================
 
-      await updateTicketStatus(ticketId, updates);
+    await updateTicketStatus(ticketId, updates);
 
       // 🌟 ฟันธง: ส่งแจ้งเตือน Flex Message เข้า LINE เมื่อมีการรับงาน หรือ ปิดงาน หรือกำลังซ่อม
       if (type === 'accept' || type === 'finish') {
@@ -3002,14 +3025,50 @@ const renderTracking = () => (
                           </div>
                         )}
                         
+                        {/* 🌟 ฟันธงจุดที่ 1.1: กล่องสีม่วง (ดึงข้อมูลให้มาอยู่ฝั่งซ้าย และเพิ่มป้ายกำกับสถานะ/เวลาไว้ขวาสุด) */}
                         {t.holdReason && (
-                          <div className="bg-purple-50 text-purple-700 p-3 md:p-6 rounded-xl md:rounded-2xl text-xs md:text-[20px] font-bold mb-3 md:mb-6 flex gap-2 md:gap-4 border border-purple-200 shadow-sm">
-                            <PauseCircle className="w-4 h-4 md:w-8 md:h-8 shrink-0 mt-0.5 md:mt-1" />
-                            <div>
-                              <span className="block mb-0.5 md:mb-2 text-purple-800">
-                                แจ้งเหตุขัดข้อง:
-                              </span>
-                              {String(t.holdReason)}
+                          <div className="bg-purple-50 text-purple-700 p-3 md:p-6 rounded-xl md:rounded-2xl text-xs md:text-[20px] font-bold mb-3 md:mb-6 flex justify-between items-start border border-purple-200 shadow-sm transition-all">
+                            <div className="flex gap-2 md:gap-4">
+                              <PauseCircle className="w-4 h-4 md:w-8 md:h-8 shrink-0 mt-0.5 md:mt-1" />
+                              <div>
+                                <span className="block mb-0.5 md:mb-2 text-purple-800">
+                                  แจ้งเหตุขัดข้อง:
+                                </span>
+                                {String(t.holdReason)}
+                              </div>
+                            </div>
+                            
+                            {/* ⏱️ กรอบเวลา/สถานะ ชิดขวาสุด (โชว์เวลากำลังรอ) */}
+                            {t.status === 'on_hold' && (
+                              <div className="flex flex-col items-end shrink-0 ml-2 md:ml-4">
+                                <span className="text-[9px] md:text-[14px] text-purple-500 mb-0.5 md:mb-1">สถานะปัจจุบัน</span>
+                                <span className="font-mono text-purple-800 bg-purple-200/60 px-2 py-1 md:px-3 md:py-1.5 rounded-lg border border-purple-300 shadow-sm animate-pulse">
+                                  กำลังรออะไหล่...
+                                </span>
+                              </div>
+                            )}
+                          </div>
+                        )}
+
+                        {/* 🌟 ฟันธงจุดที่ 1.2: กล่องสีส้ม (สร้างใหม่! จะโชว์เมื่อช่างพิมพ์เหตุผลตอนกดดำเนินการต่อ) */}
+                        {t.resumeReason && (
+                          <div className="bg-orange-50 text-orange-700 p-3 md:p-6 rounded-xl md:rounded-2xl text-xs md:text-[20px] font-bold mb-3 md:mb-6 flex justify-between items-start border-2 border-solid border-orange-400 shadow-sm animate-in slide-in-from-top-2">
+                            <div className="flex gap-2 md:gap-4">
+                              <Wrench className="w-4 h-4 md:w-8 md:h-8 shrink-0 mt-0.5 md:mt-1 text-orange-600" />
+                              <div>
+                                <span className="block mb-0.5 md:mb-2 text-orange-800">
+                                  ดำเนินการต่อ (ได้อะไหล่แล้ว):
+                                </span>
+                                {String(t.resumeReason)}
+                              </div>
+                            </div>
+
+                            {/* ⏱️ กรอบสถานะ ชิดขวาสุด (ยืนยันว่ากลับมาเดินเวลาซ่อมแล้ว) */}
+                            <div className="flex flex-col items-end shrink-0 ml-2 md:ml-4">
+                                <span className="text-[9px] md:text-[14px] text-orange-500 mb-0.5 md:mb-1">อัปเดตล่าสุด</span>
+                                <span className="font-mono text-orange-800 bg-orange-200/60 px-2 py-1 md:px-3 md:py-1.5 rounded-lg border border-orange-300 shadow-sm">
+                                  กำลังซ่อม 🛠️
+                                </span>
                             </div>
                           </div>
                         )}
@@ -3184,14 +3243,11 @@ const renderTracking = () => (
                               <button
                                 onClick={() => {
                                   if (t.status === 'on_hold') {
-                                    const pauseDurationMs =
-                                      new Date().getTime() -
-                                      new Date(t.lastHoldAt).getTime();
-                                    updateTicketStatus(t.id, {
-                                      status: 'in_progress',
-                                      totalPauseMs:
-                                        (t.totalPauseMs || 0) + pauseDurationMs,
-                                      lastHoldAt: null,
+                                    // 🌟 ฟันธงจุดที่ 2: เปลี่ยนจากการคำนวณและอัปเดตเงียบๆ เป็นการเปิด Popup เหมือนตอนแจ้งขัดข้อง
+                                    setActionModal({
+                                      isOpen: true,
+                                      ticketId: t.id,
+                                      type: 'resume', // ส่งรหัส type เป็น resume ไปให้หน้าต่าง Popup ทำงาน
                                     });
                                   } else {
                                     setActionModal({
@@ -3321,13 +3377,13 @@ const renderTracking = () => (
           </div>
           {/* ================= สิ้นสุดการวางทับ ================= */}
 
-      {/* 🛠️ Action Modals (ฟันธง: อัปเกรดกล่องอเนกประสงค์ ให้แปลงร่างได้ 5 รูปแบบ พร้อมแสงเฟลอร์ระดับ Sci-Fi) */}
+      {/* 🛠️ Action Modals (ฟันธง: เพิ่มรูปแบบที่ 6 ดำเนินการซ่อมต่อ 'resume' สีส้มหล่อเท่ ไม่เอ๋อเป็น SSC แน่นอน 1,000,000%) */}
       {actionModal.isOpen && (
         <div className="fixed inset-0 z-[150] flex p-4 bg-slate-900/80 backdrop-blur-md animate-in fade-in" onClick={() => setActionModal({ isOpen: false, ticketId: null, type: null })}>
         <div className={`absolute w-[300px] h-[300px] rounded-full blur-[80px] animate-pulse pointer-events-none z-0 ${actionModal.type === 'finish' ? 'bg-emerald-500/40' : actionModal.type === 'hold' || actionModal.type === 'cancel' ? 'bg-rose-500/40' : 'bg-orange-500/40'}`}></div>
         <div className={`relative m-auto z-10 bg-slate-900 border-[2px] border-solid rounded-[2rem] w-[95%] max-w-[320px] sm:max-w-sm md:max-w-md h-auto max-h-[calc(100dvh-130px)] overflow-y-auto overscroll-contain [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none] p-5 sm:p-8 md:p-10 text-center space-y-4 sm:space-y-7 ${actionModal.type === 'finish' ? 'border-emerald-500 shadow-[0_0_50px_rgba(16,185,129,0.5)]' : actionModal.type === 'hold' || actionModal.type === 'cancel' ? 'border-rose-500 shadow-[0_0_50px_rgba(225,29,72,0.5)]' : 'border-orange-500 shadow-[0_0_50px_rgba(249,115,22,0.6)]'}`} onClick={(e) => e.stopPropagation()}>
             
-            {/* 🌟 จุดที่ 3: ไอคอนเรืองแสงด้านบน (แยกสีกรอบ เงา และสีไอคอนให้เข้าชุดกัน) */}
+            {/* 🌟 จุดที่ 3: ไอคอนเรืองแสงด้านบน */}
             <div className={`w-24 h-24 rounded-full flex items-center justify-center mx-auto border-[3px] border-solid bg-slate-950 transition-all duration-300 ${
               actionModal.type === 'finish' ? 'text-emerald-500 border-emerald-500 shadow-[0_0_25px_rgba(16,185,129,0.8)]' :
               actionModal.type === 'hold' || actionModal.type === 'cancel' ? 'text-rose-500 border-rose-500 shadow-[0_0_25px_rgba(225,29,72,0.8)]' : 
@@ -3338,15 +3394,18 @@ const renderTracking = () => (
               {actionModal.type === 'finish' && <ClipboardCheck size={44} className="animate-pulse" />}
               {actionModal.type === 'cancel' && <XCircle size={44} className="animate-pulse" />}
               {actionModal.type === 'ssc' && <AlertTriangle size={44} className="animate-pulse" />}
+              {/* 🛠️ เพิ่มไอคอนสำหรับโหมดดำเนินการซ่อมต่อ */}
+              {actionModal.type === 'resume' && <Wrench size={44} className="animate-pulse" />}
             </div>
 
-            {/* 🌟 ข้อความหัวข้อ */}
+            {/* 🌟 ข้อความหัวข้อ (ฟันธงแทรกเงื่อนไข resume แยกจาก SSC เด็ดขาด) */}
             <div>
                <h3 className="text-2xl md:text-3xl font-black text-white tracking-tight drop-shadow-lg mb-2.5">
                  {actionModal.type === 'accept' ? 'รับงานซ่อมระบบ?' :
                   actionModal.type === 'cancel' ? 'ยกเลิกงานแจ้งซ่อม?' :
                   actionModal.type === 'finish' ? 'บันทึกปิดงานซ่อม' :
                   actionModal.type === 'hold' ? 'แจ้งเหตุขัดข้อง?' :
+                  actionModal.type === 'resume' ? 'ดำเนินการซ่อมต่อ' :
                   'บันทึกเวร SSC'}
                </h3>
                <p className="text-[14px] md:text-[15px] text-slate-300 font-bold leading-relaxed px-2 md:px-4">
@@ -3354,6 +3413,7 @@ const renderTracking = () => (
                   actionModal.type === 'cancel' ? <>คุณแน่ใจหรือไม่ว่าต้องการยกเลิกงาน<br/><span className="text-rose-400 font-extrabold">{actionModal.ticketId}</span><br/><span className="text-[11px] md:text-[12px] text-rose-300 opacity-80">(การกระทำนี้ไม่สามารถย้อนกลับได้)</span></> :
                   actionModal.type === 'finish' ? <>โปรดตรวจสอบข้อมูลให้ถูกต้อง ก่อนส่งผล<br/><span className="text-orange-400 font-extrabold">{actionModal.ticketId}</span></> :
                   actionModal.type === 'hold' ? <>โปรดระบุเหตุผลที่ทำให้การซ่อมล่าช้า<br/>งานรหัส <span className="text-orange-400 font-extrabold">{actionModal.ticketId}</span></> :
+                  actionModal.type === 'resume' ? <>โปรดระบุรายละเอียดสำหรับรหัสงาน<br/><span className="text-orange-400 font-extrabold">{actionModal.ticketId}</span></> :
                   <>โปรดระบุการแก้ไขเบื้องต้นสำหรับงาน<br/><span className="text-orange-400 font-extrabold">{actionModal.ticketId}</span></>}
                </p>
             </div>
@@ -3386,7 +3446,7 @@ const renderTracking = () => (
                      {actionModal.type === 'hold' ? 'เหตุผลที่ทำให้เกิดความล่าช้า' :
                       actionModal.type === 'cancel' ? 'ระบุเหตุผลการยกเลิก' :
                       actionModal.type === 'finish' ? 'สรุปผลการซ่อม/ข้อแนะนำ' :
-                      'บันทึกการแก้ไขเบื้องต้น'}
+                      'บันทึกเหตุผลที่ต้องดำเนินการต่อ'}
                    </label>
                    <textarea
                      value={actionText}
