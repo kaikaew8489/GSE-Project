@@ -2743,7 +2743,7 @@ const renderTracking = () => (
                           ) : (
                             <div className={`flex flex-row items-center justify-between bg-slate-900/80 p-3.5 md:p-6 rounded-xl md:rounded-2xl border-[2px] border-solid ${rColor.border} ${rColor.glow} relative overflow-hidden`}>
                               <div className={`absolute -left-10 -bottom-10 w-24 h-24 md:w-48 md:h-48 ${rColor.flare} blur-[20px] md:blur-[40px] rounded-full pointer-events-none`}></div>
-                              <span className={`text-[11.5px] sm:text-[13px] md:text-[22px] font-black ${rColor.text} uppercase tracking-widest ml-1 relative z-10 drop-shadow-sm shrink-0`}>
+                              <span className={`text-[11.5px] sm:text-[14px] md:text-[24px] font-black ${rColor.text} uppercase tracking-widest ml-1 relative z-10 drop-shadow-sm shrink-0`}>
                                 คุณให้คะแนนงานนี้:
                               </span>
                               <div className="flex gap-1 md:gap-3 relative z-10 shrink-0">
@@ -3134,7 +3134,7 @@ const renderTracking = () => (
                           
                           <div className="flex justify-between items-start gap-1 md:gap-6 -mx-1 sm:mx-0">
                             <div className="flex flex-col flex-1 min-w-0 pl-1 md:pl-0">
-                              <span className="text-[13px] md:text-[22px] font-bold text-green-600 mb-1 md:mb-3">
+                              <span className="text-[13px] md:text-[24px] font-bold text-green-600 mb-1 md:mb-3">
                                 ผู้แจ้งปัญหา
                               </span>
                               <span className="font-bold text-orange-800 flex items-start gap-1 md:gap-3 leading-tight mb-1 md:mb-3">
@@ -3144,7 +3144,7 @@ const renderTracking = () => (
                                   {String(t.reporter)}
                                 </span>
                               </span>
-                              <span className="text-[13px] md:text-[22px] font-bold text-blue-600 mt-1 md:mt-3 pl-1 md:pl-2">
+                              <span className="text-[12px] md:text-[24px] font-bold text-blue-600 mt-1 md:mt-3 pl-1 md:pl-2">
                                 {formatDateTimeString(t.date)}
                               </span>
                             </div>
@@ -3161,7 +3161,7 @@ const renderTracking = () => (
                           {t.techName && (
                             <div className="flex justify-between items-start gap-1 md:gap-6 mt-2 md:mt-6 pt-2 md:pt-6 border-t border-slate-100 -mx-1 sm:mx-0">
                               <div className="flex flex-col flex-1 min-w-0 pl-1 md:pl-0">
-                                <span className="text-[13px] md:text-[22px] font-bold text-orange-600 mb-2 md:mb-4">
+                                <span className="text-[13px] md:text-[24px] font-bold text-orange-600 mb-2 md:mb-4">
                                   ผู้รับผิดชอบ
                                 </span>
                                 <span className="font-bold text-indigo-600 flex items-start gap-1 md:gap-3 leading-tight">
@@ -3362,8 +3362,8 @@ const renderTracking = () => (
                           )}
                           
                           {t.status === 'verified' && (
-                            <div className="w-full bg-emerald-50 border border-emerald-200 py-3.5 md:py-6 rounded-xl md:rounded-3xl flex justify-center items-center gap-2 md:gap-4 text-emerald-600 font-bold text-xs md:text-[28px] shadow-inner">
-                              <CheckCircle className="w-4 h-4 md:w-8 md:h-8" /> เสร็จสิ้นสมบูรณ์
+                            <div className="w-full bg-emerald-100 border-2 border-solid border-emerald-400 py-3.5 md:py-6 rounded-xl md:rounded-3xl flex justify-center items-center gap-2 md:gap-4 text-emerald-600 font-bold text-xs md:text-[30px] shadow-inner">
+                              <CheckCircle className="w-6 h-6 md:w-10 md:h-10" /> เสร็จสิ้นสมบูรณ์
                             </div>
                           )}
                         </div>
