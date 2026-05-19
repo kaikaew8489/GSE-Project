@@ -2,16 +2,36 @@
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
-    <link rel="icon" type="image/svg+xml" href="/assets/favicon.17e50649.svg" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Vite App</title>
+    <link rel="icon" type="image/svg+xml" href="/src/favicon.svg" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+    <link rel="manifest" href="/manifest.json" />
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="GSE แจ้งซ่อม">
+    <link rel="apple-touch-icon" href="/GSE-logo.webp">
+    <title>ระบบแจ้งซ่อม ฝวด. (GSE)</title>
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Prompt:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+    
     <script src="https://cdn.tailwindcss.com"></script>
-    <script type="module" crossorigin src="/assets/index.4d9c8247.js"></script>
-    <link rel="modulepreload" href="/assets/vendor.bf694e73.js">
-    <link rel="stylesheet" href="/assets/index.6ea70e4c.css">
+
+    <style>
+      /* 🌟 ฟันธง: บังคับใช้ฟอนต์ Prompt กับทุกตัวอักษรในแอป 1,000,000% */
+      body, html, * {
+        font-family: 'Prompt', sans-serif !important;
+      }
+      
+      body {
+        overscroll-behavior-y: none !important;
+        background-color: #0f172a; 
+      }
+    </style>
   </head>
   <body>
     <div id="root"></div>
-    
+    <script type="module" src="/src/main.tsx"></script>
   </body>
 </html>

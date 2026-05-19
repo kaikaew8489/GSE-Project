@@ -44,6 +44,7 @@ import {
   Maximize2,
 } from 'lucide-react';
 
+
 // ==========================================
 // 🔥 1. เชื่อมต่อ Firebase
 // ==========================================
@@ -391,6 +392,7 @@ class ErrorBoundary extends React.Component {
   }
 }
 
+/* 🌟 ฟันธง: ขยายร่าง SearchableDropdown ให้ใหญ่เต็มตาบน PC บาลานซ์กับช่องกรอกอื่นๆ */
 function SearchableDropdown({
   options,
   value,
@@ -422,16 +424,19 @@ function SearchableDropdown({
   }, [options, searchTerm]);
 
   return (
-    <div className="space-y-1.5 relative text-left" id={id} ref={containerRef}>
-      <label className="text-xs font-bold text-slate-200 tracking-wide flex items-center gap-1.5 ml-1">
-        {icon} {label}
+    <div className="space-y-1.5 md:space-y-2 relative text-left" id={id} ref={containerRef}>
+      
+      {/* Label: ปกติมันถูกซ่อนไว้ใน Component นี้ แต่เพื่อความชัวร์ เผื่อมีการส่งเข้ามา เราดักไซส์ PC ไว้ด้วย */}
+      <label className="text-[12px] md:text-[18px] font-bold text-slate-200 tracking-wide flex items-center gap-1.5 md:gap-2 ml-1">
+        {label}
       </label>
+      
       <div
         className={`w-full bg-white border-2 border-solid ${
           error
             ? 'border-rose-500 ring-1 ring-rose-500/50'
             : 'border-orange-500 hover:border-orange-600 focus-within:border-orange-600 focus-within:ring-2 focus-within:ring-orange-500/30'
-        } rounded-2xl px-5 py-4 flex items-center justify-between cursor-pointer shadow-sm transition-all`}
+        } rounded-2xl px-5 py-4 md:py-5 flex items-center justify-between cursor-pointer shadow-sm transition-all`}
         onClick={() => {
           setIsOpen(!isOpen);
           setSearchTerm('');
@@ -441,7 +446,7 @@ function SearchableDropdown({
           {isOpen ? (
             <input
               autoFocus
-              className="w-full bg-transparent outline-none text-sm font-bold text-slate-800"
+              className="w-full bg-transparent outline-none text-sm md:text-[16px] font-bold text-slate-800"
               placeholder="พิมพ์ค้นหา..."
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
@@ -449,7 +454,7 @@ function SearchableDropdown({
             />
           ) : (
             <span
-              className={`text-sm font-bold truncate ${
+              className={`text-sm md:text-[16px] font-bold truncate ${
                 value ? 'text-slate-800' : 'text-slate-400'
               }`}
             >
@@ -459,18 +464,19 @@ function SearchableDropdown({
         </div>
         <ChevronDown
           size={18}
-          className={`text-slate-400 transition-transform ${
+          className={`text-slate-400 md:w-6 md:h-6 transition-transform ${
             isOpen ? 'rotate-180 text-orange-500' : ''
           }`}
         />
       </div>
+      
       {isOpen && (
-        <div className="absolute z-[100] top-[100%] left-0 w-full bg-white border border-2 border-orange-400/70 mt-2 rounded-2xl shadow-2xl max-h-60 overflow-y-auto animate-in fade-in zoom-in-95 duration-200">
+        <div className="absolute z-[100] top-[100%] left-0 w-full bg-white border border-2 border-orange-400/70 mt-2 rounded-2xl md:rounded-[1.5rem] shadow-2xl max-h-60 md:max-h-80 overflow-y-auto animate-in fade-in zoom-in-95 duration-200">
           {filteredOptions.length > 0 ? (
             filteredOptions.map((opt, i) => (
               <div
                 key={i}
-                className="px-5 py-3.5 hover:bg-orange-50 hover:text-orange-600 text-sm font-bold text-slate-700 cursor-pointer border-b border-slate-50 last:border-0 transition-colors"
+                className="px-5 py-3.5 md:py-4 hover:bg-orange-50 hover:text-orange-600 text-sm md:text-[16px] font-bold text-slate-700 cursor-pointer border-b border-slate-50 last:border-0 transition-colors"
                 onClick={() => {
                   onChange(opt);
                   setIsOpen(false);
@@ -480,20 +486,22 @@ function SearchableDropdown({
               </div>
             ))
           ) : (
-            <div className="px-5 py-4 text-xs text-slate-400 font-bold italic text-center uppercase tracking-widest">
+            <div className="px-5 py-4 md:py-6 text-xs md:text-[14px] text-slate-400 font-bold italic text-center uppercase tracking-widest">
               ไม่พบข้อมูล
             </div>
           )}
         </div>
       )}
+      
       {error && (
-        <div className="text-rose-500 text-[11px] font-bold mt-1.5 ml-1 animate-in fade-in">
+        <div className="text-rose-500 text-[11px] md:text-[13px] font-bold mt-1.5 md:mt-2 ml-1 animate-in fade-in">
           ⚠️ {error}
         </div>
       )}
     </div>
   );
 }
+
 // 🌟 ฟันธง: ฟังก์ชันคำนวณความต่างของเวลา ออกมาเป็น วัน/ชม./นาที
 const calculateDuration = (start, end, holdMs = 0) => {
   if (!start || !end) return "รอดำเนินการ...";
@@ -1815,26 +1823,26 @@ const executeRatingSubmit = async () => {
         </div>
       ) : (
 
-            <form onSubmit={handleSubmit} className="space-y-6 md:max-w-2xl md:mx-auto">
-          <div className="bg-slate-800/60 backdrop-blur-xl  border-2 border-solid border-white-600/50 rounded-[1rem] py-4 text-center shadow-[0_0_30px_rgba(0,0,0,0.3)] font-sans tracking-widest text-white font-bold">
+        <form onSubmit={handleSubmit} className="space-y-6 w-full">
+          <div className="bg-slate-800/60 backdrop-blur-xl  border-2 border-solid border-white-600/50 rounded-[1rem] py-4 text-center shadow-[0_0_30px_rgba(0,0,0,0.3)] font-sans tracking-widest text-white font-bold md:text-[18px]">
             {ThaiDateFormatter(sysTime)}
           </div>
 
           {/* ================= กรอบที่ 1: ข้อมูลผู้แจ้งซ่อม ================= */}
-          <div className="relative bg-slate-800/60 backdrop-blur-xl border-2 border-solid border-orange-400 rounded-[1rem] p-6 pt-10 shadow-[0_0_40px_rgba(0,0,0,0.4)] text-left">
+          <div className="relative bg-slate-800/60 backdrop-blur-xl border-2 border-solid border-orange-400 rounded-[1rem] p-6 md:p-8 pt-10 shadow-[0_0_40px_rgba(0,0,0,0.4)] text-left">
             <div className="absolute -top-4 left-6 bg-emerald-50 text-emerald-600 px-4 py-2.5 rounded-xl font-black text-[18px] shadow-sm border-2 border-solid border-green-500 flex items-center gap-2 tracking-widest uppercase">
               <User size={24} className="text-orange-500"/> ข้อมูลผู้แจ้งซ่อม
             </div>
 
-            <div className="space-y-4">
+            <div className="space-y-4 md:space-y-6 mt-2">
               <SearchableDropdown
                 id="field-reporter"
                 label={
-                  <span className="text-[14px] sm:text-[15px] font-black tracking-wide">
+                  <span className="text-[14px] md:text-[18px] font-black tracking-wide">
                     ชื่อ-นามสกุล <span className="text-rose-500">*</span>
                   </span>
                 }
-                icon={<User size={16} className="text-emerald-300"/>}
+                icon={<User size={16} className="text-emerald-300 md:w-5 md:h-5"/>}
                 placeholder="เลือกชื่อหรือพิมพ์ค้นหา"
                 options={employeeList.map((e) => String(e.name))}
                 value={formData.reporter}
@@ -1842,182 +1850,84 @@ const executeRatingSubmit = async () => {
                 error={formErrors.reporter}
               />
 
-              <div className="space-y-1.5">
-                <label className="text-[14px] sm:text-[15px] font-black text-slate-200 uppercase tracking-wide ml-1 flex items-center gap-1.5">
-                  <Briefcase size={16} className="text-emerald-500" /> ตำแหน่ง
+              <div className="space-y-1.5 md:space-y-2">
+                {/* 🌟 ฟันธง: ขยาย Label ให้ใหญ่ขึ้นบน PC (md:text-[18px]) */}
+                <label className="text-[14px] md:text-[18px] font-black text-slate-200 uppercase tracking-wide ml-1 flex items-center gap-1.5 md:gap-2">
+                  <Briefcase size={16} className="text-emerald-500 md:w-5 md:h-5" /> ตำแหน่ง
                 </label>
+                {/* 🌟 ฟันธง: ขยายช่องกรอกข้อมูลให้กว้างและตัวหนังสือใหญ่ขึ้น (md:py-5 md:text-[16px]) */}
                 <input
                   value={formData.position}
                   readOnly
-                  className="w-full bg-slate-50 border-2 border-solid border-orange-500 rounded-2xl px-5 py-4 text-sm font-bold text-slate-500 outline-none cursor-not-allowed shadow-inner"
+                  className="w-full bg-slate-50 border-2 border-solid border-orange-500 rounded-2xl px-5 py-4 md:py-5 text-sm md:text-[16px] font-bold text-slate-500 outline-none cursor-not-allowed shadow-inner"
                   placeholder="-"
                 />
               </div>
 
-              <div className="space-y-1.5">
-                <label className="text-[14px] sm:text-[15px] font-black text-slate-200 uppercase tracking-wide ml-1 flex items-center gap-1.5">
-                  <Users size={16} className="text-emerald-500" /> ฝ่าย
+              <div className="space-y-1.5 md:space-y-2">
+                <label className="text-[14px] md:text-[18px] font-black text-slate-200 uppercase tracking-wide ml-1 flex items-center gap-1.5 md:gap-2">
+                  <Users size={16} className="text-emerald-500 md:w-5 md:h-5" /> ฝ่าย
                 </label>
                 <input
                   value={formData.department}
                   readOnly
-                  className="w-full bg-slate-50 border-2 border-solid border-orange-500 rounded-2xl px-5 py-4 text-sm font-bold text-slate-500 outline-none cursor-not-allowed shadow-inner"
+                  className="w-full bg-slate-50 border-2 border-solid border-orange-500 rounded-2xl px-5 py-4 md:py-5 text-sm md:text-[16px] font-bold text-slate-500 outline-none cursor-not-allowed shadow-inner"
                   placeholder="-"
                 />
               </div>
 
-              <div className="space-y-1.5">
-                <label className="text-[14px] sm:text-[15px] font-black text-slate-200 uppercase tracking-wide ml-1 flex items-center gap-1.5">
-                  <Landmark size={16} className="text-emerald-500" /> สำนัก
+              <div className="space-y-1.5 md:space-y-2">
+                <label className="text-[14px] md:text-[18px] font-black text-slate-200 uppercase tracking-wide ml-1 flex items-center gap-1.5 md:gap-2">
+                  <Landmark size={16} className="text-emerald-500 md:w-5 md:h-5" /> สำนัก
                 </label>
                 <input
                   value={formData.bureau}
                   readOnly
-                  className="w-full bg-slate-50 border-2 border-solid border-orange-500 rounded-2xl px-5 py-4 text-sm font-bold text-slate-500 outline-none cursor-not-allowed shadow-inner"
+                  className="w-full bg-slate-50 border-2 border-solid border-orange-500 rounded-2xl px-5 py-4 md:py-5 text-sm md:text-[16px] font-bold text-slate-500 outline-none cursor-not-allowed shadow-inner"
                   placeholder="สำนักปฏิบัติการดาวเทียม"
                 />
               </div>
 
-              <div className="space-y-1.5" id="field-reporterContact">
-                <label className="text-[14px] sm:text-[15px] font-black text-slate-200 uppercase tracking-wide ml-1 flex items-center gap-1.5">
-                  <Phone size={16} className="text-emerald-500" /> เบอร์โทรศัพท์ <span className="text-rose-500">*</span>
+              <div className="space-y-1.5 md:space-y-2" id="field-reporterContact">
+                <label className="text-[14px] md:text-[18px] font-black text-slate-200 uppercase tracking-wide ml-1 flex items-center gap-1.5 md:gap-2">
+                  <Phone size={16} className="text-emerald-500 md:w-5 md:h-5" /> เบอร์โทรศัพท์ <span className="text-rose-500">*</span>
                 </label>
                 
-                {/* 🌟 ช่องแสดงเบอร์ (กดแล้วเรียก Numpad ไซไฟ) */}
                 <div 
                   onClick={() => setShowNumpad(true)}
                   className={`w-full bg-white border-2 border-solid border-orange-500 flex items-center ${
                     formErrors.reporterContact ? 'border-rose-500 ring-1 ring-rose-500/30' : 'hover:border-orange-600 hover:ring-2 hover:ring-orange-500/30'
-                  } rounded-2xl px-5 py-4 cursor-pointer shadow-sm transition-all`}
+                  } rounded-2xl px-5 py-4 md:py-5 cursor-pointer shadow-sm transition-all`}
                 >
-                  <span className={`text-[15px] font-bold font-mono tracking-widest ${formData.reporterContact ? 'text-slate-800' : 'text-slate-400'}`}>
+                  <span className={`text-[15px] md:text-[18px] font-bold font-mono tracking-widest ${formData.reporterContact ? 'text-slate-800' : 'text-slate-400'}`}>
                     {formData.reporterContact || '0X-XXXX-XXXX'}
                   </span>
                 </div>
                 
                 {formErrors.reporterContact && (
-                  <div className="text-rose-500 text-[11px] font-bold mt-1 px-1">⚠️ {formErrors.reporterContact}</div>
+                  <div className="text-rose-500 text-[11px] md:text-[13px] font-bold mt-1 px-1">⚠️ {formErrors.reporterContact}</div>
                 )}
-
-                {/* 🌟 2. หน้าต่าง Numpad ไซไฟอวกาศ (ดีไซน์เดียวกับปฏิทินเดือน 100%) */}
-                {showNumpad && (
-                  <div className="fixed inset-0 z-[10000] flex items-center justify-center bg-slate-900/80 backdrop-blur-md p-4 animate-in fade-in duration-300" onClick={() => setShowNumpad(false)}>
-                    
-                    {/* แสงเฟลอร์หลังกล่อง สีฟ้า (Cyan Glow) แบบโปร่งแสงเนียนๆ */}
-                    <div className="absolute w-[350px] h-[350px] bg-cyan-500/40 rounded-full blur-[100px] pointer-events-none z-0 animate-pulse"></div>
-
-                    {/* 🌟 กรอบนอกสุด: ปรับ z-[10000] ลอยทับเมนูด้านล่าง และ max-h-[85dvh] ให้ปุ่มยืนยันไม่โดนตัด */}
-                    <div className="relative m-auto z-10 w-[90%] max-w-[320px] sm:max-w-[340px] bg-slate-900 border-[2px] border-solid border-white rounded-[2rem] p-4 sm:p-6 shadow-[0_0_60px_rgba(6,182,212,0.6)] flex flex-col gap-4 sm:gap-5 transition-all duration-300 max-h-[85dvh] overflow-y-auto overscroll-contain scrollbar-hide" onClick={(e) => e.stopPropagation()}>
-
-                       {/* หัวข้อ (ไอคอนสีเขียว + ตัวหนังสือส้มเรืองแสง ไม่มีอีโมจิแดง) */}
-                       <div className="text-center mb-1 pb-3 border-b border-white/20">
-                         <h3 className="font-black tracking-widest text-[16px] sm:text-[18px] flex items-center justify-center gap-2 text-orange-400 drop-shadow-[0_0_10px_rgba(249,115,22,0.8)]">
-                           <Phone size={20} className="text-emerald-400 drop-shadow-sm" />
-                           ระบุเบอร์โทรศัพท์
-                         </h3>
-                       </div>
-                       
-                       {/* จอแสดงผลตัวเลข (ตัวเลขสีฟ้า + กรอบในสีฟ้า) */}
-                       <div className="bg-slate-950 border-[2px] border-solid border-cyan-500/50 rounded-2xl py-4 px-4 text-center shadow-inner flex items-center justify-center min-h-[70px]">
-                         <span className={`text-[24px] sm:text-[28px] font-mono font-black tracking-widest ${formData.reporterContact ? 'text-cyan-400 drop-shadow-[0_0_12px_rgba(34,211,238,0.9)]' : 'text-slate-700'}`}>
-                           {formData.reporterContact || '0X-XXXX-XXXX'}
-                         </span>
-                       </div>
-
-                       {/* แป้นพิมพ์ตัวเลข (ปุ่มสไตล์ Sci-Fi อัปเกรด Hover) */}
-                       <div className="grid grid-cols-3 gap-2.5 sm:gap-3">
-                         {[1, 2, 3, 4, 5, 6, 7, 8, 9].map(num => (
-                           <button 
-                             key={num} type="button" 
-                             onClick={() => {
-                               let current = formData.reporterContact ? formData.reporterContact.replace(/\D/g, '') : '';
-                               if (current.length < 10) current += num;
-                               let formatted = current;
-                               if (current.length > 6) formatted = `${current.substring(0, 2)}-${current.substring(2, 6)}-${current.substring(6)}`;
-                               else if (current.length > 2) formatted = `${current.substring(0, 2)}-${current.substring(2)}`;
-                               setFormData(prev => ({ ...prev, reporterContact: formatted }));
-                               if (formErrors.reporterContact) setFormErrors(prev => ({ ...prev, reporterContact: null }));
-                             }} 
-                             className="bg-slate-800 border-[2px] border-solid border-slate-600 text-slate-200 text-2xl font-black py-3 sm:py-3.5 rounded-xl active:scale-95 transition-all shadow-md hover:bg-cyan-600/90 hover:border-cyan-400 hover:text-white hover:shadow-[0_0_20px_rgba(34,211,238,0.7)]"
-                           >
-                             {num}
-                           </button>
-                         ))}
-                         
-                         {/* 🌟 ปุ่ม C ล้างทั้งหมด */}
-                         <button 
-                           type="button" 
-                           onClick={() => setFormData(prev => ({ ...prev, reporterContact: '' }))} 
-                           className="bg-slate-800 border-[2px] border-solid border-slate-600 text-orange-400 text-[18px] font-black py-3 sm:py-3.5 rounded-xl active:scale-95 transition-all shadow-md hover:bg-orange-600 hover:border-orange-400 hover:text-white hover:shadow-[0_0_20px_rgba(249,115,22,0.7)] uppercase tracking-widest flex items-center justify-center gap-1"
-                         >
-                           <RotateCcw size={20} strokeWidth={3} /> ล้าง
-                         </button>
-                         
-                         {/* ปุ่ม เลข 0 */}
-                         <button 
-                           type="button" 
-                           onClick={() => {
-                             let current = formData.reporterContact ? formData.reporterContact.replace(/\D/g, '') : '';
-                             if (current.length < 10) current += '0';
-                             let formatted = current;
-                             if (current.length > 6) formatted = `${current.substring(0, 2)}-${current.substring(2, 6)}-${current.substring(6)}`;
-                             else if (current.length > 2) formatted = `${current.substring(0, 2)}-${current.substring(2)}`;
-                             setFormData(prev => ({ ...prev, reporterContact: formatted }));
-                             if (formErrors.reporterContact) setFormErrors(prev => ({ ...prev, reporterContact: null }));
-                           }} 
-                           className="bg-slate-800 border-[2px] border-solid border-slate-600 text-slate-200 text-2xl font-black py-3 sm:py-3.5 rounded-xl active:scale-95 transition-all shadow-md hover:bg-cyan-600/90 hover:border-cyan-400 hover:text-white hover:shadow-[0_0_20px_rgba(34,211,238,0.7)]"
-                         >
-                           0
-                         </button>
-                         
-                         {/* ปุ่ม ลบทีละตัว (X) */}
-                         <button 
-                           type="button" 
-                           onClick={() => {
-                             let current = formData.reporterContact ? formData.reporterContact.replace(/\D/g, '') : '';
-                             current = current.slice(0, -1);
-                             let formatted = current;
-                             if (current.length > 6) formatted = `${current.substring(0, 2)}-${current.substring(2, 6)}-${current.substring(6)}`;
-                             else if (current.length > 2) formatted = `${current.substring(0, 2)}-${current.substring(2)}`;
-                             setFormData(prev => ({ ...prev, reporterContact: formatted }));
-                           }} 
-                           className="bg-slate-800 border-[2px] border-solid border-slate-600 text-rose-500 flex items-center justify-center py-3 sm:py-3.5 rounded-xl active:scale-95 transition-all shadow-md hover:bg-rose-600 hover:border-rose-400 hover:text-white hover:shadow-[0_0_20px_rgba(225,29,72,0.7)]"
-                         >
-                           <X size={28} strokeWidth={3.5}/>
-                         </button>
-                       </div>
-
-                       {/* ปุ่มยืนยัน */}
-                       <button 
-                         type="button" 
-                         onClick={() => setShowNumpad(false)} 
-                         className="w-full bg-gradient-to-r from-emerald-500 to-teal-500 text-white font-black py-3.5 sm:py-4 rounded-xl border-[2px] border-solid border-emerald-300 shadow-[0_0_15px_rgba(16,185,129,0.4)] active:scale-95 transition-all duration-300 text-[15px] sm:text-[16px] tracking-widest uppercase hover:brightness-110"
-                       >
-                         ยืนยัน
-                       </button>
-                    </div>
-                  </div>
-                )}
+                {/* 🎯 ฟันธง: ลบ Numpad ตัวปลอมที่แอบซ่อนอยู่ตรงนี้ทิ้งไปเรียบร้อยแล้วครับ! 1,000,000% */}
               </div>
             </div>
           </div>
 
           {/* ================= กรอบที่ 2: รายละเอียดการแจ้งซ่อม ================= */}
-          <div className="relative bg-slate-800/60 backdrop-blur-xl border-2 border-solid border-white-500/80 rounded-[1rem] p-6 pt-10 shadow-[0_0_40px_rgba(0,0,0,0.4)] text-left mt-6">
+          <div className="relative bg-slate-800/60 backdrop-blur-xl border-2 border-solid border-white-500/80 rounded-[1rem] p-6 md:p-8 pt-10 shadow-[0_0_40px_rgba(0,0,0,0.4)] text-left mt-6">
             <div className="absolute -top-4 left-6 bg-emerald-50 text-emerald-600 px-4 py-2.5 rounded-xl font-black text-[18px] shadow-sm border-2 border-solid border-green-500 flex items-center gap-2 tracking-widest uppercase">
               <Wrench size={24} className="text-orange-500" />{' '}
               รายละเอียดการแจ้งซ่อม
             </div>
 
-            <div className="space-y-5">
+            <div className="space-y-5 md:space-y-6 mt-2">
               <SearchableDropdown
                 id="field-equipmentCategory"
                 label={
-                  <span className="text-[14px] sm:text-[15px] font-black tracking-wide">
+                  <span className="text-[14px] md:text-[18px] font-black tracking-wide">
                     กลุ่มงาน / ภารกิจรับผิดชอบ <span className="text-rose-500">*</span>
                   </span>
                 }
-                icon={<Activity size={16} className="text-yellow-500" />}
+                icon={<Activity size={16} className="text-yellow-500 md:w-5 md:h-5" />}
                 placeholder="เลือกกลุ่มภารกิจของ ฝวด."
                 options={Object.keys(equipmentCategories)}
                 value={formData.equipmentCategory}
@@ -2035,11 +1945,11 @@ const executeRatingSubmit = async () => {
               <SearchableDropdown
                 id="field-equipment"
                 label={
-                  <span className="text-[14px] sm:text-[15px] font-black tracking-wide">
+                  <span className="text-[14px] md:text-[18px] font-black tracking-wide">
                     รายการอุปกรณ์ / ระบบ <span className="text-rose-500">*</span>
                   </span>
                 }
-                icon={<Monitor size={16} className="text-yellow-500" />}
+                icon={<Monitor size={16} className="text-yellow-500 md:w-5 md:h-5" />}
                 placeholder={formData.equipmentCategory ? "เลือกอุปกรณ์หรือพิมพ์ค้นหา" : "กรุณาเลือกกลุ่มงานก่อน"}
                 options={formData.equipmentCategory ? equipmentCategories[formData.equipmentCategory] : []}
                 value={formData.equipment}
@@ -2050,9 +1960,9 @@ const executeRatingSubmit = async () => {
                 error={formErrors.equipment}
               />
 
-              <div className="space-y-1.5" id="field-description">
-                <label className="text-[14px] sm:text-[15px] font-black text-slate-200 uppercase tracking-wide ml-1 flex items-center gap-1.5">
-                  <AlertCircle size={16} className="text-yellow-500" />{' '}
+              <div className="space-y-1.5 md:space-y-2" id="field-description">
+                <label className="text-[14px] md:text-[18px] font-black text-slate-200 uppercase tracking-wide ml-1 flex items-center gap-1.5 md:gap-2">
+                  <AlertCircle size={16} className="text-yellow-500 md:w-5 md:h-5" />{' '}
                   อาการเสีย / รายละเอียดปัญหา{' '}
                   <span className="text-rose-500">*</span>
                 </label>
@@ -2066,20 +1976,20 @@ const executeRatingSubmit = async () => {
                     formErrors.description
                       ? 'border-rose-500 focus:border-rose-500 ring-1 ring-rose-500/30'
                       : 'border-2 border-orange-400 focus:border-orange-500 focus:ring-2 focus:ring-orange-500/30'
-                  } rounded-2xl px-5 py-4 outline-none text-sm font-bold text-slate-800 shadow-sm resize-none transition-all`}
+                  } rounded-2xl px-5 py-4 md:py-5 outline-none text-sm md:text-[16px] font-bold text-slate-800 shadow-sm resize-none transition-all`}
                   placeholder="อธิบายรายละเอียดอาการเสีย..."
                 />
 
                 {formErrors.description && (
-                  <div className="text-rose-500 text-[11px] font-bold mt-1.5 ml-1 animate-in fade-in">
+                  <div className="text-rose-500 text-[11px] md:text-[13px] font-bold mt-1.5 ml-1 animate-in fade-in">
                     ⚠️ {formErrors.description}
                   </div>
                 )}
               </div>
 
-              <div className="space-y-1.5">
-                <label className="text-[14px] sm:text-[15px] font-black text-slate-200 uppercase tracking-wide ml-1 flex items-center gap-1.5">
-                  <Hash size={16} className="text-yellow-500" />{' '}
+              <div className="space-y-1.5 md:space-y-2">
+                <label className="text-[14px] md:text-[18px] font-black text-slate-200 uppercase tracking-wide ml-1 flex items-center gap-1.5 md:gap-2">
+                  <Hash size={16} className="text-yellow-500 md:w-5 md:h-5" />{' '}
                   หมายเลขครุภัณฑ์ (หากมี)
                 </label>
 
@@ -2087,7 +1997,7 @@ const executeRatingSubmit = async () => {
                   name="assetNumber"
                   value={formData.assetNumber}
                   onChange={handleInputChange}
-                  className="w-full bg-white border-2 border-orange-400 focus:border-orange-500 focus:ring-2 focus:ring-orange-500/30 rounded-2xl px-5 py-4 text-sm font-bold text-slate-800 outline-none font-mono tracking-widest shadow-sm transition-all"
+                  className="w-full bg-white border-2 border-orange-400 focus:border-orange-500 focus:ring-2 focus:ring-orange-500/30 rounded-2xl px-5 py-4 md:py-5 text-sm md:text-[16px] font-bold text-slate-800 outline-none font-mono tracking-widest shadow-sm transition-all"
                   placeholder="ระบุหมายเลข..."
                 />
               </div>
@@ -2095,11 +2005,11 @@ const executeRatingSubmit = async () => {
               <SearchableDropdown
                 id="field-building"
                 label={
-                  <span className="text-[14px] sm:text-[15px] font-black tracking-wide">
+                  <span className="text-[14px] md:text-[18px] font-black tracking-wide">
                     อาคาร / ตึก <span className="text-rose-500">*</span>
                   </span>
                 }
-                icon={<Building size={16} className="text-yellow-500" />}
+                icon={<Building size={16} className="text-yellow-500 md:w-5 md:h-5" />}
                 placeholder="เลือกอาคารหรือพิมพ์ค้นหา"
                 options={buildingList}
                 value={formData.building}
@@ -2111,9 +2021,9 @@ const executeRatingSubmit = async () => {
                 error={formErrors.building}
               />
 
-              <div className="space-y-1.5" id="field-room">
-                <label className="text-[14px] sm:text-[15px] font-black text-slate-200 uppercase tracking-wide ml-1 flex items-center gap-1.5">
-                  <DoorOpen size={16} className="text-yellow-500" /> สถานที่ /
+              <div className="space-y-1.5 md:space-y-2" id="field-room">
+                <label className="text-[14px] md:text-[18px] font-black text-slate-200 uppercase tracking-wide ml-1 flex items-center gap-1.5 md:gap-2">
+                  <DoorOpen size={16} className="text-yellow-500 md:w-5 md:h-5" /> สถานที่ /
                   ห้อง <span className="text-rose-500">*</span>
                 </label>
                 <input
@@ -2124,11 +2034,11 @@ const executeRatingSubmit = async () => {
                     formErrors.room
                       ? 'border-rose-500 focus:border-rose-500 ring-1 ring-rose-500/30'
                       : 'border-2 border-orange-400 focus:border-orange-500 focus:ring-2 focus:ring-orange-500/30'
-                  } rounded-2xl px-5 py-4 text-sm font-bold text-slate-800 outline-none shadow-sm transition-all`}
+                  } rounded-2xl px-5 py-4 md:py-5 text-sm md:text-[16px] font-bold text-slate-800 outline-none shadow-sm transition-all`}
                   placeholder="ระบุสถานที่หรือห้อง"
                 />
                 {formErrors.room && (
-                  <div className="text-rose-500 text-[11px] font-bold mt-1.5 ml-1 animate-in fade-in">
+                  <div className="text-rose-500 text-[11px] md:text-[13px] font-bold mt-1.5 ml-1 animate-in fade-in">
                     ⚠️ {formErrors.room}
                   </div>
                 )}
@@ -2136,14 +2046,14 @@ const executeRatingSubmit = async () => {
 
               <div className="pt-4 border-t border-slate-100 flex items-center justify-between">
                 <div>
-                  <label className="text-[14px] font-black text-rose-500 uppercase tracking-widest flex items-center gap-1.5">
+                  <label className="text-[14px] md:text-[16px] font-black text-rose-500 uppercase tracking-widest flex items-center gap-1.5 md:gap-2">
                     <AlertTriangle
                       size={16}
-                      className={formData.isSsc ? 'animate-pulse' : ''}
+                      className={`md:w-5 md:h-5 ${formData.isSsc ? 'animate-pulse' : ''}`}
                     />{' '}
                     แจ้งด่วนนอกเวลาทำการ (เวร SSC)
                   </label>
-                  <p className="text-[13px] font-bold text-slate-300 mt-0.5 ml-5">
+                  <p className="text-[13px] md:text-[15px] font-bold text-slate-300 mt-0.5 ml-5 md:ml-7">
                     เลือกเพื่อส่งแจ้งเตือนไปยังวิศวกรเวร SSC
                   </p>
                 </div>
@@ -2151,13 +2061,13 @@ const executeRatingSubmit = async () => {
                   onClick={() =>
                     setFormData({ ...formData, isSsc: !formData.isSsc })
                   }
-                  className={`w-12 h-6 rounded-full flex items-center px-1 cursor-pointer transition-all shadow-inner ${
+                  className={`w-12 h-6 md:w-16 md:h-8 rounded-full flex items-center px-1 cursor-pointer transition-all shadow-inner ${
                     formData.isSsc
                       ? 'bg-rose-500 justify-end'
                       : 'bg-slate-200 justify-start'
                   }`}
                 >
-                  <div className="w-4 h-4 bg-white rounded-full shadow-sm"></div>
+                  <div className="w-4 h-4 md:w-6 md:h-6 bg-white rounded-full shadow-sm"></div>
                 </div>
               </div>
 
@@ -2167,23 +2077,23 @@ const executeRatingSubmit = async () => {
             >
               {/* 🌟 1. ส่วนหัวข้อและตัวนับ 0/6 รูป */}
               <div className="flex justify-between items-center ml-1 mb-2">
-                <label className="text-[14px] sm:text-[15px] font-black text-slate-200 uppercase tracking-wide flex items-center gap-1.5">
-                  <Camera size={16} className="text-yellow-500" />{' '}
+                <label className="text-[14px] md:text-[18px] font-black text-slate-200 uppercase tracking-wide flex items-center gap-1.5 md:gap-2">
+                  <Camera size={16} className="text-yellow-500 md:w-5 md:h-5" />{' '}
                   แนบรูปภาพประกอบ <span className="text-rose-500">*</span>
                 </label>
-                <div className="bg-orange-500/20 border border-orange-400/50 text-orange-300 text-[12px] font-black px-3 py-1 rounded-lg shadow-[0_0_10px_rgba(249,115,22,0.4)] backdrop-blur-sm">
+                <div className="bg-orange-500/20 border border-orange-400/50 text-orange-300 text-[12px] md:text-[14px] font-black px-3 py-1 rounded-lg shadow-[0_0_10px_rgba(249,115,22,0.4)] backdrop-blur-sm">
                   {formData.images.length} / 6 รูป
                 </div>
               </div>
 
               {/* 🌟 2. โซนแสดงรูปและกรอบเส้นปะ */}
-              <div className={formData.images.length === 0 ? "flex w-full" : "grid grid-cols-3 gap-3"}>
+              <div className={formData.images.length === 0 ? "flex w-full" : "grid grid-cols-3 gap-3 md:gap-4"}>
                 
                 {/* 🖼️ รูปที่ถูกเลือกแล้วจะมาเรียงตรงนี้ */}
                 {formData.images.map((img, i) => (
                   <div
                     key={i}
-                    className="relative aspect-square rounded-2xl overflow-hidden border-2 border-orange-400/70 shadow-sm"
+                    className="relative aspect-square rounded-2xl md:rounded-3xl overflow-hidden border-2 border-orange-400/70 shadow-sm"
                   >
                     <img src={img} className="w-full h-full object-cover" />
                     <button
@@ -2194,9 +2104,9 @@ const executeRatingSubmit = async () => {
                           images: formData.images.filter((_, idx) => idx !== i),
                         })
                       }
-                      className="absolute top-1 right-1 bg-rose-500 text-white p-1.5 rounded-full shadow-lg transition-transform active:scale-75 hover:bg-rose-600"
+                      className="absolute top-1 right-1 md:top-2 md:right-2 bg-rose-500 text-white p-1.5 md:p-2 rounded-full shadow-lg transition-transform active:scale-75 hover:bg-rose-600"
                     >
-                      <X size={12} />
+                      <X size={12} className="md:w-4 md:h-4" />
                     </button>
                   </div>
                 ))}
@@ -2204,8 +2114,8 @@ const executeRatingSubmit = async () => {
                 {/* 🎯 3. กรอบเส้นปะ (ลูกเล่นอัจฉริยะ) */}
                 {formData.images.length < 6 && (
                   <label 
-                    className={`border-2 border-dashed border-slate-100/80 bg-slate-800/40 hover:bg-slate-500/50 hover:border-orange-500 rounded-2xl flex flex-col items-center justify-center transition-all cursor-pointer shadow-sm active:scale-95 group hover:border-orange-500 hover:bg-orange-500/10 hover:shadow-[0_0_20px_rgba(249,115,22,0.3)]
-                    ${formData.images.length === 0 ? 'w-full h-36' : 'aspect-square'}`}
+                    className={`border-2 border-dashed border-slate-100/80 bg-slate-800/40 hover:bg-slate-500/50 hover:border-orange-500 rounded-2xl md:rounded-3xl flex flex-col items-center justify-center transition-all cursor-pointer shadow-sm active:scale-95 group hover:bg-orange-500/10 hover:shadow-[0_0_20px_rgba(249,115,22,0.3)]
+                    ${formData.images.length === 0 ? 'w-full h-36 md:h-48' : 'aspect-square'}`}
                   >
                     <input
                       type="file"
@@ -2214,8 +2124,8 @@ const executeRatingSubmit = async () => {
                       onChange={handleImageUpload}
                       className="hidden"
                     />
-                    <Camera size={formData.images.length === 0 ? 50 : 38} className="text-emerald-400 mb-2 group-hover:text-orange-400 transition-colors" />
-                    <span className={`font-bold tracking-widest transition-colors ${formData.images.length === 0 ? 'text-[15px] text-slate-300 group-hover:text-orange-300' : 'text-[11px] text-emerald-500 group-hover:text-orange-400'}`}>
+                    <Camera size={formData.images.length === 0 ? 50 : 38} className={`text-emerald-400 mb-2 group-hover:text-orange-400 transition-colors ${formData.images.length === 0 ? 'md:w-16 md:h-16' : 'md:w-10 md:h-10'}`} />
+                    <span className={`font-bold tracking-widest transition-colors ${formData.images.length === 0 ? 'text-[15px] md:text-[20px] text-slate-300 group-hover:text-orange-300' : 'text-[11px] md:text-[14px] text-emerald-500 group-hover:text-orange-400'}`}>
                       {formData.images.length === 0 ? 'คลิกเพื่อเพิ่มรูปภาพ' : 'เพิ่มรูป'}
                     </span>
                   </label>
@@ -2223,56 +2133,50 @@ const executeRatingSubmit = async () => {
               </div>
             </div>
 
-            {/* ================= เปลี่ยนสีปุ่มและเรืองแสง ของปุ่มสีส้มยื่นยันแจ้งซ่อม และปุ่มล้างข้อมูลฟอร์ม================= */}
             </div>
           </div>
-          <div className="pt-6 px-2 flex flex-col items-center text-center">
-          <button
+          <div className="pt-6 px-2 md:px-0 flex flex-col md:flex-row items-center gap-4 text-center">
+            <button
               type="submit"
               disabled={isSubmitting}
-              className="group w-full bg-gradient-to-r from-orange-500 to-amber-500 hover:from-orange-400 hover:to-yellow-400 hover:shadow-[0_0_25px_rgba(249,115,22,0.8)] hover:-translate-y-1 text-white font-black text-xl py-4 rounded-[1rem] shadow-xl shadow-orange-500/30 active:scale-95 transition-all duration-300 flex justify-center items-center gap-3 disabled:grayscale disabled:opacity-50 border-2 border-solid border-white/50"
+              className="group w-full md:flex-[2] bg-gradient-to-r from-orange-500 to-amber-500 hover:from-orange-400 hover:to-yellow-400 hover:shadow-[0_0_25px_rgba(249,115,22,0.8)] hover:-translate-y-1 text-white font-black text-xl md:text-2xl py-4 md:py-5 rounded-[1rem] md:rounded-2xl shadow-xl shadow-orange-500/30 active:scale-95 transition-all duration-300 flex justify-center items-center gap-3 disabled:grayscale disabled:opacity-50 border-2 border-solid border-white/50"
             >
-              <Send size={24} />{' '}
+              <Send size={24} className="md:w-7 md:h-7" />{' '}
               <span className="tracking-wide">ยืนยันแจ้งซ่อม</span>
             </button>
 
             <button
               type="button"
               onClick={handleResetForm}
-              className="mt-4 w-full bg-emerald-600 text-white hover:bg-rose-500 hover:text-white hover:shadow-[0_0_15px_rgba(244,63,94,0.6)] hover:-translate-y-1 font-bold text-[15px] py-3.5 rounded-2xl flex items-center justify-center gap-2 border-2 border-solid border-white/50 active:scale-95 shadow-sm transition-all"
+              className="w-full md:flex-[1] bg-emerald-600 text-white hover:bg-rose-500 hover:text-white hover:shadow-[0_0_15px_rgba(244,63,94,0.6)] hover:-translate-y-1 font-bold text-[15px] md:text-[18px] py-3.5 md:py-5 rounded-2xl flex items-center justify-center gap-2 border-2 border-solid border-white/50 active:scale-95 shadow-sm transition-all"
             >
-              <RotateCcw size={16} /> ล้างข้อมูลฟอร์ม
+              <RotateCcw size={16} className="md:w-5 md:h-5" /> ล้างข้อมูล
             </button>
 
-            </div>
+          </div>
 
-{/* 🌟 หน้าต่าง Numpad ไซไฟอวกาศ (ย้ายมาโซน VIP ลอยทับทุกสิ่ง 1,000,000%) */}
+{/* 🌟 หน้าต่าง Numpad ไซไฟอวกาศ (ของแท้อยู่ตรงนี้! ปลอดภัย 100%) */}
 {showNumpad && (
           <div className="fixed inset-0 z-[9999] flex items-center justify-center bg-slate-900/80 backdrop-blur-md p-4 animate-in fade-in duration-300" onClick={() => setShowNumpad(false)}>
             
-            {/* แสงเฟลอร์หลังกล่อง สีฟ้า (Cyan Glow) */}
-            <div className="absolute w-[350px] h-[350px] bg-cyan-500/40 rounded-full blur-[100px] pointer-events-none z-0 animate-pulse"></div>
+            <div className="absolute w-[350px] md:w-[500px] h-[350px] md:h-[500px] bg-cyan-500/40 rounded-full blur-[100px] md:blur-[150px] pointer-events-none z-0 animate-pulse"></div>
 
-            {/* 🌟 ลดความสูงเหลือ max-h-[80dvh] บังคับให้ไถ/สไลด์ได้ถ้ายาวเกินจอ */}
-            <div className="relative m-auto z-10 w-[90%] max-w-[320px] sm:max-w-[340px] bg-slate-900 border-[2px] border-solid border-white rounded-[2rem] p-4 sm:p-6 shadow-[0_0_60px_rgba(6,182,212,0.6)] flex flex-col gap-4 sm:gap-5 transition-all duration-300 max-h-[80dvh] overflow-y-auto overscroll-contain scrollbar-hide" onClick={(e) => e.stopPropagation()}>
+            <div className="relative m-auto z-10 w-[90%] max-w-[320px] sm:max-w-[340px] md:max-w-[450px] bg-slate-900 border-[2px] border-solid border-white rounded-[2rem] md:rounded-[2.5rem] p-4 sm:p-6 md:p-10 shadow-[0_0_60px_rgba(6,182,212,0.6)] flex flex-col gap-4 sm:gap-5 md:gap-8 transition-all duration-300 max-h-[80dvh] overflow-y-auto overscroll-contain scrollbar-hide" onClick={(e) => e.stopPropagation()}>
                
-               {/* หัวข้อ */}
-               <div className="text-center mb-1 pb-3 border-b border-white/20">
-                 <h3 className="font-black tracking-widest text-[16px] sm:text-[18px] flex items-center justify-center gap-2 text-orange-400 drop-shadow-[0_0_10px_rgba(249,115,22,0.8)]">
-                   <Phone size={18} className="text-emerald-400 drop-shadow-sm" />
+               <div className="text-center mb-1 pb-3 md:pb-5 border-b border-white/20">
+                 <h3 className="font-black tracking-widest text-[16px] sm:text-[18px] md:text-[24px] flex items-center justify-center gap-2 text-orange-400 drop-shadow-[0_0_10px_rgba(249,115,22,0.8)]">
+                   <Phone size={18} className="text-emerald-400 drop-shadow-sm md:w-6 md:h-6" />
                    ระบุเบอร์โทรศัพท์
                  </h3>
                </div>
                
-               {/* จอแสดงผลตัวเลข (กรอบสีฟ้าเรืองแสง + ตัวเลขสีฟ้า) */}
-               <div className="bg-slate-950 border-[2px] border-solid border-cyan-400 rounded-2xl py-4 px-4 text-center shadow-[0_0_15px_rgba(34,211,238,0.4)] flex items-center justify-center min-h-[70px] shrink-0">
-                 <span className={`text-[24px] sm:text-[28px] font-mono font-black tracking-widest ${formData.reporterContact ? 'text-cyan-400 drop-shadow-[0_0_12px_rgba(34,211,238,0.9)]' : 'text-slate-500'}`}>
+               <div className="bg-slate-950 border-[2px] border-solid border-cyan-400 rounded-2xl md:rounded-3xl py-4 px-4 md:py-6 text-center shadow-[0_0_15px_rgba(34,211,238,0.4)] flex items-center justify-center min-h-[70px] md:min-h-[100px] shrink-0">
+                 <span className={`text-[24px] sm:text-[28px] md:text-[36px] font-mono font-black tracking-widest ${formData.reporterContact ? 'text-cyan-400 drop-shadow-[0_0_12px_rgba(34,211,238,0.9)]' : 'text-slate-500'}`}>
                    {formData.reporterContact || '0X-XXXX-XXXX'}
                  </span>
                </div>
 
-               {/* แป้นพิมพ์ตัวเลข */}
-               <div className="grid grid-cols-3 gap-2.5 sm:gap-3 shrink-0">
+               <div className="grid grid-cols-3 gap-2.5 sm:gap-3 md:gap-4 shrink-0">
                  {[1, 2, 3, 4, 5, 6, 7, 8, 9].map(num => (
                    <button 
                      key={num} type="button" 
@@ -2285,22 +2189,20 @@ const executeRatingSubmit = async () => {
                        setFormData(prev => ({ ...prev, reporterContact: formatted }));
                        if (formErrors.reporterContact) setFormErrors(prev => ({ ...prev, reporterContact: null }));
                      }} 
-                     className="bg-slate-800 border-[2px] border-solid border-white/80 text-slate-200 text-2xl font-black py-3 sm:py-3.5 rounded-xl active:scale-95 transition-all shadow-[0_0_10px_rgba(255,255,255,0.3)] hover:bg-cyan-600/90 hover:border-cyan-400 hover:text-white hover:shadow-[0_0_20px_rgba(34,211,238,0.7)]"
+                     className="bg-slate-800 border-[2px] border-solid border-white/80 text-slate-200 text-2xl md:text-3xl font-black py-3 sm:py-3.5 md:py-5 rounded-xl md:rounded-2xl active:scale-95 transition-all shadow-[0_0_10px_rgba(255,255,255,0.3)] hover:bg-cyan-600/90 hover:border-cyan-400 hover:text-white hover:shadow-[0_0_20px_rgba(34,211,238,0.7)]"
                    >
                      {num}
                    </button>
                  ))}
                  
-                 {/* ปุ่ม C สไตล์เครื่องคิดเลข */}
                  <button 
                    type="button" 
                    onClick={() => setFormData(prev => ({ ...prev, reporterContact: '' }))} 
-                   className="bg-slate-800 border-[2px] border-solid border-white/80 text-orange-400 text-2xl font-black py-3 sm:py-3.5 rounded-xl active:scale-95 transition-all shadow-[0_0_10px_rgba(255,255,255,0.3)] hover:bg-orange-600 hover:border-orange-400 hover:text-white hover:shadow-[0_0_20px_rgba(249,115,22,0.7)] flex items-center justify-center"
+                   className="bg-slate-800 border-[2px] border-solid border-white/80 text-orange-400 text-2xl md:text-3xl font-black py-3 sm:py-3.5 md:py-5 rounded-xl md:rounded-2xl active:scale-95 transition-all shadow-[0_0_10px_rgba(255,255,255,0.3)] hover:bg-orange-600 hover:border-orange-400 hover:text-white hover:shadow-[0_0_20px_rgba(249,115,22,0.7)] flex items-center justify-center"
                  >
                    C
                  </button>
                  
-                 {/* ปุ่ม เลข 0 */}
                  <button 
                    type="button" 
                    onClick={() => {
@@ -2312,12 +2214,11 @@ const executeRatingSubmit = async () => {
                      setFormData(prev => ({ ...prev, reporterContact: formatted }));
                      if (formErrors.reporterContact) setFormErrors(prev => ({ ...prev, reporterContact: null }));
                    }} 
-                   className="bg-slate-800 border-[2px] border-solid border-white/80 text-slate-200 text-2xl font-black py-3 sm:py-3.5 rounded-xl active:scale-95 transition-all shadow-[0_0_10px_rgba(255,255,255,0.3)] hover:bg-cyan-600/90 hover:border-cyan-400 hover:text-white hover:shadow-[0_0_20px_rgba(34,211,238,0.7)]"
+                   className="bg-slate-800 border-[2px] border-solid border-white/80 text-slate-200 text-2xl md:text-3xl font-black py-3 sm:py-3.5 md:py-5 rounded-xl md:rounded-2xl active:scale-95 transition-all shadow-[0_0_10px_rgba(255,255,255,0.3)] hover:bg-cyan-600/90 hover:border-cyan-400 hover:text-white hover:shadow-[0_0_20px_rgba(34,211,238,0.7)]"
                  >
                    0
                  </button>
                  
-                 {/* ปุ่ม ลบทีละตัว X */}
                  <button 
                    type="button" 
                    onClick={() => {
@@ -2328,32 +2229,24 @@ const executeRatingSubmit = async () => {
                      else if (current.length > 2) formatted = `${current.substring(0, 2)}-${current.substring(2)}`;
                      setFormData(prev => ({ ...prev, reporterContact: formatted }));
                    }} 
-                   className="bg-slate-800 border-[2px] border-solid border-white/80 text-rose-500 flex items-center justify-center py-3 sm:py-3.5 rounded-xl active:scale-95 transition-all shadow-[0_0_10px_rgba(255,255,255,0.3)] hover:bg-rose-600 hover:border-rose-400 hover:text-white hover:shadow-[0_0_20px_rgba(225,29,72,0.7)]"
+                   className="bg-slate-800 border-[2px] border-solid border-white/80 text-rose-500 flex items-center justify-center py-3 sm:py-3.5 md:py-5 rounded-xl md:rounded-2xl active:scale-95 transition-all shadow-[0_0_10px_rgba(255,255,255,0.3)] hover:bg-rose-600 hover:border-rose-400 hover:text-white hover:shadow-[0_0_20px_rgba(225,29,72,0.7)]"
                  >
-                   <X size={28} strokeWidth={3.5}/>
+                   <X size={28} strokeWidth={3.5} className="md:w-8 md:h-8"/>
                  </button>
                </div>
 
-               {/* 🌟 ปุ่มยืนยัน (อัปเกรดความฉลาด: ตรวจสอบ 10 หลักทันทีที่กดปิด Numpad) */}
                <button 
                  type="button" 
                  onClick={() => {
-                   // 1. แอบนับจำนวนตัวเลขเพียวๆ (ไม่รวมขีด)
                    const digits = formData.reporterContact ? formData.reporterContact.replace(/\D/g, '') : '';
-                   
-                   // 2. เช็คเงื่อนไขทันที
                    if (digits.length > 0 && digits.length < 10) {
-                     // ถ้ากรอกแล้วแต่ไม่ครบ 10 หลัก -> สั่งโชว์ตัวแดงใต้กล่องทันที!
                      setFormErrors(prev => ({ ...prev, reporterContact: 'กรุณาระบุเบอร์โทรศัพท์ให้ครบ 10 หลัก' }));
                    } else {
-                     // ถ้าครบ 10 หลัก หรือ ไม่ได้กรอกอะไรเลย -> เคลียร์ตัวแดงทิ้งไป
                      setFormErrors(prev => ({ ...prev, reporterContact: null }));
                    }
-                   
-                   // 3. ปิดหน้าต่าง Numpad ตามปกติ
                    setShowNumpad(false);
                  }} 
-                 className="w-full mt-2 bg-gradient-to-r from-orange-500 to-amber-500 text-white font-black py-3.5 sm:py-4 rounded-xl border-[2px] border-solid border-orange-300 shadow-[0_0_15px_rgba(249,115,22,0.5)] active:scale-95 transition-all duration-300 text-[15px] sm:text-[16px] tracking-widest uppercase hover:from-emerald-500 hover:to-emerald-600 hover:border-emerald-300 hover:shadow-[0_0_25px_rgba(16,185,129,0.8)] shrink-0"
+                 className="w-full mt-2 md:mt-4 bg-gradient-to-r from-orange-500 to-amber-500 text-white font-black py-3.5 sm:py-4 md:py-6 rounded-xl md:rounded-2xl border-[2px] border-solid border-orange-300 shadow-[0_0_15px_rgba(249,115,22,0.5)] active:scale-95 transition-all duration-300 text-[15px] sm:text-[16px] md:text-[22px] tracking-widest uppercase hover:from-emerald-500 hover:to-emerald-600 hover:border-emerald-300 hover:shadow-[0_0_25px_rgba(16,185,129,0.8)] shrink-0"
                >
                  ยืนยัน
                </button>
@@ -2364,26 +2257,20 @@ const executeRatingSubmit = async () => {
 </form>
 
       )}
-      {/* ================= จบการแก้สีปุ่มยืนยันแจ้งซ่อมกับปุ่มล้างข้อมูลฟอร์มตรงนี้ ================= */}
 
-
-     {/* 🌟 หน้าต่าง Popup ยืนยันข้อมูล (อัปเกรดแสงเฟลอร์ส้มวาบๆ + ปุ่มเรืองแสง) */}
+     {/* 🌟 หน้าต่าง Popup ยืนยันข้อมูล */}
      {confirmSubmitModal && (
         <div className="fixed inset-0 z-[150] flex items-center justify-center bg-slate-900/80 backdrop-blur-md p-6 animate-in fade-in">
           
-          {/* 💥 พลังแสงเฟลอร์สีส้มวาบๆ ทะลุอยู่ด้านหลังกล่อง */}
           <div className="absolute w-[300px] h-[300px] bg-orange-500/40 rounded-full blur-[80px] animate-pulse pointer-events-none z-0"></div>
 
-          {/* 📦 ตัวกล่อง Popup */}
           <div className="relative z-10 bg-slate-800 border-[2px] border-solid border-orange-500 rounded-[2rem] w-full max-w-sm overflow-hidden shadow-[0_0_40px_rgba(249,115,22,1)] p-8 text-center space-y-6">
             
-            {/* ไอคอนหมุนๆ ด้านบน */}
             <div className="w-24 h-24 bg-slate-900 text-orange-500 rounded-full flex items-center justify-center mx-auto border-2 border-orange-400/50 shadow-[0_0_20px_rgba(249,115,22,0.8)] relative">
               <div className="absolute inset-0 border-4 border-orange-500 rounded-full border-t-transparent animate-spin opacity-50"></div>
               <CheckSquare size={50} className="animate-pulse" />
             </div>
 
-            {/* ข้อความยืนยัน */}
             <div>
               <h3 className="text-3xl font-black text-white tracking-tight drop-shadow-md mb-2">
                 ยืนยันข้อมูล?
@@ -2394,7 +2281,6 @@ const executeRatingSubmit = async () => {
               </p>
             </div>
 
-            {/* 🔘 โซนปุ่มกด (เพิ่ม Hover เรืองแสงขั้นสุด) */}
             <div className="flex gap-4 pt-2">
               <button
                 onClick={() => setConfirmSubmitModal(false)}
@@ -3485,8 +3371,8 @@ const renderTracking = () => (
         </div>
       )}
 
-      {/* 🚀 Dynamic Header */}
-      <div className={`bg-slate-900/50 backdrop-blur-xl pl-5 md:pl-8 pr-4 py-3 md:py-4 flex items-center justify-between sticky top-4 z-50 border-2 border-solid border-orange-500 rounded-2xl md:rounded-[1.5rem] mt-4 transition-all duration-500 shadow-[0_0_15px_rgba(249,115,22,0.4)] ${activeTab === 'report' ? 'mx-auto w-[calc(100%-2rem)] md:max-w-2xl' : 'mx-4 md:mx-6'}`}>
+      {/* 🚀 Dynamic Header (ฟันธง: ปลดล็อกให้กว้างเต็มขอบจอทุกหน้า) */}
+      <div className="bg-slate-900/50 backdrop-blur-xl pl-5 md:pl-8 pr-4 py-3 md:py-4 flex items-center justify-between sticky top-4 z-50 border-2 border-solid border-orange-500 rounded-2xl md:rounded-[1.5rem] mt-4 transition-all duration-500 shadow-[0_0_15px_rgba(249,115,22,0.4)] mx-4 md:mx-6">
         <div className="flex items-center gap-3.5 md:gap-5 z-10">
           
           <div className="bg-white w-14 h-14 md:w-16 md:h-16 rounded-2xl md:rounded-3xl shadow-md text-orange-500 border-2 border-solid border-orange-300 flex items-center justify-center shrink-0">
@@ -3511,9 +3397,9 @@ const renderTracking = () => (
         </div>
       </div>
 
-      {/* 🎯 ฟันธงวิชามาร: พื้นที่แสดงผลเนื้อหาภายในแอป */}
+      {/* 🎯 ฟันธงวิชามาร: พื้นที่แสดงผลเนื้อหาภายในแอป (ปลดล็อกความกว้าง 100%) */}
       <div 
-        className={`relative z-10 flex-1 overflow-y-auto overflow-x-hidden w-full [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none] pb-28 md:px-6 ${activeTab === 'report' ? 'md:max-w-2xl mx-auto' : ''}`}
+        className="relative z-10 flex-1 overflow-y-auto overflow-x-hidden w-full [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none] pb-28 md:px-6"
         style={{ overscrollBehavior: 'none', touchAction: 'pan-y' }}
       >
         {activeTab === 'dashboard' && currentUserRole === 'technician' && renderDashboard()}
@@ -3526,7 +3412,7 @@ const renderTracking = () => (
       
       {/* 🌟 ปิดกรอบเนื้อหาหลักของแอป */}
 
-{/* 🌟 หน้าต่าง Popup ประเมินความพึงพอใจ (CSAT) - ฟันธง: อัปเกรด UI V.Max กรอบขาว+เด้งดึ๋ง+แสงสว่าง 80% 🌟 */}
+{/* 🌟 หน้าต่าง Popup ประเมินความพึงพอใจ (CSAT) - ฟันธง: ปลอดภัย 100% ไม่โดนลบ 🌟 */}
 {ratingModal.isOpen && (() => {
         // สมองกลเปลี่ยนสีตามจำนวนดาว 1-5 แบบ Full Dynamic (อัปเกรดแสง Flare 80-90%)
         const rating = ratingModal.rating;
@@ -3537,16 +3423,13 @@ const renderTracking = () => (
                        rating === 1 ? { text: 'text-rose-400', fill: '#fb7185', drop: 'drop-shadow-[0_0_15px_rgba(244,63,94,1)]', border: 'border-rose-500', shadow: 'shadow-[0_0_60px_rgba(244,63,94,0.4)]', flare: 'bg-rose-500/80', btnFrom: 'from-rose-500', btnTo: 'to-rose-600', btnGlow: 'shadow-[0_0_20px_rgba(225,29,72,0.8)]', btnHover: 'hover:shadow-[0_0_30px_rgba(225,29,72,1)]', ring: 'focus:border-rose-500 focus:ring-rose-500/50', iconGlow: 'shadow-[0_0_25px_rgba(244,63,94,0.9)]' } :
                                       { text: 'text-slate-500', fill: 'none', drop: '', border: 'border-slate-700', shadow: 'shadow-[0_0_40px_rgba(0,0,0,0.5)]', flare: 'bg-blue-500/10', btnFrom: 'from-slate-700', btnTo: 'to-slate-800', btnGlow: '', btnHover: '', ring: 'focus:border-slate-400 focus:ring-slate-400/50', iconGlow: 'shadow-[0_0_15px_rgba(255,255,255,0.1)]' };
 
-        // 🌟 ฟันธง: ลบ onClick ออกจาก Background บังคับให้คลิกนอกกรอบไม่ได้ ต้องกดยกเลิกเท่านั้น!
         return (
           <div className="fixed inset-0 z-[160] flex items-center justify-center pb-[110px] md:pb-4 bg-slate-950/90 backdrop-blur-md p-4 animate-in fade-in" onClick={() => setRatingModal({ isOpen: false, ticketId: null, rating: 0, comment: '', techName: '' })}>
             <div className={`absolute w-[450px] h-[450px] rounded-full blur-[100px] pointer-events-none z-0 transition-colors duration-700 ${rColor.flare}`}></div>
             <div className={`relative m-auto z-10 bg-slate-900 border-[3px] border-solid rounded-[2.5rem] w-[95%] max-w-[320px] sm:max-w-sm h-auto max-h-[calc(100dvh-130px)] overflow-y-auto overscroll-contain [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none] px-4 pt-5 pb-5 sm:px-6 sm:pt-8 sm:pb-8 text-center transition-all duration-300 transform-gpu ${rColor.border} ${rColor.shadow}`} onClick={(e) => e.stopPropagation()}>
             
-            {/* 🌟 สไตล์ Grab: โพรไฟล์ช่างผู้รับผิดชอบ */}
             <div className="flex flex-col items-center mb-6 animate-in slide-in-from-top-4">
             <div className={`w-16 h-16 sm:w-20 sm:h-20 rounded-full flex items-center justify-center mx-auto border-[3px] border-white bg-slate-800 transition-all duration-500 shadow-[0_0_20px_rgba(255,255,255,0.15)] mb-3 overflow-hidden ${rColor.iconGlow}`}>
-                {/* 🌟 ฟันธงแก้ไขข้อ 4: รองรับรูปช่าง (ถ้ามี techPhotoUrl) ไม่งั้นใช้ไอคอน */}
                 {ratingModal.techPhotoUrl ? (
                    <img src={ratingModal.techPhotoUrl} className="w-full h-full object-cover" alt="ช่าง ฝวด." />
                 ) : (
@@ -3572,14 +3455,12 @@ const renderTracking = () => (
               </h3>
             </div>
 
-            {/* 🌟 ฟันธงแก้ไขข้อ 3: เพิ่มกรอบล้อมรอบดาว เปลี่ยนสีตามกรอบหน้าต่างหลัก */}
             <div className={`inline-flex items-center justify-center gap-1.5 py-4 px-6 rounded-3xl border-[2px] border-solid bg-slate-900/50 mb-6 transition-colors duration-500 ${rColor.border}`}>
               {[1, 2, 3, 4, 5].map((star) => (
                 <button
                   key={star}
                   type="button"
                   onClick={() => {
-                    // 🌟 ฟันธงแก้บั๊ก: อัปเดตดาวดวงใหม่ พร้อมสั่งล้างกล่องคอมเมนต์ และล้างแท็กของดาวดวงเก่าทิ้ง!
                     setRatingModal({ ...ratingModal, rating: star, comment: '' });
                     setSelectedTags([]); 
                   }}
@@ -3589,13 +3470,11 @@ const renderTracking = () => (
                       : 'text-slate-600 hover:text-slate-400'
                   }`}
                 >
-                  {/* 🌟 (แถม) ผมปรับขนาดดาวให้ย่อ-ขยายออโต้บนมือถือให้ด้วยในตัวเลยครับ */}
                   <Star className="w-9 h-9 sm:w-11 sm:h-11" fill={rating >= star ? rColor.fill : 'none'} strokeWidth={rating >= star ? 0 : 1.5} />
                 </button>
               ))}
             </div>
             
-            {/* คำอธิบายระดับดาว สี Dynamic */}
             <div className="h-7 mb-6">
               <span className={`text-[17px] md:text-[19px] font-black tracking-widest animate-in fade-in zoom-in duration-300 ${rColor.text}`}>
                 {rating === 5 ? 'ยอดเยี่ยม 😍' : 
@@ -3606,7 +3485,6 @@ const renderTracking = () => (
               </span>
             </div>
 
-            {/* 🌟 ฟันธงแก้ไขข้อ 2: Quick Tags (จัดเรียงสวยงาม ตัดคำตรงบล็อก ไม่แหว่ง) */}
             {rating > 0 && (
               <div className="mb-6 animate-in slide-in-from-top-3 duration-500 text-left">
                 <p className={`text-[13px] font-bold mb-3 text-center ${rColor.text}`}>
@@ -3631,7 +3509,6 @@ const renderTracking = () => (
               </div>
             )}
 
-            {/* 🌟 กล่องคอมเมนต์ */}
             <div className="text-left mb-6">
             <textarea
                 name="ratingComment"
@@ -3643,7 +3520,6 @@ const renderTracking = () => (
               />
             </div>
 
-            {/* 🌟 โซนปุ่มกด (ดันให้ห่างจากขอบล่างด้วย pb-12 ในกรอบแม่แล้ว) */}
             <div className="flex gap-3">
               <button
                 type="button"
@@ -3671,10 +3547,9 @@ const renderTracking = () => (
         );
       })()}
 
-{/* 🌟 หน้าต่าง Popup กราบขอบพระคุณ (Thank You Modal) - ฟันธง: อัปเกรดแสงเฟลอร์ + ดึงรหัส GSE + โชว์ดาว 5 ระดับสี 🌟 */}
+{/* 🌟 หน้าต่าง Popup กราบขอบพระคุณ (Thank You Modal) - ฟันธง: ปลอดภัย 100% 🌟 */}
 {showThanksModal && (() => {
         const rating = ratingModal.rating;
-        // 🌟 เซ็ตสีและแสงเฟลอร์ (เขียว / ฟ้า / เหลือง / ส้ม / แดงชมพู) แบบ Full Option ทุกจุด
         const tColor = rating === 5 ? { 
             border: 'border-emerald-500', text: 'text-emerald-400', flare: 'bg-emerald-500', 
             glow: 'shadow-[0_0_40px_rgba(16,185,129,0.3)]', boxBg: 'bg-emerald-950/40',
@@ -3705,12 +3580,10 @@ const renderTracking = () => (
           return (
             <div className="fixed inset-0 z-[200] flex items-center justify-center pb-[110px] md:pb-4 bg-slate-950/90 backdrop-blur-md p-4 animate-in fade-in" onClick={() => setShowThanksModal(false)}>
               
-              {/* 💥 แสงเฟลอร์ด้านหลังสุดของหน้าต่าง */}
               <div className={`absolute w-[400px] h-[400px] rounded-full blur-[100px] opacity-60 pointer-events-none z-0 transition-colors duration-700 ${tColor.flare}`}></div>
 
               <div className={`relative m-auto z-10 bg-slate-900 border-[3px] border-solid ${tColor.border} rounded-[2.5rem] w-[95%] max-w-[320px] sm:max-w-sm h-auto max-h-[calc(100dvh-130px)] overflow-y-auto overscroll-contain [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none] p-5 sm:p-8 text-center space-y-3 sm:space-y-4 animate-in zoom-in-95 duration-300 ${tColor.glow}`} onClick={(e) => e.stopPropagation()}>
               
-              {/* 💥 ส่วนรูปโปรไฟล์ช่าง + เพิ่มแสงเฟลอร์ด้านหลังรูปให้สว่างวาบ */}
               <div className="relative mx-auto w-24 h-24 mt-2 mb-2">
                 <div className={`absolute -inset-2 blur-[20px] rounded-full opacity-70 animate-pulse ${tColor.flare}`}></div>
                 <div className="relative w-24 h-24 rounded-full overflow-hidden border-[3px] border-solid border-white shadow-lg bg-slate-800 flex items-center justify-center z-10">
@@ -3722,7 +3595,6 @@ const renderTracking = () => (
                 </div>
               </div>
 
-              {/* 💥 ชื่อช่างและซับไตเติล (โชว์รหัส GSE) */}
               <div className="space-y-1 relative z-10">
                 <h3 className="text-[20px] md:text-[22px] font-black text-white leading-tight drop-shadow-md">
                   กระผม {ratingModal.techName || 'ทีมช่าง ฝวด.'}
@@ -3732,7 +3604,6 @@ const renderTracking = () => (
                 </p>
               </div>
 
-              {/* 🌟🌟 ฟันธง: โชว์ผลคะแนนดาว (Confirmation) กลับมาแล้วครับ! 🌟🌟 */}
               <div className="flex justify-center items-center gap-1.5 mt-2 mb-1 relative z-10">
                 {[1, 2, 3, 4, 5].map((star) => (
                   <Star 
@@ -3745,12 +3616,10 @@ const renderTracking = () => (
                 ))}
               </div>
 
-              {/* 🌟🌟 พื้นที่น้องมาสคอตตรงกลาง 🌟🌟 */}
               <div className="w-full flex justify-center py-1 relative z-10">
               <img src="/mascot.webp" alt="GSE Mascot" className="h-20 sm:h-28 object-contain drop-shadow-[0_10px_10px_rgba(0,0,0,0.5)] hover:scale-105 transition-transform" />
               </div>
 
-              {/* 💥 กรอบข้อความขอบคุณ */}
               <div className={`p-4 rounded-2xl border-[2px] border-solid ${tColor.border} ${tColor.boxBg} ${tColor.boxGlow} relative z-10 transition-all duration-300`}>
                 <p className={`text-[13px] md:text-[14px] font-bold leading-relaxed px-1 ${tColor.text}`}>
                   {rating >= 4 ? 'กราบขอบพระคุณอย่างสูงครับ! ผมจะรักษามาตรฐานนี้เพื่อบริการท่านให้ดีที่สุดต่อไปครับ' :
@@ -3759,7 +3628,6 @@ const renderTracking = () => (
                 </p>
               </div>
 
-              {/* 💥 ปุ่มปิดหน้าต่าง */}
               <button 
                 onClick={() => setShowThanksModal(false)}
                 className={`relative z-10 w-full py-4 mt-2 rounded-xl font-black text-slate-200 bg-slate-800 border-[2px] border-solid border-slate-400 active:scale-95 transition-all duration-300 tracking-widest shadow-md ${tColor.btnHover}`}
@@ -3771,10 +3639,13 @@ const renderTracking = () => (
         );
       })()}
 
-      {/* 🧭 Navigation Bar (ฟันธง: อัปเกรด PC ไซส์บิ๊กเบิ้ม + ขยายไอคอน + ลอยสูงขึ้นบนจอใหญ่) */}
-      <div className={`fixed bottom-4 md:bottom-8 left-1/2 -translate-x-1/2 w-[calc(100%-2rem)] max-w-[416px] py-2 md:py-4 bg-slate-900/90 backdrop-blur-xl border-2 md:border-[3px] border-solid border-orange-500 rounded-2xl md:rounded-[2rem] z-[9999] shadow-[0_10px_30px_rgba(249,115,22,0.4)] md:shadow-[0_15px_40px_rgba(249,115,22,0.6)] transform-gpu ${activeTab === 'report' ? 'md:max-w-3xl' : 'md:max-w-4xl'}`}>
-     
-      <div className="w-full flex justify-evenly items-center px-1 md:px-8">
+   {/* 🌟 ฟันธง: เรียกใช้ฟอนต์ Sarabun เรียบร้อย สะอาดตา */}
+   <SarabunFontEmbed />
+
+{/* 🧭 Navigation Bar (ฟันธงแก้ไข: ล็อกความกว้างให้เท่ากับขอบบนเป๊ะ ด้วยวิชามาร md:max-w-[calc(72rem-3rem)] ) */}
+<div className="fixed bottom-4 md:bottom-8 left-1/2 -translate-x-1/2 w-[calc(100%-2rem)] md:w-[calc(100%-3rem)] max-w-md py-2 md:py-4 bg-slate-900/90 backdrop-blur-xl border-2 md:border-[3px] border-solid border-orange-500 rounded-2xl md:rounded-[2rem] z-[9999] shadow-[0_10px_30px_rgba(249,115,22,0.4)] md:shadow-[0_15px_40px_rgba(249,115,22,0.6)] transform-gpu md:max-w-[calc(72rem-3rem)]">
+  
+  <div className="w-full flex justify-evenly items-center px-1 md:px-8">
           
           {/* 🏠 ปุ่ม HOME */}
           <button onClick={onGoHome} className="flex flex-col items-center justify-center w-20 md:w-32 gap-1.5 md:gap-2 active:scale-95 transition-all shrink-0 group">
@@ -4040,8 +3911,33 @@ function LandingPage({ onStart }) {
 
     </div>
   );
-  
-} // <--- 🌟 ฟันธง: วงเล็บปีกกาตัวนี้แหละครับที่หายไป ทำให้พัง! 🌟
+} 
+
+/* 🌟 ฟันธง: นำเข้าฟอนต์ Sarabun และจัดระเบียบความเพรียวบางให้อ่านง่ายที่สุด */
+const SarabunFontEmbed = () => (
+  <style>{`
+    @import url('https://fonts.googleapis.com/css2?family=Sarabun:wght@200;300;400;500;600;700;800&display=swap');
+    
+    /* บังคับใช้ฟอนต์ Sarabun กับทุกตัวอักษรในแอป */
+    body, html, *, h1, h2, h3, p, button, input {
+      font-family: 'Sarabun', sans-serif !important;
+      letter-spacing: 0.02em !important; /* จัดช่องไฟของ Sarabun ให้ละมุนสายตา */
+      line-height: 1.5 !important;
+    }
+    
+    /* ควบคุมความหนาของตัวอักษร Sarabun ไม่ให้บวมหนาเตอะ */
+    .font-black { font-weight: 700 !important; }
+    .font-bold { font-weight: 600 !important; }
+    .font-normal { font-weight: 400 !important; }
+    
+    /* ยกเว้นสำหรับ รหัสงาน หรือตัวเลขเวลา */
+    .font-mono {
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace !important;
+      letter-spacing: 0.02em !important;
+      font-weight: 600 !important;
+    }
+  `}</style>
+);
 
 // ==========================================
 // 🚀 ส่วนควบคุมระบบ (App Component)

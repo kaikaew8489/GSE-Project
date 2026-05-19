@@ -11,12 +11,19 @@
     <meta name="apple-mobile-web-app-title" content="GSE แจ้งซ่อม">
     <link rel="apple-touch-icon" href="/GSE-logo.webp">
     <title>ระบบแจ้งซ่อม ฝวด. (GSE)</title>
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@200;300;400;500;600;700;800&display=swap" rel="stylesheet">
     
-    <!-- เครื่องผสมสี CDN -->
     <script src="https://cdn.tailwindcss.com"></script>
 
-    <!-- ป้องกันการดึงหน้าจอลง (Pull-to-Refresh) แบบมาตรฐานเบราว์เซอร์ -->
     <style>
+      /* บังคับใช้ฟอนต์ Sarabun ทั้งระบบ */
+      body, html, * {
+        font-family: 'Sarabun', sans-serif !important;
+      }
+      
       body {
         overscroll-behavior-y: none !important;
         background-color: #0f172a; 
