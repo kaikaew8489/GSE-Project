@@ -2155,106 +2155,147 @@ const executeRatingSubmit = async () => {
 
           </div>
 
-{/* 🌟 หน้าต่าง Numpad ไซไฟอวกาศ (ของแท้อยู่ตรงนี้! ปลอดภัย 100%) */}
+{/* 🌟 หน้าต่าง Numpad ไซไฟอวกาศ (เวอร์ชันทุบสกรอลล์บาร์ทิ้ง + ผูกคีย์บอร์ด PC ถูกต้องตามกฎ React 1,000,000%) */}
 {showNumpad && (
-          <div className="fixed inset-0 z-[9999] flex items-center justify-center bg-slate-900/80 backdrop-blur-md p-4 animate-in fade-in duration-300" onClick={() => setShowNumpad(false)}>
-            
-            <div className="absolute w-[350px] md:w-[500px] h-[350px] md:h-[500px] bg-cyan-500/40 rounded-full blur-[100px] md:blur-[150px] pointer-events-none z-0 animate-pulse"></div>
+  <div 
+    className="fixed inset-0 z-[9999] flex items-center justify-center bg-slate-900/80 backdrop-blur-md p-4 animate-in fade-in duration-300" 
+    onClick={() => setShowNumpad(false)}
+    // ⌨️ วิชามารขั้นสูง: ดักจับคีย์บอร์ดผ่าน Event ของตัว Container โดยตรง ไม่ใช้ Hook เพื่อป้องกันหน้าจอขาวระเบิด 100%
+    tabIndex={0}
+    ref={(el) => el && el.focus()}
+    onKeyDown={(e) => {
+      // 1. กดเลข 0-9 บนคีย์บอร์ดปกติ หรือ แป้น Numpad ขวามือ
+      if (/^[0-9]$/.test(e.key)) {
+        let current = formData.reporterContact ? formData.reporterContact.replace(/\D/g, '') : '';
+        if (current.length < 10) current += e.key;
+        let formatted = current;
+        if (current.length > 6) formatted = `${current.substring(0, 2)}-${current.substring(2, 6)}-${current.substring(6)}`;
+        else if (current.length > 2) formatted = `${current.substring(0, 2)}-${current.substring(2)}`;
+        setFormData(prev => ({ ...prev, reporterContact: formatted }));
+        if (formErrors.reporterContact) setFormErrors(prev => ({ ...prev, reporterContact: null }));
+      }
+      
+      // 2. กดปุ่ม Backspace หรือ Delete เพื่อลบตัวเลขทีละหลัก
+      if (e.key === 'Backspace' || e.key === 'Delete') {
+        let current = formData.reporterContact ? formData.reporterContact.replace(/\D/g, '') : '';
+        current = current.slice(0, -1);
+        let formatted = current;
+        if (current.length > 6) formatted = `${current.substring(0, 2)}-${current.substring(2, 6)}-${current.substring(6)}`;
+        else if (current.length > 2) formatted = `${current.substring(0, 2)}-${current.substring(2)}`;
+        setFormData(prev => ({ ...prev, reporterContact: formatted }));
+      }
 
-            <div className="relative m-auto z-10 w-[90%] max-w-[320px] sm:max-w-[340px] md:max-w-[450px] bg-slate-900 border-[2px] border-solid border-white rounded-[2rem] md:rounded-[2.5rem] p-4 sm:p-6 md:p-10 shadow-[0_0_60px_rgba(6,182,212,0.6)] flex flex-col gap-4 sm:gap-5 md:gap-8 transition-all duration-300 max-h-[80dvh] overflow-y-auto overscroll-contain scrollbar-hide" onClick={(e) => e.stopPropagation()}>
-               
-               <div className="text-center mb-1 pb-3 md:pb-5 border-b border-white/20">
-                 <h3 className="font-black tracking-widest text-[16px] sm:text-[18px] md:text-[24px] flex items-center justify-center gap-2 text-orange-400 drop-shadow-[0_0_10px_rgba(249,115,22,0.8)]">
-                   <Phone size={18} className="text-emerald-400 drop-shadow-sm md:w-6 md:h-6" />
-                   ระบุเบอร์โทรศัพท์
-                 </h3>
-               </div>
-               
-               <div className="bg-slate-950 border-[2px] border-solid border-cyan-400 rounded-2xl md:rounded-3xl py-4 px-4 md:py-6 text-center shadow-[0_0_15px_rgba(34,211,238,0.4)] flex items-center justify-center min-h-[70px] md:min-h-[100px] shrink-0">
-                 <span className={`text-[24px] sm:text-[28px] md:text-[36px] font-mono font-black tracking-widest ${formData.reporterContact ? 'text-cyan-400 drop-shadow-[0_0_12px_rgba(34,211,238,0.9)]' : 'text-slate-500'}`}>
-                   {formData.reporterContact || '0X-XXXX-XXXX'}
-                 </span>
-               </div>
+      // 3. กดปุ่ม Enter เพื่อตรวจสอบและยืนยันปิดหน้าต่าง
+      if (e.key === 'Enter') {
+        e.preventDefault();
+        const digits = formData.reporterContact ? formData.reporterContact.replace(/\D/g, '') : '';
+        if (digits.length > 0 && digits.length < 10) {
+          setFormErrors(prev => ({ ...prev, reporterContact: 'กรุณาระบุเบอร์โทรศัพท์ให้ครบ 10 หลัก' }));
+        } else {
+          setFormErrors(prev => ({ ...prev, reporterContact: null }));
+        }
+        setShowNumpad(false);
+      }
+    }}
+  >
+    
+    <div className="absolute w-[350px] md:w-[500px] h-[350px] md:h-[500px] bg-cyan-500/40 rounded-full blur-[100px] md:blur-[150px] pointer-events-none z-0 animate-pulse"></div>
 
-               <div className="grid grid-cols-3 gap-2.5 sm:gap-3 md:gap-4 shrink-0">
-                 {[1, 2, 3, 4, 5, 6, 7, 8, 9].map(num => (
-                   <button 
-                     key={num} type="button" 
-                     onClick={() => {
-                       let current = formData.reporterContact ? formData.reporterContact.replace(/\D/g, '') : '';
-                       if (current.length < 10) current += num;
-                       let formatted = current;
-                       if (current.length > 6) formatted = `${current.substring(0, 2)}-${current.substring(2, 6)}-${current.substring(6)}`;
-                       else if (current.length > 2) formatted = `${current.substring(0, 2)}-${current.substring(2)}`;
-                       setFormData(prev => ({ ...prev, reporterContact: formatted }));
-                       if (formErrors.reporterContact) setFormErrors(prev => ({ ...prev, reporterContact: null }));
-                     }} 
-                     className="bg-slate-800 border-[2px] border-solid border-white/80 text-slate-200 text-2xl md:text-3xl font-black py-3 sm:py-3.5 md:py-5 rounded-xl md:rounded-2xl active:scale-95 transition-all shadow-[0_0_10px_rgba(255,255,255,0.3)] hover:bg-cyan-600/90 hover:border-cyan-400 hover:text-white hover:shadow-[0_0_20px_rgba(34,211,238,0.7)]"
-                   >
-                     {num}
-                   </button>
-                 ))}
-                 
-                 <button 
-                   type="button" 
-                   onClick={() => setFormData(prev => ({ ...prev, reporterContact: '' }))} 
-                   className="bg-slate-800 border-[2px] border-solid border-white/80 text-orange-400 text-2xl md:text-3xl font-black py-3 sm:py-3.5 md:py-5 rounded-xl md:rounded-2xl active:scale-95 transition-all shadow-[0_0_10px_rgba(255,255,255,0.3)] hover:bg-orange-600 hover:border-orange-400 hover:text-white hover:shadow-[0_0_20px_rgba(249,115,22,0.7)] flex items-center justify-center"
-                 >
-                   C
-                 </button>
-                 
-                 <button 
-                   type="button" 
-                   onClick={() => {
-                     let current = formData.reporterContact ? formData.reporterContact.replace(/\D/g, '') : '';
-                     if (current.length < 10) current += '0';
-                     let formatted = current;
-                     if (current.length > 6) formatted = `${current.substring(0, 2)}-${current.substring(2, 6)}-${current.substring(6)}`;
-                     else if (current.length > 2) formatted = `${current.substring(0, 2)}-${current.substring(2)}`;
-                     setFormData(prev => ({ ...prev, reporterContact: formatted }));
-                     if (formErrors.reporterContact) setFormErrors(prev => ({ ...prev, reporterContact: null }));
-                   }} 
-                   className="bg-slate-800 border-[2px] border-solid border-white/80 text-slate-200 text-2xl md:text-3xl font-black py-3 sm:py-3.5 md:py-5 rounded-xl md:rounded-2xl active:scale-95 transition-all shadow-[0_0_10px_rgba(255,255,255,0.3)] hover:bg-cyan-600/90 hover:border-cyan-400 hover:text-white hover:shadow-[0_0_20px_rgba(34,211,238,0.7)]"
-                 >
-                   0
-                 </button>
-                 
-                 <button 
-                   type="button" 
-                   onClick={() => {
-                     let current = formData.reporterContact ? formData.reporterContact.replace(/\D/g, '') : '';
-                     current = current.slice(0, -1);
-                     let formatted = current;
-                     if (current.length > 6) formatted = `${current.substring(0, 2)}-${current.substring(2, 6)}-${current.substring(6)}`;
-                     else if (current.length > 2) formatted = `${current.substring(0, 2)}-${current.substring(2)}`;
-                     setFormData(prev => ({ ...prev, reporterContact: formatted }));
-                   }} 
-                   className="bg-slate-800 border-[2px] border-solid border-white/80 text-rose-500 flex items-center justify-center py-3 sm:py-3.5 md:py-5 rounded-xl md:rounded-2xl active:scale-95 transition-all shadow-[0_0_10px_rgba(255,255,255,0.3)] hover:bg-rose-600 hover:border-rose-400 hover:text-white hover:shadow-[0_0_20px_rgba(225,29,72,0.7)]"
-                 >
-                   <X size={28} strokeWidth={3.5} className="md:w-8 md:h-8"/>
-                 </button>
-               </div>
+    {/* 🌟 ฟันธง: รักษารูปทรงเดิม p-4 md:p-10 แต่ทุบสกรอลล์บาร์ทิ้งถาวรด้วยการเอา max-h-[80dvh] และ overflow-y-auto ออก แล้วแทนที่ด้วย overflow-hidden */}
+    <div className="relative m-auto z-10 w-[90%] max-w-[320px] sm:max-w-[340px] md:max-w-[450px] bg-slate-900 border-[2px] border-solid border-white rounded-[2rem] md:rounded-[2.5rem] p-4 sm:p-6 md:p-10 shadow-[0_0_60px_rgba(6,182,212,0.6)] flex flex-col gap-4 sm:gap-5 md:gap-8 transition-all duration-300 overflow-hidden outline-none" onClick={(e) => e.stopPropagation()}>
+       
+       <div className="text-center mb-1 pb-3 md:pb-5 border-b border-white/20">
+         <h3 className="font-black tracking-widest text-[16px] sm:text-[18px] md:text-[24px] flex items-center justify-center gap-2 text-orange-400 drop-shadow-[0_0_10px_rgba(249,115,22,0.8)]">
+           <Phone size={18} className="text-emerald-400 drop-shadow-sm md:w-6 md:h-6" />
+           ระบุเบอร์โทรศัพท์
+         </h3>
+       </div>
+       
+       <div className="bg-slate-950 border-[2px] border-solid border-cyan-400 rounded-2xl md:rounded-3xl py-4 px-4 md:py-6 text-center shadow-[0_0_15px_rgba(34,211,238,0.4)] flex items-center justify-center min-h-[70px] md:min-h-[100px] shrink-0">
+         <span className={`text-[24px] sm:text-[28px] md:text-[36px] font-mono font-black tracking-widest ${formData.reporterContact ? 'text-cyan-400 drop-shadow-[0_0_12px_rgba(34,211,238,0.9)]' : 'text-slate-500'}`}>
+           {formData.reporterContact || '0X-XXXX-XXXX'}
+         </span>
+       </div>
 
-               <button 
-                 type="button" 
-                 onClick={() => {
-                   const digits = formData.reporterContact ? formData.reporterContact.replace(/\D/g, '') : '';
-                   if (digits.length > 0 && digits.length < 10) {
-                     setFormErrors(prev => ({ ...prev, reporterContact: 'กรุณาระบุเบอร์โทรศัพท์ให้ครบ 10 หลัก' }));
-                   } else {
-                     setFormErrors(prev => ({ ...prev, reporterContact: null }));
-                   }
-                   setShowNumpad(false);
-                 }} 
-                 className="w-full mt-2 md:mt-4 bg-gradient-to-r from-orange-500 to-amber-500 text-white font-black py-3.5 sm:py-4 md:py-6 rounded-xl md:rounded-2xl border-[2px] border-solid border-orange-300 shadow-[0_0_15px_rgba(249,115,22,0.5)] active:scale-95 transition-all duration-300 text-[15px] sm:text-[16px] md:text-[22px] tracking-widest uppercase hover:from-emerald-500 hover:to-emerald-600 hover:border-emerald-300 hover:shadow-[0_0_25px_rgba(16,185,129,0.8)] shrink-0"
-               >
-                 ยืนยัน
-               </button>
-            </div>
-          </div>
-        )}
+       <div className="grid grid-cols-3 gap-2.5 sm:gap-3 md:gap-4 shrink-0">
+         {[1, 2, 3, 4, 5, 6, 7, 8, 9].map(num => (
+           <button 
+             key={num} type="button" 
+             onClick={() => {
+               let current = formData.reporterContact ? formData.reporterContact.replace(/\D/g, '') : '';
+               if (current.length < 10) current += num;
+               let formatted = current;
+               if (current.length > 6) formatted = `${current.substring(0, 2)}-${current.substring(2, 6)}-${current.substring(6)}`;
+               else if (current.length > 2) formatted = `${current.substring(0, 2)}-${current.substring(2)}`;
+               setFormData(prev => ({ ...prev, reporterContact: formatted }));
+               if (formErrors.reporterContact) setFormErrors(prev => ({ ...prev, reporterContact: null }));
+             }} 
+             className="bg-slate-800 border-[2px] border-solid border-white/80 text-slate-200 text-2xl md:text-3xl font-black py-3 sm:py-3.5 md:py-5 rounded-xl md:rounded-2xl active:scale-95 transition-all shadow-[0_0_10px_rgba(255,255,255,0.3)] hover:bg-cyan-600/90 hover:border-cyan-400 hover:text-white hover:shadow-[0_0_20px_rgba(34,211,238,0.7)]"
+           >
+             {num}
+           </button>
+         ))}
+         
+         <button 
+           type="button" 
+           onClick={() => setFormData(prev => ({ ...prev, reporterContact: '' }))} 
+           className="bg-slate-800 border-[2px] border-solid border-white/80 text-orange-400 text-2xl md:text-3xl font-black py-3 sm:py-3.5 md:py-5 rounded-xl md:rounded-2xl active:scale-95 transition-all shadow-[0_0_10px_rgba(255,255,255,0.3)] hover:bg-orange-600 hover:border-orange-400 hover:text-white hover:shadow-[0_0_20px_rgba(249,115,22,0.7)] flex items-center justify-center"
+         >
+           C
+         </button>
+         
+         <button 
+           type="button" 
+           onClick={() => {
+             let current = formData.reporterContact ? formData.reporterContact.replace(/\D/g, '') : '';
+             if (current.length < 10) current += '0';
+             let formatted = current;
+             if (current.length > 6) formatted = `${current.substring(0, 2)}-${current.substring(2, 6)}-${current.substring(6)}`;
+             else if (current.length > 2) formatted = `${current.substring(0, 2)}-${current.substring(2)}`;
+             setFormData(prev => ({ ...prev, reporterContact: formatted }));
+             if (formErrors.reporterContact) setFormErrors(prev => ({ ...prev, reporterContact: null }));
+           }} 
+           className="bg-slate-800 border-[2px] border-solid border-white/80 text-slate-200 text-2xl md:text-3xl font-black py-3 sm:py-3.5 md:py-5 rounded-xl md:rounded-2xl active:scale-95 transition-all shadow-[0_0_10px_rgba(255,255,255,0.3)] hover:bg-cyan-600/90 hover:border-cyan-400 hover:text-white hover:shadow-[0_0_20px_rgba(34,211,238,0.7)]"
+         >
+           0
+         </button>
+         
+         <button 
+           type="button" 
+           onClick={() => {
+             let current = formData.reporterContact ? formData.reporterContact.replace(/\D/g, '') : '';
+             current = current.slice(0, -1);
+             let formatted = current;
+             if (current.length > 6) formatted = `${current.substring(0, 2)}-${current.substring(2, 6)}-${current.substring(6)}`;
+             else if (current.length > 2) formatted = `${current.substring(0, 2)}-${current.substring(2)}`;
+             setFormData(prev => ({ ...prev, reporterContact: formatted }));
+           }} 
+           className="bg-slate-800 border-[2px] border-solid border-white/80 text-rose-500 flex items-center justify-center py-3 sm:py-3.5 md:py-5 rounded-xl md:rounded-2xl active:scale-95 transition-all shadow-[0_0_10px_rgba(255,255,255,0.3)] hover:bg-rose-600 hover:border-rose-400 hover:text-white hover:shadow-[0_0_20px_rgba(225,29,72,0.7)]"
+         >
+           <X size={28} strokeWidth={3.5} className="md:w-8 md:h-8"/>
+         </button>
+       </div>
+
+       <button 
+         type="button" 
+         onClick={() => {
+           const digits = formData.reporterContact ? formData.reporterContact.replace(/\D/g, '') : '';
+           if (digits.length > 0 && digits.length < 10) {
+             setFormErrors(prev => ({ ...prev, reporterContact: 'กรุณาระบุเบอร์โทรศัพท์ให้ครบ 10 หลัก' }));
+           } else {
+             setFormErrors(prev => ({ ...prev, reporterContact: null }));
+           }
+           setShowNumpad(false);
+         }} 
+         className="w-full mt-2 md:mt-4 bg-gradient-to-r from-orange-500 to-amber-500 text-white font-black py-3.5 sm:py-4 md:py-6 rounded-xl md:rounded-2xl border-[2px] border-solid border-orange-300 shadow-[0_0_15px_rgba(249,115,22,0.5)] active:scale-95 transition-all duration-300 text-[15px] sm:text-[16px] md:text-[22px] tracking-widest uppercase hover:from-emerald-500 hover:to-emerald-600 hover:border-emerald-300 hover:shadow-[0_0_25px_rgba(16,185,129,0.8)] shrink-0"
+       >
+         ยืนยัน
+       </button>
+    </div>
+  </div>
+)}
         
-</form>
+      </form>
 
       )}
 
@@ -3388,13 +3429,14 @@ const renderTracking = () => (
           </div>
         </div>
 
-        {/* ปรับพิกัดน้องมาสคอตบน PC ให้พอดีกับความสูงหัวข้อใหม่ ไม่บินทะลุขอบจอ */}
-        <div className="relative w-12 md:w-20 h-14 md:h-12 shrink-0 z-50 pointer-events-none overflow-visible">
+       {/* 🌟 ฟันธงแก้ไขมาสคอต: คืนค่าพิกดและความกว้างฉบับสมบูรณ์ หัวไม่แหว่ง ตัวใหญ่สวยงามบน PC 1,000,000% */}
+       <div className="relative w-12 md:w-28 h-14 md:h-16 shrink-0 z-50 pointer-events-none overflow-visible">
            <img 
              src={activeTab === 'dashboard' ? "/mascot-dashboard.webp" : activeTab === 'report' ? "/mascot-report.webp" : (activeTab === 'tracking' && currentUserRole === 'technician') ? "/mascot-tech.webp" : "/mascot-track.webp"}
              key={activeTab + currentUserRole}
              alt="GSE Mascot" 
-             className="absolute bottom-[-10px] right-[-10px] md:bottom-[-16px] md:right-[-5px] w-[65px] md:w-[80px] max-w-none h-auto object-contain drop-shadow-[0_5px_5px_rgba(0,0,0,0.4)] animate-in slide-in-from-right-4 fade-in duration-500 overflow-visible"
+             /* 💡 ทริคท่านหัวหน้า: ปรับความกว้างที่ md:w-[92px] และดึงน้องลงมาที่ md:bottom-[-35px] เพื่อไม่ให้หัวแหว่งครับ */
+             className="absolute bottom-[-10px] right-[-10px] md:bottom-[-35px] md:right-[-5px] w-[65px] md:w-[85px] max-w-none h-auto object-contain drop-shadow-[0_5px_5px_rgba(0,0,0,0.4)] animate-in slide-in-from-right-4 fade-in duration-500 overflow-visible"
            />
         </div>
       </div>
@@ -3423,129 +3465,141 @@ const renderTracking = () => (
                        rating === 1 ? { text: 'text-rose-400', fill: '#fb7185', drop: 'drop-shadow-[0_0_15px_rgba(244,63,94,1)]', border: 'border-rose-500', shadow: 'shadow-[0_0_60px_rgba(244,63,94,0.4)]', flare: 'bg-rose-500/80', btnFrom: 'from-rose-500', btnTo: 'to-rose-600', btnGlow: 'shadow-[0_0_20px_rgba(225,29,72,0.8)]', btnHover: 'hover:shadow-[0_0_30px_rgba(225,29,72,1)]', ring: 'focus:border-rose-500 focus:ring-rose-500/50', iconGlow: 'shadow-[0_0_25px_rgba(244,63,94,0.9)]' } :
                                       { text: 'text-slate-500', fill: 'none', drop: '', border: 'border-slate-700', shadow: 'shadow-[0_0_40px_rgba(0,0,0,0.5)]', flare: 'bg-blue-500/10', btnFrom: 'from-slate-700', btnTo: 'to-slate-800', btnGlow: '', btnHover: '', ring: 'focus:border-slate-400 focus:ring-slate-400/50', iconGlow: 'shadow-[0_0_15px_rgba(255,255,255,0.1)]' };
 
-        return (
-          <div className="fixed inset-0 z-[160] flex items-center justify-center pb-[110px] md:pb-4 bg-slate-950/90 backdrop-blur-md p-4 animate-in fade-in" onClick={() => setRatingModal({ isOpen: false, ticketId: null, rating: 0, comment: '', techName: '' })}>
-            <div className={`absolute w-[450px] h-[450px] rounded-full blur-[100px] pointer-events-none z-0 transition-colors duration-700 ${rColor.flare}`}></div>
-            <div className={`relative m-auto z-10 bg-slate-900 border-[3px] border-solid rounded-[2.5rem] w-[95%] max-w-[320px] sm:max-w-sm h-auto max-h-[calc(100dvh-130px)] overflow-y-auto overscroll-contain [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none] px-4 pt-5 pb-5 sm:px-6 sm:pt-8 sm:pb-8 text-center transition-all duration-300 transform-gpu ${rColor.border} ${rColor.shadow}`} onClick={(e) => e.stopPropagation()}>
-            
-            <div className="flex flex-col items-center mb-6 animate-in slide-in-from-top-4">
-            <div className={`w-16 h-16 sm:w-20 sm:h-20 rounded-full flex items-center justify-center mx-auto border-[3px] border-white bg-slate-800 transition-all duration-500 shadow-[0_0_20px_rgba(255,255,255,0.15)] mb-3 overflow-hidden ${rColor.iconGlow}`}>
-                {ratingModal.techPhotoUrl ? (
-                   <img src={ratingModal.techPhotoUrl} className="w-full h-full object-cover" alt="ช่าง ฝวด." />
-                ) : (
-                   <User size={45} className={`mt-3 transition-colors duration-500 ${rating > 0 ? rColor.text : 'text-slate-400'}`} fill="currentColor" />
-                )}
-              </div>
-              
-              <h3 className="text-xl md:text-2xl font-black text-white tracking-tight drop-shadow-md">
-                {ratingModal.techName || 'ทีมช่าง ฝวด.'}
-              </h3>
-              
-              <p className="text-[12px] md:text-[14px] text-slate-400 font-bold mt-1.5 flex items-center gap-1.5">
-                รหัสงาน 
-                <span className={`text-[16px] md:text-[18px] font-black font-mono tracking-wider transition-colors duration-300 drop-shadow-sm ${rating > 0 ? rColor.text : 'text-orange-400'}`}>
-                  {ratingModal.ticketId}
-                </span>
-              </p>
-            </div>
-
-            <div className="mb-4">
-              <h3 className={`text-[15px] md:text-[17px] font-black tracking-widest transition-colors duration-300 ${rating > 0 ? rColor.text : 'text-slate-200'}`}>
-                คุณพึงพอใจการซ่อมระดับไหน?
-              </h3>
-            </div>
-
-            <div className={`inline-flex items-center justify-center gap-1.5 py-4 px-6 rounded-3xl border-[2px] border-solid bg-slate-900/50 mb-6 transition-colors duration-500 ${rColor.border}`}>
-              {[1, 2, 3, 4, 5].map((star) => (
-                <button
-                  key={star}
-                  type="button"
-                  onClick={() => {
-                    setRatingModal({ ...ratingModal, rating: star, comment: '' });
-                    setSelectedTags([]); 
-                  }}
-                  className={`transition-all duration-300 transform hover:scale-125 active:scale-90 ${
-                    rating >= star 
-                      ? `${rColor.text} ${rColor.drop}` 
-                      : 'text-slate-600 hover:text-slate-400'
-                  }`}
-                >
-                  <Star className="w-9 h-9 sm:w-11 sm:h-11" fill={rating >= star ? rColor.fill : 'none'} strokeWidth={rating >= star ? 0 : 1.5} />
-                </button>
-              ))}
-            </div>
-            
-            <div className="h-7 mb-6">
-              <span className={`text-[17px] md:text-[19px] font-black tracking-widest animate-in fade-in zoom-in duration-300 ${rColor.text}`}>
-                {rating === 5 ? 'ยอดเยี่ยม 😍' : 
-                 rating === 4 ? 'ดีมาก 😁' : 
-                 rating === 3 ? 'ดี 😊' : 
-                 rating === 2 ? 'พอใช้ 😐' : 
-                 rating === 1 ? 'ปรับปรุง 😞' : 'โปรดแตะเลือกจำนวนดาว'}
-              </span>
-            </div>
-
-            {rating > 0 && (
-              <div className="mb-6 animate-in slide-in-from-top-3 duration-500 text-left">
-                <p className={`text-[13px] font-bold mb-3 text-center ${rColor.text}`}>
-                  ท่านประทับใจส่วนไหนเป็นพิเศษ? (เลือกได้หลายข้อ)
-                </p>
-                <div className="flex flex-wrap justify-center gap-2 px-2">
-                {(tagsByRating[rating] || []).map((tag, index) => (
-                    <button
-                      key={index}
-                      type="button"
-                      onClick={() => toggleTag(tag)}
-                      className={`px-3 py-1.5 rounded-full text-[12px] font-black whitespace-nowrap border-[2px] border-solid transition-all active:scale-95 duration-300 ${
-                        selectedTags.includes(tag)
-                          ? `bg-gradient-to-r ${rColor.btnFrom} ${rColor.btnTo} text-white ${rColor.border} shadow-md drop-shadow-md` 
-                          : `bg-slate-800 text-slate-300 border-slate-600 hover:${rColor.text} hover:border-slate-400`
-                      }`}
-                    >
-                      {tag}
-                    </button>
-                  ))}
-                </div>
-              </div>
-            )}
-
-            <div className="text-left mb-6">
-            <textarea
-                name="ratingComment"
-                value={ratingModal.comment}
-                onChange={(e) => setRatingModal({ ...ratingModal, comment: e.target.value })}
-                placeholder="พิมพ์ข้อเสนอแนะเพิ่มเติม..."
-                rows={3}
-                className={`w-full bg-slate-800 border-[2px] border-solid border-slate-600 rounded-2xl px-4 py-3 text-white font-bold text-sm outline-none transition-all shadow-inner ${rating > 0 ? rColor.ring : 'focus:border-slate-400 focus:ring-slate-400/50'}`}
-              />
-            </div>
-
-            <div className="flex gap-3">
-              <button
-                type="button"
-                onClick={() => setRatingModal({ isOpen: false, ticketId: null, rating: 0, comment: '', techName: '' })}
-                className="flex-[0.8] py-4 rounded-xl font-bold text-rose-200 bg-rose-900/40 border-[2px] border-solid border-rose-500/50 hover:bg-rose-600 hover:border-rose-400 hover:text-white hover:shadow-[0_0_20px_rgba(225,29,72,0.8)] hover:-translate-y-1 active:scale-95 transition-all duration-300"
-              >
-                ยกเลิก
-              </button>
-              
-              <button
-                type="button"
-                onClick={executeRatingSubmit}
-                disabled={rating === 0}
-                className={`flex-[1.2] py-4 rounded-xl font-black text-white border-[2px] border-solid active:scale-95 transition-all duration-300 ${
-                  rating === 0 
-                    ? 'bg-slate-800 border-slate-600 text-slate-500 opacity-50 cursor-not-allowed' 
-                    : `bg-gradient-to-r ${rColor.btnFrom} ${rColor.btnTo} ${rColor.border} ${rColor.btnGlow} ${rColor.btnHover} hover:-translate-y-1`
-                }`}
-              >
-                ยืนยันการประเมิน
-              </button>
-            </div>
-          </div>
-        </div>
-        );
-      })()}
+                                      return (
+                                        /* 🎯 ฟันธง: แก้ไขระยะ pb-[110px] md:pb-32 เพื่อดันกล่องขึ้นให้พ้นแถบเมนูด้านล่างเวลาซูมบน PC */
+                                        <div className="fixed inset-0 z-[160] flex items-center justify-center pb-[110px] md:pb-32 bg-slate-950/90 backdrop-blur-md p-4 animate-in fade-in" onClick={() => setRatingModal({ isOpen: false, ticketId: null, rating: 0, comment: '', techName: '' })}>
+                                          <div className={`absolute w-[450px] md:w-[600px] h-[450px] md:h-[600px] rounded-full blur-[100px] md:blur-[150px] pointer-events-none z-0 transition-colors duration-700 ${rColor.flare}`}></div>
+                                          
+                                          {/* 🎯 ฟันธง: ขยายร่างกล่องบน PC จากเดิม sm:max-w-sm เพิ่มความกว้างเป็น md:max-w-xl เพื่อให้พื้นที่แนวตั้งเหลือเฟือ ปุ่มไม่โดนบัง และเปลี่ยนระยะเว้น md:p-8 */}
+                                          <div className={`relative m-auto z-10 bg-slate-900 border-[3px] border-solid rounded-[2.5rem] w-[95%] max-w-[320px] sm:max-w-sm md:max-w-xl h-auto max-h-[calc(100dvh-140px)] overflow-y-auto overscroll-contain [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none] px-4 pt-5 pb-5 sm:px-6 sm:pt-8 sm:pb-8 md:p-8 text-center transition-all duration-300 transform-gpu ${rColor.border} ${rColor.shadow}`} onClick={(e) => e.stopPropagation()}>
+                                          
+                                          <div className="flex flex-col items-center mb-6 animate-in slide-in-from-top-4">
+                                            <div className={`w-16 h-16 sm:w-20 sm:h-20 md:w-24 md:h-24 rounded-full flex items-center justify-center mx-auto border-[3px] border-white bg-slate-800 transition-all duration-500 shadow-[0_0_20px_rgba(255,255,255,0.15)] mb-3 overflow-hidden ${rColor.iconGlow}`}>
+                                              {ratingModal.techPhotoUrl ? (
+                                                 <img src={ratingModal.techPhotoUrl} className="w-full h-full object-cover" alt="ช่าง ฝวด." />
+                                              ) : (
+                                                 <User size={45} className={`mt-3 md:w-16 md:h-16 transition-colors duration-500 ${rating > 0 ? rColor.text : 'text-slate-400'}`} fill="currentColor" />
+                                              )}
+                                            </div>
+                                            
+                                            {/* 🎯 ฟันธง: ขยายชื่อช่างผู้รับผิดชอบบน PC ให้ใหญ่ชัดเจน (md:text-3xl) */}
+                                            <h3 className="text-xl md:text-3xl font-black text-white tracking-tight drop-shadow-md">
+                                              {ratingModal.techName || 'ทีมช่าง ฝวด.'}
+                                            </h3>
+                                            
+                                            {/* 🎯 ฟันธงแก้ไขจุดสำคัญ: ปรับเปลี่ยนข้อความนำหน้าเป็น "ผู้รับผิดชอบรหัสงาน" และขยายฟอนต์ PC เป็น md:text-[16px] */}
+                                            <p className="text-[12px] md:text-[16px] text-slate-400 font-bold mt-1.5 flex items-center gap-1.5 justify-center w-full">
+                                              ผู้รับผิดชอบรหัสงาน 
+                                              <span className={`text-[16px] md:text-[22px] font-black font-mono tracking-wider transition-colors duration-300 drop-shadow-sm ${rating > 0 ? rColor.text : 'text-orange-400'}`}>
+                                                {ratingModal.ticketId}
+                                              </span>
+                                            </p>
+                                          </div>
+                              
+                                          {/* 🎯 ฟันธง: ขยายตัวหนังสือพาดหัวคำถามบน PC ให้ใหญ่เต็มตาเป็น md:text-xl */}
+                                          <div className="mb-4">
+                                            <h3 className={`text-[15px] md:text-xl font-black tracking-widest transition-colors duration-300 ${rating > 0 ? rColor.text : 'text-slate-200'}`}>
+                                              คุณพึงพอใจการซ่อมระดับไหน?
+                                            </h3>
+                                          </div>
+                              
+                                          {/* ส่วนระบบดวงดาวคงความสวยงามเดิมไว้เป๊ะๆ ปรับขยายขนาดดาวบน PC เล็กน้อยให้สมดุล */}
+                                          <div className={`inline-flex items-center justify-center gap-1.5 py-4 px-6 md:py-5 md:px-8 rounded-3xl border-[2px] border-solid bg-slate-900/50 mb-6 transition-colors duration-500 ${rColor.border}`}>
+                                            {[1, 2, 3, 4, 5].map((star) => (
+                                              <button
+                                                key={star}
+                                                type="button"
+                                                onClick={() => {
+                                                  setRatingModal({ ...ratingModal, rating: star, comment: '' });
+                                                  setSelectedTags([]); 
+                                                }}
+                                                className={`transition-all duration-300 transform hover:scale-125 active:scale-90 ${
+                                                  rating >= star 
+                                                    ? `${rColor.text} ${rColor.drop}` 
+                                                    : 'text-slate-600 hover:text-slate-400'
+                                                }`}
+                                              >
+                                                <Star className="w-9 h-9 sm:w-11 sm:h-11 md:w-12 md:h-12" fill={rating >= star ? rColor.fill : 'none'} strokeWidth={rating >= star ? 0 : 1.5} />
+                                              </button>
+                                            ))}
+                                          </div>
+                                          
+                                          {/* คำอธิบายคะแนนดาว ขยายฟอนต์บน PC เป็น md:text-2xl */}
+                                          <div className="h-7 mb-6">
+                                            <span className={`text-[17px] md:text-22px font-black tracking-widest animate-in fade-in zoom-in duration-300 ${rColor.text}`}>
+                                              {rating === 5 ? 'ยอดเยี่ยม 😍' : 
+                                               rating === 4 ? 'ดีมาก 😁' : 
+                                               rating === 3 ? 'ดี 😊' : 
+                                               rating === 2 ? 'พอใช้ 😐' : 
+                                               rating === 1 ? 'ปรับปรุง 😞' : 'โปรดแตะเลือกจำนวนดาว'}
+                                            </span>
+                                          </div>
+                              
+                                          {rating > 0 && (
+                                            <div className="mb-6 animate-in slide-in-from-top-3 duration-500 text-left">
+                                              {/* ขยายป้ายคำแนะนำป้ายแท็กบน PC เป็น md:text-[15px] */}
+                                              <p className={`text-[13px] md:text-[15px] font-bold mb-3 text-center ${rColor.text}`}>
+                                                ท่านประทับใจส่วนไหนเป็นพิเศษ? (เลือกได้หลายข้อ)
+                                              </p>
+                                              <div className="flex flex-wrap justify-center gap-2 px-2">
+                                              {(tagsByRating[rating] || []).map((tag, index) => (
+                                                  <button
+                                                    key={index}
+                                                    type="button"
+                                                    onClick={() => toggleTag(tag)}
+                                                    /* ปรับแต่งขนาดแท็กให้อวบอิ่มขึ้นเมื่อแสดงผลบน PC (md:text-[14px] md:px-4 md:py-2) */
+                                                    className={`px-3 py-1.5 rounded-full text-[12px] md:text-[14px] font-black whitespace-nowrap border-[2px] border-solid transition-all active:scale-95 duration-300 ${
+                                                      selectedTags.includes(tag)
+                                                        ? `bg-gradient-to-r ${rColor.btnFrom} ${rColor.btnTo} text-white ${rColor.border} shadow-md drop-shadow-md` 
+                                                        : `bg-slate-800 text-slate-300 border-slate-600 hover:${rColor.text} hover:border-slate-400`
+                                                    }`}
+                                                  >
+                                                    {tag}
+                                                  </button>
+                                                ))}
+                                              </div>
+                                            </div>
+                                          )}
+                              
+                                          <div className="text-left mb-6">
+                                          <textarea
+                                              name="ratingComment"
+                                              value={ratingModal.comment}
+                                              onChange={(e) => setRatingModal({ ...ratingModal, comment: e.target.value })}
+                                              placeholder="พิมพ์ข้อเสนอแนะเพิ่มเติม..."
+                                              rows={3}
+                                              /* ขยายขนาดช่องพิมพ์ข้อความของ PC ให้ตัวใหญ่ขึ้นพิมพ์ถนัดสายตามากขึ้น (md:text-base) */
+                                              className={`w-full bg-slate-800 border-[2px] border-solid border-slate-600 rounded-2xl px-4 py-3 text-white font-bold text-sm md:text-base outline-none transition-all shadow-inner ${rating > 0 ? rColor.ring : 'focus:border-slate-400 focus:ring-slate-400/50'}`}
+                                            />
+                                          </div>
+                              
+                                          {/* 🎯 ฟันธง: ขยายความสูงปุ่ม และอัปขนาดตัวหนังสือปุ่มให้เต็มหน้าจอคอมพิวเตอร์ (md:py-4 md:text-xl) */}
+                                          <div className="flex gap-3">
+                                            <button
+                                              type="button"
+                                              onClick={() => setRatingModal({ isOpen: false, ticketId: null, rating: 0, comment: '', techName: '' })}
+                                              className="flex-[0.8] py-4 md:py-4 rounded-xl font-bold text-rose-200 bg-rose-900/40 border-[2px] border-solid border-rose-500/50 hover:bg-rose-600 hover:border-rose-400 hover:text-white hover:shadow-[0_0_20px_rgba(225,29,72,0.8)] hover:-translate-y-1 active:scale-95 transition-all duration-300 md:text-xl"
+                                            >
+                                              ยกเลิก
+                                            </button>
+                                            
+                                            <button
+                                              type="button"
+                                              onClick={executeRatingSubmit}
+                                              disabled={rating === 0}
+                                              className={`flex-[1.2] py-4 md:py-4 rounded-xl font-black text-white border-[2px] border-solid active:scale-95 transition-all duration-300 md:text-xl ${
+                                                rating === 0 
+                                                  ? 'bg-slate-800 border-slate-600 text-slate-500 opacity-50 cursor-not-allowed' 
+                                                  : `bg-gradient-to-r ${rColor.btnFrom} ${rColor.btnTo} ${rColor.border} ${rColor.btnGlow} ${rColor.btnHover} hover:-translate-y-1`
+                                              }`}
+                                            >
+                                              ยืนยันการประเมิน
+                                            </button>
+                                          </div>
+                                        </div>
+                                      </div>
+                                      );
+                                    })()}
 
 {/* 🌟 หน้าต่าง Popup กราบขอบพระคุณ (Thank You Modal) - คงไว้สมบูรณ์แบบปลอดภัย 100% */}
 {showThanksModal && (() => {
