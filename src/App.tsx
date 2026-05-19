@@ -533,20 +533,48 @@ const calculateDuration = (start, end, holdMs = 0) => {
 // 👇 🌟🌟 ฟันธง: บรรทัดนี้ของท่านหายไปครับ! เติมกลับเข้าไปด่วน ไม่งั้นแอปพังทั้งระบบ!
 function MainApp({ onGoHome, initialRole }) {
 
- // 🌟 ฟันธงแก้: เปลี่ยนเป็น sessionStorage (จำเฉพาะตอนเปิดแอป ปิดแอปปุ๊บลืมทันที!)
- const [activeTab, setActiveTab] = useState(
-  () => sessionStorage.getItem('activeTab') || (initialRole === 'technician' ? 'dashboard' : 'report')
-);
+  // =========================================================================
+  // 🌟🌟 ฟันธงข้อ 3 สเต็ปที่ 1: วางสมองกลตรวจจับการเลื่อนจอตรงนี้เลยครับ! (บนสุด) 🌟🌟
+  // =========================================================================
+  const [isNavVisible, setIsNavVisible] = useState(true);
+  const lastScrollY = useRef(0);
 
-useEffect(() => {
-  sessionStorage.setItem('activeTab', activeTab);
-}, [activeTab]);
+  useEffect(() => {
+    const handleScroll = () => {
+      const container = document.querySelector('.overflow-y-auto');
+      if (!container) return;
+      
+      const currentScrollY = container.scrollTop;
+      if (currentScrollY > lastScrollY.current && currentScrollY > 50) {
+        setIsNavVisible(false); // ไถลงล่าง -> ซ่อนเมนู
+      } else {
+        setIsNavVisible(true);  // ไถขึ้นบน -> โชว์เมนู
+      }
+      lastScrollY.current = currentScrollY;
+    };
+
+    const container = document.querySelector('.overflow-y-auto');
+    if (container) container.addEventListener('scroll', handleScroll);
+    return () => container?.removeEventListener('scroll', handleScroll);
+  }, []);
+  // =========================================================================
+
+  // 🌟 ฟันธงแก้: เปลี่ยนเป็น sessionStorage (จำเฉพาะตอนเปิดแอป ปิดแอปปุ๊บลืมทันที!)
+  const [activeTab, setActiveTab] = useState(
+    () => sessionStorage.getItem('activeTab') || (initialRole === 'technician' ? 'dashboard' : 'report')
+  );
+
+  useEffect(() => {
+    sessionStorage.setItem('activeTab', activeTab);
+  }, [activeTab]);
 
 
   // 🌟🌟🌟 จุดที่ 1: เติมบรรทัดนี้ลงไป! (สำคัญมาก ถ้าไม่มีระบบจะพัง) 🌟🌟🌟
   // ของเดิมอาจจะเป็น: const [dashTimeframe, setDashTimeframe] = useState('month');
   // ✅ แก้เป็นแบบนี้ครับ:
   const [dashTimeframe, setDashTimeframe] = useState('today');
+
+  // ... (โค้ดด้านล่างของท่านปล่อยไว้เหมือนเดิมยาวๆ ได้เลยครับ ไม่ต้องไปแตะมัน)
   const [customMonth, setCustomMonth] = useState(''); // เก็บค่า YYYY-MM
   const [showMonthPicker, setShowMonthPicker] = useState(false); // ควบคุมการเปิด/ปิดป๊อปอัป
   const [pickerYear, setPickerYear] = useState(new Date().getFullYear()); // พ.ศ. ที่กำลังเลือกดู
@@ -2299,46 +2327,70 @@ const executeRatingSubmit = async () => {
 
       )}
 
-     {/* 🌟 หน้าต่าง Popup ยืนยันข้อมูล */}
-     {confirmSubmitModal && (
-        <div className="fixed inset-0 z-[150] flex items-center justify-center bg-slate-900/80 backdrop-blur-md p-6 animate-in fade-in">
-          
-          <div className="absolute w-[300px] h-[300px] bg-orange-500/40 rounded-full blur-[80px] animate-pulse pointer-events-none z-0"></div>
+     {/* 🌟 หน้าต่าง Popup ยืนยันข้อมูล (เวอร์ชันแก้ Error หน้าจอแดงถาวร - ผูกคีย์บอร์ด PC คลีน 100% ตามกฎ React) */}
+{confirmSubmitModal && (
+  <div 
+    className="fixed inset-0 z-[150] flex items-center justify-center bg-slate-900/80 backdrop-blur-md p-6 animate-in fade-in outline-none"
+    onClick={() => setConfirmSubmitModal(false)}
+    // ⌨️ วิชามารดักจับคีย์บอร์ด: ดักฟังผ่านแอตทริบิวต์ HTML โดยตรง ไม่ใช้ useState หรือ useEffect ในนี้ ปลอดภัยจากอาการ Hook แกว่ง 1,000,000%
+    tabIndex={0}
+    ref={(el) => el && el.focus()}
+    onKeyDown={(e) => {
+      // ข้อที่ 2: กดปุ่ม Esc เพื่อยกเลิกและปิดหน้าต่างทันที
+      if (e.key === 'Escape') {
+        e.preventDefault();
+        setConfirmSubmitModal(false);
+      }
+      
+      // ข้อที่ 1: กดปุ่ม Enter บน PC ปุ๊บ สั่งยิงข้อมูลส่งซ่อมเข้ากลุ่มไลน์ ฝวด. ทันที (เพราะเป็นปุ่ม Default หลัก)
+      if (e.key === 'Enter') {
+        e.preventDefault();
+        executeSubmit();
+      }
+    }}
+  >
+    
+    <div className="absolute w-[300px] h-[300px] bg-orange-500/40 rounded-full blur-[80px] animate-pulse pointer-events-none z-0"></div>
 
-          <div className="relative z-10 bg-slate-800 border-[2px] border-solid border-orange-500 rounded-[2rem] w-full max-w-sm overflow-hidden shadow-[0_0_40px_rgba(249,115,22,1)] p-8 text-center space-y-6">
-            
-            <div className="w-24 h-24 bg-slate-900 text-orange-500 rounded-full flex items-center justify-center mx-auto border-2 border-orange-400/50 shadow-[0_0_20px_rgba(249,115,22,0.8)] relative">
-              <div className="absolute inset-0 border-4 border-orange-500 rounded-full border-t-transparent animate-spin opacity-50"></div>
-              <CheckSquare size={50} className="animate-pulse" />
-            </div>
+    <div className="relative z-10 bg-slate-800 border-[2px] border-solid border-orange-500 rounded-[2rem] w-full max-w-sm overflow-hidden shadow-[0_0_40px_rgba(249,115,22,1)] p-8 text-center space-y-6" onClick={(e) => e.stopPropagation()}>
+      
+      <div className="w-24 h-24 bg-slate-900 text-orange-500 rounded-full flex items-center justify-center mx-auto border-2 border-orange-400/50 shadow-[0_0_20px_rgba(249,115,22,0.8)] relative">
+        <div className="absolute inset-0 border-4 border-orange-500 rounded-full border-t-transparent animate-spin opacity-50"></div>
+        <CheckSquare size={50} className="animate-pulse" />
+      </div>
 
-            <div>
-              <h3 className="text-3xl font-black text-white tracking-tight drop-shadow-md mb-2">
-                ยืนยันข้อมูล?
-              </h3>
-              <p className="text-[18px] text-slate-300 font-bold leading-relaxed">
-                โปรดตรวจสอบข้อมูลให้ถูกต้อง<br />
-                ก่อนส่งเข้าระบบ
-              </p>
-            </div>
+      <div>
+        <h3 className="text-3xl font-black text-white tracking-tight drop-shadow-md mb-2">
+          ยืนยันข้อมูล?
+        </h3>
+        <p className="text-[18px] text-slate-300 font-bold leading-relaxed">
+          โปรดตรวจสอบข้อมูลให้ถูกต้อง<br />
+          ก่อนส่งเข้าระบบ
+        </p>
+      </div>
 
-            <div className="flex gap-4 pt-2">
-              <button
-                onClick={() => setConfirmSubmitModal(false)}
-                className="flex-1 py-3.5 rounded-xl font-bold text-white bg-emerald-700 border-2 border-solid border-emerald-500 shadow-lg active:scale-95 transition-all duration-300 hover:bg-emerald-500 hover:shadow-[0_0_25px_rgba(16,185,129,0.8)] hover:-translate-y-1"
-              >
-                ยกเลิก
-              </button>
-              <button
-                onClick={executeSubmit}
-                className="flex-[1.5] py-3.5 rounded-xl font-black text-white bg-gradient-to-r from-orange-500 to-amber-500 border-2 border-solid border-orange-300 shadow-lg shadow-orange-500/30 active:scale-95 transition-all duration-300 hover:from-orange-400 hover:to-amber-400 hover:shadow-[0_0_30px_rgba(249,115,22,0.9)] hover:-translate-y-1"
-              >
-                ยืนยันส่งข้อมูล
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
+      <div className="flex gap-4 pt-2">
+        {/* ปุ่มยกเลิก */}
+        <button
+          type="button"
+          onClick={() => setConfirmSubmitModal(false)}
+          className="flex-1 py-3.5 rounded-xl font-bold text-white bg-emerald-700 border-2 border-solid border-emerald-500 shadow-lg active:scale-95 transition-all duration-300 hover:bg-emerald-500 hover:shadow-[0_0_25px_rgba(16,185,129,0.8)] hover:-translate-y-1"
+        >
+          ยกเลิก
+        </button>
+
+        {/* ปุ่มยืนยันส่งข้อมูล (ตั้งค่าให้เรืองแสงพร้อมรับแรงกระแทกจากปุ่ม Enter บนคีย์บอร์ด PC ทันที) */}
+        <button
+          type="button"
+          onClick={executeSubmit}
+          className="flex-[1.5] py-3.5 rounded-xl font-black text-white bg-gradient-to-r from-orange-400 to-amber-400 border-2 border-solid border-white scale-105 ring-4 ring-orange-400/50 shadow-[0_0_30px_rgba(249,115,22,0.9)] active:scale-95 transition-all duration-300 hover:from-orange-400 hover:to-amber-400"
+        >
+          ยืนยันส่งข้อมูล
+        </button>
+      </div>
+    </div>
+  </div>
+)}
     </div>
   );
 
@@ -3696,10 +3748,13 @@ const renderTracking = () => (
    {/* 🌟 ฟันธง: เรียกใช้ฟอนต์ Sarabun เรียบร้อย สะอาดตา */}
    <SarabunFontEmbed />
 
-{/* 🧭 Navigation Bar (ฟันธงแก้ไข: รีดไขมันแนวตั้ง md:py-4 ลดเหลือ md:py-2 และย่อไซส์ปุ่ม/ไอคอนลงให้ Slim เรียบหรู) */}
-<div className="fixed bottom-4 md:bottom-8 left-1/2 -translate-x-1/2 w-[calc(100%-2rem)] md:w-[calc(100%-3rem)] max-w-md py-2 md:py-2 bg-slate-900/90 backdrop-blur-xl border-2 md:border-[3px] border-solid border-orange-500 rounded-2xl md:rounded-xl z-[9999] shadow-[0_10px_30px_rgba(249,115,22,0.4)] md:shadow-[0_15px_40px_rgba(249,115,22,0.6)] transform-gpu md:max-w-[calc(72rem-3rem)]">
+{/* 🧭 Navigation Bar (ฟันธงข้อ 3 สเต็ปที่ 2: ฝังเอฟเฟกต์สไลด์หลบลงใต้จออัตโนมัติเมื่อไถจอลง) */}
+<div className={`fixed left-1/2 -translate-x-1/2 w-[calc(100%-2rem)] md:w-[calc(100%-3rem)] max-w-md py-2 md:py-2 bg-slate-900/90 backdrop-blur-xl border-2 md:border-[3px] border-solid border-orange-500 rounded-2xl md:rounded-xl z-[9999] shadow-[0_10px_30px_rgba(249,115,22,0.4)] md:shadow-[0_15px_40px_rgba(249,115,22,0.6)] transform-gpu md:max-w-[calc(72rem-3rem)] transition-all duration-500 ease-in-out ${
+  isNavVisible ? 'bottom-4 md:bottom-8 opacity-100 translate-y-0' : '-bottom-32 opacity-0 translate-y-full pointer-events-none'
+}`}>
   
-<div className="w-full flex justify-evenly items-center px-1 md:px-8">
+  <div className="w-full flex justify-evenly items-center px-1 md:px-8">
+     {/* ... (โค้ดปุ่ม หน้าแรก, แจ้งซ่อม, ฯลฯ ของท่านหัวหน้าจะยังอยู่ด้านในนี้เหมือนเดิม ปลอดภัย 100%) ... */}
           
           {/* 🏠 ปุ่ม HOME (ฟันธง: รีดไขมันลดไซส์ไอคอน md:w-8 และตัวหนังสือ md:text-[14px]) */}
           <button onClick={onGoHome} className="flex flex-col items-center justify-center w-20 md:w-28 gap-1.5 md:gap-1.5 active:scale-95 transition-all shrink-0 group">
