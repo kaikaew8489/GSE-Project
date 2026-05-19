@@ -2418,27 +2418,26 @@ const executeRatingSubmit = async () => {
   
 //เพิ่มปุ่ม แจ้งเหตุขัดข้อง รอยืนยัน
 const renderTracking = () => (
-  <div className="p-4 space-y-6 pb-32 animate-in slide-in-from-left-4 duration-500 text-left">
+  <div className="p-4 md:p-8 space-y-6 md:space-y-10 pb-32 md:pb-40 animate-in slide-in-from-left-4 duration-500 text-left">
     
     {/* 🌟 ฟันธงข้อ 3 & 4: มัดรวมทุกเมนูควบคุม (อัปเกรด รีดไขมัน ปล่อยให้เลื่อนตามหน้าจอได้อิสระ!) */}
-    <div className="relative pt-1 pb-4 space-y-3 mb-2 border-b-2 border-slate-700/50 animate-in fade-in duration-500">
+    <div className="relative pt-1 pb-4 md:pb-8 space-y-3 md:space-y-6 mb-2 md:mb-6 border-b-2 border-slate-700/50 animate-in fade-in duration-500">
       
-      {/* 1. ช่องค้นหา (ย้ายมาบนสุด เล็กลง กระชับขึ้น) */}
-      {/* 🌟 ฟันธง: ช่องค้นหา (Search Bar) */}
-      <div className="flex-grow flex items-center bg-slate-900 border-2 border-solid border-cyan-800/80 rounded-xl p-3 shadow-inner shadow-[0_0_8px_rgba(34,211,238,1)] hover:border-cyan-500 hover:shadow-[0_0_15px_rgba(34,211,238,1)] transition-all duration-300 cursor-text">
-            <Search size={22} className="text-cyan-300" />
+      {/* 1. ช่องค้นหา (ขยายร่าง PC ใหญ่เบิ้มพิมพ์ง่ายเต็มตา) */}
+      <div className="flex-grow flex items-center bg-slate-900 border-2 border-solid border-cyan-800/80 rounded-xl md:rounded-[1.5rem] p-3 md:p-5 shadow-inner shadow-[0_0_8px_rgba(34,211,238,1)] hover:border-cyan-500 hover:shadow-[0_0_15px_rgba(34,211,238,1)] transition-all duration-300 cursor-text">
+            <Search size={22} className="md:w-8 md:h-8 text-cyan-300 shrink-0" />
             <input
               type="text"
               placeholder="ค้นหา รหัส หรือ อุปกรณ์..."
-              className="bg-transparent flex-grow outline-none text-white px-3 font-bold placeholder:text-slate-500 placeholder:font-normal"
+              className="bg-transparent flex-grow outline-none text-white px-3 md:px-5 font-bold md:text-[24px] placeholder:text-slate-500 placeholder:font-normal placeholder:md:text-[24px]"
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
             />
           </div>
 
-      {/* 2. สวิตช์กรองสถานะงาน (ปรับปุ่มให้เตี้ยลง และใช้ flex-none ให้กระชับพอดีตัวอักษร) */}
-      <div className="bg-slate-800/80 rounded-xl border-[2px] border-solid border-slate-700 shadow-inner">
-        <div className="flex gap-1.5 overflow-x-auto py-1.5 px-1.5 snap-x [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]">
+      {/* 2. สวิตช์กรองสถานะงาน (อัปเกรด PC ปุ่มใหญ่ คลิกง่าย ไม่ต้องเล็ง) */}
+      <div className="bg-slate-800/80 rounded-xl md:rounded-2xl border-[2px] border-solid border-slate-700 shadow-inner">
+        <div className="flex gap-1.5 md:gap-3 overflow-x-auto py-1.5 md:py-3 px-1.5 md:px-3 snap-x [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]">
         {[
             { id: 'all', label: 'ทั้งหมด' },
             { id: 'pending', label: 'รอดำเนินการ' },
@@ -2454,11 +2453,9 @@ const renderTracking = () => (
                 setFilterStatus(f.id);
                 setSearchTerm('');
               }}
-             className={`flex-none md:flex-1 px-3.5 py-1.5 text-[12px] font-black rounded-lg transition-all duration-300 snap-center whitespace-nowrap ${
+             className={`flex-none md:flex-1 px-3.5 md:px-6 py-1.5 md:py-3 text-[12px] md:text-[20px] font-black rounded-lg md:rounded-xl transition-all duration-300 snap-center whitespace-nowrap ${
                 filterStatus === f.id
-                  // 🟠 สถานะ Active: เก็บสีส้มทอง GSE ของเดิมไว้ สวยเด่นอยู่แล้วครับ
                   ? 'bg-gradient-to-r from-orange-500 to-amber-500 text-white border-[2px] border-solid border-orange-300 shadow-[0_0_15px_rgba(249,115,22,0.8)] scale-[1.02] z-10' 
-                  // 🔵 สถานะ Inactive: ฟันธงเปลี่ยนเป็นฟ้าเรืองแสง (Cyan Glow) พร้อมเอฟเฟกต์ตอนเมาส์ชี้
                   : 'bg-slate-900 text-cyan-300 border-[2px] border-solid border-cyan-400/30 shadow-[0_0_8px_rgba(34,211,238,0.8)] hover:bg-slate-900 hover:text-cyan-200 hover:border-cyan-300 hover:shadow-[0_0_15px_rgba(34,211,238,1)] hover:-translate-y-0.5' 
               }`}
             >
@@ -2468,9 +2465,9 @@ const renderTracking = () => (
         </div>
       </div>
 
-      {/* 3. ปุ่มกรองเวลา (ปรับให้บางลง รีด Padding ออก) */}
-      <div className="flex gap-1.5">
-          <button onClick={() => setTrackTimeframe('all')} className={`flex-[0.8] py-1.5 rounded-lg font-black text-[12px] transition-all duration-300 whitespace-nowrap ${
+      {/* 3. ปุ่มกรองเวลา (อัปเกรด PC ไซส์ใหญ่) */}
+      <div className="flex gap-1.5 md:gap-4 md:mt-4">
+          <button onClick={() => setTrackTimeframe('all')} className={`flex-[0.8] py-1.5 md:py-4 rounded-lg md:rounded-2xl font-black text-[12px] md:text-[22px] transition-all duration-300 whitespace-nowrap ${
             trackTimeframe === 'all' 
               ? 'bg-gradient-to-r from-cyan-600 to-blue-600 text-white shadow-[0_0_15px_rgba(6,182,212,0.8)] border-[2px] border-solid border-cyan-300 scale-[1.02] z-10' 
               : 'bg-slate-950 text-cyan-300 border-[2px] border-solid border-cyan-400/30 shadow-[0_0_8px_rgba(34,211,238,0.3)] hover:bg-slate-900 hover:text-cyan-200 hover:border-cyan-300 hover:shadow-[0_0_15px_rgba(34,211,238,0.6)] hover:-translate-y-0.5'
@@ -2479,17 +2476,16 @@ const renderTracking = () => (
           {/* ระบุวัน */}
           <div className="relative flex-1">
             <button onClick={() => 
-            setShowTrackDatePicker(true)} className={`w-full h-full py-1.5 rounded-lg font-black text-[12px] flex items-center justify-center gap-1.5 transition-all duration-300 whitespace-nowrap ${
+            setShowTrackDatePicker(true)} className={`w-full h-full py-1.5 md:py-4 rounded-lg md:rounded-2xl font-black text-[12px] md:text-[22px] flex items-center justify-center gap-1.5 md:gap-3 transition-all duration-300 whitespace-nowrap ${
               trackTimeframe === 'custom_date' 
                 ? 'bg-gradient-to-r from-cyan-600 to-blue-600 text-white shadow-[0_0_15px_rgba(6,182,212,0.8)] border-[2px] border-solid border-cyan-300 scale-[1.02] z-10' 
                 : 'bg-slate-950 text-cyan-300 border-[2px] border-solid border-cyan-400/30 shadow-[0_0_8px_rgba(34,211,238,0.3)] hover:bg-slate-900 hover:text-cyan-200 hover:border-cyan-300 hover:shadow-[0_0_15px_rgba(34,211,238,0.6)] hover:-translate-y-0.5'
             }`}>
-              <Calendar size={14} className={trackTimeframe === 'custom_date' ? 'text-white animate-pulse' : 'text-cyan-400'}/> ระบุวัน
+              <Calendar size={14} className={`md:w-6 md:h-6 ${trackTimeframe === 'custom_date' ? 'text-white animate-pulse' : 'text-cyan-400'}`}/> ระบุวัน
             </button>
 
             {showTrackDatePicker && (
                 <div className="fixed inset-0 z-[300] bg-slate-900/80 backdrop-blur-md flex p-4 animate-in fade-in items-center justify-center" onClick={() => setShowTrackDatePicker(false)}>
-                  {/* 🌟 PC อัปเกรด: ธีมสีฟ้าไซไฟ */}
                   <div className="relative z-10 m-auto bg-slate-900 border-[2px] border-solid border-white rounded-[2rem] shadow-[0_0_60px_rgba(6,182,212,0.8)] w-[90%] max-w-[320px] sm:max-w-[340px] md:max-w-[550px] p-4 sm:p-5 md:p-10 text-center animate-in zoom-in-95 flex flex-col h-auto max-h-[75vh] md:max-h-none overflow-y-auto overscroll-contain [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]" onClick={(e) => e.stopPropagation()}>
                     
                     <div className="absolute -top-20 -left-20 w-40 h-40 md:w-60 md:h-60 bg-cyan-500/60 rounded-full blur-[50px] pointer-events-none z-0"></div>
@@ -2545,12 +2541,12 @@ const renderTracking = () => (
 
           {/* ระบุเดือน */}
           <div className="relative flex-1">
-            <button onClick={() => setShowTrackMonthPicker(true)} className={`w-full h-full py-1.5 rounded-lg font-black text-[12px] flex items-center justify-center gap-1.5 transition-all duration-300 whitespace-nowrap ${
+            <button onClick={() => setShowTrackMonthPicker(true)} className={`w-full h-full py-1.5 md:py-4 rounded-lg md:rounded-2xl font-black text-[12px] md:text-[22px] flex items-center justify-center gap-1.5 md:gap-3 transition-all duration-300 whitespace-nowrap ${
               trackTimeframe === 'custom_month' 
                 ? 'bg-gradient-to-r from-cyan-600 to-blue-600 text-white shadow-[0_0_15px_rgba(6,182,212,0.8)] border-[2px] border-solid border-cyan-300 scale-[1.02] z-10' 
                 : 'bg-slate-950 text-cyan-300 border-[2px] border-solid border-cyan-400/30 shadow-[0_0_8px_rgba(34,211,238,0.3)] hover:bg-slate-900 hover:text-cyan-200 hover:border-cyan-300 hover:shadow-[0_0_15px_rgba(34,211,238,0.6)] hover:-translate-y-0.5'
             }`}>
-              <Calendar size={14} className={trackTimeframe === 'custom_month' ? 'text-white animate-pulse' : 'text-cyan-400'}/> ระบุเดือน
+              <Calendar size={14} className={`md:w-6 md:h-6 ${trackTimeframe === 'custom_month' ? 'text-white animate-pulse' : 'text-cyan-400'}`}/> ระบุเดือน
             </button>
             
             {showTrackMonthPicker && (
@@ -2558,7 +2554,6 @@ const renderTracking = () => (
                   
                   <div className="absolute w-[400px] h-[400px] md:w-[600px] md:h-[600px] bg-cyan-500/40 rounded-full blur-[80px] pointer-events-none z-0"></div>
                   
-                  {/* 🌟 PC อัปเกรด */}
                   <div className="relative z-10 m-auto bg-slate-900 border-[2px] border-solid border-white rounded-[2rem] shadow-[0_0_60px_rgba(6,182,212,0.8)] w-[90%] max-w-[320px] sm:max-w-[340px] md:max-w-[550px] p-4 sm:p-5 md:p-10 text-center animate-in zoom-in-95 flex flex-col h-auto max-h-[75vh] md:max-h-none overflow-y-auto overscroll-contain [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]" onClick={(e) => e.stopPropagation()}>
                     
                     <div className="relative z-10 flex justify-between items-center mb-6 md:mb-8 pb-5 md:pb-6 border-b border-white/20">
@@ -2633,235 +2628,224 @@ const renderTracking = () => (
             <p className="text-[20px] text-white-500 mt-1">ในสถานะที่คุณเลือก</p>
           </div>
         ) : (
+
           filteredTickets.map((t) => {
-            const isPending = t.status === 'pending';
-            const isFixing = [
-              'acknowledged',
-              'in_progress',
-              'on_hold',
-            ].includes(t.status);
-            const isDone = t.status === 'completed' || t.status === 'verified';
-            const isCancelled = t.status === 'cancelled';
+              const isPending = t.status === 'pending';
+              const isFixing = [
+                'acknowledged',
+                'in_progress',
+                'on_hold',
+              ].includes(t.status);
+              const isDone = t.status === 'completed' || t.status === 'verified';
+              const isCancelled = t.status === 'cancelled';
 
-            const fixingMin = getMinutesDiff(t.startedAt || t.date, sysTime);
-            const waitingMin = getMinutesDiff(t.date, sysTime);
+              const fixingMin = getMinutesDiff(t.startedAt || t.date, sysTime);
+              const waitingMin = getMinutesDiff(t.date, sysTime);
 
-            const styleColor = isPending
-              ? 'border-rose-500 text-rose-600 bg-rose-50'
-              : isDone
-              ? 'border-emerald-500 text-emerald-600 bg-emerald-50'
-              : isCancelled
-              ? 'border-slate-400 text-slate-500 bg-slate-50'
-              : t.status === 'on_hold'
-              ? 'border-purple-500 text-purple-600 bg-purple-50'
-              : 'border-orange-500 text-orange-600 bg-orange-50';
-              const statusLabel = isPending
-              ? 'รอดำเนินการ'
-              : t.status === 'acknowledged'
-              ? 'รับทราบแล้ว'
-              : t.status === 'in_progress'
-              ? 'กำลังซ่อม'
-              : t.status === 'on_hold'
-              ? 'แจ้งขัดข้อง'
-              : isCancelled
-              ? 'ยกเลิกแล้ว'
-              : t.status === 'verified'
-              ? '✅ เสร็จสิ้นสมบูรณ์'
-              : '⏳ รอผู้แจ้งยืนยัน';
+              const styleColor = isPending
+                ? 'border-rose-500 text-rose-600 bg-rose-50'
+                : isDone
+                ? 'border-emerald-500 text-emerald-600 bg-emerald-50'
+                : isCancelled
+                ? 'border-slate-400 text-slate-500 bg-slate-50'
+                : t.status === 'on_hold'
+                ? 'border-purple-500 text-purple-600 bg-purple-50'
+                : 'border-orange-500 text-orange-600 bg-orange-50';
+                const statusLabel = isPending
+                ? 'รอดำเนินการ'
+                : t.status === 'acknowledged'
+                ? 'รับทราบแล้ว'
+                : t.status === 'in_progress'
+                ? 'กำลังซ่อม'
+                : t.status === 'on_hold'
+                ? 'แจ้งขัดข้อง'
+                : isCancelled
+                ? 'ยกเลิกแล้ว'
+                : t.status === 'verified'
+                ? '✅ เสร็จสิ้นสมบูรณ์'
+                : '⏳ รอผู้แจ้งยืนยัน';
 
-            return (
-              <div
-                key={t.dbId || t.id}
-                className={`bg-white rounded-[1rem] border-l-[6px] ${
-                  styleColor.split(' ')[0]
-                } overflow-hidden shadow-sm border-t border-r border-b border-2 border-orange-400/70 transition-all ${
-                  isCancelled ? 'opacity-70' : ''
-                }`}
-              >
-                <div className="p-5 border-b border-slate-100 bg-slate-50/50">
-                  <div className="flex justify-between items-start mb-4">
-                    <div className="flex items-center">
-                      <span className="text-[13px] font-mono text-emerald-600 bg-emerald-100 px-3 py-1 rounded-lg font-black tracking-widest border border-emerald-200">
-                        {String(t.id)}
-                      </span>
-                      {t.isOutOfHours && (
-                        <span className="ml-2 text-[10px] font-black text-rose-600 bg-rose-100 border border-rose-200 px-2 py-0.5 rounded-md animate-pulse">
-                          SSC (นอกเวลา)
+              return (
+                <div
+                  key={t.dbId || t.id}
+                  className={`bg-white rounded-[1rem] md:rounded-[2rem] border-l-[6px] md:border-l-[12px] ${
+                    styleColor.split(' ')[0]
+                  } overflow-hidden shadow-sm border-t border-r border-b border-2 border-orange-400/70 transition-all ${
+                    isCancelled ? 'opacity-70' : ''
+                  }`}
+                >
+                  <div className="p-5 md:p-8 md:px-10 border-b border-slate-100 bg-slate-50/50">
+                    <div className="flex justify-between items-start mb-4 md:mb-6">
+                      <div className="flex items-center">
+                        <span className="text-[13px] md:text-[22px] font-mono text-emerald-600 bg-emerald-100 px-3 py-1 md:px-5 md:py-2 rounded-lg md:rounded-xl font-black tracking-widest border border-emerald-200 shadow-sm">
+                          {String(t.id)}
                         </span>
-                      )}
+                        {t.isOutOfHours && (
+                          <span className="ml-2 md:ml-4 text-[10px] md:text-[16px] font-black text-rose-600 bg-rose-100 border border-rose-200 px-2 py-0.5 md:px-4 md:py-1.5 rounded-md md:rounded-xl animate-pulse">
+                            SSC (นอกเวลา)
+                          </span>
+                        )}
+                      </div>
+                      <div
+                        className={`px-3 py-1 md:px-6 md:py-3 rounded-lg md:rounded-2xl text-[15px] md:text-[24px] font-bold border border-2 border-solid shadow-sm flex items-center gap-1.5 md:gap-3 ${styleColor}`}
+                      >
+                        {isPending && (
+                          <div className="w-1.5 h-1.5 md:w-3 md:h-3 rounded-full bg-rose-500 animate-pulse"></div>
+                        )}
+                        {statusLabel}
+                      </div>
                     </div>
-                    <div
-                      className={`px-3 py-1 rounded-lg text-[15px] font-bold border border-2 border-solid shadow-sm flex items-center gap-1.5 ${styleColor}`}
+
+                    {/* 🌟 โซนดาวประเมิน (อัปเกรด: บรรทัดเดียว ชิดขวา ขนาดใหญ่ขึ้น) */}
+                    {t.status === 'verified' && t.rating && (() => {
+                      const rColor = t.rating === 5 ? { text: 'text-emerald-400', fill: '#34d399', drop: 'drop-shadow-[0_0_10px_rgba(52,211,153,0.8)]', border: 'border-emerald-500', glow: 'shadow-[0_0_15px_rgba(52,211,153,0.3)]', flare: 'bg-emerald-500/20' } :
+                                    t.rating === 4 ? { text: 'text-teal-400', fill: '#2dd4bf', drop: 'drop-shadow-[0_0_10px_rgba(45,212,191,0.8)]', border: 'border-teal-500', glow: 'shadow-[0_0_15px_rgba(45,212,191,0.3)]', flare: 'bg-teal-500/20' } :
+                                    t.rating === 3 ? { text: 'text-amber-400', fill: '#fbbf24', drop: 'drop-shadow-[0_0_10px_rgba(251,191,36,0.8)]', border: 'border-amber-500', glow: 'shadow-[0_0_15px_rgba(251,191,36,0.3)]', flare: 'bg-amber-500/20' } :
+                                    t.rating === 2 ? { text: 'text-orange-400', fill: '#fb923c', drop: 'drop-shadow-[0_0_10px_rgba(251,146,60,0.8)]', border: 'border-orange-500', glow: 'shadow-[0_0_15px_rgba(251,146,60,0.3)]', flare: 'bg-orange-500/20' } :
+                                                      { text: 'text-rose-400', fill: '#fb7185', drop: 'drop-shadow-[0_0_10px_rgba(251,113,133,0.8)]', border: 'border-rose-500', glow: 'shadow-[0_0_15px_rgba(225,29,72,0.3)]', flare: 'bg-rose-500/20' };
+
+                      return (
+                        <div className="mt-3 mb-5 md:mt-6 md:mb-10 animate-in slide-in-from-top-2 duration-500">
+                          {currentUserRole === 'technician' ? (
+                            <div className={`bg-slate-900 border-[2px] border-solid ${rColor.border} rounded-xl md:rounded-[2rem] p-4 md:p-8 ${rColor.glow} relative overflow-hidden`}>
+                              <div className={`absolute -right-10 -top-10 w-32 h-32 md:w-64 md:h-64 ${rColor.flare} blur-[25px] md:blur-[50px] rounded-full pointer-events-none`}></div>
+                              <div className="relative z-10">
+                                <div className="flex justify-between items-center mb-3 md:mb-6 border-b border-slate-700/50 pb-3 md:pb-6">
+                                  <span className={`text-[13px] md:text-[24px] font-black ${rColor.text} uppercase tracking-widest flex items-center gap-1.5 md:gap-3 drop-shadow-sm`}>
+                                    <Star className={`w-4 h-4 md:w-8 md:h-8 ${rColor.text}`} fill="currentColor"/> ผลการประเมิน
+                                  </span>
+                                  <div className="flex gap-1 md:gap-3">
+                                      {[1, 2, 3, 4, 5].map((s) => (
+                                        <Star key={s} className={`w-[18px] h-[18px] md:w-[32px] md:h-[32px] ${t.rating >= s ? rColor.drop : ""}`} fill={t.rating >= s ? rColor.fill : "none"} stroke={t.rating >= s ? rColor.fill : "#475569"} strokeWidth={2} />
+                                      ))}
+                                  </div>
+                                </div>
+                                
+                                {t.ratingComment ? (
+                                  <div className={`bg-slate-950 p-4 md:p-8 rounded-xl md:rounded-3xl border border-solid ${rColor.border} shadow-inner relative overflow-hidden`}>
+                                    <div className={`absolute top-0 left-0 w-1.5 md:w-3 h-full ${rColor.text.replace('text-', 'bg-')}`}></div>
+                                    <p className={`text-[13px] sm:text-[14px] md:text-[22px] font-bold ${rColor.text} leading-relaxed italic pl-1 md:pl-4`}>
+                                      <span className="text-xl md:text-4xl leading-none opacity-50 mr-1 md:mr-3">"</span>
+                                      {t.ratingComment}
+                                      <span className="text-xl md:text-4xl leading-none opacity-50 ml-1 md:ml-3">"</span>
+                                    </p>
+                                  </div>
+                                ) : (
+                                  <div className="bg-slate-950/50 p-3 md:p-6 rounded-xl md:rounded-2xl border border-slate-800 flex justify-center">
+                                    <p className="text-[12px] md:text-[20px] font-bold text-slate-500 italic">- ไม่มีข้อเสนอแนะเพิ่มเติม -</p>
+                                  </div>
+                                )}
+                              </div>
+                            </div>
+                          ) : (
+                            <div className={`flex flex-row items-center justify-between bg-slate-900/80 p-3.5 md:p-6 rounded-xl md:rounded-2xl border-[2px] border-solid ${rColor.border} ${rColor.glow} relative overflow-hidden`}>
+                              <div className={`absolute -left-10 -bottom-10 w-24 h-24 md:w-48 md:h-48 ${rColor.flare} blur-[20px] md:blur-[40px] rounded-full pointer-events-none`}></div>
+                              <span className={`text-[11.5px] sm:text-[13px] md:text-[22px] font-black ${rColor.text} uppercase tracking-widest ml-1 relative z-10 drop-shadow-sm shrink-0`}>
+                                คุณให้คะแนนงานนี้:
+                              </span>
+                              <div className="flex gap-1 md:gap-3 relative z-10 shrink-0">
+                                {[1, 2, 3, 4, 5].map((s) => (
+                                  <Star key={s} className={`w-[14px] h-[14px] sm:w-4 sm:h-4 md:w-8 md:h-8 ${t.rating >= s ? rColor.drop : ""}`} fill={t.rating >= s ? rColor.fill : "none"} stroke={t.rating >= s ? rColor.fill : "#475569"} strokeWidth={2} />
+                                ))}
+                              </div>
+                            </div>
+                          )}
+                        </div>
+                      );
+                    })()}
+
+                    <h3
+                      className={`text-lg md:text-[34px] font-black mb-1.5 md:mb-4 leading-tight ${
+                        isCancelled
+                          ? 'text-slate-400 line-through'
+                          : 'text-slate-800'
+                      }`}
                     >
-                      {isPending && (
-                        <div className="w-1.5 h-1.5 rounded-full bg-rose-500 animate-pulse"></div>
-                      )}
-                      {statusLabel}
+                      {String(t.equipment)}
+                    </h3>
+                    
+                    <div className="flex flex-col gap-1 md:gap-3 mt-1.5 md:mt-4 mb-3 md:mb-6 bg-indigo-50/50 p-2 md:p-6 rounded-lg md:rounded-2xl border border-indigo-100">
+                      <div className="flex items-start gap-1.5 md:gap-3 text-orange-600/90">
+                        <Building className="w-[18px] h-[18px] md:w-8 md:h-8 shrink-0 mt-0.5 md:mt-0" />
+                        <span className="text-[18px] md:text-[28px] font-bold leading-snug">
+                          {t.building || 'ไม่ระบุอาคาร'}
+                        </span>
+                      </div>
+                      <div className="flex items-start gap-1.5 md:gap-3 text-indigo-500/90">
+                        <MapPin className="w-[18px] h-[18px] md:w-8 md:h-8 shrink-0 mt-0.5 md:mt-0" />
+                        <span className="text-[15px] md:text-[24px] font-bold leading-snug">
+                          ห้อง: {t.room || 'ไม่ระบุห้อง'}
+                        </span>
+                      </div>
                     </div>
-                  </div>
 
-                {/* 🌟 ฟันธง: โชว์ดาวและผลประเมิน (แยกมุมมองผู้แจ้ง vs ช่าง/หัวหน้า) พร้อมระบบ Dynamic Color */}
-  {t.status === 'verified' && t.rating && (() => {
-    // สมองกลเปลี่ยนสีตามจำนวนดาว 1-5
-    const rColor = t.rating === 5 ? { text: 'text-emerald-400', fill: '#34d399', drop: 'drop-shadow-[0_0_10px_rgba(52,211,153,0.8)]', border: 'border-emerald-500', glow: 'shadow-[0_0_15px_rgba(52,211,153,0.3)]', flare: 'bg-emerald-500/20' } :
-                   t.rating === 4 ? { text: 'text-teal-400', fill: '#2dd4bf', drop: 'drop-shadow-[0_0_10px_rgba(45,212,191,0.8)]', border: 'border-teal-500', glow: 'shadow-[0_0_15px_rgba(45,212,191,0.3)]', flare: 'bg-teal-500/20' } :
-                   t.rating === 3 ? { text: 'text-amber-400', fill: '#fbbf24', drop: 'drop-shadow-[0_0_10px_rgba(251,191,36,0.8)]', border: 'border-amber-500', glow: 'shadow-[0_0_15px_rgba(251,191,36,0.3)]', flare: 'bg-amber-500/20' } :
-                   t.rating === 2 ? { text: 'text-orange-400', fill: '#fb923c', drop: 'drop-shadow-[0_0_10px_rgba(251,146,60,0.8)]', border: 'border-orange-500', glow: 'shadow-[0_0_15px_rgba(251,146,60,0.3)]', flare: 'bg-orange-500/20' } :
-                                    { text: 'text-rose-400', fill: '#fb7185', drop: 'drop-shadow-[0_0_10px_rgba(251,113,133,0.8)]', border: 'border-rose-500', glow: 'shadow-[0_0_15px_rgba(225,29,72,0.3)]', flare: 'bg-rose-500/20' };
-
-    return (
-      <div className="mt-3 mb-5 animate-in slide-in-from-top-2 duration-500">
-        {currentUserRole === 'technician' ? (
-          // 👨‍🔧 มุมมองช่าง/หัวหน้า: กล่องเรืองแสง โชว์คอมเมนต์เต็มรูปแบบ
-          <div className={`bg-slate-900 border-[2px] border-solid ${rColor.border} rounded-xl p-4 ${rColor.glow} relative overflow-hidden`}>
-             {/* แสงวิบวับหลังกล่อง (Dynamic Flare) */}
-             <div className={`absolute -right-10 -top-10 w-32 h-32 ${rColor.flare} blur-[25px] rounded-full pointer-events-none`}></div>
-             <div className="relative z-10">
-               <div className="flex justify-between items-center mb-3 border-b border-slate-700/50 pb-3">
-                 <span className={`text-[13px] font-black ${rColor.text} uppercase tracking-widest flex items-center gap-1.5 drop-shadow-sm`}>
-                   <Star size={16} className={rColor.text} fill="currentColor"/> ผลการประเมิน
-                 </span>
-                 <div className="flex gap-1">
-                    {[1, 2, 3, 4, 5].map((s) => (
-                      <Star key={s} size={18} fill={t.rating >= s ? rColor.fill : "none"} stroke={t.rating >= s ? rColor.fill : "#475569"} strokeWidth={2} className={t.rating >= s ? rColor.drop : ""} />
-                    ))}
-                 </div>
-               </div>
-               
-               {/* กล่องโชว์คอมเมนต์ผู้แจ้ง (ตกแต่งให้มีเส้นขอบซ้ายนำสายตา) */}
-               {t.ratingComment ? (
-                 <div className={`bg-slate-950 p-4 rounded-xl border border-solid ${rColor.border} shadow-inner relative overflow-hidden`}>
-                   <div className={`absolute top-0 left-0 w-1.5 h-full ${rColor.text.replace('text-', 'bg-')}`}></div>
-                   <p className={`text-[13px] sm:text-[14px] font-bold ${rColor.text} leading-relaxed italic pl-1`}>
-                     <span className="text-xl leading-none opacity-50 mr-1">"</span>
-                     {t.ratingComment}
-                     <span className="text-xl leading-none opacity-50 ml-1">"</span>
-                   </p>
-                 </div>
-               ) : (
-                 <div className="bg-slate-950/50 p-3 rounded-xl border border-slate-800 flex justify-center">
-                   <p className="text-[12px] font-bold text-slate-500 italic">- ไม่มีข้อเสนอแนะเพิ่มเติม -</p>
-                 </div>
-               )}
-             </div>
-          </div>
-        ) : (
-          // 👤 มุมมองผู้แจ้ง (Reporter): กรอบเข้ม เรืองแสงตามดาว ดูพรีเมียม
-          <div className={`flex flex-col sm:flex-row sm:items-center justify-between bg-slate-900/80 p-3.5 rounded-xl border-[2px] border-solid ${rColor.border} ${rColor.glow} relative overflow-hidden`}>
-            <div className={`absolute -left-10 -bottom-10 w-24 h-24 ${rColor.flare} blur-[20px] rounded-full pointer-events-none`}></div>
-            <span className={`text-[11px] sm:text-[12px] font-black ${rColor.text} uppercase tracking-widest ml-1 relative z-10 mb-2 sm:mb-0 drop-shadow-sm`}>
-              คุณให้คะแนนงานนี้:
-            </span>
-            <div className="flex gap-1 relative z-10">
-              {[1, 2, 3, 4, 5].map((s) => (
-                <Star key={s} size={16} fill={t.rating >= s ? rColor.fill : "none"} stroke={t.rating >= s ? rColor.fill : "#475569"} strokeWidth={2} className={t.rating >= s ? rColor.drop : ""} />
-              ))}
-            </div>
-          </div>
-        )}
-      </div>
-    );
-  })()}
-
-                  <h3
-                    className={`text-lg font-black mb-1.5 leading-tight ${
-                      isCancelled
-                        ? 'text-slate-400 line-through'
-                        : 'text-slate-800'
-                    }`}
-                  >
-                    {String(t.equipment)}
-                  </h3>
-                  {/* 🌟 แยกอาคารกับห้องออกเป็น 2 บรรทัด (แก้ปัญหาล้นจอมือถือ) */}
-      <div className="flex flex-col gap-1 mt-1.5 mb-3 bg-indigo-50/50 p-2 rounded-lg border border-indigo-100">
-        
-        {/* บรรทัดที่ 1: ชื่ออาคาร เปลี่ยนสีตัวอักษร*/}
-        <div className="flex items-start gap-1.5 text-orange-600/90">
-          <Building size={18} className="shrink-0 mt-0.5" />
-          <span className="text-[18px] font-bold leading-snug">
-            {t.building || 'ไม่ระบุอาคาร'}
-          </span>
-        </div>
-        
-        {/* บรรทัดที่ 2: ชื่อห้อง (เยื้องขวาเข้ามานิดนึงให้ดูสวย) */}
-        <div className="flex items-start gap-1.5 text-indigo-500/90">
-          <MapPin size={18} className="shrink-0 mt-0.5" />
-          <span className="text-[15px] font-bold  leading-snug">
-            ห้อง: {t.room || 'ไม่ระบุห้อง'}
-          </span>
-        </div>
-        
-      </div>
-                  {!isCancelled && (
-                      <div className="mt-5 pl-4 border-2 border-orange-400/70 space-y-4 py-2 relative">
-                        
-                        {/* 🌟 1. เวลารอคอย (Active เฉพาะตอน isPending) */}
-                        <div className="relative">
-                          <div
-                            className={`absolute -left-[21px] w-2.5 h-2.5 rounded-full ${
-                              isPending
-                                ? 'bg-rose-500 ring-4 ring-rose-100 animate-pulse'
-                                : 'bg-slate-300'
-                            }`}
-                          ></div>
-                          <div className="flex justify-between items-center pl-2">
-                            <span className={`text-[13px] font-black ${isPending ? 'text-rose-500' : 'text-slate-400'}`}>
-                              เวลารอคอย
-                            </span>
-                            <span
-                              className={`text-[13px] font-bold font-mono tracking-tighter ${
-                                isPending ? 'text-rose-600' : 'text-slate-400'
+                    {/* 🌟 โซนนาฬิกาจับเวลา */}
+                    {!isCancelled && (
+                        <div className="mt-5 md:mt-8 pl-4 md:pl-8 border-2 border-orange-400/70 space-y-4 md:space-y-8 py-2 md:py-6 relative">
+                          
+                          <div className="relative">
+                            <div
+                              className={`absolute -left-[21px] md:-left-[41px] w-2.5 h-2.5 md:w-4 md:h-4 rounded-full ${
+                                isPending
+                                  ? 'bg-rose-500 ring-4 ring-rose-100 animate-pulse'
+                                  : 'bg-slate-300'
                               }`}
-                            >
-                              {getLiveStopwatch(t.date, t.acceptedAt, sysTime)}
-                            </span>
+                            ></div>
+                            <div className="flex justify-between items-center pl-2 md:pl-6">
+                              <span className={`text-[13px] md:text-[22px] font-black ${isPending ? 'text-rose-500' : 'text-slate-400'}`}>
+                                เวลารอคอย
+                              </span>
+                              <span
+                                className={`text-[13px] md:text-[24px] font-bold font-mono tracking-tighter ${
+                                  isPending ? 'text-rose-600' : 'text-slate-400'
+                                }`}
+                              >
+                                {getLiveStopwatch(t.date, t.acceptedAt, sysTime)}
+                              </span>
+                            </div>
                           </div>
-                        </div>
 
-                        {/* 🌟 2. เวลาปฏิบัติงาน (Active เฉพาะตอนกำลังซ่อม และไม่ได้กดหยุดรออะไหล่) */}
-                        <div className="relative">
-                          <div
-                            className={`absolute -left-[21px] w-2.5 h-2.5 rounded-full ${
-                              isFixing && t.status !== 'on_hold' // 🌟 ฟันธง: ดับไฟส้มถ้าติดสถานะ on_hold
-                                ? 'bg-orange-500 ring-4 ring-orange-100 animate-pulse'
-                                : 'bg-slate-300'
-                            }`}
-                          ></div>
-                          <div className="flex justify-between items-center pl-2">
-                            <span className={`text-[13px] font-black ${isFixing && t.status !== 'on_hold' ? 'text-orange-500' : 'text-slate-400'}`}>
-                              เวลาปฏิบัติงาน
-                            </span>
-                            <span
-                              className={`text-[13px] font-bold font-mono tracking-tighter ${
-                                isFixing && t.status !== 'on_hold'
-                                  ? 'text-orange-600'
-                                  : 'text-slate-400'
+                          <div className="relative">
+                            <div
+                              className={`absolute -left-[21px] md:-left-[41px] w-2.5 h-2.5 md:w-4 md:h-4 rounded-full ${
+                                isFixing && t.status !== 'on_hold' 
+                                  ? 'bg-orange-500 ring-4 ring-orange-100 animate-pulse'
+                                  : 'bg-slate-300'
                               }`}
-                            >
-                              {t.startedAt
-                                ? getLiveStopwatch(
-                                    t.startedAt,
-                                    t.completedAt,
-                                    sysTime,
-                                    t.totalPauseMs || 0,
-                                    t.status === 'on_hold',
-                                    t.lastHoldAt
-                                  )
-                                : '00:00:00'}
-                            </span>
+                            ></div>
+                            <div className="flex justify-between items-center pl-2 md:pl-6">
+                              <span className={`text-[13px] md:text-[22px] font-black ${isFixing && t.status !== 'on_hold' ? 'text-orange-500' : 'text-slate-400'}`}>
+                                เวลาปฏิบัติงาน
+                              </span>
+                              <span
+                                className={`text-[13px] md:text-[24px] font-bold font-mono tracking-tighter ${
+                                  isFixing && t.status !== 'on_hold'
+                                    ? 'text-orange-600'
+                                    : 'text-slate-400'
+                                }`}
+                              >
+                                {t.startedAt
+                                  ? getLiveStopwatch(
+                                      t.startedAt,
+                                      t.completedAt,
+                                      sysTime,
+                                      t.totalPauseMs || 0,
+                                      t.status === 'on_hold',
+                                      t.lastHoldAt
+                                    )
+                                  : '00:00:00'}
+                              </span>
+                            </div>
                           </div>
-                        </div>
-{/* 🌟 2.5 เวลาเหตุขัดข้อง/รออะไหล่ (โชว์อัตโนมัติเมื่อมีการหยุดเวลา) */}
-{(() => {
+
+                        {(() => {
                           const currentHoldMs = t.status === 'on_hold' && t.lastHoldAt
                             ? sysTime.getTime() - new Date(t.lastHoldAt).getTime()
                             : 0;
                           const totalHoldMs = (t.totalPauseMs || 0) + currentHoldMs;
                           
                           if (totalHoldMs > 0) {
-                            const isHolding = t.status === 'on_hold'; // 🌟 เช็คสถานะปัจจุบัน
-                            
-                            // คำนวณเวลาเพื่อแสดงผล
+                            const isHolding = t.status === 'on_hold';
                             const hrs = Math.floor(totalHoldMs / 3600000);
                             const days = Math.floor(hrs / 24);
                             const remainHrs = hrs % 24;
@@ -2873,18 +2857,18 @@ const renderTracking = () => (
                             return (
                               <div className="relative">
                                 <div
-                                  className={`absolute -left-[21px] w-2.5 h-2.5 rounded-full ${
+                                  className={`absolute -left-[21px] md:-left-[41px] w-2.5 h-2.5 md:w-4 md:h-4 rounded-full ${
                                     isHolding
                                       ? 'bg-purple-500 ring-4 ring-purple-100 animate-pulse'
-                                      : 'bg-slate-300' // 🌟 ฟันธง: ถ้าไม่ได้ขัดข้องอยู่ ให้ดับไฟเป็นสีเทา
+                                      : 'bg-slate-300' 
                                   }`}
                                 ></div>
-                                <div className="flex justify-between items-center pl-2">
-                                  <span className={`text-[13px] font-black ${isHolding ? 'text-purple-600' : 'text-slate-400'}`}>
+                                <div className="flex justify-between items-center pl-2 md:pl-6">
+                                  <span className={`text-[13px] md:text-[22px] font-black ${isHolding ? 'text-purple-600' : 'text-slate-400'}`}>
                                     เวลาเหตุขัดข้อง
                                   </span>
                                   <span
-                                    className={`text-[13px] font-bold font-mono tracking-tighter ${
+                                    className={`text-[13px] md:text-[24px] font-bold font-mono tracking-tighter ${
                                       isHolding ? 'text-purple-600' : 'text-slate-400'
                                     }`}
                                   >
@@ -2897,21 +2881,20 @@ const renderTracking = () => (
                           return null;
                         })()}
 
-                        {/* 🌟 3. เวลารวม (Active เฉพาะตอน isDone) */}
                         <div className="relative">
                           <div
-                            className={`absolute -left-[21px] w-2.5 h-2.5 rounded-full ${
+                            className={`absolute -left-[21px] md:-left-[41px] w-2.5 h-2.5 md:w-4 md:h-4 rounded-full ${
                               isDone
                                 ? 'bg-emerald-500 ring-4 ring-emerald-100'
                                 : 'bg-slate-300'
                             }`}
                           ></div>
-                          <div className="flex justify-between items-center pl-2">
-                            <span className={`text-[13px] font-black ${isDone ? 'text-emerald-500' : 'text-slate-400'}`}>
+                          <div className="flex justify-between items-center pl-2 md:pl-6">
+                            <span className={`text-[13px] md:text-[22px] font-black ${isDone ? 'text-emerald-500' : 'text-slate-400'}`}>
                               เวลารวม
                             </span>
                             <span
-                              className={`text-[13px] font-bold font-mono tracking-tighter ${
+                              className={`text-[13px] md:text-[24px] font-bold font-mono tracking-tighter ${
                                 isDone ? 'text-emerald-600' : 'text-slate-400'
                               }`}
                             >
@@ -2929,21 +2912,15 @@ const renderTracking = () => (
 
                       </div>
                     )}
-                </div>
-{/* ================= กล่องสรุปเวลาปฏิบัติงาน (SLA Summary) แบบอัจฉริยะ เปลี่ยนสีตัวอักษรภายในกรอบ SLA ================= */}
-{/* ================= กล่องสรุปเวลาปฏิบัติงาน (SLA Summary) อัปเกรดจัดเต็ม ================= */}
-{t.status === 'completed' || t.status === 'verified' ? (
-                          <div className="bg-emerald-50 border-2 border-emerald-500/30 rounded-2xl p-4 mt-4 mb-4 shadow-sm">
-                            
-                            {/* 🌟 ฟันธง: ส่วนประมวลผล SLA อัตโนมัติแบบแม่นยำ */}
+                  </div>
+
+                  {/* 🌟 โซนกล่องสรุป SLA */}
+                  {t.status === 'completed' || t.status === 'verified' ? (
+                          <div className="bg-emerald-50 border-2 border-emerald-500/30 rounded-2xl md:rounded-[2rem] p-4 md:p-8 mt-4 md:mt-8 mb-4 md:mb-8 mx-0 md:mx-4 shadow-sm">
                             {(() => {
                               const startMs = new Date(t.date).getTime();
                               const endMs = new Date(t.completedAt).getTime();
-                              
-                              // ดึงเวลารออะไหล่ (Hold Time) ที่ระบบบันทึกไว้
                               const holdMs = t.totalPauseMs || 0; 
-                              
-                              // เวลาสุทธิ = เวลาทั้งหมด - เวลารออะไหล่
                               let netDurationMs = endMs - startMs - holdMs;
                               if (netDurationMs < 0) netDurationMs = 0;
                               
@@ -2951,7 +2928,6 @@ const renderTracking = () => (
                               const slaLimitMs = slaLimitHours * 60 * 60 * 1000; 
                               const isSLAPassed = netDurationMs <= slaLimitMs;
 
-                              // ฟังก์ชันแปลเวลา MS เป็น วัน/ชม/นาที ให้มนุษย์อ่านง่าย
                               const msToText = (ms) => {
                                 if(ms === 0) return "-";
                                 const d = Math.floor(ms / (1000 * 60 * 60 * 24));
@@ -2966,33 +2942,32 @@ const renderTracking = () => (
 
                               return (
                                 <>
-                                  {/* ส่วนหัว และ ป้ายผ่าน/ไม่ผ่าน */}
-                                  <div className="flex items-start justify-between mb-3 border-b border-emerald-500/20 pb-4">
-                                    <div className="flex items-center gap-2 mt-1">
-                                      <Clock size={18} className="text-emerald-600" />
-                                      <span className="text-[14px] font-black text-orange-500 uppercase tracking-widest">สรุป SLA</span>
+                                  <div className="flex items-start justify-between mb-3 md:mb-6 border-b border-emerald-500/20 pb-4 md:pb-6">
+                                    <div className="flex items-center gap-2 md:gap-3 mt-1">
+                                      <Clock className="w-[18px] h-[18px] md:w-8 md:h-8 text-emerald-600" />
+                                      <span className="text-[14px] md:text-[24px] font-black text-orange-500 uppercase tracking-widest">สรุป SLA</span>
                                     </div>
                                     
-                                    <div className={`px-3 py-1.5 rounded-full text-[12px] font-black tracking-widest flex items-center gap-1.5 border-2 shadow-lg -mt-1 ${
+                                    <div className={`px-3 py-1.5 md:px-6 md:py-3 rounded-full text-[12px] md:text-[20px] font-black tracking-widest flex items-center gap-1.5 md:gap-3 border-2 shadow-lg -mt-1 ${
                                       isSLAPassed 
                                         ? 'bg-gradient-to-r from-emerald-500 to-teal-500 text-white border-emerald-300 shadow-emerald-500/40' 
                                         : 'bg-gradient-to-r from-rose-500 to-red-500 text-white border-rose-300 shadow-rose-500/40'
                                     }`}>
                                       {isSLAPassed ? (
                                         <>
-                                          <CheckCircle size={16} className="text-white drop-shadow-md" strokeWidth={3} />
+                                          <CheckCircle className="w-4 h-4 md:w-6 md:h-6 text-white drop-shadow-md" strokeWidth={3} />
                                           <span className="drop-shadow-sm mt-0.5">ผ่านเกณฑ์</span>
                                         </>
                                       ) : (
                                         <>
-                                          <XCircle size={16} className="text-white animate-pulse drop-shadow-md" strokeWidth={3} />
+                                          <XCircle className="w-4 h-4 md:w-6 md:h-6 text-white animate-pulse drop-shadow-md" strokeWidth={3} />
                                           <span className="drop-shadow-sm mt-0.5">เกินเวลา SLA</span>
                                         </>
                                       )}
                                     </div>
                                   </div>
                                   
-                                  <div className="space-y-2.5 text-[13px]">
+                                  <div className="space-y-2.5 md:space-y-5 text-[13px] md:text-[22px]">
                                     <div className="flex justify-between items-center">
                                       <span className="text-slate-600 font-bold">แจ้งซ่อมเมื่อ:</span>
                                       <span className="text-slate-800 font-black">{new Date(t.date).toLocaleString('th-TH')}</span>
@@ -3004,25 +2979,23 @@ const renderTracking = () => (
                                       </span>
                                     </div>
                                     
-                                    {/* 🌟 ฟันธง: บรรทัดแสดงเวลารออะไหล่ (ถ้ามีการกดแจ้งขัดข้อง จะโชว์บรรทัดนี้อัตโนมัติ) */}
                                     {holdMs > 0 && (
-                                      <div className="flex justify-between items-center bg-purple-100/60 p-2 rounded-lg border border-purple-200 mt-1">
-                                        <span className="text-purple-700 font-bold flex items-center gap-1.5">
-                                          <PauseCircle size={14} className="animate-pulse"/> หักเวลารออะไหล่/ขัดข้อง:
+                                      <div className="flex justify-between items-center bg-purple-100/60 p-2 md:p-4 rounded-lg md:rounded-2xl border border-purple-200 mt-1 md:mt-3">
+                                        <span className="text-purple-700 font-bold flex items-center gap-1.5 md:gap-3">
+                                          <PauseCircle className="w-[14px] h-[14px] md:w-6 md:h-6 animate-pulse"/> หักเวลารออะไหล่/ขัดข้อง:
                                         </span>
                                         <span className="text-purple-800 font-black">{msToText(holdMs)}</span>
                                       </div>
                                     )}
                                     
-                                    <div className="flex justify-between items-baseline pt-2 mt-2 border-t border-emerald-500/20">
+                                    <div className="flex justify-between items-baseline pt-2 md:pt-6 mt-2 md:mt-6 border-t border-emerald-500/20">
                                       <span className="text-emerald-900 font-black">ใช้เวลาซ่อมสุทธิ:</span>
-                                      <span className={`text-[18px] font-black drop-shadow-sm ${isSLAPassed ? 'text-emerald-600' : 'text-rose-600'}`}>
+                                      <span className={`text-[18px] md:text-[34px] font-black drop-shadow-sm ${isSLAPassed ? 'text-emerald-600' : 'text-rose-600'}`}>
                                         {msToText(netDurationMs)}
                                       </span>
                                     </div>
                                     
-                                    {/* หมายเหตุโชว์เกณฑ์ที่ใช้ประเมิน */}
-                                    <div className="text-right text-[11px] text-rose-800/80 font-bold mt-1">
+                                    <div className="text-right text-[11px] md:text-[16px] text-rose-800/80 font-bold mt-1 md:mt-3">
                                       * ประเมินจากเกณฑ์ชั่วคราว: ภายใน {slaLimitHours} ชั่วโมง
                                     </div>
                                   </div>
@@ -3031,17 +3004,16 @@ const renderTracking = () => (
                             })()}
                           </div>
                         ) : null}
-                        {/* ================= จบกล่องสรุป SLA ================= */}
 
-               {/* ================= ลากคลุมดำวางทับตั้งแต่บรรทัดนี้ ================= */}
-               <div className="p-5 space-y-4">
-                      <div className="bg-slate-50 p-4 rounded-2xl border-2 border-solid border-slate-400 shadow-inner relative">
+                  {/* 🌟 โซนรายละเอียดข้อความและการติดต่อ (อัปเกรด PC ไซส์เบิ้ม) */}
+                  <div className="p-5 md:p-10 space-y-4 md:space-y-8">
+                      <div className="bg-slate-50 p-4 md:p-8 rounded-2xl md:rounded-[2rem] border-2 border-solid border-slate-400 shadow-inner relative">
                         
                         {t.status === 'cancelled' && t.cancelReason && (
-                          <div className="bg-rose-50 text-rose-700 p-3 rounded-xl text-xs font-bold mb-3 flex gap-2 border border-rose-200 shadow-sm">
-                            <XCircle size={16} className="shrink-0 mt-0.5" />
+                          <div className="bg-rose-50 text-rose-700 p-3 md:p-6 rounded-xl md:rounded-2xl text-xs md:text-[20px] font-bold mb-3 md:mb-6 flex gap-2 md:gap-4 border border-rose-200 shadow-sm">
+                            <XCircle className="w-4 h-4 md:w-8 md:h-8 shrink-0 mt-0.5 md:mt-1" />
                             <div>
-                              <span className="block mb-0.5 text-rose-800">
+                              <span className="block mb-0.5 md:mb-2 text-rose-800">
                                 เหตุผลที่ยกเลิก:
                               </span>
                               {String(t.cancelReason)}
@@ -3050,10 +3022,10 @@ const renderTracking = () => (
                         )}
                         
                         {t.holdReason && (
-                          <div className="bg-purple-50 text-purple-700 p-3 rounded-xl text-xs font-bold mb-3 flex gap-2 border border-purple-200 shadow-sm">
-                            <PauseCircle size={16} className="shrink-0 mt-0.5" />
+                          <div className="bg-purple-50 text-purple-700 p-3 md:p-6 rounded-xl md:rounded-2xl text-xs md:text-[20px] font-bold mb-3 md:mb-6 flex gap-2 md:gap-4 border border-purple-200 shadow-sm">
+                            <PauseCircle className="w-4 h-4 md:w-8 md:h-8 shrink-0 mt-0.5 md:mt-1" />
                             <div>
-                              <span className="block mb-0.5 text-purple-800">
+                              <span className="block mb-0.5 md:mb-2 text-purple-800">
                                 แจ้งเหตุขัดข้อง:
                               </span>
                               {String(t.holdReason)}
@@ -3062,10 +3034,10 @@ const renderTracking = () => (
                         )}
                         
                         {t.cause && (
-                          <div className="bg-emerald-50 text-emerald-700 p-3 rounded-xl text-xs font-bold mb-3 flex gap-2 border-2 border-solid border-emerald-400 shadow-sm">
-                            <CheckSquare size={16} className="shrink-0 mt-0.5" />
+                          <div className="bg-emerald-50 text-emerald-700 p-3 md:p-6 rounded-xl md:rounded-2xl text-xs md:text-[20px] font-bold mb-3 md:mb-6 flex gap-2 md:gap-4 border-2 border-solid border-emerald-400 shadow-sm">
+                            <CheckSquare className="w-4 h-4 md:w-8 md:h-8 shrink-0 mt-0.5 md:mt-1" />
                             <div>
-                              <span className="block mb-0.5 text-emerald-800">
+                              <span className="block mb-0.5 md:mb-2 text-emerald-800">
                                 สรุปผลและข้อแนะนำ:
                               </span>
                               {String(t.cause)}
@@ -3074,10 +3046,10 @@ const renderTracking = () => (
                         )}
 
                         {t.sscNote && (
-                          <div className="bg-rose-50 text-rose-700 p-3 rounded-xl text-xs font-bold mb-3 flex gap-2 border border-rose-200 shadow-sm">
-                            <Wrench size={16} className="shrink-0 mt-0.5" />
+                          <div className="bg-rose-50 text-rose-700 p-3 md:p-6 rounded-xl md:rounded-2xl text-xs md:text-[20px] font-bold mb-3 md:mb-6 flex gap-2 md:gap-4 border border-rose-200 shadow-sm">
+                            <Wrench className="w-4 h-4 md:w-8 md:h-8 shrink-0 mt-0.5 md:mt-1" />
                             <div>
-                              <span className="block mb-0.5 text-rose-800 uppercase tracking-widest text-[10px]">
+                              <span className="block mb-0.5 md:mb-2 text-rose-800 uppercase tracking-widest text-[10px] md:text-[18px]">
                                 บันทึกการแก้ไขเบื้องต้น (เวร SSC):
                               </span>
                               {String(t.sscNote)}
@@ -3085,25 +3057,25 @@ const renderTracking = () => (
                           </div>
                         )}
 
+                        {/* โซนรูปภาพ */}
                         {t.images && t.images.length > 0 && (
-                          <div className="flex gap-2 overflow-x-auto mb-3 pb-2 [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]">
+                          <div className="flex gap-2 md:gap-5 overflow-x-auto mb-3 md:mb-8 pb-2 md:pb-4 [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]">
                             {t.images.map((img, i) => (
                               <img
                                 key={i}
                                 src={img}
                                 onClick={() => setLightboxImg(img)}
-                                className="w-16 h-16 object-cover rounded-xl border border-2 border-orange-400/70 shrink-0 cursor-pointer shadow-sm"
+                                className="w-16 h-16 md:w-40 md:h-40 object-cover rounded-xl md:rounded-3xl border border-2 border-orange-400/70 shrink-0 cursor-pointer shadow-sm hover:scale-105 transition-transform"
                               />
                             ))}
                           </div>
                         )}
                         
-                        {/* 🌟 ฟันธง: เพิ่มหัวข้อให้รู้ว่านี่คืออาการเสีย */}
-                        <div className="mt-4 mb-1">
-                          <span className="text-[11px] font-black text-slate-400 uppercase tracking-widest flex items-center gap-1.5">
-                            <AlertCircle size={12} className="text-rose-400" /> อาการเสียที่แจ้ง:
+                        <div className="mt-4 md:mt-8 mb-1 md:mb-4">
+                          <span className="text-[11px] md:text-[20px] font-black text-slate-400 uppercase tracking-widest flex items-center gap-1.5 md:gap-3">
+                            <AlertCircle className="w-3 h-3 md:w-6 md:h-6 text-rose-400" /> อาการเสียที่แจ้ง:
                           </span>
-                          <p className={`text-[16px] font-black mt-1.5 leading-relaxed pl-1 ${
+                          <p className={`text-[16px] md:text-[30px] font-black mt-1.5 md:mt-4 leading-relaxed pl-1 md:pl-4 ${
                             isCancelled ? 'text-slate-400 line-through' : 'text-rose-600 drop-shadow-sm'
                           }`}>
                             "{String(t.description)}"
@@ -3111,7 +3083,7 @@ const renderTracking = () => (
                         </div>
                         
                         {t.assetNumber && (
-                          <p className="text-[12px] text-slate-500 font-mono mt-3">
+                          <p className="text-[12px] md:text-[20px] text-slate-500 font-mono mt-3 md:mt-6">
                             <span className="font-bold text-slate-400">
                               Asset No:
                             </span>{' '}
@@ -3119,46 +3091,42 @@ const renderTracking = () => (
                           </p>
                         )}
 
-                        {/* ================= โซนชื่อผู้แจ้ง และ ผู้รับผิดชอบ (อัปเกรดรีดพื้นที่ขั้นสุด) ================= */}
-                        <div className="pt-3 border-t border-2 border-orange-400/70 flex flex-col gap-2 mt-3 text-xs text-slate-600">
+                        <div className="pt-3 md:pt-8 border-t border-2 border-orange-400/70 flex flex-col gap-2 md:gap-6 mt-3 md:mt-8 text-xs md:text-[20px] text-slate-600">
                           
-                          {/* 🌟 1. ดึงขอบซ้ายขวาให้ชิดขึ้นด้วย -mx-1 และลดช่องว่างตรงกลางเหลือ gap-1 */}
-                          <div className="flex justify-between items-start gap-1 -mx-1 sm:mx-0">
-                            <div className="flex flex-col flex-1 min-w-0 pl-1">
-                              <span className="text-[11px] font-bold text-green-600 mb-1">
+                          <div className="flex justify-between items-start gap-1 md:gap-6 -mx-1 sm:mx-0">
+                            <div className="flex flex-col flex-1 min-w-0 pl-1 md:pl-0">
+                              <span className="text-[11px] md:text-[18px] font-bold text-green-600 mb-1 md:mb-3">
                                 ผู้แจ้งปัญหา
                               </span>
-                              <span className="font-bold text-orange-800 flex items-start gap-1 leading-tight mb-1">
-                                <User size={14} className={`shrink-0 mt-0.5 ${isCancelled ? 'text-slate-400' : 'text-emerald-500'}`} />
-                                {/* 🌟 ใช้ tracking-tight ช่วยบีบช่องไฟตัวอักษรนิดนึง */}
-                                <span className="whitespace-normal break-words leading-snug tracking-tight">
+                              <span className="font-bold text-orange-800 flex items-start gap-1 md:gap-3 leading-tight mb-1 md:mb-3">
+                                <User className={`w-3.5 h-3.5 md:w-8 md:h-8 shrink-0 mt-0.5 ${isCancelled ? 'text-slate-400' : 'text-emerald-500'}`} />
+                                <span className="whitespace-normal break-words leading-snug tracking-tight md:text-[28px]">
                                   {String(t.reporter)}
                                 </span>
                               </span>
-                              <span className="text-[12px] font-bold text-blue-600 mt-1 pl-1">
+                              <span className="text-[12px] md:text-[20px] font-bold text-blue-600 mt-1 md:mt-3 pl-1 md:pl-2">
                                 {formatDateTimeString(t.date)}
                               </span>
                             </div>
                             
-                            {/* 🌟 บีบปุ่มโทรศัพท์ให้บางลง (px-1.5) และบีบตัวเลขให้ชิดกัน (tracking-tighter) */}
                             <a
                               href={`tel:${String(t.reporterContact).replace(/\D/g, '')}`}
-                              className="font-mono shrink-0 whitespace-nowrap text-[11px] sm:text-[12px] font-bold bg-emerald-50 px-1.5 py-1.5 rounded-lg flex items-center gap-1 text-emerald-700 border border-emerald-200 mt-4 tracking-tighter"
+                              className="font-mono shrink-0 whitespace-nowrap text-[11px] sm:text-[12px] md:text-[20px] font-bold bg-emerald-50 px-1.5 md:px-5 py-1.5 md:py-4 rounded-lg md:rounded-2xl flex items-center gap-1 md:gap-3 text-emerald-700 border border-emerald-200 mt-4 md:mt-8 tracking-tighter hover:bg-emerald-100 transition-colors shadow-sm"
                             >
-                              <Phone size={12} className="text-emerald-500" />
+                              <Phone className="w-3 h-3 md:w-6 md:h-6 text-emerald-500" />
                               {formatDisplayPhone(t.reporterContact)}
                             </a>
                           </div>
 
                           {t.techName && (
-                            <div className="flex justify-between items-start gap-1 mt-2 pt-2 border-t border-slate-100 -mx-1 sm:mx-0">
-                              <div className="flex flex-col flex-1 min-w-0 pl-1">
-                                <span className="text-[11px] font-bold text-orange-600 mb-2">
+                            <div className="flex justify-between items-start gap-1 md:gap-6 mt-2 md:mt-6 pt-2 md:pt-6 border-t border-slate-100 -mx-1 sm:mx-0">
+                              <div className="flex flex-col flex-1 min-w-0 pl-1 md:pl-0">
+                                <span className="text-[11px] md:text-[18px] font-bold text-orange-600 mb-2 md:mb-4">
                                   ผู้รับผิดชอบ
                                 </span>
-                                <span className="font-bold text-indigo-600 flex items-start gap-1 leading-tight">
-                                  <User size={14} className="text-orange-500 shrink-0 mt-0.5" />
-                                  <span className="whitespace-normal break-words tracking-tight">
+                                <span className="font-bold text-indigo-600 flex items-start gap-1 md:gap-3 leading-tight">
+                                  <User className="w-3.5 h-3.5 md:w-8 md:h-8 text-orange-500 shrink-0 mt-0.5" />
+                                  <span className="whitespace-normal break-words tracking-tight md:text-[28px]">
                                     {String(t.techName)}
                                   </span>
                                 </span>
@@ -3166,26 +3134,24 @@ const renderTracking = () => (
                               {t.techPhone && t.techPhone !== '-' && t.techPhone !== 'N/A' ? (
                                 <a
                                   href={`tel:${String(t.techPhone).replace(/\D/g, '')}`}
-                                  className="font-mono shrink-0 whitespace-nowrap text-[11px] sm:text-[12px] font-bold bg-orange-50 px-1.5 py-1.5 rounded-lg flex items-center gap-1 text-orange-700 border border-orange-200 mt-4 tracking-tighter"
+                                  className="font-mono shrink-0 whitespace-nowrap text-[11px] sm:text-[12px] md:text-[20px] font-bold bg-orange-50 px-1.5 md:px-5 py-1.5 md:py-4 rounded-lg md:rounded-2xl flex items-center gap-1 md:gap-3 text-orange-700 border border-orange-200 mt-4 md:mt-8 tracking-tighter hover:bg-orange-100 transition-colors shadow-sm"
                                 >
-                                  <Phone size={12} className="text-orange-500" />
+                                  <Phone className="w-3 h-3 md:w-6 md:h-6 text-orange-500" />
                                   {formatDisplayPhone(t.techPhone)}
                                 </a>
                               ) : (
-                                <span className="font-mono shrink-0 whitespace-nowrap text-[11px] text-slate-400 bg-white px-1.5 py-1 rounded border border-slate-200 mt-4">
+                                <span className="font-mono shrink-0 whitespace-nowrap text-[11px] md:text-[20px] text-slate-400 bg-white px-1.5 md:px-5 py-1 md:py-4 rounded md:rounded-2xl border border-slate-200 mt-4 md:mt-8 shadow-sm">
                                   {String(t.techPhone || 'N/A')}
                                 </span>
                               )}
                             </div>
                           )}
                         </div>
-                        {/* ================= จบโซนชื่อ ================= */}
                       </div>
 
-                      {/* ================= โซนปุ่มกด (ช่าง) เปลี่ยนสีปุ่มรับงานซ่อม ================= */}
-
-                      {currentUserRole === 'technician' && !isCancelled && (
-                        <div className="flex flex-col gap-2.5">
+                     {/* 🌟 โซนปุ่มกด Action (ขนาดบิ๊กเบิ้ม สำหรับช่าง) */}
+                     {currentUserRole === 'technician' && !isCancelled && (
+                        <div className="flex flex-col gap-2.5 md:gap-6 mt-4 md:mt-8">
                           {isPending && (
                             <button
                               onClick={() =>
@@ -3195,7 +3161,7 @@ const renderTracking = () => (
                                   type: 'accept',
                                 })
                               }
-                              className="w-full bg-gradient-to-r from-emerald-400 to-emerald-800 text-white border-2 border-solid border-orange-500 font-bold py-4 rounded-xl shadow-[0_0_15px_rgba(16,185,129,0.4)] hover:shadow-[0_0_25px_rgba(16,185,129,0.6)] active:scale-95 transition-all text-[22px] hover:shadow-[0_0_25px_rgba(16,185,129,0.8)] hover:brightness-110 hover:-translate-y-1"
+                              className="w-full bg-gradient-to-r from-emerald-400 to-emerald-800 text-white border-2 border-solid border-orange-500 font-bold py-4 md:py-8 rounded-xl md:rounded-[2rem] shadow-[0_0_15px_rgba(16,185,129,0.4)] active:scale-95 transition-all text-[22px] md:text-[34px] hover:shadow-[0_0_25px_rgba(16,185,129,0.8)] hover:brightness-110 hover:-translate-y-1"
                             >
                               รับงานซ่อม
                             </button>
@@ -3212,7 +3178,7 @@ const renderTracking = () => (
                                     type: 'ssc',
                                   })
                                 }
-                                className="w-full bg-gradient-to-r from-orange-400 to-orange-500 text-white border border-orange-300 font-bold py-3.5 rounded-xl shadow-[0_0_15px_rgba(249,115,22,0.4)] hover:shadow-[0_0_25px_rgba(249,115,22,0.6)] active:scale-95 transition-all text-sm"
+                                className="w-full bg-gradient-to-r from-orange-400 to-orange-500 text-white border border-orange-300 font-bold py-3.5 md:py-6 rounded-xl md:rounded-3xl shadow-[0_0_15px_rgba(249,115,22,0.4)] hover:shadow-[0_0_25px_rgba(249,115,22,0.6)] active:scale-95 transition-all text-sm md:text-[26px]"
                               >
                                 บันทึกเวร SSC
                               </button>
@@ -3225,16 +3191,15 @@ const renderTracking = () => (
                                   status: 'in_progress',
                                   startedAt: new Date().toISOString(),
                                 })
-                                //เปลี่ยนสีปุ่มและตัวอักษรปุ่มเริ่มดำเนินการซ่อม
                               }
-                              className="w-full bg-gradient-to-r from-emerald-500 to-emerald-600 text-white border border-emerald-400 font-bold py-3.5 rounded-xl shadow-[0_0_15px_rgba(16,185,129,0.4)] hover:shadow-[0_0_25px_rgba(16,185,129,0.6)] active:scale-95 transition-all text-[15px] hover:shadow-[0_0_25px_rgba(16,185,129,0.8)] hover:brightness-110 hover:-translate-y-1"
+                              className="w-full bg-gradient-to-r from-emerald-500 to-emerald-600 text-white border border-emerald-400 font-bold py-3.5 md:py-6 rounded-xl md:rounded-3xl shadow-[0_0_15px_rgba(16,185,129,0.4)] active:scale-95 transition-all text-[15px] md:text-[28px] hover:shadow-[0_0_25px_rgba(16,185,129,0.8)] hover:brightness-110 hover:-translate-y-1"
                             >
                               เริ่มดำเนินการซ่อม
                             </button>
                           )}
 
                           {(t.status === 'in_progress' || t.status === 'on_hold') && (
-                            <div className="flex gap-2.5">
+                            <div className="flex gap-2.5 md:gap-6">
                               <button
                                 onClick={() => {
                                   if (t.status === 'on_hold') {
@@ -3255,9 +3220,7 @@ const renderTracking = () => (
                                     });
                                   }
                                 }}
-
-                                //เปลี่ยนสีปุ่ม ขนาดตัวอักษรแจ้งขัดข้อง
-                                className="flex-1 bg-gradient-to-r from-orange-400 to-orange-500 text-white border border-orange-300 font-bold py-3.5 rounded-xl shadow-[0_0_15px_rgba(249,115,22,0.4)] hover:shadow-[0_0_25px_rgba(249,115,22,0.6)] active:scale-95 transition-all text-[15px] hover:shadow-[0_0_25px_rgba(249,115,22,0.8)] hover:brightness-110 hover:-translate-y-1"
+                                className="flex-1 bg-gradient-to-r from-orange-400 to-orange-500 text-white border border-orange-300 font-bold py-3.5 md:py-6 rounded-xl md:rounded-3xl shadow-[0_0_15px_rgba(249,115,22,0.4)] active:scale-95 transition-all text-[15px] md:text-[26px] hover:shadow-[0_0_25px_rgba(249,115,22,0.8)] hover:brightness-110 hover:-translate-y-1"
                               >
                                 {t.status === 'on_hold' ? 'ดำเนินการต่อ' : 'แจ้งขัดข้อง'}
                               </button>
@@ -3269,14 +3232,13 @@ const renderTracking = () => (
                                     type: 'finish',
                                   })
                                 }
-                                className="flex-[1.5] bg-gradient-to-r from-emerald-500 to-emerald-600 text-white border border-emerald-400 font-bold py-3.5 rounded-xl shadow-[0_0_15px_rgba(16,185,129,0.4)] hover:shadow-[0_0_25px_rgba(16,185,129,0.6)] active:scale-95 transition-all text-[15px] hover:shadow-[0_0_25px_rgba(16,185,129,0.8)] hover:brightness-110 hover:-translate-y-1"
+                                className="flex-[1.5] bg-gradient-to-r from-emerald-500 to-emerald-600 text-white border border-emerald-400 font-bold py-3.5 md:py-6 rounded-xl md:rounded-3xl shadow-[0_0_15px_rgba(16,185,129,0.4)] active:scale-95 transition-all text-[15px] md:text-[26px] hover:shadow-[0_0_25px_rgba(16,185,129,0.8)] hover:brightness-110 hover:-translate-y-1"
                               >
                                 ปิดงานซ่อม
                                 </button>
                             </div>
                           )}
 
-                          {/* 🌟🌟 ฟันธง: แทรกปุ่มดึงงานกลับ (Undo) ตรงนี้ครับ 🌟🌟 */}
                           {t.status === 'completed' && (
                             <button
                               onClick={() => updateTicketStatus(t.id, { 
@@ -3284,29 +3246,26 @@ const renderTracking = () => (
                                 completedAt: null, 
                                 cause: null 
                               })}
-                              className="w-full bg-orange-100 text-orange-800 border-2 border-orange-400 font-bold py-3.5 rounded-xl hover:bg-orange-100 hover:text-orange-800 active:scale-95 transition-all text-[15px] shadow-sm flex justify-center items-center gap-2 mt-3 hover:shadow-[0_0_15px_rgba(249,115,22,0.4)]"
+                              className="w-full bg-orange-100 text-orange-800 border-2 border-orange-400 font-bold py-3.5 md:py-6 rounded-xl md:rounded-3xl hover:bg-orange-200 hover:text-orange-900 active:scale-95 transition-all text-[15px] md:text-[24px] shadow-sm flex justify-center items-center gap-2 md:gap-4 mt-3 md:mt-6 hover:shadow-[0_0_15px_rgba(249,115,22,0.4)]"
                             >
-                              <RotateCcw size={18} className="animate-spin-slow" /> ดึงงานกลับมาแก้ไขผลการซ่อม
+                              <RotateCcw className="w-[18px] h-[18px] md:w-8 md:h-8 animate-spin-slow" /> ดึงงานกลับมาแก้ไขผลการซ่อม
                             </button>
                           )}
-
                         </div>
                       )}
 
-                      {/* ================= โซนปุ่มกด (ผู้แจ้ง) ================= */}
-
-                      {/* ================= โซนปุ่มกด (ผู้แจ้ง) ================= */}
+                      {/* 🌟 โซนปุ่มกด Action (ขนาดบิ๊กเบิ้ม สำหรับผู้แจ้งปัญหา) */}
                       {currentUserRole === 'reporter' && !isCancelled && (
-                        <div className="flex flex-col gap-2.5">
+                        <div className="flex flex-col gap-2.5 md:gap-6 mt-4 md:mt-8">
                           {isPending && (
-                            <div className="flex flex-col gap-2.5">
+                            <div className="flex flex-col gap-2.5 md:gap-6">
                               {waitingMin > 60 && (
-                                <div className="bg-green-600/20 border-2 border-solid border-orange-800 text-rose-600 text-[14px] font-bold px-4 py-2.5 rounded-xl flex items-center gap-2 mb-1">
-                                  <AlertTriangle size={15} className="animate-pulse shrink-0" />
+                                <div className="bg-green-600/20 border-2 border-solid border-orange-800 text-rose-600 text-[14px] md:text-[22px] font-bold px-4 py-2.5 md:py-5 rounded-xl md:rounded-2xl flex items-center gap-2 md:gap-4 mb-1 md:mb-3">
+                                  <AlertTriangle className="w-[15px] h-[15px] md:w-8 md:h-8 animate-pulse shrink-0" />
                                   รอดำเนินการเกิน 1 ชั่วโมง (SLA Breach)
                                 </div>
                               )}
-                              <div className="flex gap-2">
+                              <div className="flex gap-2 md:gap-5">
                                 <button
                                   onClick={() =>
                                     setActionModal({
@@ -3315,15 +3274,15 @@ const renderTracking = () => (
                                       type: 'cancel',
                                     })
                                   }
-                                  className="flex-[1] bg-orange text-rose-500 border border-orange-500 font-bold py-3.5 rounded-xl flex justify-center items-center gap-1.5 active:scale-95 text-[18px] transition-colors shadow-sm hover:bg-rose-50"
+                                  className="flex-[1] bg-orange text-rose-500 border border-orange-500 font-bold py-3.5 md:py-6 rounded-xl md:rounded-3xl flex justify-center items-center gap-1.5 md:gap-3 active:scale-95 text-[18px] md:text-[28px] transition-colors shadow-sm hover:bg-rose-50"
                                 >
-                                  <XCircle size={22} /> ยกเลิก
+                                  <XCircle className="w-[22px] h-[22px] md:w-9 md:h-9" /> ยกเลิก
                                 </button>
                                 <a
-                                  href="tel:เบอร์โทรส่วนกลางทีมช่าง" // 🌟 ใส่เบอร์ของทีมช่างที่รับหน้าเสื่อ
-                                  className="flex-[1.5] bg-gradient-to-r from-orange-500 to-amber-500 text-white border-2 border-solid border-white/50 font-black py-4 rounded-2xl flex justify-center items-center gap-1.5 sm:gap-2 shadow-[0_0_15px_rgba(249,115,22,0.4)] hover:shadow-[0_0_25px_rgba(249,115,22,0.8)] active:scale-95 transition-all text-[16px] sm:text-[18px] md:text-[16px] tracking-wide whitespace-nowrap"
+                                  href="tel:0835293836" 
+                                  className="flex-[1.5] bg-gradient-to-r from-orange-500 to-amber-500 text-white border-2 border-solid border-white/50 font-black py-4 md:py-6 rounded-2xl md:rounded-[2rem] flex justify-center items-center gap-1.5 sm:gap-2 md:gap-4 shadow-[0_0_15px_rgba(249,115,22,0.4)] active:scale-95 transition-all text-[16px] sm:text-[18px] md:text-[28px] tracking-wide whitespace-nowrap hover:shadow-[0_0_25px_rgba(249,115,22,0.8)]"
                                 >
-                                  <PhoneCall size={24} className="animate-pulse shrink-0" />
+                                  <PhoneCall className="w-6 h-6 md:w-10 md:h-10 animate-pulse shrink-0" />
                                   สายด่วน หน.ฝวด.
                                 </a>
                               </div>
@@ -3331,44 +3290,43 @@ const renderTracking = () => (
                           )}
 
                           {t.status === 'in_progress' && fixingMin > 5 * 24 * 60 && (
-                            <div className="flex flex-col gap-2 mt-1">
-                              <div className="bg-rose-500/10 border border-rose-500/30 text-rose-400 text-[13px] font-bold px-4 py-2.5 rounded-xl flex items-center gap-2">
-                                <AlertTriangle size={14} className="animate-pulse shrink-0" />
+                            <div className="flex flex-col gap-2 md:gap-6 mt-1 md:mt-3">
+                              <div className="bg-rose-500/10 border border-rose-500/30 text-rose-400 text-[13px] md:text-[22px] font-bold px-4 py-2.5 md:py-5 rounded-xl md:rounded-2xl flex items-center gap-2 md:gap-4">
+                                <AlertTriangle className="w-[14px] h-[14px] md:w-8 md:h-8 animate-pulse shrink-0" />
                                 ดำเนินการซ่อมเกินกำหนด 5 วัน (SLA Breach)
                               </div>
                               <a
-                                href="tel:0835293836" // 🌟 เบอร์สายตรง หน.ฝวด. (เบอร์ท่านหัวหน้า)
-                                className="flex-[1.5] bg-gradient-to-r from-rose-600 to-red-700 text-white border-2 border-solid border-white/50 font-black py-4 rounded-2xl flex justify-center items-center gap-1.5 sm:gap-2 shadow-[0_0_15px_rgba(225,29,72,0.4)] hover:shadow-[0_0_25px_rgba(225,29,72,0.8)] active:scale-95 transition-all text-[13px] sm:text-[15px] md:text-[22px] tracking-wide whitespace-nowrap"
+                                href="tel:0835293836"
+                                className="flex-[1.5] bg-gradient-to-r from-rose-600 to-red-700 text-white border-2 border-solid border-white/50 font-black py-4 md:py-8 rounded-2xl md:rounded-[2rem] flex justify-center items-center gap-1.5 sm:gap-2 md:gap-4 shadow-[0_0_15px_rgba(225,29,72,0.4)] active:scale-95 transition-all text-[13px] sm:text-[15px] md:text-[30px] tracking-wide whitespace-nowrap hover:shadow-[0_0_25px_rgba(225,29,72,0.8)]"
                               >
-                                <PhoneCall size={24} className="animate-pulse shrink-0" />
+                                <PhoneCall className="w-6 h-6 md:w-10 md:h-10 animate-pulse shrink-0" />
                                 สายด่วน หน.ฝวด. (กรณีล่าช้า)
                               </a>
                             </div>
                           )}
 
-{t.status === 'completed' && (
-  <button
-    onClick={() => {
-      // 🌟 ฟันธง: ค้นหาข้อมูลช่างจากชื่อ แล้วดึงรูป (photo) ส่งไปให้หน้าต่าง Popup
-      const techData = technicianList.find(x => x.name === t.techName);
-      setRatingModal({ 
-        isOpen: true, 
-        ticketId: t.id, 
-        rating: 0, 
-        comment: '', 
-        techName: t.techName,
-        techPhotoUrl: techData ? techData.photo : '' 
-      });
-    }}
-    className="w-full bg-gradient-to-r from-emerald-500 to-emerald-600 text-white border border-emerald-400 font-bold py-4 rounded-xl flex justify-center items-center gap-2 shadow-[0_0_15px_rgba(16,185,129,0.4)] hover:shadow-[0_0_25px_rgba(16,185,129,0.6)] active:scale-95 transition-all text-[16px]"
-  >
-    <Star size={20} className="animate-pulse text-yellow-300" fill="currentColor" /> ยืนยันผลและให้คะแนนช่าง
-  </button>
-)}
+                          {t.status === 'completed' && (
+                            <button
+                              onClick={() => {
+                                const techData = technicianList.find(x => x.name === t.techName);
+                                setRatingModal({ 
+                                  isOpen: true, 
+                                  ticketId: t.id, 
+                                  rating: 0, 
+                                  comment: '', 
+                                  techName: t.techName,
+                                  techPhotoUrl: techData ? techData.photo : '' 
+                                });
+                              }}
+                              className="w-full bg-gradient-to-r from-emerald-500 to-emerald-600 text-white border border-emerald-400 font-bold py-4 md:py-8 rounded-xl md:rounded-[2rem] flex justify-center items-center gap-2 md:gap-4 shadow-[0_0_15px_rgba(16,185,129,0.4)] active:scale-95 transition-all text-[16px] md:text-[32px] hover:shadow-[0_0_25px_rgba(16,185,129,0.6)]"
+                            >
+                              <Star className="w-5 h-5 md:w-10 md:h-10 animate-pulse text-yellow-300" fill="currentColor" /> ยืนยันผลและให้คะแนนช่าง
+                            </button>
+                          )}
                           
                           {t.status === 'verified' && (
-                            <div className="w-full bg-emerald-50 border border-emerald-200 py-3.5 rounded-xl flex justify-center items-center gap-2 text-emerald-600 font-bold text-xs shadow-inner">
-                              <CheckCircle size={16} /> เสร็จสิ้นสมบูรณ์
+                            <div className="w-full bg-emerald-50 border border-emerald-200 py-3.5 md:py-6 rounded-xl md:rounded-3xl flex justify-center items-center gap-2 md:gap-4 text-emerald-600 font-bold text-xs md:text-[28px] shadow-inner">
+                              <CheckCircle className="w-4 h-4 md:w-8 md:h-8" /> เสร็จสิ้นสมบูรณ์
                             </div>
                           )}
                         </div>
@@ -3377,7 +3335,7 @@ const renderTracking = () => (
                     </div>
                   </div>
                 );
-              })
+            })
             )}
           </div>
           {/* ================= สิ้นสุดการวางทับ ================= */}
