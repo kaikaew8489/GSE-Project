@@ -2422,7 +2422,6 @@ const executeRatingSubmit = async () => {
 const renderTracking = () => (
   <div className="p-4 md:p-8 space-y-6 md:space-y-10 pb-32 md:pb-40 animate-in slide-in-from-left-4 duration-500 text-left">
     
-    {/* 🌟 ฟันธงข้อ 3 & 4: มัดรวมทุกเมนูควบคุม (อัปเกรด รีดไขมัน ปล่อยให้เลื่อนตามหน้าจอได้อิสระ!) */}
     {/* 🌟 ฟันธงข้อ 3 & 4: มัดรวมทุกเมนูควบคุม (ปรับไซส์พอดีคำ + เอฟเฟกต์เมาส์ชี้ฟ้าเรืองแสง) */}
     <div className="relative pt-1 pb-4 md:pb-6 space-y-3 md:space-y-4 mb-2 md:mb-6 border-b-2 border-slate-700/50 animate-in fade-in duration-500">
       
@@ -2797,7 +2796,7 @@ const renderTracking = () => (
                             ></div>
                             <div className="flex justify-between items-center pl-2 md:pl-6">
                               <span className={`text-[13px] md:text-[22px] font-black ${isPending ? 'text-rose-500' : 'text-slate-400'}`}>
-                                เวลารอคอย
+                                เวลารอดำเนินการ
                               </span>
                               <span
                                 className={`text-[13px] md:text-[24px] font-bold font-mono tracking-tighter ${
@@ -2895,7 +2894,7 @@ const renderTracking = () => (
                           ></div>
                           <div className="flex justify-between items-center pl-2 md:pl-6">
                             <span className={`text-[13px] md:text-[22px] font-black ${isDone ? 'text-emerald-500' : 'text-slate-400'}`}>
-                              เวลารวม
+                              เวลารวมทั้งหมด
                             </span>
                             <span
                               className={`text-[13px] md:text-[24px] font-bold font-mono tracking-tighter ${
@@ -2973,11 +2972,11 @@ const renderTracking = () => (
                                   
                                   <div className="space-y-2.5 md:space-y-5 text-[13px] md:text-[22px]">
                                     <div className="flex justify-between items-center">
-                                      <span className="text-slate-600 font-bold">แจ้งซ่อมเมื่อ:</span>
+                                      <span className="text-slate-600 font-bold">วันที่แจ้งซ่อม:</span>
                                       <span className="text-slate-800 font-black">{new Date(t.date).toLocaleString('th-TH')}</span>
                                     </div>
                                     <div className="flex justify-between items-center">
-                                      <span className="text-slate-600 font-bold">ซ่อมเสร็จเมื่อ:</span>
+                                      <span className="text-slate-600 font-bold">วันที่ซ่อมเสร็จ:</span>
                                       <span className="text-slate-800 font-black">
                                           {t.completedAt ? new Date(t.completedAt).toLocaleString('th-TH') : '-'}
                                       </span>
@@ -3074,7 +3073,7 @@ const renderTracking = () => (
                         )}
                         
                         {t.cause && (
-                          <div className="bg-emerald-50 text-emerald-700 p-3 md:p-6 rounded-xl md:rounded-2xl text-xs md:text-[20px] font-bold mb-3 md:mb-6 flex gap-2 md:gap-4 border-2 border-solid border-emerald-400 shadow-sm">
+                          <div className="bg-emerald-100 text-emerald-900 p-3 md:p-6 rounded-xl md:rounded-2xl text-[14px] md:text-[22px] font-bold mb-3 md:mb-6 flex gap-2 md:gap-4 border-2 border-solid border-emerald-500 shadow-sm">
                             <CheckSquare className="w-4 h-4 md:w-8 md:h-8 shrink-0 mt-0.5 md:mt-1" />
                             <div>
                               <span className="block mb-0.5 md:mb-2 text-emerald-800">
@@ -3112,10 +3111,10 @@ const renderTracking = () => (
                         )}
                         
                         <div className="mt-4 md:mt-8 mb-1 md:mb-4">
-                          <span className="text-[11px] md:text-[20px] font-black text-slate-400 uppercase tracking-widest flex items-center gap-1.5 md:gap-3">
-                            <AlertCircle className="w-3 h-3 md:w-6 md:h-6 text-rose-400" /> อาการเสียที่แจ้ง:
+                          <span className="text-[13px] md:text-[22px] font-black text-indigo-600 uppercase tracking-widest flex items-center gap-1.5 md:gap-3">
+                            <AlertCircle className="w-3 h-3 md:w-6 md:h-6 text-rose-600" /> อาการเสียที่แจ้ง:
                           </span>
-                          <p className={`text-[16px] md:text-[30px] font-black mt-1.5 md:mt-4 leading-relaxed pl-1 md:pl-4 ${
+                          <p className={`text-[14px] md:text-[30px] font-black mt-1.5 md:mt-4 leading-relaxed pl-1 md:pl-4 ${
                             isCancelled ? 'text-slate-400 line-through' : 'text-rose-600 drop-shadow-sm'
                           }`}>
                             "{String(t.description)}"
@@ -3135,16 +3134,17 @@ const renderTracking = () => (
                           
                           <div className="flex justify-between items-start gap-1 md:gap-6 -mx-1 sm:mx-0">
                             <div className="flex flex-col flex-1 min-w-0 pl-1 md:pl-0">
-                              <span className="text-[11px] md:text-[18px] font-bold text-green-600 mb-1 md:mb-3">
+                              <span className="text-[13px] md:text-[22px] font-bold text-green-600 mb-1 md:mb-3">
                                 ผู้แจ้งปัญหา
                               </span>
                               <span className="font-bold text-orange-800 flex items-start gap-1 md:gap-3 leading-tight mb-1 md:mb-3">
                                 <User className={`w-3.5 h-3.5 md:w-8 md:h-8 shrink-0 mt-0.5 ${isCancelled ? 'text-slate-400' : 'text-emerald-500'}`} />
+
                                 <span className="whitespace-normal break-words leading-snug tracking-tight md:text-[28px]">
                                   {String(t.reporter)}
                                 </span>
                               </span>
-                              <span className="text-[12px] md:text-[20px] font-bold text-blue-600 mt-1 md:mt-3 pl-1 md:pl-2">
+                              <span className="text-[13px] md:text-[22px] font-bold text-blue-600 mt-1 md:mt-3 pl-1 md:pl-2">
                                 {formatDateTimeString(t.date)}
                               </span>
                             </div>
@@ -3161,7 +3161,7 @@ const renderTracking = () => (
                           {t.techName && (
                             <div className="flex justify-between items-start gap-1 md:gap-6 mt-2 md:mt-6 pt-2 md:pt-6 border-t border-slate-100 -mx-1 sm:mx-0">
                               <div className="flex flex-col flex-1 min-w-0 pl-1 md:pl-0">
-                                <span className="text-[11px] md:text-[18px] font-bold text-orange-600 mb-2 md:mb-4">
+                                <span className="text-[13px] md:text-[22px] font-bold text-orange-600 mb-2 md:mb-4">
                                   ผู้รับผิดชอบ
                                 </span>
                                 <span className="font-bold text-indigo-600 flex items-start gap-1 md:gap-3 leading-tight">
