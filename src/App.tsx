@@ -2421,23 +2421,23 @@ const renderTracking = () => (
   <div className="p-4 md:p-8 space-y-6 md:space-y-10 pb-32 md:pb-40 animate-in slide-in-from-left-4 duration-500 text-left">
     
     {/* 🌟 ฟันธงข้อ 3 & 4: มัดรวมทุกเมนูควบคุม (อัปเกรด รีดไขมัน ปล่อยให้เลื่อนตามหน้าจอได้อิสระ!) */}
-    <div className="relative pt-1 pb-4 md:pb-8 space-y-3 md:space-y-6 mb-2 md:mb-6 border-b-2 border-slate-700/50 animate-in fade-in duration-500">
+    {/* 🌟 ฟันธงข้อ 3 & 4: มัดรวมทุกเมนูควบคุม (ปรับไซส์พอดีคำ + เอฟเฟกต์เมาส์ชี้ฟ้าเรืองแสง) */}
+    <div className="relative pt-1 pb-4 md:pb-6 space-y-3 md:space-y-4 mb-2 md:mb-6 border-b-2 border-slate-700/50 animate-in fade-in duration-500">
       
-      {/* 1. ช่องค้นหา (ขยายร่าง PC ใหญ่เบิ้มพิมพ์ง่ายเต็มตา) */}
-      <div className="flex-grow flex items-center bg-slate-900 border-2 border-solid border-cyan-800/80 rounded-xl md:rounded-[1.5rem] p-3 md:p-5 shadow-inner shadow-[0_0_8px_rgba(34,211,238,1)] hover:border-cyan-500 hover:shadow-[0_0_15px_rgba(34,211,238,1)] transition-all duration-300 cursor-text">
-            <Search size={22} className="md:w-8 md:h-8 text-cyan-300 shrink-0" />
+      {/* 1. ช่องค้นหา (อัปเกรดให้พอดีคำ และเรืองแสงเมื่อเมาส์ชี้) */}
+      <div className="flex-grow flex items-center bg-slate-900 border-2 border-solid border-cyan-800/80 rounded-xl md:rounded-2xl p-3 md:p-4 shadow-inner shadow-[0_0_8px_rgba(34,211,238,1)] hover:border-cyan-400 hover:shadow-[0_0_20px_rgba(34,211,238,1)] transition-all duration-300 cursor-text group">
+            <Search size={22} className="md:w-6 md:h-6 text-cyan-300 shrink-0 group-hover:text-cyan-100 group-hover:drop-shadow-[0_0_8px_rgba(34,211,238,1)] transition-all" />
             <input
               type="text"
               placeholder="ค้นหา รหัส หรือ อุปกรณ์..."
-              className="bg-transparent flex-grow outline-none text-white px-3 md:px-5 font-bold md:text-[24px] placeholder:text-slate-500 placeholder:font-normal placeholder:md:text-[24px]"
+              className="bg-transparent flex-grow outline-none text-white px-3 md:px-4 font-bold md:text-[20px] placeholder:text-slate-500 placeholder:font-normal placeholder:md:text-[20px]"
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
             />
           </div>
 
-      {/* 2. สวิตช์กรองสถานะงาน (อัปเกรด PC ปุ่มใหญ่ คลิกง่าย ไม่ต้องเล็ง) */}
-      <div className="bg-slate-800/80 rounded-xl md:rounded-2xl border-[2px] border-solid border-slate-700 shadow-inner">
-        <div className="flex gap-1.5 md:gap-3 overflow-x-auto py-1.5 md:py-3 px-1.5 md:px-3 snap-x [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]">
+     {/* 2. สวิตช์กรองสถานะงาน (ฟันธง: เอากรอบนอกออก ปล่อยปุ่มลอย และยืดขยายเต็มหน้าจออัตโนมัติ) */}
+     <div className="flex gap-2 md:gap-4 overflow-x-auto py-1 md:py-2 snap-x w-full [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]">
         {[
             { id: 'all', label: 'ทั้งหมด' },
             { id: 'pending', label: 'รอดำเนินการ' },
@@ -2453,35 +2453,35 @@ const renderTracking = () => (
                 setFilterStatus(f.id);
                 setSearchTerm('');
               }}
-             className={`flex-none md:flex-1 px-3.5 md:px-6 py-1.5 md:py-3 text-[12px] md:text-[20px] font-black rounded-lg md:rounded-xl transition-all duration-300 snap-center whitespace-nowrap ${
+             className={`flex-none md:flex-1 px-4 md:px-0 py-2 md:py-3.5 text-[12px] md:text-[16px] font-black rounded-lg md:rounded-xl transition-all duration-300 snap-center whitespace-nowrap flex items-center justify-center ${
                 filterStatus === f.id
-                  ? 'bg-gradient-to-r from-orange-500 to-amber-500 text-white border-[2px] border-solid border-orange-300 shadow-[0_0_15px_rgba(249,115,22,0.8)] scale-[1.02] z-10' 
-                  : 'bg-slate-900 text-cyan-300 border-[2px] border-solid border-cyan-400/30 shadow-[0_0_8px_rgba(34,211,238,0.8)] hover:bg-slate-900 hover:text-cyan-200 hover:border-cyan-300 hover:shadow-[0_0_15px_rgba(34,211,238,1)] hover:-translate-y-0.5' 
+                  ? 'bg-gradient-to-r from-orange-500 to-amber-500 text-white border-[2px] border-solid border-orange-300 shadow-[0_0_15px_rgba(249,115,22,0.8)] scale-[1.05] z-10' 
+                  : 'bg-slate-900 text-cyan-300 border-[2px] border-solid border-cyan-400/30 shadow-[0_0_8px_rgba(34,211,238,0.4)] hover:bg-cyan-900/60 hover:text-white hover:border-cyan-300 hover:shadow-[0_0_20px_rgba(34,211,238,1)] hover:-translate-y-1' 
               }`}
             >
               {f.label}
             </button>
           ))}
-        </div>
       </div>
 
-      {/* 3. ปุ่มกรองเวลา (อัปเกรด PC ไซส์ใหญ่) */}
-      <div className="flex gap-1.5 md:gap-4 md:mt-4">
-          <button onClick={() => setTrackTimeframe('all')} className={`flex-[0.8] py-1.5 md:py-4 rounded-lg md:rounded-2xl font-black text-[12px] md:text-[22px] transition-all duration-300 whitespace-nowrap ${
+      {/* 3. ปุ่มกรองเวลา (ฟันธง: จัดเรียงให้ขอบซ้าย-ขวา ตรงเป๊ะกับปุ่มสถานะด้านบน 100%) */}
+      <div className="flex gap-2 md:gap-4 md:mt-2 w-full">
+          
+          <button onClick={() => setTrackTimeframe('all')} className={`flex-1 py-2 md:py-3.5 rounded-lg md:rounded-xl font-black text-[12px] md:text-[18px] transition-all duration-300 whitespace-nowrap flex items-center justify-center ${
             trackTimeframe === 'all' 
               ? 'bg-gradient-to-r from-cyan-600 to-blue-600 text-white shadow-[0_0_15px_rgba(6,182,212,0.8)] border-[2px] border-solid border-cyan-300 scale-[1.02] z-10' 
-              : 'bg-slate-950 text-cyan-300 border-[2px] border-solid border-cyan-400/30 shadow-[0_0_8px_rgba(34,211,238,0.3)] hover:bg-slate-900 hover:text-cyan-200 hover:border-cyan-300 hover:shadow-[0_0_15px_rgba(34,211,238,0.6)] hover:-translate-y-0.5'
+              : 'bg-slate-950 text-cyan-300 border-[2px] border-solid border-cyan-400/30 shadow-[0_0_8px_rgba(34,211,238,0.4)] hover:bg-cyan-900/60 hover:text-white hover:border-cyan-300 hover:shadow-[0_0_20px_rgba(34,211,238,1)] hover:-translate-y-1'
           }`}>ดูทุกวัน</button>
 
           {/* ระบุวัน */}
           <div className="relative flex-1">
             <button onClick={() => 
-            setShowTrackDatePicker(true)} className={`w-full h-full py-1.5 md:py-4 rounded-lg md:rounded-2xl font-black text-[12px] md:text-[22px] flex items-center justify-center gap-1.5 md:gap-3 transition-all duration-300 whitespace-nowrap ${
+            setShowTrackDatePicker(true)} className={`w-full h-full py-2 md:py-3.5 rounded-lg md:rounded-xl font-black text-[12px] md:text-[18px] flex items-center justify-center gap-1.5 md:gap-2 transition-all duration-300 whitespace-nowrap ${
               trackTimeframe === 'custom_date' 
                 ? 'bg-gradient-to-r from-cyan-600 to-blue-600 text-white shadow-[0_0_15px_rgba(6,182,212,0.8)] border-[2px] border-solid border-cyan-300 scale-[1.02] z-10' 
-                : 'bg-slate-950 text-cyan-300 border-[2px] border-solid border-cyan-400/30 shadow-[0_0_8px_rgba(34,211,238,0.3)] hover:bg-slate-900 hover:text-cyan-200 hover:border-cyan-300 hover:shadow-[0_0_15px_rgba(34,211,238,0.6)] hover:-translate-y-0.5'
+                : 'bg-slate-950 text-cyan-300 border-[2px] border-solid border-cyan-400/30 shadow-[0_0_8px_rgba(34,211,238,0.4)] hover:bg-cyan-900/60 hover:text-white hover:border-cyan-300 hover:shadow-[0_0_20px_rgba(34,211,238,1)] hover:-translate-y-1'
             }`}>
-              <Calendar size={14} className={`md:w-6 md:h-6 ${trackTimeframe === 'custom_date' ? 'text-white animate-pulse' : 'text-cyan-400'}`}/> ระบุวัน
+              <Calendar size={14} className={`md:w-5 md:h-5 ${trackTimeframe === 'custom_date' ? 'text-white animate-pulse' : 'text-cyan-400'}`}/> ระบุวัน
             </button>
 
             {showTrackDatePicker && (
@@ -2541,12 +2541,12 @@ const renderTracking = () => (
 
           {/* ระบุเดือน */}
           <div className="relative flex-1">
-            <button onClick={() => setShowTrackMonthPicker(true)} className={`w-full h-full py-1.5 md:py-4 rounded-lg md:rounded-2xl font-black text-[12px] md:text-[22px] flex items-center justify-center gap-1.5 md:gap-3 transition-all duration-300 whitespace-nowrap ${
+            <button onClick={() => setShowTrackMonthPicker(true)} className={`w-full h-full py-2 md:py-3.5 rounded-lg md:rounded-xl font-black text-[12px] md:text-[18px] flex items-center justify-center gap-1.5 md:gap-2 transition-all duration-300 whitespace-nowrap ${
               trackTimeframe === 'custom_month' 
                 ? 'bg-gradient-to-r from-cyan-600 to-blue-600 text-white shadow-[0_0_15px_rgba(6,182,212,0.8)] border-[2px] border-solid border-cyan-300 scale-[1.02] z-10' 
-                : 'bg-slate-950 text-cyan-300 border-[2px] border-solid border-cyan-400/30 shadow-[0_0_8px_rgba(34,211,238,0.3)] hover:bg-slate-900 hover:text-cyan-200 hover:border-cyan-300 hover:shadow-[0_0_15px_rgba(34,211,238,0.6)] hover:-translate-y-0.5'
+                : 'bg-slate-950 text-cyan-300 border-[2px] border-solid border-cyan-400/30 shadow-[0_0_8px_rgba(34,211,238,0.4)] hover:bg-cyan-900/60 hover:text-white hover:border-cyan-300 hover:shadow-[0_0_20px_rgba(34,211,238,1)] hover:-translate-y-1'
             }`}>
-              <Calendar size={14} className={`md:w-6 md:h-6 ${trackTimeframe === 'custom_month' ? 'text-white animate-pulse' : 'text-cyan-400'}`}/> ระบุเดือน
+              <Calendar size={14} className={`md:w-5 md:h-5 ${trackTimeframe === 'custom_month' ? 'text-white animate-pulse' : 'text-cyan-400'}`}/> ระบุเดือน
             </button>
             
             {showTrackMonthPicker && (
@@ -3463,12 +3463,12 @@ const renderTracking = () => (
       <div className="absolute inset-0 z-0 bg-cover bg-center bg-no-repeat opacity-40 pointer-events-none" style={{ backgroundImage: "url('/bg-earth-new.webp')" }}></div>
 
 
-     {/* 📱 2. กรอบเนื้อหาหลักของแอป (ฟันธง: อัปเกรดให้มีแสงเฟลอร์เรืองแสงรอบกรอบ เปลี่ยนสีตามหน้า) */}
-     <div className={`relative z-10 flex flex-col h-[100dvh] w-full max-w-md md:max-w-5xl backdrop-blur-md overflow-hidden text-slate-100 font-sans select-none bg-slate-900/40 border-x border-solid transition-all duration-1000 ${
+     {/* 📱 2. กรอบเนื้อหาหลักของแอป (ฟันธง: เก็บความกว้าง 6xl ไว้เพื่อความอลังการบน PC) */}
+     <div className={`relative z-10 flex flex-col h-[100dvh] w-full max-w-md md:max-w-6xl backdrop-blur-md overflow-hidden text-slate-100 font-sans select-none bg-slate-900/40 border-x border-solid transition-all duration-1000 ${
         activeTab === 'dashboard' ? 'shadow-[0_0_60px_-5px_rgba(249,115,22,1)] border-orange-500/50' :
         activeTab === 'report' ? 'shadow-[0_0_60px_-5px_rgba(16,185,129,1)] border-emerald-500/50' :
-        (activeTab === 'tracking' && currentUserRole === 'technician') ? 'shadow-[0_0_60px_-5px_rgba(6,182,212,1)] border-cyan-500/50' :
-        'shadow-[0_0_60px_-5px_rgba(244,63,94,1)] border-rose-500/50'
+        (activeTab === 'tracking' && currentUserRole === 'technician' ? 'shadow-[0_0_60px_-5px_rgba(6,182,212,1)] border-cyan-500/50' :
+        'shadow-[0_0_60px_-5px_rgba(244,63,94,1)] border-rose-500/50')
       }`}>
 
       {lightboxImg && (
@@ -3486,37 +3486,34 @@ const renderTracking = () => (
       )}
 
       {/* 🚀 Dynamic Header */}
-      <div className={`bg-slate-900/50 backdrop-blur-xl pl-5 md:pl-8 pr-4 py-3 md:py-4 flex items-center justify-between sticky top-4 z-50 border-2 border-solid border-orange-500 rounded-2xl md:rounded-[1.5rem] mt-4 transition-all duration-500 shadow-[0_0_15px_rgba(249,115,22,0.4)] ${activeTab === 'report' ? 'mx-auto w-[calc(100%-2rem)] md:max-w-2xl' : 'mx-4'}`}>
+      <div className={`bg-slate-900/50 backdrop-blur-xl pl-5 md:pl-8 pr-4 py-3 md:py-4 flex items-center justify-between sticky top-4 z-50 border-2 border-solid border-orange-500 rounded-2xl md:rounded-[1.5rem] mt-4 transition-all duration-500 shadow-[0_0_15px_rgba(249,115,22,0.4)] ${activeTab === 'report' ? 'mx-auto w-[calc(100%-2rem)] md:max-w-2xl' : 'mx-4 md:mx-6'}`}>
         <div className="flex items-center gap-3.5 md:gap-5 z-10">
           
-          {/* 🌟 PC อัปเกรด: ขยายกล่องไอคอนสี่เหลี่ยมด้านซ้ายให้ใหญ่ขึ้น */}
           <div className="bg-white w-14 h-14 md:w-16 md:h-16 rounded-2xl md:rounded-3xl shadow-md text-orange-500 border-2 border-solid border-orange-300 flex items-center justify-center shrink-0">
             {activeTab === 'dashboard' ? <LayoutDashboard className="w-8 h-8 md:w-10 md:h-10" strokeWidth={2.5} /> : activeTab === 'report' ? <PlusCircle className="w-8 h-8 md:w-10 md:h-10" strokeWidth={2.5} /> : currentUserRole === 'technician' ? <Wrench className="w-8 h-8 md:w-10 md:h-10" strokeWidth={2.5} /> : <ClipboardCheck className="w-8 h-8 md:w-10 md:h-10" strokeWidth={2.5} />}
           </div>
           
           <div>
-            {/* 🌟 PC อัปเกรด: ขยายฟอนต์จาก 2xl เป็น 4xl (ใหญ่เบิ้มๆ ทะลุจอ) */}
             <h1 className="font-black text-white text-2xl md:text-4xl tracking-widest leading-none drop-shadow-[0_2px_2px_rgba(0,0,0,0.5)] py-1 whitespace-nowrap">
               {activeTab === 'dashboard' ? 'แผงควบคุม' : activeTab === 'report' ? 'แจ้งซ่อม' : currentUserRole === 'technician' ? 'จัดการงานซ่อม' : 'ติดตามสถานะ'}
             </h1>
           </div>
         </div>
 
-        <div className="relative w-12 md:w-16 h-14 md:h-16 shrink-0 z-0 pointer-events-none">
-           {/* 🌟 PC อัปเกรด: ขยายน้องมาสคอตบนจอคอมให้โตขึ้นนิดนึง จะได้บาลานซ์กับตัวหนังสือใหม่ (ย้ายคอมเมนต์มาไว้ตรงนี้ปลอดภัย 100%) */}
+        {/* 🌟 ฟันธงแก้ไขมาสคอต (ฉบับกู้ชีพ): ขยายกล่องอุ้มให้กว้างขึ้น ดึงตัวน้องกลับมาอยู่ในระยะปลอดภัย */}
+        <div className="relative w-12 md:w-28 h-14 md:h-16 shrink-0 z-50 pointer-events-none overflow-visible">
            <img 
              src={activeTab === 'dashboard' ? "/mascot-dashboard.webp" : activeTab === 'report' ? "/mascot-report.webp" : (activeTab === 'tracking' && currentUserRole === 'technician') ? "/mascot-tech.webp" : "/mascot-track.webp"}
              key={activeTab + currentUserRole}
              alt="GSE Mascot" 
-             className="absolute bottom-[-10px] right-[-10px] md:bottom-[-15px] md:right-[-15px] w-[65px] md:w-[85px] max-w-none h-auto object-contain drop-shadow-[0_5px_5px_rgba(0,0,0,0.4)] animate-in slide-in-from-right-4 fade-in duration-500"
+             className="absolute bottom-[-10px] right-[-10px] md:bottom-[-35px] md:right-[-5px] w-[65px] md:w-[92px] max-w-none h-auto object-contain drop-shadow-[0_5px_5px_rgba(0,0,0,0.4)] animate-in slide-in-from-right-4 fade-in duration-500 overflow-visible"
            />
         </div>
       </div>
 
-      {/* 🎯 ฟันธงวิชามาร: ยัด style ฝังลงแกน React บังคับ Chrome Android ห้ามดึงรีเฟรชเด็ดขาด! */}
+      {/* 🎯 ฟันธงวิชามาร: พื้นที่แสดงผลเนื้อหาภายในแอป */}
       <div 
-        className={`relative z-10 flex-1 overflow-y-auto overflow-x-hi
-        dden w-full [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none] pb-28 ${activeTab === 'report' ? 'md:max-w-2xl mx-auto' : ''}`}
+        className={`relative z-10 flex-1 overflow-y-auto overflow-x-hidden w-full [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none] pb-28 md:px-6 ${activeTab === 'report' ? 'md:max-w-2xl mx-auto' : ''}`}
         style={{ overscrollBehavior: 'none', touchAction: 'pan-y' }}
       >
         {activeTab === 'dashboard' && currentUserRole === 'technician' && renderDashboard()}
@@ -3524,7 +3521,9 @@ const renderTracking = () => (
         {activeTab === 'tracking' && renderTracking()}
       </div>
 
-      </div> 
+      </div>
+
+      
       {/* 🌟 ปิดกรอบเนื้อหาหลักของแอป */}
 
 {/* 🌟 หน้าต่าง Popup ประเมินความพึงพอใจ (CSAT) - ฟันธง: อัปเกรด UI V.Max กรอบขาว+เด้งดึ๋ง+แสงสว่าง 80% 🌟 */}
@@ -3772,38 +3771,36 @@ const renderTracking = () => (
         );
       })()}
 
-      {/* 🧭 Navigation Bar (ฟันธง: ย้ายเมนูออกมานอกกรอบหลัก + ใส่ transform-gpu บังคับมือถือวาดกราฟิกแยกชั้น ป้องกันตัวหนังสือหาย 1,000,000%) */}
-
-      <div className={`fixed bottom-4 left-1/2 -translate-x-1/2 w-[calc(100%-2rem)] max-w-[416px] py-2 md:py-3 bg-slate-900/90 backdrop-blur-xl border-2 border-solid border-orange-500 rounded-2xl z-[9999] shadow-[0_10px_30px_rgba(249,115,22,0.4)] transform-gpu ${activeTab === 'report' ? 'md:max-w-2xl' : 'md:max-w-[992px]'}`}>
+      {/* 🧭 Navigation Bar (ฟันธง: อัปเกรด PC ไซส์บิ๊กเบิ้ม + ขยายไอคอน + ลอยสูงขึ้นบนจอใหญ่) */}
+      <div className={`fixed bottom-4 md:bottom-8 left-1/2 -translate-x-1/2 w-[calc(100%-2rem)] max-w-[416px] py-2 md:py-4 bg-slate-900/90 backdrop-blur-xl border-2 md:border-[3px] border-solid border-orange-500 rounded-2xl md:rounded-[2rem] z-[9999] shadow-[0_10px_30px_rgba(249,115,22,0.4)] md:shadow-[0_15px_40px_rgba(249,115,22,0.6)] transform-gpu ${activeTab === 'report' ? 'md:max-w-3xl' : 'md:max-w-4xl'}`}>
      
       <div className="w-full flex justify-evenly items-center px-1 md:px-8">
           
           {/* 🏠 ปุ่ม HOME */}
-          <button onClick={onGoHome} className="flex flex-col items-center justify-center w-20 md:w-24 gap-1.5 active:scale-95 transition-all shrink-0">
-            <div className="p-2.5 rounded-full bg-transparent text-slate-300">
-              <Home size={26} />
+          <button onClick={onGoHome} className="flex flex-col items-center justify-center w-20 md:w-32 gap-1.5 md:gap-2 active:scale-95 transition-all shrink-0 group">
+            <div className="p-2.5 md:p-4 rounded-full bg-transparent text-slate-400 group-hover:text-white transition-colors">
+              <Home size={26} className="md:w-10 md:h-10" />
             </div>
-            <span className="block text-[11px] md:text-[13px] font-bold text-slate-300 tracking-widest whitespace-nowrap shrink-0">หน้าแรก</span>
+            <span className="block text-[11px] md:text-[18px] font-black text-slate-400 group-hover:text-white tracking-widest whitespace-nowrap shrink-0 transition-colors">หน้าแรก</span>
           </button>
 
           {/* ================= โหมดผู้แจ้ง (Reporter) ================= */}
           {currentUserRole === 'reporter' && (
             <>
               {/* 🟠 ปุ่มแจ้งซ่อม */}
-              {/* 🌟 ฟันธงแก้ไข: ลบ -translate-y-2 ออก เพื่อไม่ให้ปุ่มกระโดดชิดขอบบน */}
-              <button onClick={() => setActiveTab('report')} className="flex flex-col items-center justify-center w-20 md:w-24 gap-1.5 transition-all shrink-0 active:scale-95">
-                <div className={`p-2.5 rounded-full transition-all ${activeTab === 'report' ? 'bg-gradient-to-b from-orange-400 to-orange-600 text-white shadow-[0_0_15px_rgba(249,115,22,0.8)] border-[2px] border-white scale-110' : 'bg-transparent text-slate-300'}`}>
-                  <PlusCircle size={26} className={activeTab === 'report' ? 'stroke-[2.5px]' : ''} />
+              <button onClick={() => setActiveTab('report')} className="flex flex-col items-center justify-center w-20 md:w-32 gap-1.5 md:gap-2 transition-all shrink-0 active:scale-95 group">
+                <div className={`p-2.5 md:p-4 rounded-full transition-all ${activeTab === 'report' ? 'bg-gradient-to-b from-orange-400 to-orange-600 text-white shadow-[0_0_15px_rgba(249,115,22,0.8)] border-[2px] border-white scale-110 md:scale-125' : 'bg-transparent text-slate-400 group-hover:text-orange-300'}`}>
+                  <PlusCircle size={26} className={`md:w-10 md:h-10 ${activeTab === 'report' ? 'stroke-[2.5px]' : ''}`} />
                 </div>
-                <span className={`block text-[11px] md:text-[13px] font-bold tracking-widest whitespace-nowrap shrink-0 transition-all ${activeTab === 'report' ? 'text-orange-400 drop-shadow-md' : 'text-slate-300'}`}>แจ้งซ่อม</span>
+                <span className={`block text-[11px] md:text-[18px] font-black tracking-widest whitespace-nowrap shrink-0 transition-all ${activeTab === 'report' ? 'text-orange-400 drop-shadow-md md:mt-2' : 'text-slate-400 group-hover:text-orange-300'}`}>แจ้งซ่อม</span>
               </button>
 
               {/* 🟠 ปุ่มติดตามสถานะ */}
-              <button onClick={() => { setActiveTab('tracking'); setSearchTerm(''); }} className="flex flex-col items-center justify-center w-20 md:w-24 gap-1.5 transition-all shrink-0 active:scale-95">
-                <div className={`p-2.5 rounded-full transition-all ${activeTab === 'tracking' ? 'bg-gradient-to-b from-orange-400 to-orange-600 text-white shadow-[0_0_15px_rgba(249,115,22,0.8)] border-[2px] border-white scale-110' : 'bg-transparent text-slate-300'}`}>
-                  <ClipboardCheck size={26} className={activeTab === 'tracking' ? 'stroke-[2.5px]' : ''} />
+              <button onClick={() => { setActiveTab('tracking'); setSearchTerm(''); }} className="flex flex-col items-center justify-center w-20 md:w-32 gap-1.5 md:gap-2 transition-all shrink-0 active:scale-95 group">
+                <div className={`p-2.5 md:p-4 rounded-full transition-all ${activeTab === 'tracking' ? 'bg-gradient-to-b from-orange-400 to-orange-600 text-white shadow-[0_0_15px_rgba(249,115,22,0.8)] border-[2px] border-white scale-110 md:scale-125' : 'bg-transparent text-slate-400 group-hover:text-orange-300'}`}>
+                  <ClipboardCheck size={26} className={`md:w-10 md:h-10 ${activeTab === 'tracking' ? 'stroke-[2.5px]' : ''}`} />
                 </div>
-                <span className={`block text-[11px] md:text-[13px] font-bold tracking-widest whitespace-nowrap shrink-0 transition-all ${activeTab === 'tracking' ? 'text-orange-400 drop-shadow-md' : 'text-slate-300'}`}>ติดตามสถานะ</span>
+                <span className={`block text-[11px] md:text-[18px] font-black tracking-widest whitespace-nowrap shrink-0 transition-all ${activeTab === 'tracking' ? 'text-orange-400 drop-shadow-md md:mt-2' : 'text-slate-400 group-hover:text-orange-300'}`}>ติดตามสถานะ</span>
               </button>
             </>
           )}
@@ -3812,19 +3809,19 @@ const renderTracking = () => (
           {currentUserRole === 'technician' && (
             <>
               {/* 🟠 ปุ่มแผงควบคุม */}
-              <button onClick={() => setActiveTab('dashboard')} className="flex flex-col items-center justify-center w-20 md:w-24 gap-1.5 transition-all shrink-0 active:scale-95">
-                <div className={`p-2.5 rounded-full transition-all ${activeTab === 'dashboard' ? 'bg-gradient-to-b from-orange-400 to-orange-600 text-white shadow-[0_0_15px_rgba(249,115,22,0.8)] border-[2px] border-white scale-110' : 'bg-transparent text-slate-300'}`}>
-                  <LayoutDashboard size={26} className={activeTab === 'dashboard' ? 'stroke-[2.5px]' : ''} />
+              <button onClick={() => setActiveTab('dashboard')} className="flex flex-col items-center justify-center w-20 md:w-32 gap-1.5 md:gap-2 transition-all shrink-0 active:scale-95 group">
+                <div className={`p-2.5 md:p-4 rounded-full transition-all ${activeTab === 'dashboard' ? 'bg-gradient-to-b from-orange-400 to-orange-600 text-white shadow-[0_0_15px_rgba(249,115,22,0.8)] border-[2px] border-white scale-110 md:scale-125' : 'bg-transparent text-slate-400 group-hover:text-orange-300'}`}>
+                  <LayoutDashboard size={26} className={`md:w-10 md:h-10 ${activeTab === 'dashboard' ? 'stroke-[2.5px]' : ''}`} />
                 </div>
-                <span className={`block text-[11px] md:text-[13px] font-bold tracking-widest whitespace-nowrap shrink-0 transition-all ${activeTab === 'dashboard' ? 'text-orange-400 drop-shadow-md' : 'text-slate-300'}`}>แผงควบคุม</span>
+                <span className={`block text-[11px] md:text-[18px] font-black tracking-widest whitespace-nowrap shrink-0 transition-all ${activeTab === 'dashboard' ? 'text-orange-400 drop-shadow-md md:mt-2' : 'text-slate-400 group-hover:text-orange-300'}`}>แผงควบคุม</span>
               </button>
 
-              {/* 🟠 ปุ่มจัดการงานซ่อม */}
-              <button onClick={() => setActiveTab('tracking')} className="flex flex-col items-center justify-center w-20 md:w-24 gap-1.5 transition-all shrink-0 active:scale-95">
-                <div className={`p-2.5 rounded-full transition-all ${activeTab === 'tracking' ? 'bg-gradient-to-b from-orange-400 to-orange-600 text-white shadow-[0_0_15px_rgba(249,115,22,0.8)] border-[2px] border-white scale-110' : 'bg-transparent text-slate-300'}`}>
-                  <Wrench size={26} className={activeTab === 'tracking' ? 'stroke-[2.5px]' : ''} />
+               {/* 🟠 ปุ่มจัดการงานซ่อม */}
+              <button onClick={() => setActiveTab('tracking')} className="flex flex-col items-center justify-center w-20 md:w-32 gap-1.5 md:gap-2 transition-all shrink-0 active:scale-95 group">
+                <div className={`p-2.5 md:p-4 rounded-full transition-all ${activeTab === 'tracking' ? 'bg-gradient-to-b from-orange-400 to-orange-600 text-white shadow-[0_0_15px_rgba(249,115,22,0.8)] border-[2px] border-white scale-110 md:scale-125' : 'bg-transparent text-slate-400 group-hover:text-orange-300'}`}>
+                  <Wrench size={26} className={`md:w-10 md:h-10 ${activeTab === 'tracking' ? 'stroke-[2.5px]' : ''}`} />
                 </div>
-                <span className={`block text-[11px] md:text-[13px] font-bold tracking-widest whitespace-nowrap shrink-0 transition-all ${activeTab === 'tracking' ? 'text-orange-400 drop-shadow-md' : 'text-slate-300'}`}>จัดการงาน</span>
+                <span className={`block text-[11px] md:text-[18px] font-black tracking-widest whitespace-nowrap shrink-0 transition-all ${activeTab === 'tracking' ? 'text-orange-400 drop-shadow-md md:mt-2' : 'text-slate-400 group-hover:text-orange-300'}`}>จัดการงาน</span>
               </button>
             </>
           )}
