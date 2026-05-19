@@ -2767,7 +2767,7 @@ const renderTracking = () => (
                       {String(t.equipment)}
                     </h3>
                     
-                    <div className="flex flex-col gap-1 md:gap-3 mt-1.5 md:mt-4 mb-3 md:mb-6 bg-indigo-50/50 p-2 md:p-6 rounded-lg md:rounded-2xl border border-indigo-100">
+                    <div className="flex flex-col gap-1 md:gap-3 mt-1.5 md:mt-4 mb-3 md:mb-6 bg-indigo-50/50 p-2 md:p-6 rounded-lg md:rounded-2xl border-2 border-solid border-indigo-500">
                       <div className="flex items-start gap-1.5 md:gap-3 text-orange-600/90">
                         <Building className="w-[18px] h-[18px] md:w-8 md:h-8 shrink-0 mt-0.5 md:mt-0" />
                         <span className="text-[18px] md:text-[28px] font-bold leading-snug">
@@ -3026,7 +3026,7 @@ const renderTracking = () => (
                         
                         {/* 🌟 ฟันธงจุดที่ 1.1: กล่องสีม่วง (ดึงข้อมูลให้มาอยู่ฝั่งซ้าย และเพิ่มป้ายกำกับสถานะ/เวลาไว้ขวาสุด) */}
                         {t.holdReason && (
-                          <div className="bg-purple-50 text-purple-700 p-3 md:p-6 rounded-xl md:rounded-2xl text-xs md:text-[20px] font-bold mb-3 md:mb-6 flex justify-between items-start border border-purple-200 shadow-sm transition-all">
+                          <div className="bg-purple-100 text-purple-900 p-3 md:p-6 rounded-xl md:rounded-2xl text-xs md:text-[20px] font-bold mb-3 md:mb-6 flex justify-between items-start border-2 border-solid border-purple-500 shadow-sm transition-all">
                             <div className="flex gap-2 md:gap-4">
                               <PauseCircle className="w-4 h-4 md:w-8 md:h-8 shrink-0 mt-0.5 md:mt-1" />
                               <div>
@@ -3064,7 +3064,7 @@ const renderTracking = () => (
 
                             {/* ⏱️ กรอบสถานะ ชิดขวาสุด (ยืนยันว่ากลับมาเดินเวลาซ่อมแล้ว) */}
                             <div className="flex flex-col items-end shrink-0 ml-2 md:ml-4">
-                                <span className="text-[9px] md:text-[14px] text-orange-500 mb-0.5 md:mb-1">อัปเดตล่าสุด</span>
+                                <span className="text-[9px] md:text-[14px] text-orange-500 mb-0.5 md:mb-1">สถานะปัจจุบัน</span>
                                 <span className="font-mono text-orange-800 bg-orange-200/60 px-2 py-1 md:px-3 md:py-1.5 rounded-lg border border-orange-300 shadow-sm">
                                   กำลังซ่อม 🛠️
                                 </span>
@@ -3104,7 +3104,7 @@ const renderTracking = () => (
                                 key={i}
                                 src={img}
                                 onClick={() => setLightboxImg(img)}
-                                className="w-16 h-16 md:w-40 md:h-40 object-cover rounded-xl md:rounded-3xl border border-2 border-orange-400/70 shrink-0 cursor-pointer shadow-sm hover:scale-105 transition-transform"
+                                className="w-16 h-16 md:w-40 md:h-40 object-cover rounded-xl md:rounded-3xl border-2 border-solid border-orange-400/70 shrink-0 cursor-pointer shadow-sm hover:scale-105 transition-transform"
                               />
                             ))}
                           </div>
@@ -3112,7 +3112,7 @@ const renderTracking = () => (
                         
                         <div className="mt-4 md:mt-8 mb-1 md:mb-4">
                           <span className="text-[13px] md:text-[22px] font-black text-indigo-600 uppercase tracking-widest flex items-center gap-1.5 md:gap-3">
-                            <AlertCircle className="w-3 h-3 md:w-6 md:h-6 text-rose-600" /> อาการเสียที่แจ้ง:
+                            <AlertCircle className="w-3 h-3 md:w-6 md:h-6 text-rose-600" /> รายละเอียดอาการเสีย:
                           </span>
                           <p className={`text-[14px] md:text-[30px] font-black mt-1.5 md:mt-4 leading-relaxed pl-1 md:pl-4 ${
                             isCancelled ? 'text-slate-400 line-through' : 'text-rose-600 drop-shadow-sm'
@@ -3151,7 +3151,7 @@ const renderTracking = () => (
                             
                             <a
                               href={`tel:${String(t.reporterContact).replace(/\D/g, '')}`}
-                              className="font-mono shrink-0 whitespace-nowrap text-[11px] sm:text-[12px] md:text-[20px] font-bold bg-emerald-50 px-1.5 md:px-5 py-1.5 md:py-4 rounded-lg md:rounded-2xl flex items-center gap-1 md:gap-3 text-emerald-700 border border-emerald-200 mt-4 md:mt-8 tracking-tighter hover:bg-emerald-100 transition-colors shadow-sm"
+                              className="font-mono shrink-0 whitespace-nowrap text-[12px] sm:text-[12px] md:text-[22px] font-bold bg-emerald-100 px-1.5 md:px-5 py-1.5 md:py-4 rounded-lg md:rounded-2xl flex items-center gap-1 md:gap-3 text-emerald-700 border-2 border-solid border-emerald-400 mt-4 md:mt-8 tracking-tighter hover:bg-emerald-100 transition-colors shadow-sm"
                             >
                               <Phone className="w-3 h-3 md:w-6 md:h-6 text-emerald-500" />
                               {formatDisplayPhone(t.reporterContact)}
@@ -3174,7 +3174,7 @@ const renderTracking = () => (
                               {t.techPhone && t.techPhone !== '-' && t.techPhone !== 'N/A' ? (
                                 <a
                                   href={`tel:${String(t.techPhone).replace(/\D/g, '')}`}
-                                  className="font-mono shrink-0 whitespace-nowrap text-[11px] sm:text-[12px] md:text-[20px] font-bold bg-orange-50 px-1.5 md:px-5 py-1.5 md:py-4 rounded-lg md:rounded-2xl flex items-center gap-1 md:gap-3 text-orange-700 border border-orange-200 mt-4 md:mt-8 tracking-tighter hover:bg-orange-100 transition-colors shadow-sm"
+                                  className="font-mono shrink-0 whitespace-nowrap text-[12px] sm:text-[12px] md:text-[22px] font-bold bg-orange-100 px-1.5 md:px-5 py-1.5 md:py-4 rounded-lg md:rounded-2xl flex items-center gap-1 md:gap-3 text-orange-700 border-2 border-solid border-orange-500 mt-4 md:mt-8 tracking-tighter hover:bg-orange-100 transition-colors shadow-sm"
                                 >
                                   <Phone className="w-3 h-3 md:w-6 md:h-6 text-orange-500" />
                                   {formatDisplayPhone(t.techPhone)}
