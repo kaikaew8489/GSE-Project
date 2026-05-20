@@ -2971,7 +2971,7 @@ const renderTracking = () => (
                   {/* 🌟 โซนรายละเอียดข้อความและการติดต่อ (อัปเกรด PC ไซส์เบิ้ม) */}
 <div className="p-5 md:p-10 space-y-4 md:space-y-8">
   {/* 🌟 ฟันธงสเต็ป 1: เคลียร์กรอบซ้อน! เปลี่ยนกรอบนอกเป็นสีขาวคลีนๆ ไร้ขอบเทาหนา */}
-  <div className="bg-white p-4 md:p-8 rounded-2xl md:rounded-[2rem] border-2 border-solid border-slate-200 shadow-sm relative overflow-hidden mb-6">
+  <div className="bg-emerald-200/30 p-4 md:p-8 rounded-2xl md:rounded-[1rem] border-2 border-solid border-indigo-800 shadow-sm relative overflow-hidden mb-6">
     
     {/* 🚨 เหตุผลยกเลิกงาน */}
     {t.status === 'cancelled' && t.cancelReason && (
@@ -3034,7 +3034,7 @@ const renderTracking = () => (
 
             return (
               // 🎯 จุดที่แก้ไข: เติม rounded-2xl, shadow, -mx-4 และจัด items-center (เก็บสี/ขอบเดิมของท่านไว้ครบ)
-              <div key={index} className={`flex justify-between items-center p-4 md:px-6 -mx-2 md:-mx-4 rounded-2xl md:rounded-[1rem] shadow-sm hover:shadow-md transition-shadow border-2 border-solid border-slate-200 ${isHold ? 'bg-purple-100 border-l-[6px] border-l-purple-500' : 'bg-orange-100 border-l-[6px] border-l-orange-500'}`}>
+              <div key={index} className={`flex justify-between items-center p-4 md:px-6 -mx-2 md:-mx-4 rounded-2xl md:rounded-[1rem] shadow-sm hover:shadow-md transition-shadow border-2 border-solid border-slate-800 ${isHold ? 'bg-purple-100 border-l-[6px] border-l-purple-500' : 'bg-orange-100 border-l-[6px] border-l-orange-500'}`}>
                 
                 {/* 🎯 ด้านซ้าย: ชื่อเหตุการณ์ */}
                 <div className="flex gap-3 md:gap-4 w-full">
