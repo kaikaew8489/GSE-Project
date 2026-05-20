@@ -2780,139 +2780,101 @@ const renderTracking = () => (
                       </div>
                     </div>
 
-                    {/* 🌟 โซนนาฬิกาจับเวลา */}
-                    {!isCancelled && (
-                        <div className="mt-5 md:mt-8 pl-4 md:pl-8 border-2 border-orange-400/70 space-y-4 md:space-y-8 py-2 md:py-6 relative">
-                          
-                          <div className="relative">
-                            <div
-                              className={`absolute -left-[21px] md:-left-[41px] w-2.5 h-2.5 md:w-4 md:h-4 rounded-full ${
-                                isPending
-                                  ? 'bg-rose-500 ring-4 ring-rose-100 animate-pulse'
-                                  : 'bg-slate-300'
-                              }`}
-                            ></div>
-                            <div className="flex justify-between items-center pl-2 md:pl-6">
-                              <span className={`text-[13px] md:text-[22px] font-black ${isPending ? 'text-rose-500' : 'text-slate-400'}`}>
-                                เวลารอดำเนินการ
-                              </span>
-                              <span
-                                className={`text-[13px] md:text-[24px] font-bold font-mono tracking-tighter ${
-                                  isPending ? 'text-rose-600' : 'text-slate-400'
-                                }`}
-                              >
-                                {getLiveStopwatch(t.date, t.acceptedAt, sysTime)}
-                              </span>
-                            </div>
-                          </div>
+                    {/* 🌟 โซนนาฬิกาจับเวลา (ฟันธง: โฉมใหม่กรอบโค้งมน + ไอคอนนาฬิกาด้านใน) */}
+                  {!isCancelled && (
+                    <div className="w-full mt-5 md:mt-8 border-[1.5px] border-2 border-solid border-orange-600 rounded-2xl md:rounded-[1rem] p-5 md:p-8 bg-orange-200/30 shadow-sm flex flex-col gap-4 md:gap-6 relative">
+                      
+                      {/* 1. เวลารอดำเนินการ */}
+                      <div className="flex justify-between items-center pl-1 md:pl-4">
+                        <div className="flex items-center gap-3 md:gap-4">
+                          <Clock className={`w-5 h-5 md:w-6 md:h-6 ${isPending ? 'text-rose-500 animate-pulse' : 'text-slate-500'}`} />
+                          <span className={`text-[13px] md:text-[22px] font-black ${isPending ? 'text-rose-600' : 'text-slate-400'}`}>
+                            เวลารอดำเนินการ
+                          </span>
+                        </div>
+                        <span className={`text-[13px] md:text-[24px] font-bold font-mono tracking-tighter ${isPending ? 'text-rose-600' : 'text-slate-400'}`}>
+                          {getLiveStopwatch(t.date, t.acceptedAt, sysTime)}
+                        </span>
+                      </div>
 
-                          <div className="relative">
-                            <div
-                              className={`absolute -left-[21px] md:-left-[41px] w-2.5 h-2.5 md:w-4 md:h-4 rounded-full ${
-                                isFixing && t.status !== 'on_hold' 
-                                  ? 'bg-orange-500 ring-4 ring-orange-100 animate-pulse'
-                                  : 'bg-slate-300'
-                              }`}
-                            ></div>
-                            <div className="flex justify-between items-center pl-2 md:pl-6">
-                              <span className={`text-[13px] md:text-[22px] font-black ${isFixing && t.status !== 'on_hold' ? 'text-orange-500' : 'text-slate-400'}`}>
-                                เวลาปฏิบัติงาน
-                              </span>
-                              <span
-                                className={`text-[13px] md:text-[24px] font-bold font-mono tracking-tighter ${
-                                  isFixing && t.status !== 'on_hold'
-                                    ? 'text-orange-600'
-                                    : 'text-slate-400'
-                                }`}
-                              >
-                                {t.startedAt
-                                  ? getLiveStopwatch(
-                                      t.startedAt,
-                                      t.completedAt,
-                                      sysTime,
-                                      t.totalPauseMs || 0,
-                                      t.status === 'on_hold',
-                                      t.lastHoldAt
-                                    )
-                                  : '00:00:00'}
-                              </span>
-                            </div>
-                          </div>
-
-                        {(() => {
-                          const currentHoldMs = t.status === 'on_hold' && t.lastHoldAt
-                            ? sysTime.getTime() - new Date(t.lastHoldAt).getTime()
-                            : 0;
-                          const totalHoldMs = (t.totalPauseMs || 0) + currentHoldMs;
-                          
-                          if (totalHoldMs > 0) {
-                            const isHolding = t.status === 'on_hold';
-                            const hrs = Math.floor(totalHoldMs / 3600000);
-                            const days = Math.floor(hrs / 24);
-                            const remainHrs = hrs % 24;
-                            const mins = Math.floor((totalHoldMs % 3600000) / 60000);
-                            const secs = Math.floor((totalHoldMs % 60000) / 1000);
-                            const timeStr = `${String(remainHrs).padStart(2, '0')}:${String(mins).padStart(2, '0')}:${String(secs).padStart(2, '0')}`;
-                            const displayTime = days > 0 ? `${days} วัน ${timeStr}` : timeStr;
-
-                            return (
-                              <div className="relative">
-                                <div
-                                  className={`absolute -left-[21px] md:-left-[41px] w-2.5 h-2.5 md:w-4 md:h-4 rounded-full ${
-                                    isHolding
-                                      ? 'bg-purple-500 ring-4 ring-purple-100 animate-pulse'
-                                      : 'bg-slate-300' 
-                                  }`}
-                                ></div>
-                                <div className="flex justify-between items-center pl-2 md:pl-6">
-                                  <span className={`text-[13px] md:text-[22px] font-black ${isHolding ? 'text-purple-600' : 'text-slate-400'}`}>
-                                    เวลาเหตุขัดข้อง
-                                  </span>
-                                  <span
-                                    className={`text-[13px] md:text-[24px] font-bold font-mono tracking-tighter ${
-                                      isHolding ? 'text-purple-600' : 'text-slate-400'
-                                    }`}
-                                  >
-                                    {displayTime}
-                                  </span>
-                                </div>
-                              </div>
-                            );
-                          }
-                          return null;
-                        })()}
-
-                        <div className="relative">
-                          <div
-                            className={`absolute -left-[21px] md:-left-[41px] w-2.5 h-2.5 md:w-4 md:h-4 rounded-full ${
-                              isDone
-                                ? 'bg-emerald-500 ring-4 ring-emerald-100'
-                                : 'bg-slate-300'
-                            }`}
-                          ></div>
-                          <div className="flex justify-between items-center pl-2 md:pl-6">
-                            <span className={`text-[13px] md:text-[22px] font-black ${isDone ? 'text-emerald-500' : 'text-slate-400'}`}>
-                              เวลารวมทั้งหมด
-                            </span>
-                            <span
-                              className={`text-[13px] md:text-[24px] font-bold font-mono tracking-tighter ${
-                                isDone ? 'text-emerald-600' : 'text-slate-400'
-                              }`}
-                            >
-                              {getLiveStopwatch(
-                                t.date,
+                      {/* 2. เวลาปฏิบัติงาน */}
+                      <div className="flex justify-between items-center pl-1 md:pl-4">
+                        <div className="flex items-center gap-3 md:gap-4">
+                          <Clock className={`w-5 h-5 md:w-6 md:h-6 ${isFixing && t.status !== 'on_hold' ? 'text-orange-600 animate-pulse' : 'text-slate-500'}`} />
+                          <span className={`text-[13px] md:text-[22px] font-black ${isFixing && t.status !== 'on_hold' ? 'text-orange-500' : 'text-slate-400'}`}>
+                            เวลาปฏิบัติงาน
+                          </span>
+                        </div>
+                        <span className={`text-[13px] md:text-[24px] font-bold font-mono tracking-tighter ${isFixing && t.status !== 'on_hold' ? 'text-orange-600' : 'text-slate-400'}`}>
+                          {t.startedAt
+                            ? getLiveStopwatch(
+                                t.startedAt,
                                 t.completedAt,
                                 sysTime,
                                 t.totalPauseMs || 0,
                                 t.status === 'on_hold',
                                 t.lastHoldAt
-                              )}
-                            </span>
-                          </div>
-                        </div>
-
+                              )
+                            : '00:00:00'}
+                        </span>
                       </div>
-                    )}
+
+                      {/* 3. เวลาเหตุขัดข้อง (แสดงก็ต่อเมื่อมีการหยุดเวลา) */}
+                      {(() => {
+                        const currentHoldMs = t.status === 'on_hold' && t.lastHoldAt
+                          ? sysTime.getTime() - new Date(t.lastHoldAt).getTime()
+                          : 0;
+                        const totalHoldMs = (t.totalPauseMs || 0) + currentHoldMs;
+                        
+                        if (totalHoldMs > 0) {
+                          const isHolding = t.status === 'on_hold';
+                          const hrs = Math.floor(totalHoldMs / 3600000);
+                          const days = Math.floor(hrs / 24);
+                          const remainHrs = hrs % 24;
+                          const mins = Math.floor((totalHoldMs % 3600000) / 60000);
+                          const secs = Math.floor((totalHoldMs % 60000) / 1000);
+                          const timeStr = `${String(remainHrs).padStart(2, '0')}:${String(mins).padStart(2, '0')}:${String(secs).padStart(2, '0')}`;
+                          const displayTime = days > 0 ? `${days} วัน ${timeStr}` : timeStr;
+
+                          return (
+                            <div className="flex justify-between items-center pl-1 md:pl-4">
+                              <div className="flex items-center gap-3 md:gap-4">
+                                <Clock className={`w-5 h-5 md:w-6 md:h-6 ${isHolding ? 'text-purple-600 animate-pulse' : 'text-slate-500'}`} />
+                                <span className={`text-[13px] md:text-[22px] font-black ${isHolding ? 'text-purple-600' : 'text-slate-400'}`}>
+                                  เวลาเหตุขัดข้อง
+                                </span>
+                              </div>
+                              <span className={`text-[13px] md:text-[24px] font-bold font-mono tracking-tighter ${isHolding ? 'text-purple-600' : 'text-slate-400'}`}>
+                                {displayTime}
+                              </span>
+                            </div>
+                          );
+                        }
+                        return null;
+                      })()}
+
+                      {/* 4. เวลารวมทั้งหมด */}
+                      <div className="flex justify-between items-center pl-1 md:pl-4">
+                        <div className="flex items-center gap-3 md:gap-4">
+                          <Clock className={`w-5 h-5 md:w-6 md:h-6 ${isDone ? 'text-emerald-600' : 'text-slate-500'}`} />
+                          <span className={`text-[13px] md:text-[22px] font-black ${isDone ? 'text-emerald-500' : 'text-slate-400'}`}>
+                            เวลารวมทั้งหมด
+                          </span>
+                        </div>
+                        <span className={`text-[13px] md:text-[24px] font-bold font-mono tracking-tighter ${isDone ? 'text-emerald-600' : 'text-slate-400'}`}>
+                          {getLiveStopwatch(
+                            t.date,
+                            t.completedAt,
+                            sysTime,
+                            t.totalPauseMs || 0,
+                            t.status === 'on_hold',
+                            t.lastHoldAt
+                          )}
+                        </span>
+                      </div>
+
+                    </div>
+                  )}
                   </div>
 
                   {/* 🌟 โซนกล่องสรุป SLA */}
@@ -3024,8 +2986,11 @@ const renderTracking = () => (
 
     {/* 🌟 ฟันธง: Timeline ประวัติการซ่อมฉบับอัปเกรด (แสดงนาทีจริงในแต่ละรอบ สอดคล้องกับเวลาด้านบน 100%) */}
    {/* 🌟 ฟันธง: Timeline รุ่นสมบูรณ์แบบ (ซ่อนป้ายระยะเวลาจนกว่างานจะจบ) */}
-   {t.historyLog && t.historyLog.length > 0 ? (
-      <div className="flex flex-col w-full mb-2">
+  {/* 🌟 ฟันธง: Timeline รุ่นสมบูรณ์แบบ (แสดงเวลา HH:MM:SS สอดคล้องกับ Dashboard ด้านบน 100%) */}
+  {/* 🌟 ฟันธง: Timeline รักษาสีของท่านหัวหน้า + อัปเกรดเป็นการ์ดโค้งมน (Card UI) */}
+    {t.historyLog && t.historyLog.length > 0 ? (
+      // 🎯 เพิ่ม gap-3 และ mt-2 เพื่อให้การ์ดแต่ละใบมีระยะห่างกัน จะได้เห็นขอบโค้งชัดเจน
+      <div className="flex flex-col w-full mb-2 gap-3 md:gap-4 mt-2">
         {(() => {
           let holdCounter = 0;
           let resumeCounter = 0;
@@ -3038,56 +3003,66 @@ const renderTracking = () => (
             if (isHold) holdCounter++;
             else resumeCounter++;
 
-            // 🌟 สมองกลคำนวณระยะเวลา (นาที) ของแต่ละช่วง
-            let durationMin = 0;
+            // 🌟 สมองกลคำนวณระยะเวลา (ระดับ Milliseconds)
+            let durationMs = 0;
             let isOngoing = false;
 
             if (isHold) {
               const nextLog = t.historyLog[index + 1];
               if (nextLog) {
-                durationMin = Math.floor((new Date(nextLog.timestamp).getTime() - new Date(log.timestamp).getTime()) / 60000);
+                durationMs = new Date(nextLog.timestamp).getTime() - new Date(log.timestamp).getTime();
               } else {
-                isOngoing = true; // เป็นบรรทัดสุดท้ายและกำลังหยุดอยู่
+                isOngoing = true;
               }
             } else {
               const nextLog = t.historyLog[index + 1];
               if (nextLog) {
-                durationMin = Math.floor((new Date(nextLog.timestamp).getTime() - new Date(log.timestamp).getTime()) / 60000);
+                durationMs = new Date(nextLog.timestamp).getTime() - new Date(log.timestamp).getTime();
               } else if (t.status === 'completed' || t.status === 'verified') {
-                durationMin = t.completedAt ? Math.floor((new Date(t.completedAt).getTime() - new Date(log.timestamp).getTime()) / 60000) : 0;
+                durationMs = t.completedAt ? new Date(t.completedAt).getTime() - new Date(log.timestamp).getTime() : 0;
               } else {
-                isOngoing = true; // เป็นบรรทัดสุดท้ายและกำลังซ่อมอยู่
+                isOngoing = true;
               }
             }
 
+            // 🌟 ฟังก์ชันแปลงเวลาเป็น HH:MM:SS
+            const pad = (num) => String(num).padStart(2, '0');
+            const hours = Math.floor(durationMs / 3600000);
+            const minutes = Math.floor((durationMs % 3600000) / 60000);
+            const seconds = Math.floor((durationMs % 60000) / 1000);
+            const formattedTime = `${pad(hours)}:${pad(minutes)}:${pad(seconds)}`;
+
             return (
-              <div key={index} className={`flex justify-between items-start p-4 border-b border-slate-100 ${isHold ? 'bg-purple-50 border-l-[4px] border-purple-500' : 'bg-orange-50 border-l-[4px] border-orange-500'}`}>
+              // 🎯 จุดที่แก้ไข: เติม rounded-2xl, shadow, -mx-4 และจัด items-center (เก็บสี/ขอบเดิมของท่านไว้ครบ)
+              <div key={index} className={`flex justify-between items-center p-4 md:px-6 -mx-2 md:-mx-4 rounded-2xl md:rounded-[1rem] shadow-sm hover:shadow-md transition-shadow border-2 border-solid border-slate-200 ${isHold ? 'bg-purple-100 border-l-[6px] border-l-purple-500' : 'bg-orange-100 border-l-[6px] border-l-orange-500'}`}>
                 
                 {/* 🎯 ด้านซ้าย: ชื่อเหตุการณ์ */}
                 <div className="flex gap-3 md:gap-4 w-full">
-                  {isHold ? <PauseCircle className="w-5 h-5 md:w-6 md:h-6 shrink-0 text-purple-600" /> : <Wrench className="w-5 h-5 md:w-6 md:h-6 shrink-0 text-orange-600" />}
+                  {isHold ? <PauseCircle className="w-5 h-5 md:w-6 md:h-6 shrink-0 text-purple-600 drop-shadow-sm" /> : <Wrench className="w-5 h-5 md:w-6 md:h-6 shrink-0 text-orange-600 drop-shadow-sm" />}
                   <div>
                     <p className="font-black text-[12px] md:text-[16px] text-slate-800">{isHold ? 'แจ้งเหตุขัดข้อง' : 'ดำเนินการต่อ'}</p>
-                    <p className="text-[13px] md:text-[18px] text-slate-600 font-bold">{String(log.reason)}</p>
+                    <p className="text-[13px] md:text-[18px] text-slate-600 font-bold mt-0.5">{String(log.reason)}</p>
                   </div>
                 </div>
                 
-                {/* 🎯 ด้านขวา: ซ่อนชื่อครั้งที่จนกว่าจะจบ Event */}
+                {/* 🎯 ด้านขวา: แสดงชื่อครั้งที่ + ระยะเวลา HH:MM:SS */}
                 <div className="flex flex-col items-end shrink-0 ml-2">
                    {isLast && isOngoing ? (
                      <>
-                       <span className="text-[9px] md:text-[12px] font-bold mb-0.5 text-slate-400">สถานะปัจจุบัน</span>
-                       <span className={`px-3 py-1 rounded-md text-[11px] md:text-[14px] font-bold animate-pulse whitespace-nowrap shadow-sm border ${isHold ? 'bg-purple-100 text-purple-700 border-purple-300' : 'bg-orange-100 text-orange-700 border-orange-300'}`}>
-                         {isHold ? 'รออะไหล่/ขัดข้อง...' : 'กำลังซ่อม...'}
+                       <span className="text-[13px] md:text-[16px] font-bold mb-0.5 text-slate-800">สถานะปัจจุบัน</span>
+                       {/* แก้ไขพิมพ์ผิด bprder-2 เป็น border-2 ให้ครับ */}
+                       <span className={`px-3 py-1 rounded-md text-[13px] md:text-[16px] font-bold animate-pulse whitespace-nowrap shadow-sm border-2 border-solid ${isHold ? 'bg-purple-100 text-purple-700 border-purple-500' : 'bg-orange-100 text-orange-700 border-orange-500'}`}>
+                         {isHold ? 'รออะไหล่' : 'กำลังซ่อม'}
                        </span>
                      </>
                    ) : (
                      <>
-                       <span className={`text-[9px] md:text-[12px] font-bold mb-0.5 ${isHold ? 'text-purple-600' : 'text-orange-600'}`}>
+                       <span className={`text-[13px] md:text-[16px] font-bold mb-0.5 ${isHold ? 'text-purple-600' : 'text-orange-600'}`}>
                          {isHold ? `ระยะเวลาที่หยุด (ครั้งที่ ${holdCounter})` : `ระยะเวลาที่ซ่อม (ครั้งที่ ${resumeCounter})`}
                        </span>
-                       <span className="text-[11px] md:text-[14px] font-mono font-black text-slate-700 bg-white px-3 py-0.5 rounded border border-slate-200 whitespace-nowrap shadow-sm">
-                         {durationMin} นาที
+                       {/* 🌟 เก็บ border-indigo-800 และสีของท่านไว้ครบถ้วน */}
+                       <span className="text-[13px] md:text-[16px] font-mono font-black text-slate-700 bg-white px-3 py-0.5 rounded border-2 border-solid border-indigo-800 whitespace-nowrap shadow-sm tracking-wider">
+                         {formattedTime}
                        </span>
                      </>
                    )}
@@ -3115,7 +3090,7 @@ const renderTracking = () => (
           <div className="bg-orange-50/70 border-l-[4px] border-solid border-orange-500 p-3 md:p-5 flex gap-3 md:gap-4 w-full mb-4">
             <Wrench className="w-4 h-4 md:w-6 md:h-6 shrink-0 mt-0.5 text-orange-600" />
             <div className="w-full">
-              <span className="block mb-0.5 text-orange-600/80 text-[10px] md:text-[14px] font-bold">ดำเนินการต่อ (ได้อะไหล่แล้ว):</span>
+              <span className="block mb-0.5 text-orange-600/80 text-[10px] md:text-[14px] font-bold">ดำเนินการต่อ:</span>
               <span className="text-[13px] md:text-[18px] text-orange-900 font-bold">{String(t.resumeReason)}</span>
             </div>
           </div>
@@ -3586,9 +3561,10 @@ const renderTracking = () => (
           
           <div>
             {/* ปรับขนาดตัวหนังสือหัวข้อบน PC จาก 4xl เป็น 2xl (md:text-2xl) ให้ดูเรียบหรู ไม่หนาเทอะทะ */}
-            <h1 className="font-black text-white text-2xl md:text-2xl tracking-widest leading-none drop-shadow-[0_2px_2px_rgba(0,0,0,0.5)] py-1 whitespace-nowrap">
+          {/* จากเดิมที่ท่านใช้อยู่ ให้แก้เป็นก้อนนี้ครับ */}
+            <h1 className="font-black text-white text-3xl md:text-5xl tracking-widest leading-none drop-shadow-[0_4px_4px_rgba(0,0,0,0.5)] py-2 whitespace-nowrap">
               {activeTab === 'dashboard' ? 'แผงควบคุม' : activeTab === 'report' ? 'แจ้งซ่อม' : currentUserRole === 'technician' ? 'จัดการงานซ่อม' : 'ติดตามสถานะ'}
-            </h1>
+          </h1>
           </div>
         </div>
 
@@ -3860,66 +3836,67 @@ const renderTracking = () => (
    <SarabunFontEmbed />
 
 {/* 🧭 Navigation Bar (ฟันธงข้อ 3 สเต็ปที่ 2: ฝังเอฟเฟกต์สไลด์หลบลงใต้จออัตโนมัติเมื่อไถจอลง) */}
-<div className={`fixed left-1/2 -translate-x-1/2 w-[calc(100%-2rem)] md:w-[calc(100%-3rem)] max-w-md py-2 md:py-2 bg-slate-900/90 backdrop-blur-xl border-2 md:border-[3px] border-solid border-orange-500 rounded-2xl md:rounded-xl z-[9999] shadow-[0_10px_30px_rgba(249,115,22,0.4)] md:shadow-[0_15px_40px_rgba(249,115,22,0.6)] transform-gpu md:max-w-[calc(72rem-3rem)] transition-all duration-500 ease-in-out ${
+{/* 🧭 Navigation Bar (ฟันธง: ขยายร่างเป็นจอ PC เต็มรูปแบบ) */}
+{/* 🧭 Navigation Bar (ฟันธง: คืนค่าความกว้างเดิมให้ขนานกับกรอบบนสุด 100%) */}
+<div className={`fixed left-1/2 -translate-x-1/2 w-[calc(100%-2rem)] md:w-[calc(100%-3rem)] max-w-md md:max-w-[calc(72rem-3rem)] py-2 md:py-4 bg-slate-900/95 backdrop-blur-xl border-2 md:border-[3px] border-solid border-orange-500 rounded-2xl md:rounded-[2rem] z-[9999] shadow-[0_10px_30px_rgba(249,115,22,0.4)] md:shadow-[0_15px_40px_rgba(249,115,22,0.6)] transform-gpu transition-all duration-500 ease-in-out ${
   isNavVisible ? 'bottom-4 md:bottom-8 opacity-100 translate-y-0' : '-bottom-32 opacity-0 translate-y-full pointer-events-none'
 }`}>
   
   <div className="w-full flex justify-evenly items-center px-1 md:px-8">
-     {/* ... (โค้ดปุ่ม หน้าแรก, แจ้งซ่อม, ฯลฯ ของท่านหัวหน้าจะยังอยู่ด้านในนี้เหมือนเดิม ปลอดภัย 100%) ... */}
           
-          {/* 🏠 ปุ่ม HOME (ฟันธง: รีดไขมันลดไซส์ไอคอน md:w-8 และตัวหนังสือ md:text-[14px]) */}
-          <button onClick={onGoHome} className="flex flex-col items-center justify-center w-20 md:w-28 gap-1.5 md:gap-1.5 active:scale-95 transition-all shrink-0 group">
-            <div className="p-2.5 md:p-3 rounded-full bg-transparent text-slate-400 group-hover:text-white transition-colors">
-              <Home size={26} className="md:w-8 md:h-8" />
+      {/* 🏠 ปุ่ม HOME */}
+      <button onClick={onGoHome} className="flex flex-col items-center justify-center gap-1.5 md:gap-3 active:scale-95 transition-all shrink-0 group">
+        <div className="p-2.5 md:p-4 rounded-full bg-transparent text-slate-400 group-hover:text-white transition-colors">
+          <Home className="w-6 h-6 md:w-12 md:h-12" />
+        </div>
+        <span className="block text-[11px] md:text-[20px] font-black text-slate-400 group-hover:text-white tracking-widest whitespace-nowrap shrink-0 transition-colors">หน้าแรก</span>
+      </button>
+
+      {/* ================= โหมดผู้แจ้ง (Reporter) ================= */}
+      {currentUserRole === 'reporter' && (
+        <>
+          {/* 🟠 ปุ่มแจ้งซ่อม */}
+          <button onClick={() => setActiveTab('report')} className="flex flex-col items-center justify-center gap-1.5 md:gap-3 transition-all shrink-0 active:scale-95 group">
+            <div className={`p-2.5 md:p-4 rounded-full transition-all ${activeTab === 'report' ? 'bg-gradient-to-b from-orange-400 to-orange-600 text-white shadow-[0_0_15px_rgba(249,115,22,0.8)] border-[2px] border-white scale-110' : 'bg-transparent text-slate-400 group-hover:text-orange-300'}`}>
+              <PlusCircle className={`w-6 h-6 md:w-12 md:h-12 ${activeTab === 'report' ? 'stroke-[3px]' : ''}`} />
             </div>
-            <span className="block text-[11px] md:text-[14px] font-black text-slate-400 group-hover:text-white tracking-widest whitespace-nowrap shrink-0 transition-colors">หน้าแรก</span>
+            <span className={`block text-[11px] md:text-[20px] font-black tracking-widest whitespace-nowrap shrink-0 transition-all ${activeTab === 'report' ? 'text-orange-400 drop-shadow-md md:mt-1' : 'text-slate-400 group-hover:text-orange-300'}`}>แจ้งซ่อม</span>
           </button>
 
-          {/* ================= โหมดผู้แจ้ง (Reporter) ================= */}
-          {currentUserRole === 'reporter' && (
-            <>
-              {/* 🟠 ปุ่มแจ้งซ่อม */}
-              <button onClick={() => setActiveTab('report')} className="flex flex-col items-center justify-center w-20 md:w-28 gap-1.5 md:gap-1.5 transition-all shrink-0 active:scale-95 group">
-                <div className={`p-2.5 md:p-3 rounded-full transition-all ${activeTab === 'report' ? 'bg-gradient-to-b from-orange-400 to-orange-600 text-white shadow-[0_0_15px_rgba(249,115,22,0.8)] border-[2px] border-white scale-110 md:scale-110' : 'bg-transparent text-slate-400 group-hover:text-orange-300'}`}>
-                  <PlusCircle size={26} className={`md:w-8 md:h-8 ${activeTab === 'report' ? 'stroke-[2.5px]' : ''}`} />
-                </div>
-                <span className={`block text-[11px] md:text-[14px] font-black tracking-widest whitespace-nowrap shrink-0 transition-all ${activeTab === 'report' ? 'text-orange-400 drop-shadow-md md:mt-1' : 'text-slate-400 group-hover:text-orange-300'}`}>แจ้งซ่อม</span>
-              </button>
+          {/* 🟠 ปุ่มติดตามสถานะ */}
+          <button onClick={() => { setActiveTab('tracking'); setSearchTerm(''); }} className="flex flex-col items-center justify-center gap-1.5 md:gap-3 transition-all shrink-0 active:scale-95 group">
+            <div className={`p-2.5 md:p-4 rounded-full transition-all ${activeTab === 'tracking' ? 'bg-gradient-to-b from-orange-400 to-orange-600 text-white shadow-[0_0_15px_rgba(249,115,22,0.8)] border-[2px] border-white scale-110' : 'bg-transparent text-slate-400 group-hover:text-orange-300'}`}>
+              <ClipboardCheck className={`w-6 h-6 md:w-12 md:h-12 ${activeTab === 'tracking' ? 'stroke-[3px]' : ''}`} />
+            </div>
+            <span className={`block text-[11px] md:text-[20px] font-black tracking-widest whitespace-nowrap shrink-0 transition-all ${activeTab === 'tracking' ? 'text-orange-400 drop-shadow-md md:mt-1' : 'text-slate-400 group-hover:text-orange-300'}`}>ติดตามสถานะ</span>
+          </button>
+        </>
+      )}
 
-              {/* 🟠 ปุ่มติดตามสถานะ */}
-              <button onClick={() => { setActiveTab('tracking'); setSearchTerm(''); }} className="flex flex-col items-center justify-center w-20 md:w-28 gap-1.5 md:gap-1.5 transition-all shrink-0 active:scale-95 group">
-                <div className={`p-2.5 md:p-3 rounded-full transition-all ${activeTab === 'tracking' ? 'bg-gradient-to-b from-orange-400 to-orange-600 text-white shadow-[0_0_15px_rgba(249,115,22,0.8)] border-[2px] border-white scale-110 md:scale-110' : 'bg-transparent text-slate-400 group-hover:text-orange-300'}`}>
-                  <ClipboardCheck size={26} className={`md:w-8 md:h-8 ${activeTab === 'tracking' ? 'stroke-[2.5px]' : ''}`} />
-                </div>
-                <span className={`block text-[11px] md:text-[14px] font-black tracking-widest whitespace-nowrap shrink-0 transition-all ${activeTab === 'tracking' ? 'text-orange-400 drop-shadow-md md:mt-1' : 'text-slate-400 group-hover:text-orange-300'}`}>ติดตามสถานะ</span>
-              </button>
-            </>
-          )}
+      {/* ================= โหมดช่าง (Technician) ================= */}
+      {currentUserRole === 'technician' && (
+        <>
+          {/* 🟠 ปุ่มแผงควบคุม */}
+          <button onClick={() => setActiveTab('dashboard')} className="flex flex-col items-center justify-center gap-1.5 md:gap-3 transition-all shrink-0 active:scale-95 group">
+            <div className={`p-2.5 md:p-4 rounded-full transition-all ${activeTab === 'dashboard' ? 'bg-gradient-to-b from-orange-400 to-orange-600 text-white shadow-[0_0_15px_rgba(249,115,22,0.8)] border-[2px] border-white scale-110' : 'bg-transparent text-slate-400 group-hover:text-orange-300'}`}>
+              <LayoutDashboard className={`w-6 h-6 md:w-12 md:h-12 ${activeTab === 'dashboard' ? 'stroke-[3px]' : ''}`} />
+            </div>
+            <span className={`block text-[11px] md:text-[20px] font-black tracking-widest whitespace-nowrap shrink-0 transition-all ${activeTab === 'dashboard' ? 'text-orange-400 drop-shadow-md md:mt-1' : 'text-slate-400 group-hover:text-orange-300'}`}>แผงควบคุม</span>
+          </button>
 
-          {/* ================= โหมดช่าง (Technician) ================= */}
-          {currentUserRole === 'technician' && (
-            <>
-              {/* 🟠 ปุ่มแผงควบคุม */}
-              <button onClick={() => setActiveTab('dashboard')} className="flex flex-col items-center justify-center w-20 md:w-28 gap-1.5 md:gap-1.5 transition-all shrink-0 active:scale-95 group">
-                <div className={`p-2.5 md:p-3 rounded-full transition-all ${activeTab === 'dashboard' ? 'bg-gradient-to-b from-orange-400 to-orange-600 text-white shadow-[0_0_15px_rgba(249,115,22,0.8)] border-[2px] border-white scale-110 md:scale-110' : 'bg-transparent text-slate-400 group-hover:text-orange-300'}`}>
-                  <LayoutDashboard size={26} className={`md:w-8 md:h-8 ${activeTab === 'dashboard' ? 'stroke-[2.5px]' : ''}`} />
-                </div>
-                <span className={`block text-[11px] md:text-[14px] font-black tracking-widest whitespace-nowrap shrink-0 transition-all ${activeTab === 'dashboard' ? 'text-orange-400 drop-shadow-md md:mt-1' : 'text-slate-400 group-hover:text-orange-300'}`}>แผงควบคุม</span>
-              </button>
-
-               {/* 🟠 ปุ่มจัดการงานซ่อม */}
-              <button onClick={() => setActiveTab('tracking')} className="flex flex-col items-center justify-center w-20 md:w-28 gap-1.5 md:gap-1.5 transition-all shrink-0 active:scale-95 group">
-                <div className={`p-2.5 md:p-3 rounded-full transition-all ${activeTab === 'tracking' ? 'bg-gradient-to-b from-orange-400 to-orange-600 text-white shadow-[0_0_15px_rgba(249,115,22,0.8)] border-[2px] border-white scale-110 md:scale-110' : 'bg-transparent text-slate-400 group-hover:text-orange-300'}`}>
-                  <Wrench size={26} className={`md:w-8 md:h-8 ${activeTab === 'tracking' ? 'stroke-[2.5px]' : ''}`} />
-                </div>
-                <span className={`block text-[11px] md:text-[14px] font-black tracking-widest whitespace-nowrap shrink-0 transition-all ${activeTab === 'tracking' ? 'text-orange-400 drop-shadow-md md:mt-1' : 'text-slate-400 group-hover:text-orange-300'}`}>จัดการงาน</span>
-              </button>
-            </>
-          )}
-        </div>
+           {/* 🟠 ปุ่มจัดการงานซ่อม */}
+          <button onClick={() => setActiveTab('tracking')} className="flex flex-col items-center justify-center gap-1.5 md:gap-3 transition-all shrink-0 active:scale-95 group">
+            <div className={`p-2.5 md:p-4 rounded-full transition-all ${activeTab === 'tracking' ? 'bg-gradient-to-b from-orange-400 to-orange-600 text-white shadow-[0_0_15px_rgba(249,115,22,0.8)] border-[2px] border-white scale-110' : 'bg-transparent text-slate-400 group-hover:text-orange-300'}`}>
+              <Wrench className={`w-6 h-6 md:w-12 md:h-12 ${activeTab === 'tracking' ? 'stroke-[3px]' : ''}`} />
+            </div>
+            <span className={`block text-[11px] md:text-[20px] font-black tracking-widest whitespace-nowrap shrink-0 transition-all ${activeTab === 'tracking' ? 'text-orange-400 drop-shadow-md md:mt-1' : 'text-slate-400 group-hover:text-orange-300'}`}>จัดการงาน</span>
+          </button>
+        </>
+      )}
+    </div>
+  </div>
 
       </div>
-    </div>
   );
 }
 
