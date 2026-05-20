@@ -997,6 +997,10 @@ const toggleTag = (tag) => {
     const { ticketId, type } = actionModal;
     let updates = {};
     
+    // 🌟 1. ดึงข้อมูลประวัติเดิมมาเตรียมต่อคิว (Timeline)
+    const target = tickets.find((t) => t.id === ticketId);
+    const currentLog = target?.historyLog || [];
+    
     if (type === 'accept') {
       if (!selectedTech) return;
       const tech = technicianList.find((t) => t.name === selectedTech);
@@ -1012,6 +1016,8 @@ const toggleTag = (tag) => {
         status: 'on_hold',
         holdReason: actionText,
         lastHoldAt: new Date().toISOString(),
+        // 🌟 2. ดันประวัติ "แจ้งขัดข้อง" ลงคลัง Array ไม่ให้ทับของเดิม
+        historyLog: [...currentLog, { type: 'hold', reason: actionText, timestamp: new Date().toISOString() }]
       };
     } else if (type === 'finish') {
       updates = {
@@ -1027,33 +1033,25 @@ const toggleTag = (tag) => {
         cancelReason: actionText,
         cancelledAt: new Date().toISOString(),
       };
-    } 
-    // =========================================================================
-    // 🌟 ฟันธงเพิ่มจุดนี้: เงื่อนไขการกลับมาซ่อมต่อ (resume) คำนวณเวลาและบันทึกประวัติกล่องส้ม
-    // =========================================================================
-    else if (type === 'resume') {
-      const target = tickets.find((t) => t.id === ticketId);
+    } else if (type === 'resume') {
       let pauseDurationMs = 0;
-      
-      // คำนวณระยะเวลาที่เสียไปชาร์จรวมเข้าฐานข้อมูล Firestore
       if (target && target.lastHoldAt) {
         pauseDurationMs = new Date().getTime() - new Date(target.lastHoldAt).getTime();
       }
-      
       updates = {
-        status: 'in_progress',       // 1. ดีดสถานะกลับมา "กำลังซ่อม"
-        resumeReason: actionText,   // 2. บันทึกข้อความอะไหล่/รุ่น ลงตัวแปรเพื่อไปโชว์ในกล่องส้ม
-        totalPauseMs: ((target ? target.totalPauseMs : 0) || 0) + pauseDurationMs, // 3. สะสมเวลาหยุดซ่อม
-        lastHoldAt: null,           // 4. เคลียร์เวลาหยุดชั่วคราวให้เริ่มเดินเวลาซ่อมต่อ
+        status: 'in_progress',
+        resumeReason: actionText,
+        totalPauseMs: ((target ? target.totalPauseMs : 0) || 0) + pauseDurationMs,
+        lastHoldAt: null,
+        // 🌟 3. ดันประวัติ "ดำเนินการต่อ" ลงคลัง Array พร้อมเวลาที่เสียไป
+        historyLog: [...currentLog, { type: 'resume', reason: actionText, timestamp: new Date().toISOString(), pauseDurationMs: pauseDurationMs }]
       };
     }
-    // =========================================================================
 
     await updateTicketStatus(ticketId, updates);
 
-      // 🌟 ฟันธง: ส่งแจ้งเตือน Flex Message เข้า LINE เมื่อมีการรับงาน หรือ ปิดงาน หรือกำลังซ่อม
+      // 🌟 โค้ดส่งแจ้งเตือน LINE ของท่าน (ปล่อยไว้เหมือนเดิม ไม่กระทบ)
       if (type === 'accept' || type === 'finish') {
-        const target = tickets.find((t) => t.id === ticketId);
         if (target) {
           try {
             fetch("https://script.google.com/macros/s/AKfycbxBoB_e637WkWMeSuX9NP3BSKcSiE8J3dSXmlzNV9aeiq6DRUvn81bSp6w-B0nzCVA5/exec", {
@@ -1069,7 +1067,7 @@ const toggleTag = (tag) => {
                 primaryTech: selectedTech || target.techName || "ทีมช่าง ฝวด.",
                 building: target.building,
                 room: target.room,
-                status: type === 'accept' ? 'ACCEPTED' : 'COMPLETED' // 🌟 สั่งเปลี่ยนสีกรอบ
+                status: type === 'accept' ? 'ACCEPTED' : 'COMPLETED' 
               })
             });
           } catch (err) { console.error("Line Notify Error:", err); }
@@ -3009,92 +3007,143 @@ const renderTracking = () => (
                         ) : null}
 
                   {/* 🌟 โซนรายละเอียดข้อความและการติดต่อ (อัปเกรด PC ไซส์เบิ้ม) */}
-                  <div className="p-5 md:p-10 space-y-4 md:space-y-8">
-                      <div className="bg-slate-50 p-4 md:p-8 rounded-2xl md:rounded-[2rem] border-2 border-solid border-slate-400 shadow-inner relative">
-                        
-                        {t.status === 'cancelled' && t.cancelReason && (
-                          <div className="bg-rose-50 text-rose-700 p-3 md:p-6 rounded-xl md:rounded-2xl text-xs md:text-[20px] font-bold mb-3 md:mb-6 flex gap-2 md:gap-4 border border-rose-200 shadow-sm">
-                            <XCircle className="w-4 h-4 md:w-8 md:h-8 shrink-0 mt-0.5 md:mt-1" />
-                            <div>
-                              <span className="block mb-0.5 md:mb-2 text-rose-800">
-                                เหตุผลที่ยกเลิก:
-                              </span>
-                              {String(t.cancelReason)}
-                            </div>
-                          </div>
-                        )}
-                        
-                        {/* 🌟 ฟันธงจุดที่ 1.1: กล่องสีม่วง (ดึงข้อมูลให้มาอยู่ฝั่งซ้าย และเพิ่มป้ายกำกับสถานะ/เวลาไว้ขวาสุด) */}
-                        {t.holdReason && (
-                          <div className="bg-purple-100 text-purple-900 p-3 md:p-6 rounded-xl md:rounded-2xl text-xs md:text-[20px] font-bold mb-3 md:mb-6 flex justify-between items-start border-2 border-solid border-purple-500 shadow-sm transition-all">
-                            <div className="flex gap-2 md:gap-4">
-                              <PauseCircle className="w-4 h-4 md:w-8 md:h-8 shrink-0 mt-0.5 md:mt-1" />
-                              <div>
-                                <span className="block mb-0.5 md:mb-2 text-purple-800">
-                                  แจ้งเหตุขัดข้อง:
-                                </span>
-                                {String(t.holdReason)}
-                              </div>
-                            </div>
-                            
-                            {/* ⏱️ กรอบเวลา/สถานะ ชิดขวาสุด (โชว์เวลากำลังรอ) */}
-                            {t.status === 'on_hold' && (
-                              <div className="flex flex-col items-end shrink-0 ml-2 md:ml-4">
-                                <span className="text-[9px] md:text-[14px] text-purple-500 mb-0.5 md:mb-1">สถานะปัจจุบัน</span>
-                                <span className="font-mono text-purple-800 bg-purple-200/60 px-2 py-1 md:px-3 md:py-1.5 rounded-lg border border-purple-300 shadow-sm animate-pulse">
-                                  กำลังรออะไหล่...
-                                </span>
-                              </div>
-                            )}
-                          </div>
-                        )}
+<div className="p-5 md:p-10 space-y-4 md:space-y-8">
+  {/* 🌟 ฟันธงสเต็ป 1: เคลียร์กรอบซ้อน! เปลี่ยนกรอบนอกเป็นสีขาวคลีนๆ ไร้ขอบเทาหนา */}
+  <div className="bg-white p-4 md:p-8 rounded-2xl md:rounded-[2rem] border-2 border-solid border-slate-200 shadow-sm relative overflow-hidden mb-6">
+    
+    {/* 🚨 เหตุผลยกเลิกงาน */}
+    {t.status === 'cancelled' && t.cancelReason && (
+      <div className="bg-rose-50/80 border-l-[4px] border-solid border-rose-500 p-3 md:p-5 flex gap-3 md:gap-4 mb-4 transition-all">
+        <XCircle className="w-5 h-5 md:w-8 md:h-8 shrink-0 mt-0.5 text-rose-600" />
+        <div className="w-full">
+          <span className="block mb-1 text-rose-600/80 text-[11px] md:text-[16px] font-bold uppercase">เหตุผลที่ยกเลิก:</span>
+          <span className="text-[13px] md:text-[18px] text-rose-900 font-bold">{String(t.cancelReason)}</span>
+        </div>
+      </div>
+    )}
 
-                        {/* 🌟 ฟันธงจุดที่ 1.2: กล่องสีส้ม (สร้างใหม่! จะโชว์เมื่อช่างพิมพ์เหตุผลตอนกดดำเนินการต่อ) */}
-                        {t.resumeReason && (
-                          <div className="bg-orange-50 text-orange-700 p-3 md:p-6 rounded-xl md:rounded-2xl text-xs md:text-[20px] font-bold mb-3 md:mb-6 flex justify-between items-start border-2 border-solid border-orange-400 shadow-sm animate-in slide-in-from-top-2">
-                            <div className="flex gap-2 md:gap-4">
-                              <Wrench className="w-4 h-4 md:w-8 md:h-8 shrink-0 mt-0.5 md:mt-1 text-orange-600" />
-                              <div>
-                                <span className="block mb-0.5 md:mb-2 text-orange-800">
-                                  ดำเนินการต่อ (ได้อะไหล่แล้ว):
-                                </span>
-                                {String(t.resumeReason)}
-                              </div>
-                            </div>
+    {/* 🌟 ฟันธง: Timeline ประวัติการซ่อมฉบับอัปเกรด (แสดงนาทีจริงในแต่ละรอบ สอดคล้องกับเวลาด้านบน 100%) */}
+   {/* 🌟 ฟันธง: Timeline รุ่นสมบูรณ์แบบ (ซ่อนป้ายระยะเวลาจนกว่างานจะจบ) */}
+   {t.historyLog && t.historyLog.length > 0 ? (
+      <div className="flex flex-col w-full mb-2">
+        {(() => {
+          let holdCounter = 0;
+          let resumeCounter = 0;
 
-                            {/* ⏱️ กรอบสถานะ ชิดขวาสุด (ยืนยันว่ากลับมาเดินเวลาซ่อมแล้ว) */}
-                            <div className="flex flex-col items-end shrink-0 ml-2 md:ml-4">
-                                <span className="text-[9px] md:text-[14px] text-orange-500 mb-0.5 md:mb-1">สถานะปัจจุบัน</span>
-                                <span className="font-mono text-orange-800 bg-orange-200/60 px-2 py-1 md:px-3 md:py-1.5 rounded-lg border border-orange-300 shadow-sm">
-                                  กำลังซ่อม 🛠️
-                                </span>
-                            </div>
-                          </div>
-                        )}
-                        
-                        {t.cause && (
-                          <div className="bg-emerald-100 text-emerald-900 p-3 md:p-6 rounded-xl md:rounded-2xl text-[14px] md:text-[22px] font-bold mb-3 md:mb-6 flex gap-2 md:gap-4 border-2 border-solid border-emerald-500 shadow-sm">
-                            <CheckSquare className="w-4 h-4 md:w-8 md:h-8 shrink-0 mt-0.5 md:mt-1" />
-                            <div>
-                              <span className="block mb-0.5 md:mb-2 text-emerald-800">
-                                สรุปผลและข้อแนะนำ:
-                              </span>
-                              {String(t.cause)}
-                            </div>
-                          </div>
-                        )}
+          return t.historyLog.map((log, index) => {
+            const isLast = index === t.historyLog.length - 1;
+            const isHold = log.type === 'hold';
+            
+            // นับครั้งที่อัตโนมัติ
+            if (isHold) holdCounter++;
+            else resumeCounter++;
 
-                        {t.sscNote && (
-                          <div className="bg-rose-50 text-rose-700 p-3 md:p-6 rounded-xl md:rounded-2xl text-xs md:text-[20px] font-bold mb-3 md:mb-6 flex gap-2 md:gap-4 border border-rose-200 shadow-sm">
-                            <Wrench className="w-4 h-4 md:w-8 md:h-8 shrink-0 mt-0.5 md:mt-1" />
-                            <div>
-                              <span className="block mb-0.5 md:mb-2 text-rose-800 uppercase tracking-widest text-[10px] md:text-[18px]">
-                                บันทึกการแก้ไขเบื้องต้น (เวร SSC):
-                              </span>
-                              {String(t.sscNote)}
-                            </div>
-                          </div>
-                        )}
+            // 🌟 สมองกลคำนวณระยะเวลา (นาที) ของแต่ละช่วง
+            let durationMin = 0;
+            let isOngoing = false;
+
+            if (isHold) {
+              const nextLog = t.historyLog[index + 1];
+              if (nextLog) {
+                durationMin = Math.floor((new Date(nextLog.timestamp).getTime() - new Date(log.timestamp).getTime()) / 60000);
+              } else {
+                isOngoing = true; // เป็นบรรทัดสุดท้ายและกำลังหยุดอยู่
+              }
+            } else {
+              const nextLog = t.historyLog[index + 1];
+              if (nextLog) {
+                durationMin = Math.floor((new Date(nextLog.timestamp).getTime() - new Date(log.timestamp).getTime()) / 60000);
+              } else if (t.status === 'completed' || t.status === 'verified') {
+                durationMin = t.completedAt ? Math.floor((new Date(t.completedAt).getTime() - new Date(log.timestamp).getTime()) / 60000) : 0;
+              } else {
+                isOngoing = true; // เป็นบรรทัดสุดท้ายและกำลังซ่อมอยู่
+              }
+            }
+
+            return (
+              <div key={index} className={`flex justify-between items-start p-4 border-b border-slate-100 ${isHold ? 'bg-purple-50 border-l-[4px] border-purple-500' : 'bg-orange-50 border-l-[4px] border-orange-500'}`}>
+                
+                {/* 🎯 ด้านซ้าย: ชื่อเหตุการณ์ */}
+                <div className="flex gap-3 md:gap-4 w-full">
+                  {isHold ? <PauseCircle className="w-5 h-5 md:w-6 md:h-6 shrink-0 text-purple-600" /> : <Wrench className="w-5 h-5 md:w-6 md:h-6 shrink-0 text-orange-600" />}
+                  <div>
+                    <p className="font-black text-[12px] md:text-[16px] text-slate-800">{isHold ? 'แจ้งเหตุขัดข้อง' : 'ดำเนินการต่อ'}</p>
+                    <p className="text-[13px] md:text-[18px] text-slate-600 font-bold">{String(log.reason)}</p>
+                  </div>
+                </div>
+                
+                {/* 🎯 ด้านขวา: ซ่อนชื่อครั้งที่จนกว่าจะจบ Event */}
+                <div className="flex flex-col items-end shrink-0 ml-2">
+                   {isLast && isOngoing ? (
+                     <>
+                       <span className="text-[9px] md:text-[12px] font-bold mb-0.5 text-slate-400">สถานะปัจจุบัน</span>
+                       <span className={`px-3 py-1 rounded-md text-[11px] md:text-[14px] font-bold animate-pulse whitespace-nowrap shadow-sm border ${isHold ? 'bg-purple-100 text-purple-700 border-purple-300' : 'bg-orange-100 text-orange-700 border-orange-300'}`}>
+                         {isHold ? 'รออะไหล่/ขัดข้อง...' : 'กำลังซ่อม...'}
+                       </span>
+                     </>
+                   ) : (
+                     <>
+                       <span className={`text-[9px] md:text-[12px] font-bold mb-0.5 ${isHold ? 'text-purple-600' : 'text-orange-600'}`}>
+                         {isHold ? `ระยะเวลาที่หยุด (ครั้งที่ ${holdCounter})` : `ระยะเวลาที่ซ่อม (ครั้งที่ ${resumeCounter})`}
+                       </span>
+                       <span className="text-[11px] md:text-[14px] font-mono font-black text-slate-700 bg-white px-3 py-0.5 rounded border border-slate-200 whitespace-nowrap shadow-sm">
+                         {durationMin} นาที
+                       </span>
+                     </>
+                   )}
+                </div>
+
+              </div>
+            );
+          });
+        })()}
+      </div>
+    ) : (
+      
+      /* โค้ดสำรองกรณีข้อมูลยังเป็นแบบเก่า (เพื่อไม่ให้ Error) */
+      <>
+        {t.holdReason && (
+          <div className="bg-purple-50/70 border-l-[4px] border-solid border-purple-500 p-3 md:p-5 flex gap-3 md:gap-4 w-full mb-4">
+            <PauseCircle className="w-4 h-4 md:w-6 md:h-6 shrink-0 mt-0.5 text-purple-600" />
+            <div className="w-full">
+              <span className="block mb-0.5 text-purple-600/80 text-[10px] md:text-[14px] font-bold">แจ้งเหตุขัดข้อง:</span>
+              <span className="text-[13px] md:text-[18px] text-purple-900 font-bold">{String(t.holdReason)}</span>
+            </div>
+          </div>
+        )}
+        {t.resumeReason && (
+          <div className="bg-orange-50/70 border-l-[4px] border-solid border-orange-500 p-3 md:p-5 flex gap-3 md:gap-4 w-full mb-4">
+            <Wrench className="w-4 h-4 md:w-6 md:h-6 shrink-0 mt-0.5 text-orange-600" />
+            <div className="w-full">
+              <span className="block mb-0.5 text-orange-600/80 text-[10px] md:text-[14px] font-bold">ดำเนินการต่อ (ได้อะไหล่แล้ว):</span>
+              <span className="text-[13px] md:text-[18px] text-orange-900 font-bold">{String(t.resumeReason)}</span>
+            </div>
+          </div>
+        )}
+      </>
+    )}
+
+    {/* 📋 สรุปผลและข้อแนะนำ (Flat Design) */}
+    {t.cause && (
+      <div className="bg-emerald-50/70 border-l-[4px] border-solid border-emerald-400 p-3 md:p-5 flex gap-3 md:gap-4 w-full mb-4 mt-2">
+        <CheckSquare className="w-5 h-5 md:w-8 md:h-8 shrink-0 mt-0.5 text-emerald-600" />
+        <div className="w-full">
+          <span className="block mb-1 text-emerald-600/80 text-[11px] md:text-[16px] font-bold">สรุปผลและข้อแนะนำ:</span>
+          <span className="text-[13px] md:text-[18px] text-emerald-900 font-bold">{String(t.cause)}</span>
+        </div>
+      </div>
+    )}
+
+    {/* 🛠️ บันทึกเวร SSC (Flat Design) */}
+    {t.sscNote && (
+      <div className="bg-slate-50/80 border-l-[4px] border-solid border-slate-400 p-3 md:p-5 flex gap-3 md:gap-4 w-full mt-2 mb-2">
+        <Wrench className="w-5 h-5 md:w-8 md:h-8 shrink-0 mt-0.5 text-slate-500" />
+        <div className="w-full">
+          <span className="block mb-1 text-slate-500 text-[10px] md:text-[14px] font-bold uppercase">บันทึกการแก้ไขเบื้องต้น (เวร SSC):</span>
+          <span className="text-[13px] md:text-[18px] text-slate-800 font-bold">{String(t.sscNote)}</span>
+        </div>
+      </div>
+    )}
 
                         {/* โซนรูปภาพ */}
                         {t.images && t.images.length > 0 && (
