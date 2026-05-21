@@ -182,6 +182,15 @@ const employeeList = [
   { name: 'นายประวุฒิ ดิษาภิรมย์', position: 'วิศวกร', department: 'ฝปด.' },
 ];
 
+// 🌟 ฟันธง: ฐานข้อมูลสมองกล จับคู่อุปกรณ์ -> ช่างรับผิดชอบ
+const techMapping = {
+  "ภารกิจด้านจานสายอากาศ": { name: "นายทศพล ชินนิวัฒน์", phone: "08-1513-7854" },
+  "ภารกิจด้านคอมพิวเตอร์แม่ข่ายและไอที": { name: "นายธนกาญจน์ ไตรปิฎก", phone: "06-2463-5544" },
+  "ภารกิจด้านโครงสร้างพื้นฐานไฟฟ้า": { name: "นายประมินทร์ พิชิตการค้า", phone: "08-1135-1599" },
+  "ภารกิจด้านการให้บริการโครงการ SSC": { name: "นายนรัตว์ ศรีสวัสดิ์พงษ์", phone: "08-6361-4399" },
+  // ... เพิ่มรายการอื่นๆ ตามฐานข้อมูลที่ท่านหัวหน้ามีได้เลยครับ
+};
+
 // 🌟 ฟันธงจัดกลุ่มใหม่ ตาม KPI 3 ภารกิจหลักของ ฝวด.
 const equipmentCategories = {
   'ภารกิจด้านจานสายอากาศ': [
@@ -220,18 +229,24 @@ const equipmentCategories = {
     'FM-200-Building-1',
     'FM-200-Building-2',
     'Grounding-Lightning'
+  ],
+  "ภารกิจด้านการให้บริการโครงการ SSC": [
+    "Antenna-7.3m System",
+    "Antenna-S3EE System (SKP)",
+    "QZSS System"
   ]
 };
 
 const buildingList = [
-  'อาคารสถานีดาวเทียม',
+  'อาคาร สถานีดาวเทียม',
   'อาคาร Centrarium',
   'อาคาร AIT',
-  'ฐานจาน VIASAT',
-  'ฐานจาน KRATOS',
-  'ฐานจาน Orbital',
-  'ฐานจาน CGC',
   'อาคาร SI',
+  'ฐานจาน-VIASAT',
+  'ฐานจาน-KRATOS',
+  'ฐานจาน-Orbital',
+  'ฐานจาน-CGC',
+  'Shellter-7.3m',
 ];
 
 const technicianList = [
@@ -919,9 +934,16 @@ const toggleTag = (tag) => {
     setIsSubmitting(true);
     const newId = getNextReqId(tickets);
 
+    // 🌟 ฟันธง: สมองกล Auto-Assign ทำงานตรงนี้! ดึงช่างจากหมวดหมู่
+    const selectedCategory = formData.equipmentCategory; 
+    const autoAssignedTech = techMapping[selectedCategory];
+
     const newTicket = {
       id: newId,
       ...formData,
+      // 🌟 ยัดชื่อช่างและเบอร์โทรลงใบแจ้งซ่อมทันที!
+      techName: autoAssignedTech ? autoAssignedTech.name : 'รอเจ้าหน้าที่รับงาน (เวร SSC)',
+      techPhone: autoAssignedTech ? autoAssignedTech.phone : '-',
       status: 'pending',
       isOutOfHours: formData.isSsc,
       date: new Date().toISOString(),
@@ -943,7 +965,9 @@ const toggleTag = (tag) => {
    } else if (formData.equipmentCategory === 'ภารกิจด้านคอมพิวเตอร์แม่ข่ายและไอที') {
      primaryTech = "คุณธนกาญจน์/คุณชุติพงษ์"; 
    } else if (formData.equipmentCategory === 'ภารกิจด้านโครงสร้างพื้นฐานไฟฟ้า') {
-     primaryTech = "คุณประมินทร์/นรัตว์"; 
+     primaryTech = "คุณประมินทร์/คุณนรัตว์"; 
+    } else if (formData.equipmentCategory === 'ภารกิจด้านการให้บริการโครงการ SSC') {
+      primaryTech = "คุณนรัตว์/คุณทศพล"; 
    }
 
    try {
@@ -1557,10 +1581,32 @@ const executeRatingSubmit = async () => {
             </div>
           </div>
 
+        {/* ========================================================================= */}
+          {/* 🌟 ฟันธง: กล่องยกเลิก (สีเทา) ถูกยกมาไว้ข้างบนแล้ว! จะแสดงผลก่อน (หรืออยู่ซ้าย) */}
+          {/* ========================================================================= */}
+          <div
+            onClick={() => handleNavigateToTracking('cancelled')}
+            className="bg-slate-800/40 backdrop-blur-xl p-5 md:p-8 rounded-[1.5rem] border-[2px] border-solid border-slate-500 hover:bg-slate-700/50 flex flex-col items-center shadow-lg active:scale-95 transition-all cursor-pointer relative overflow-hidden hover:shadow-[0_0_20px_rgba(255,255,255,0.2)] hover:-translate-y-1 hover:border-slate-400"
+          > {/* <--- 🌟 เครื่องหมาย > ตัวนี้แหละครับที่หายไป! */}
+            <div className="absolute top-0 w-full h-1 md:h-2 bg-slate-400"></div>
+            <div className="bg-slate-50 p-3 md:p-4 rounded-2xl md:rounded-3xl mb-3 md:mb-5">
+              <XCircle className="w-6 h-6 md:w-8 md:h-8 text-slate-500" />
+            </div>
+            <div className="text-4xl md:text-[4rem] md:mb-2 font-black text-slate-300 font-mono tracking-tighter leading-none">
+              {stats.cancelled}
+            </div>
+            <div className="text-[13px] md:text-[18px] font-bold text-slate-300 uppercase mt-2 tracking-widest">
+              ยกเลิก
+            </div>
+          </div>
+
+          {/* ========================================================================= */}
+          {/* 🌟 ฟันธง: กล่องเสร็จสิ้น (สีเขียว) ถูกยกมาไว้ข้างล่างแล้ว! จะแสดงผลทีหลัง (หรืออยู่ขวา) */}
+          {/* ========================================================================= */}
           <div
             onClick={() => handleNavigateToTracking('completed')}
             className="bg-slate-800/40 backdrop-blur-xl p-5 md:p-8 rounded-[1.5rem] border-[2px] border-solid border-emerald-500 hover:bg-slate-700/50 flex flex-col items-center shadow-lg active:scale-95 transition-all cursor-pointer relative overflow-hidden hover:shadow-[0_0_25px_rgba(16,185,129,0.5)] hover:-translate-y-1 hover:border-emerald-400"
-          >
+          > {/* <--- 🌟 และตัวนี้ก็ต้องมีห้ามหายครับ! */}
             <div className="absolute top-0 w-full h-1 md:h-2 bg-emerald-500"></div>
             <div className="bg-emerald-50 p-3 md:p-4 rounded-2xl md:rounded-3xl mb-3 md:mb-5">
               <CheckCircle className="w-6 h-6 md:w-8 md:h-8 text-emerald-500"/>
@@ -1571,23 +1617,9 @@ const executeRatingSubmit = async () => {
             <div className="text-[13px] md:text-[18px] font-bold text-emerald-500 uppercase mt-2 tracking-widest">
               เสร็จสิ้น
             </div>
-          </div>
-
-          <div
-            onClick={() => handleNavigateToTracking('cancelled')}
-            className="bg-slate-800/40 backdrop-blur-xl p-5 md:p-8 rounded-[1.5rem] border-[2px] border-solid border-slate-500 hover:bg-slate-700/50 flex flex-col items-center shadow-lg active:scale-95 transition-all cursor-pointer relative overflow-hidden hover:shadow-[0_0_20px_rgba(255,255,255,0.2)] hover:-translate-y-1 hover:border-slate-400"
-          >
-            <div className="absolute top-0 w-full h-1 md:h-2 bg-slate-400"></div>
-            <div className="bg-slate-50 p-3 md:p-4 rounded-2xl md:rounded-3xl mb-3 md:mb-5">
-              <XCircle className="w-6 h-6 md:w-8 md:h-8 text-slate-500" />
-            </div>
-            <div className="text-4xl md:text-[4rem] md:mb-2 font-black text-state-300 font-mono tracking-tighter leading-none">
-              {stats.cancelled}
-            </div>
-            <div className="text-[13px] md:text-[18px] font-bold text-slate-300 uppercase mt-2 tracking-widest">
-              ยกเลิก
-            </div>
-          </div>
+          </div> {/* <--- อันนี้คือบรรทัดปิดของกล่องเสร็จสิ้นเดิม */}
+          
+          {/* 🌟 ฟันธง: ให้พิมพ์เติม </div> ตัวนี้เข้าไป 1 ตัวครับ! (นี่คือตัวที่เผลอโดนทับหายไป) */}
         </div>
         
 {/* 🌟 ฟันธง: กล่องสรุปคะแนนประเมิน SLA (CSAT KPI) จะโชว์ก็ต่อเมื่อมีงานที่ซ่อมเสร็จแล้ว */}
@@ -2443,8 +2475,8 @@ const renderTracking = () => (
             { id: 'fixing', label: 'กำลังซ่อม' },
             { id: 'on_hold', label: 'แจ้งขัดข้อง' },
             { id: 'verify', label: 'รอยืนยัน' },
-            { id: 'completed', label: 'เสร็จสิ้น' },
             { id: 'cancelled', label: 'ยกเลิก' },
+            { id: 'completed', label: 'เสร็จสิ้น' },
           ].map((f) => (
             <button
               key={f.id}
@@ -2975,11 +3007,11 @@ const renderTracking = () => (
     
     {/* 🚨 เหตุผลยกเลิกงาน */}
     {t.status === 'cancelled' && t.cancelReason && (
-      <div className="bg-rose-50/80 border-l-[4px] border-solid border-rose-500 p-3 md:p-5 flex gap-3 md:gap-4 mb-4 transition-all">
+          <div className="bg-rose-100/70 border-l-[4px] border-2 border-solid border-rose-600 rounded-xl md:rounded-2xl p-3 md:p-5 flex gap-3 md:gap-4 w-full mb-4 mt-2">
         <XCircle className="w-5 h-5 md:w-8 md:h-8 shrink-0 mt-0.5 text-rose-600" />
         <div className="w-full">
-          <span className="block mb-1 text-rose-600/80 text-[11px] md:text-[16px] font-bold uppercase">เหตุผลที่ยกเลิก:</span>
-          <span className="text-[13px] md:text-[18px] text-rose-900 font-bold">{String(t.cancelReason)}</span>
+          <span className="block mb-1 text-rose-600/80 text-[16px] md:text-[22px] font-bold uppercase">เหตุผลที่ยกเลิก:</span>
+          <span className="text-[16px] md:text-[26px] text-rose-900 font-bold">{String(t.cancelReason)}</span>
         </div>
       </div>
     )}
@@ -3194,9 +3226,10 @@ const renderTracking = () => (
                               {formatDisplayPhone(t.reporterContact)}
                             </a>
                           </div>
-
+                          
+                          {/* 🌟 ฟันธง: ลด mt และ pt ลงเพื่อดูดกรอบขึ้นไปชิดด้านบน */}
                           {t.techName && (
-                            <div className="flex justify-between items-start gap-1 md:gap-6 mt-2 md:mt-6 pt-2 md:pt-6 border-t border-slate-100 -mx-1 sm:mx-0">
+                            <div className="flex justify-between items-start gap-1 md:gap-6 mt-0 md:mt-1 pt-1 md:pt-2 border-t border-slate-100 -mx-1 sm:mx-0">
                               <div className="flex flex-col flex-1 min-w-0 pl-1 md:pl-0">
                                 <span className="text-[13px] md:text-[24px] font-bold text-orange-600 mb-2 md:mb-4">
                                   ผู้รับผิดชอบ
