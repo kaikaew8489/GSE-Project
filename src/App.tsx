@@ -42,6 +42,9 @@ import {
   Users, 
   Landmark, 
   Maximize2,
+  Save,           // 🌟 ฟันธง: พิมพ์เพิ่มคำนี้!
+  ShieldAlert,    // 🌟 ฟันธง: พิมพ์เพิ่มคำนี้!
+  CheckCircle2,   // 🌟 ฟันธง: พิมพ์เพิ่มคำนี้!
 } from 'lucide-react';
 
 
@@ -59,7 +62,11 @@ import {
   updateDoc,
   query,   // <--- เพิ่มตัวนี้
   orderBy, // <--- เพิ่มตัวนี้
-  limit    // <--- เพิ่มตัวนี้
+  limit,    // <--- เพิ่มตัวนี้
+  writeBatch, // 🌟 เพิ่มตัวนี้
+  getDocs,    // 🌟 เพิ่มตัวนี้
+  where,       // 🌟 เพิ่มตัวนี้
+  getDoc      // 🌟 ฟันธง: พิมพ์เพิ่มคำนี้เข้าไปครับ!
 } from 'firebase/firestore';
 
 const firebaseConfig = {
@@ -76,6 +83,246 @@ const appInstance =
   getApps().length === 0 ? initializeApp(firebaseConfig) : getApp();
 const auth = getAuth(appInstance);
 const db = getFirestore(appInstance);
+
+// ==========================================
+// 🌟 ฟันธง: เริ่มต้นโค้ดส่วนหน้าจอจัดตารางเวร SSC
+// ==========================================
+
+function AdminRosterSettings() {
+  const [selectedYear, setSelectedYear] = useState(2026);
+  const [selectedMonth, setSelectedMonth] = useState(5); 
+  const [daysInMonth, setDaysInMonth] = useState([]);
+  const [rosterData, setRosterData] = useState({}); 
+  const [loading, setLoading] = useState(false);
+  const [showSuccess, setShowSuccess] = useState(false);
+
+  useEffect(() => {
+    generateMonthDays();
+    fetchCurrentMonthRoster();
+  }, [selectedYear, selectedMonth]);
+
+  const generateMonthDays = () => {
+    const numDays = new Date(selectedYear, selectedMonth, 0).getDate();
+    const daysArray = [];
+    for (let i = 1; i <= numDays; i++) {
+      const day = String(i).padStart(2, '0');
+      const month = String(selectedMonth).padStart(2, '0');
+      const dateStr = `${selectedYear}-${month}-${day}`;
+      
+      const dayOfWeek = new Date(selectedYear, selectedMonth - 1, i).getDay();
+      const isWeekend = dayOfWeek === 0 || dayOfWeek === 6;
+
+      daysArray.push({ dateStr, dayNum: i, isWeekend });
+    }
+    setDaysInMonth(daysArray);
+  };
+
+  const fetchCurrentMonthRoster = async () => {
+    setLoading(true);
+    try {
+      const monthStr = String(selectedMonth).padStart(2, '0');
+      const prefix = `${selectedYear}-${monthStr}`;
+      
+      const q = query(
+        collection(db, 'rosters'),
+        where('dateStr', '>=', `${prefix}-01`),
+        where('dateStr', '<=', `${prefix}-31`)
+      );
+      
+      const snap = await getDocs(q);
+      const existingData = {};
+      snap.forEach((docSnap) => {
+        existingData[docSnap.id] = docSnap.data();
+      });
+      setRosterData(existingData);
+    } catch (err) {
+      console.error("Error fetching roster: ", err);
+    }
+    setLoading(false);
+  };
+
+  const handleTechChange = (dateStr, techName) => {
+    const matchedTech = technicianList.find(t => t.name === techName);
+    setRosterData(prev => ({
+      ...prev,
+      [dateStr]: {
+        ...prev[dateStr],
+        dateStr,
+        techName,
+        techPhone: matchedTech ? matchedTech.phone : '-',
+      }
+    }));
+  };
+
+  const handleHolidayToggle = (dateStr, isChecked) => {
+    setRosterData(prev => ({
+      ...prev,
+      [dateStr]: {
+        ...prev[dateStr],
+        dateStr,
+        isHoliday: isChecked,
+        holidayName: isChecked ? prev[dateStr]?.holidayName || 'วันหยุดนักขัตฤกษ์/ครม.' : '',
+      }
+    }));
+  };
+
+  const handleHolidayNameChange = (dateStr, name) => {
+    setRosterData(prev => ({
+      ...prev,
+      [dateStr]: {
+        ...prev[dateStr],
+        holidayName: name
+      }
+    }));
+  };
+
+  const handleSaveAll = async () => {
+    setLoading(true);
+    try {
+      const batch = writeBatch(db);
+      Object.keys(rosterData).forEach((dateKey) => {
+        const docRef = doc(db, 'rosters', dateKey);
+        if (rosterData[dateKey].techName || rosterData[dateKey].isHoliday) {
+          batch.set(docRef, rosterData[dateKey], { merge: true });
+        }
+      });
+      await batch.commit();
+      setShowSuccess(true);
+      setTimeout(() => setShowSuccess(false), 3000);
+    } catch (err) {
+      alert("เกิดข้อผิดพลาดในการบันทึก: " + err.message);
+    }
+    setLoading(false);
+  };
+
+  return (
+    <div className="min-h-screen bg-slate-950 text-slate-100 p-3 md:p-8 font-sans">
+      <div className="max-w-5xl mx-auto bg-slate-900/60 backdrop-blur-xl rounded-[2rem] border-2 border-solid border-cyan-500/20 p-4 md:p-8 shadow-2xl">
+        <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 border-b border-solid border-slate-800 pb-6 mb-6">
+          <div className="flex items-center gap-3">
+            <div className="bg-gradient-to-br from-cyan-500 to-blue-600 p-3 rounded-2xl shadow-lg">
+              <Calendar className="w-6 h-6 text-white" />
+            </div>
+            <div>
+              <h1 className="text-xl md:text-3xl font-black text-cyan-400">จัดตารางเวรปฏิบัติงาน SSC</h1>
+              <p className="text-xs md:text-sm font-bold text-slate-400 mt-0.5">ระบบจัดการและบันทึกเวรวันหยุดประจำ ฝวด. รายเดือน</p>
+            </div>
+          </div>
+          <div className="flex gap-2 w-full md:w-auto">
+            <select 
+              value={selectedMonth} 
+              onChange={(e) => setSelectedMonth(Number(e.target.value))}
+              className="flex-1 md:flex-none bg-slate-800 text-cyan-300 font-bold px-4 py-2.5 rounded-xl border border-solid border-cyan-500/30 text-[14px]"
+            >
+              {['มกราคม', 'กุมภาพันธ์', 'มีนาคม', 'เมษายน', 'พฤษภาคม', 'มิถุนายน', 'กรกฎาคม', 'สิงหาคม', 'กันยายน', 'ตุลาคม', 'พฤศจิกายน', 'ธันวาคม'].map((m, idx) => (
+                <option key={idx} value={idx + 1}>{m}</option>
+              ))}
+            </select>
+            <select 
+              value={selectedYear} 
+              onChange={(e) => setSelectedYear(Number(e.target.value))}
+              className="bg-slate-800 text-cyan-300 font-bold px-4 py-2.5 rounded-xl border border-solid border-cyan-500/30 text-[14px]"
+            >
+              {[2026, 2027, 2028].map(y => (
+                <option key={y} value={y}>พ.ศ. {y + 543}</option>
+              ))}
+            </select>
+          </div>
+        </div>
+        <div className="overflow-hidden rounded-2xl border border-solid border-slate-800 mb-6 bg-slate-950/40">
+          <div className="max-h-[60vh] overflow-y-auto [&::-webkit-scrollbar]:w-2 [&::-webkit-scrollbar-thumb]:bg-slate-800 [&::-webkit-scrollbar-thumb]:rounded-full">
+            <table className="w-full text-left border-collapse">
+              <thead>
+                <tr className="bg-slate-900 text-slate-400 text-[12px] md:text-[14px] font-black uppercase tracking-wider sticky top-0 z-10 border-b border-solid border-slate-800">
+                  <th className="py-3.5 px-4 text-center w-16">วันที่</th>
+                  <th className="py-3.5 px-4">เจ้าหน้าที่อยู่เวรประจำวันหยุด (SSC)</th>
+                  <th className="py-3.5 px-4 w-44 text-center">ประเภทวันหยุด</th>
+                  <th className="py-3.5 px-4 w-52">ระบุชื่อวันหยุดพิเศษ (ถ้ามี)</th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-solid divide-slate-800/60 text-[13px] md:text-[16px]">
+                {daysInMonth.map((d) => {
+                  const currentInfo = rosterData[d.dateStr] || {};
+                  const isRowHighlighted = d.isWeekend || currentInfo.isHoliday;
+                  return (
+                    <tr key={d.dateStr} className={`transition-colors hover:bg-slate-800/30 ${isRowHighlighted ? 'bg-purple-950/10' : ''}`}>
+                      <td className="py-3 px-4 text-center font-mono font-black">
+                        <span className={`inline-block w-8 py-1 rounded-lg ${d.isWeekend ? 'bg-purple-500/20 text-purple-400 border border-solid border-purple-500/30' : 'bg-slate-800 text-slate-300'}`}>
+                          {d.dayNum}
+                        </span>
+                      </td>
+                      <td className="py-3 px-4">
+                        <select
+                          value={currentInfo.techName || ''}
+                          onChange={(e) => handleTechChange(d.dateStr, e.target.value)}
+                          className={`w-full max-w-md bg-slate-900 font-bold px-3 py-2 rounded-lg border border-solid transition-all ${currentInfo.techName ? 'text-orange-400 border-orange-500/50 shadow-[0_0_10px_rgba(249,115,22,0.1)]' : 'text-slate-500 border-slate-800'}`}
+                        >
+                          <option value="">-- ยังไม่มีเจ้าหน้าที่เวร --</option>
+                          {technicianList.map((t, tIdx) => (
+                            <option key={tIdx} value={t.name}>{t.name} ({t.phone})</option>
+                          ))}
+                        </select>
+                      </td>
+                      <td className="py-3 px-4 text-center">
+                        <label className="inline-flex items-center gap-2 cursor-pointer select-none">
+                          <input 
+                            type="checkbox"
+                            checked={currentInfo.isHoliday || d.isWeekend}
+                            disabled={d.isWeekend}
+                            onChange={(e) => handleHolidayToggle(d.dateStr, e.target.checked)}
+                            className="w-4 h-4 rounded border-slate-700 text-purple-600 bg-slate-900 focus:ring-purple-500 accent-purple-500"
+                          />
+                          <span className={`font-bold text-[12px] md:text-[14px] ${d.isWeekend ? 'text-purple-400' : currentInfo.isHoliday ? 'text-amber-500 animate-pulse' : 'text-slate-400'}`}>
+                            {d.isWeekend ? 'วันหยุดสัปดาห์' : 'วันหยุดพิเศษ'}
+                          </span>
+                        </label>
+                      </td>
+                      <td className="py-3 px-4">
+                        <input 
+                          type="text"
+                          disabled={!currentInfo.isHoliday && !d.isWeekend}
+                          value={d.isWeekend ? 'วันหยุดประจำสัปดาห์' : currentInfo.holidayName || ''}
+                          onChange={(e) => handleHolidayNameChange(d.dateStr, e.target.value)}
+                          placeholder="เช่น วันสงกรานต์, มติ ครม."
+                          className="w-full bg-slate-900 text-slate-300 px-3 py-2 rounded-lg border border-solid border-slate-800 focus:border-purple-500 text-[13px] font-bold disabled:opacity-30 disabled:bg-slate-950"
+                        />
+                      </td>
+                    </tr>
+                  );
+                })}
+              </tbody>
+            </table>
+          </div>
+        </div>
+        <div className="flex flex-col sm:flex-row justify-between items-center gap-4 border-t border-solid border-slate-800 pt-6">
+          <div className="flex items-center gap-2 text-amber-500 text-[12px] md:text-[14px] font-bold">
+            <ShieldAlert className="w-4 h-4 shrink-0" />
+            <span>ฟันธง: การแก้ไขตารางเวรในหน้านี้ จะมีผลผูกมัดกับใบแจ้งซ่อมทันทีเมื่อมีการกดตั๋วใหม่</span>
+          </div>
+          <div className="flex items-center gap-4 w-full sm:w-auto">
+            {showSuccess && (
+              <span className="flex items-center gap-1.5 text-emerald-400 font-bold text-[14px] animate-bounce">
+                <CheckCircle2 className="w-4 h-4" /> บันทึกตารางเวรสำเร็จ!
+              </span>
+            )}
+            <button
+              onClick={handleSaveAll}
+              disabled={loading}
+              className="w-full sm:w-auto bg-gradient-to-r from-cyan-500 to-blue-600 text-white font-black px-8 py-3.5 rounded-xl shadow-lg shadow-cyan-500/20 active:scale-95 transition-all text-[15px] flex items-center justify-center gap-2 hover:brightness-110 disabled:opacity-50"
+            >
+              <Save className="w-5 h-5" />
+              {loading ? 'กำลังบันทึกข้อมูล...' : 'บันทึกตารางเวรประจำเดือน'}
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+// ==========================================
+// 🌟 ฟันธง: สิ้นสุดโค้ดส่วนหน้าจอจัดตารางเวร SSC 
+// (โค้ดของท่านหัวหน้าเช่น export default function App() หรือ MainApp จะอยู่ต่อจากบรรทัดนี้ไปครับ)
+// ==========================================
 
 // ==========================================
 // 🌟 2. ข้อมูลระบบ (System Data)
@@ -608,9 +855,13 @@ function MainApp({ onGoHome, initialRole }) {
   const [trackCalYear, setTrackCalYear] = useState(new Date().getFullYear());
 
   const [hoveredTab, setHoveredTab] = useState(null);
+
   // ... โค้ดเดิมของท่าน ...
   const [sysTime, setSysTime] = useState(new Date());
   // ... โค้ดเดิมของท่าน ...
+
+  //const sysTime = new Date('2026-05-23T20:00:00');
+  
   // 🌟 ฟันธง: ล็อกโหมดตามที่กดมาจากหน้า Landing Page
   const [currentUserRole, setCurrentUserRole] = useState(
     initialRole || 'reporter'
@@ -620,6 +871,9 @@ function MainApp({ onGoHome, initialRole }) {
   const [tickets, setTickets] = useState([]);
   const [isDataLoading, setIsDataLoading] = useState(true);
   const [authErrorMsg, setAuthErrorMsg] = useState('');
+
+  // 🌟 ตัวควบคุมเปิด/ปิดหน้าจอ Admin Roster
+  const [showAdminRoster, setShowAdminRoster] = useState(false);
 
   // --- Auth Setup ---
   useEffect(() => {
@@ -685,6 +939,18 @@ function MainApp({ onGoHome, initialRole }) {
   useEffect(() => {
     const timer = setInterval(() => setSysTime(new Date()), 1000);
     return () => clearInterval(timer);
+  }, []);
+
+  // 🌟 ฟันธง: สมองกลดึงรายชื่อเวรจากฐานข้อมูล rosters มาเก็บไว้เตรียมใช้งาน
+  const [allRosters, setAllRosters] = useState([]);
+  
+  useEffect(() => {
+    const q = collection(db, 'rosters');
+    const unsub = onSnapshot(q, (snap) => {
+      const data = snap.docs.map(doc => ({ ...doc.data(), date: doc.id }));
+      setAllRosters(data);
+    });
+    return () => unsub();
   }, []);
 
   // --- Form States ---
@@ -934,16 +1200,45 @@ const toggleTag = (tag) => {
     setIsSubmitting(true);
     const newId = getNextReqId(tickets);
 
-    // 🌟 ฟันธง: สมองกล Auto-Assign ทำงานตรงนี้! ดึงช่างจากหมวดหมู่
+    // 🌟 1. ดึงช่างรับผิดชอบหลัก (จากกลุ่มภารกิจ เหมือนเดิม)
     const selectedCategory = formData.equipmentCategory; 
     const autoAssignedTech = techMapping[selectedCategory];
 
+    // 🌟 2. สมองกลดึงเวร SSC อัตโนมัติ (ทำงานเฉพาะตอนติ๊กแจ้งนอกเวลา)
+    let currentSscTechName = null;
+    let currentSscTechPhone = null;
+
+    if (formData.isSsc) {
+      try {
+        const today = new Date();
+        const todayStr = `${today.getFullYear()}-${String(today.getMonth() + 1).padStart(2, '0')}-${String(today.getDate()).padStart(2, '0')}`;
+        
+        // วิ่งไปค้นหาเวร SSC ของวันนี้ในฐานข้อมูล rosters
+        const rosterRef = doc(db, 'rosters', todayStr);
+        const rosterSnap = await getDoc(rosterRef);
+        
+        if (rosterSnap.exists() && rosterSnap.data().techName) {
+          currentSscTechName = rosterSnap.data().techName;
+          currentSscTechPhone = rosterSnap.data().techPhone;
+        } else {
+          currentSscTechName = "ยังไม่ระบุเวร SSC";
+          currentSscTechPhone = "-";
+        }
+      } catch (error) {
+        console.error("ดึงข้อมูลเวร SSC ไม่สำเร็จ:", error);
+      }
+    }
+
+    // 🌟 3. ประกอบร่างตั๋วแจ้งซ่อม (ฝังชื่อช่าง 2 คนลงไปเลย)
     const newTicket = {
       id: newId,
       ...formData,
-      // 🌟 ยัดชื่อช่างและเบอร์โทรลงใบแจ้งซ่อมทันที!
-      techName: autoAssignedTech ? autoAssignedTech.name : 'รอเจ้าหน้าที่รับงาน (เวร SSC)',
+      // เก็บข้อมูลช่างหลัก
+      techName: autoAssignedTech ? autoAssignedTech.name : 'รอเจ้าหน้าที่รับงาน',
       techPhone: autoAssignedTech ? autoAssignedTech.phone : '-',
+      // เก็บข้อมูลเวร SSC (ถ้าไม่ได้ติ๊กนอกเวลา ค่านี้จะเป็น null)
+      sscTechName: currentSscTechName,
+      sscTechPhone: currentSscTechPhone,
       status: 'pending',
       isOutOfHours: formData.isSsc,
       date: new Date().toISOString(),
@@ -1050,7 +1345,12 @@ const toggleTag = (tag) => {
         completedAt: new Date().toISOString(),
       };
     } else if (type === 'ssc') {
-      updates = { sscNote: actionText };
+      updates = { 
+        sscNote: actionText,
+        status: 'pending', // 🌟 ฟันธง: เด้งสถานะกลับเป็น "รอดำเนินการ" เพื่อให้ช่างหลักมารับไม้ต่อ
+        // 🌟 ยัดประวัติลง Timeline ด้วยว่าเวร SSC ทำอะไรไปบ้าง
+        historyLog: [...currentLog, { type: 'hold', reason: `[เวร SSC แก้ไขเบื้องต้น] ${actionText}`, timestamp: new Date().toISOString() }]
+      };
     } else if (type === 'cancel') {
       updates = {
         status: 'cancelled',
@@ -1341,9 +1641,20 @@ const executeRatingSubmit = async () => {
     return (
       <div className="px-5 pb-5 pt-2 space-y-5 animate-in fade-in duration-500 pb-32">
         
-        {/* 📅 1. แถบวันที่แบบยาว */}
-        <div className="bg-slate-800/60 backdrop-blur-xl border-2 border-solid border-orange-500/80 rounded-[1rem] py-4 md:py-5 md:text-[18px] text-center shadow-[0_0_20px_rgba(249,115,22,0.4)] font-sans tracking-widest text-white font-bold">
-          {ThaiDateFormatter(sysTime)}
+
+        {/* 📅 1. แถบวันที่แบบยาว (อัปเกรด: เพิ่มปุ่มฟันเฟืองทางลับสำหรับแอดมินด้านขวา) */}
+        <div className="bg-slate-800/60 backdrop-blur-xl border-2 border-solid border-orange-500/80 rounded-[1rem] py-4 md:py-5 md:text-[18px] flex items-center justify-between px-4 shadow-[0_0_20px_rgba(249,115,22,0.4)] font-sans tracking-widest text-white font-bold relative">
+          <div className="w-10"></div> {/* กล่องดัมมี่ เพื่อดันให้วันที่อยู่ตรงกลางเป๊ะๆ */}
+          <div className="flex-1 text-center">{ThaiDateFormatter(sysTime)}</div>
+          
+          {/* 🌟 ฟันธง: ปุ่มทางลับแอดมิน */}
+          <button 
+            onClick={() => setShowAdminRoster(true)}
+            className="w-10 h-10 flex items-center justify-center bg-slate-700/50 hover:bg-cyan-500/30 text-slate-400 hover:text-cyan-400 rounded-full border border-slate-600 hover:border-cyan-400 transition-all active:scale-90"
+            title="ตั้งค่าเวร SSC ประจำวัน"
+          >
+            <Settings size={20} className="md:w-6 md:h-6" />
+          </button>
         </div>
 
        {/* 🔘 2. สวิตช์เลือกกรอบเวลา (ปรับเป็น ธีม Sci-Fi Cyan & Orange พรีเมียม 1,000,000%) */}
@@ -1812,7 +2123,20 @@ const executeRatingSubmit = async () => {
                       <AlertCircle className="w-[15px] h-[15px] md:w-5 md:h-5 text-orange-500 shrink-0" />{' '}
                       {t.description}
                     </p>
+
+                    {/* 🌟 ฟันธง: แทรกชื่อเจ้าหน้าที่เวร SSC ตรงนี้! */}
+                    {t.sscTechName && (
+                      <div className="bg-purple-50 border border-purple-200 p-3 rounded-lg mt-3">
+                        <p className="text-purple-700 font-bold text-[12px] flex items-center gap-2">
+                          <AlertTriangle size={14} /> เจ้าหน้าที่เวร SSC:
+                        </p>
+                        <p className="text-purple-900 font-bold text-[14px] mt-0.5">
+                          {t.sscTechName}
+                        </p>
+                      </div>
+                    )}
                   </div>
+
                   <ChevronRight className="w-[18px] h-[18px] md:w-6 md:h-6 text-slate-300 shrink-0 ml-2 md:ml-4" />
                 </div>
 
@@ -2607,7 +2931,7 @@ const renderTracking = () => (
                         return (
                           <button 
                             key={m} 
-                            onClick={() => { setTrackMonth(monthValue); setTrackTimeframe('custom_month'); setShowTrackMonthPicker(false); }}
+                            onClick={() => { setTrackMonth(monthValue); setTrackTimeframe('custom_date'); setShowTrackMonthPicker(false); }}
                             className={`py-3.5 md:py-6 rounded-xl md:rounded-2xl text-[15px] md:text-[24px] font-black transition-all duration-300 active:scale-95 ${
                               isSelected 
                                 ? 'bg-gradient-to-r from-cyan-600 to-blue-600 text-white shadow-[0_0_20px_rgba(6,182,212,0.9)] border-[2px] border-solid border-cyan-300 scale-110 z-10' 
@@ -3290,10 +3614,10 @@ const renderTracking = () => (
                                     type: 'ssc',
                                   })
                                 }
-                                className="w-full bg-gradient-to-r from-orange-400 to-orange-500 text-white border border-orange-300 font-bold py-3.5 md:py-6 rounded-xl md:rounded-3xl shadow-[0_0_15px_rgba(249,115,22,0.4)] hover:shadow-[0_0_25px_rgba(249,115,22,0.6)] active:scale-95 transition-all text-sm md:text-[26px]"
-                              >
-                                บันทึกเวร SSC
-                              </button>
+                                className="w-full bg-gradient-to-r from-orange-400 to-orange-500 text-white border border-orange-300 font-bold py-3.5 md:py-6 rounded-xl md:rounded-3xl shadow-[0_0_15px_rgba(249,115,22,0.4)] hover:shadow-[0_0_25px_rgba(249,115,22,0.6)] active:scale-95 transition-all text-[15px] md:text-[26px]"
+                            >
+                              แก้ไขเบื้องต้น (ส่งต่อช่างหลัก)
+                            </button>
                             )}
 
                           {t.status === 'acknowledged' && (
@@ -3883,6 +4207,28 @@ const renderTracking = () => (
           </div>
         );
       })()}
+
+      {/* 🌟 ฟันธง: ย้ายหน้าต่างจัดเวรมาไว้ตรงนี้ เพื่อให้กางบังมิดทั้งจอ 100% ทะลุเมนู */}
+      {showAdminRoster && (
+          <div className="fixed inset-0 z-[99999] bg-slate-950 overflow-y-auto pb-20">
+            {/* ปุ่มปิดหน้าแอดมิน */}
+            <div className="sticky top-0 right-0 p-4 md:p-6 flex justify-end z-[100] bg-gradient-to-b from-slate-950/90 to-transparent pointer-events-none">
+              <button 
+                onClick={() => setShowAdminRoster(false)}
+                className="pointer-events-auto bg-rose-600 text-white flex items-center gap-2 px-6 py-3 rounded-full font-black text-[14px] md:text-xl shadow-[0_0_20px_rgba(225,29,72,0.8)] hover:bg-rose-500 active:scale-95 transition-all"
+              >
+                <XCircle size={24} className="md:w-6 md:h-6" /> ปิดหน้าตั้งค่าเวร
+              </button>
+            </div>
+            {/* ดึงหน้าจอแอดมินมาแสดง */}
+            <div className="-mt-16 md:-mt-20">
+               <AdminRosterSettings />
+            </div>
+          </div>
+        )}
+
+        {/* 🌟 ฟันธง: เรียกใช้ฟอนต์ Sarabun เรียบร้อย สะอาดตา */}
+        <SarabunFontEmbed />
 
    {/* 🌟 ฟันธง: เรียกใช้ฟอนต์ Sarabun เรียบร้อย สะอาดตา */}
    <SarabunFontEmbed />
