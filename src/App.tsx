@@ -3635,7 +3635,7 @@ const renderTracking = () => (
                                   type: 'accept',
                                 })
                               }
-                              className="w-full bg-gradient-to-r from-emerald-400 to-emerald-800 text-white border-2 border-solid border-orange-500 font-bold py-4 md:py-8 rounded-xl md:rounded-[2rem] shadow-[0_0_15px_rgba(16,185,129,0.4)] active:scale-95 transition-all text-[22px] md:text-[34px] hover:shadow-[0_0_25px_rgba(16,185,129,0.8)] hover:brightness-110 hover:-translate-y-1"
+                              className="w-full bg-gradient-to-r from-emerald-400 to-emerald-800 text-white border-2 border-solid border-orange-500 font-bold py-4 md:py-8 rounded-xl md:rounded-[2rem] shadow-[0_0_15px_rgba(16,185,129,0.4)] active:scale-95 transition-all text-[26px] md:text-[40px] hover:shadow-[0_0_25px_rgba(16,185,129,0.8)] hover:brightness-110 hover:-translate-y-1"
                             >
                               รับงานซ่อม
                             </button>
@@ -3691,7 +3691,7 @@ const renderTracking = () => (
                                     });
                                   }
                                 }}
-                                className="flex-1 bg-gradient-to-r from-orange-400 to-orange-500 text-white border border-orange-300 font-bold py-3.5 md:py-6 rounded-xl md:rounded-3xl shadow-[0_0_15px_rgba(249,115,22,0.4)] active:scale-95 transition-all text-[15px] md:text-[26px] hover:shadow-[0_0_25px_rgba(249,115,22,0.8)] hover:brightness-110 hover:-translate-y-1"
+                                className="flex-1 bg-gradient-to-r from-orange-400 to-orange-500 text-white border border-orange-300 font-bold py-3.5 md:py-6 rounded-xl md:rounded-3xl shadow-[0_0_15px_rgba(249,115,22,0.4)] active:scale-95 transition-all text-[18px] md:text-[30px] hover:shadow-[0_0_25px_rgba(249,115,22,0.8)] hover:brightness-110 hover:-translate-y-1"
                               >
                                 {t.status === 'on_hold' ? 'ดำเนินการต่อ' : 'แจ้งขัดข้อง'}
                               </button>
