@@ -2910,7 +2910,8 @@ const renderTracking = () => (
                   </div>
 
                   {/* 🌟 โซนกล่องสรุป SLA */}
-                  {t.status === 'completed' || t.status === 'verified' ? (
+                  {/* 🌟 ฟันธง: เพิ่มเงื่อนไข currentUserRole !== 'reporter' พ่วงเข้าไปข้างหน้าสุด */}
+                  {currentUserRole !== 'reporter' && (t.status === 'completed' || t.status === 'verified') ? (
                           <div className="bg-emerald-50 border-2 border-solid border-emerald-500/40 rounded-2xl md:rounded-[1rem] p-4 md:p-8 mt-2 md:mt-4 mb-4 md:mb-8 w-auto mx-5 md:mx-10 shadow-sm">
                             {(() => {
                               const startMs = new Date(t.date).getTime();
