@@ -3065,8 +3065,8 @@ const renderTracking = () => (
             const formattedTime = `${pad(hours)}:${pad(minutes)}:${pad(seconds)}`;
 
             return (
-              // 🎯 จุดที่แก้ไข: เติม rounded-2xl, shadow, -mx-4 และจัด items-center (เก็บสี/ขอบเดิมของท่านไว้ครบ)
-              <div key={index} className={`flex justify-between items-center p-4 md:px-6 -mx-2 md:-mx-4 rounded-2xl md:rounded-[1rem] shadow-sm hover:shadow-md transition-shadow border-2 border-solid border-slate-800 ${isHold ? 'bg-purple-100 border-l-[6px] border-l-purple-500' : 'bg-orange-100 border-l-[6px] border-l-orange-500'}`}>
+              // 🌟 ฟันธงจุดที่ 1 (กล่องแม่): เปลี่ยนเป็น flex-col md:flex-row เพื่อให้มือถือเรียงบนล่าง แต่คอมยังเรียงซ้ายขวา
+              <div key={index} className={`flex flex-col md:flex-row md:items-center justify-between gap-3 md:gap-0 p-4 md:px-6 -mx-2 md:-mx-4 rounded-2xl md:rounded-[1rem] shadow-sm hover:shadow-md transition-shadow border-2 border-solid border-slate-800 ${isHold ? 'bg-purple-100 border-l-[6px] border-l-purple-500' : 'bg-orange-100 border-l-[6px] border-l-orange-500'}`}>
                 
                 {/* 🎯 ด้านซ้าย: ชื่อเหตุการณ์ */}
                 <div className="flex gap-3 md:gap-4 w-full">
@@ -3077,12 +3077,11 @@ const renderTracking = () => (
                   </div>
                 </div>
                 
-                {/* 🎯 ด้านขวา: แสดงชื่อครั้งที่ + ระยะเวลา HH:MM:SS */}
-                <div className="flex flex-col items-end shrink-0 ml-2">
+                {/* 🌟 ฟันธงจุดที่ 2 (กล่องเวลาด้านขวา): เติม self-end เพื่อให้มันผลักตัวเองไปชิดขวาเสมอเวลากลายเป็นจอมือถือ */}
+                <div className="flex flex-col items-end self-end md:self-auto shrink-0 ml-0 md:ml-2">
                    {isLast && isOngoing ? (
                      <>
                        <span className="text-[13px] md:text-[16px] font-bold mb-0.5 text-slate-800">สถานะปัจจุบัน</span>
-                       {/* แก้ไขพิมพ์ผิด bprder-2 เป็น border-2 ให้ครับ */}
                        <span className={`px-3 py-1 rounded-md text-[13px] md:text-[16px] font-bold animate-pulse whitespace-nowrap shadow-sm border-2 border-solid ${isHold ? 'bg-purple-100 text-purple-700 border-purple-500' : 'bg-orange-100 text-orange-700 border-orange-500'}`}>
                          {isHold ? 'รออะไหล่' : 'กำลังซ่อม'}
                        </span>
@@ -3092,7 +3091,6 @@ const renderTracking = () => (
                        <span className={`text-[13px] md:text-[16px] font-bold mb-0.5 ${isHold ? 'text-purple-600' : 'text-orange-600'}`}>
                          {isHold ? `ระยะเวลาที่หยุด (ครั้งที่ ${holdCounter})` : `ระยะเวลาที่ซ่อม (ครั้งที่ ${resumeCounter})`}
                        </span>
-                       {/* 🌟 เก็บ border-indigo-800 และสีของท่านไว้ครบถ้วน */}
                        <span className="text-[13px] md:text-[16px] font-mono font-black text-slate-700 bg-white px-3 py-0.5 rounded border-2 border-solid border-indigo-800 whitespace-nowrap shadow-sm tracking-wider">
                          {formattedTime}
                        </span>
