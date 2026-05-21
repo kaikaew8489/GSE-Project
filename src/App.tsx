@@ -3078,20 +3078,23 @@ const renderTracking = () => (
                 </div>
                 
                 {/* 🌟 ฟันธงจุดที่ 2 (กล่องเวลาด้านขวา): เติม self-end เพื่อให้มันผลักตัวเองไปชิดขวาเสมอเวลากลายเป็นจอมือถือ */}
-                <div className="flex flex-col items-end self-end md:self-auto shrink-0 ml-0 md:ml-2">
+                {/* 🌟 ฟันธงจุดเสริมความเนียน (กล่องเวลาด้านขวา) */}
+                <div className="flex flex-col items-end self-end md:self-auto shrink-0 ml-0 md:ml-2 mt-1 md:mt-0">
                    {isLast && isOngoing ? (
                      <>
-                       <span className="text-[13px] md:text-[16px] font-bold mb-0.5 text-slate-800">สถานะปัจจุบัน</span>
-                       <span className={`px-3 py-1 rounded-md text-[13px] md:text-[16px] font-bold animate-pulse whitespace-nowrap shadow-sm border-2 border-solid ${isHold ? 'bg-purple-100 text-purple-700 border-purple-500' : 'bg-orange-100 text-orange-700 border-orange-500'}`}>
+                       {/* 🎯 ปรับ text-[13px] เป็น text-[11px] เฉพาะจอมือถือ และหรี่สีเป็น slate-500 */}
+                       <span className="text-[11px] md:text-[16px] font-bold mb-0.5 md:mb-1 text-slate-500 md:text-slate-800">สถานะปัจจุบัน</span>
+                       <span className={`px-2 md:px-3 py-0.5 md:py-1 rounded-md text-[12px] md:text-[16px] font-bold animate-pulse whitespace-nowrap shadow-sm border md:border-2 border-solid ${isHold ? 'bg-purple-100 text-purple-700 border-purple-500' : 'bg-orange-100 text-orange-700 border-orange-500'}`}>
                          {isHold ? 'รออะไหล่' : 'กำลังซ่อม'}
                        </span>
                      </>
                    ) : (
                      <>
-                       <span className={`text-[13px] md:text-[16px] font-bold mb-0.5 ${isHold ? 'text-purple-600' : 'text-orange-600'}`}>
+                       {/* 🎯 ปรับ text-[13px] เป็น text-[11px] เฉพาะจอมือถือ */}
+                       <span className={`text-[11px] md:text-[16px] font-bold mb-0.5 md:mb-1 opacity-80 md:opacity-100 ${isHold ? 'text-purple-600' : 'text-orange-600'}`}>
                          {isHold ? `ระยะเวลาที่หยุด (ครั้งที่ ${holdCounter})` : `ระยะเวลาที่ซ่อม (ครั้งที่ ${resumeCounter})`}
                        </span>
-                       <span className="text-[13px] md:text-[16px] font-mono font-black text-slate-700 bg-white px-3 py-0.5 rounded border-2 border-solid border-indigo-800 whitespace-nowrap shadow-sm tracking-wider">
+                       <span className="text-[12px] md:text-[16px] font-mono font-black text-slate-700 bg-white px-2 md:px-3 py-0.5 rounded border md:border-2 border-solid border-indigo-800 whitespace-nowrap shadow-sm tracking-wider">
                          {formattedTime}
                        </span>
                      </>
