@@ -3213,7 +3213,7 @@ const renderTracking = () => (
                                   {String(t.reporter)}
                                 </span>
                               </span>
-                              <span className="text-[13px] md:text-[24px] font-bold text-blue-600 mt-1 md:mt-3 pl-1 md:pl-2">
+                              <span className="text-[12px] md:text-[24px] font-bold text-blue-600 mt-1 md:mt-3 pl-1 md:pl-2">
                                 {formatDateTimeString(t.date)}
                               </span>
                             </div>
@@ -3308,16 +3308,16 @@ const renderTracking = () => (
                             </button>
                           )}
 
-                          {(t.status === 'in_progress' || t.status === 'on_hold') && (
+                         {/* 🌟 โซนปุ่มดำเนินการต่อ / แจ้งขัดข้อง / ปิดงานซ่อม */}
+                         {(t.status === 'in_progress' || t.status === 'on_hold') && (
                             <div className="flex gap-2.5 md:gap-6">
                               <button
                                 onClick={() => {
                                   if (t.status === 'on_hold') {
-                                    // 🌟 ฟันธงจุดที่ 2: เปลี่ยนจากการคำนวณและอัปเดตเงียบๆ เป็นการเปิด Popup เหมือนตอนแจ้งขัดข้อง
                                     setActionModal({
                                       isOpen: true,
                                       ticketId: t.id,
-                                      type: 'resume', // ส่งรหัส type เป็น resume ไปให้หน้าต่าง Popup ทำงาน
+                                      type: 'resume', 
                                     });
                                   } else {
                                     setActionModal({
@@ -3331,20 +3331,24 @@ const renderTracking = () => (
                               >
                                 {t.status === 'on_hold' ? 'ดำเนินการต่อ' : 'แจ้งขัดข้อง'}
                               </button>
-                              <button
-                                onClick={() =>
-                                  setActionModal({
-                                    isOpen: true,
-                                    ticketId: t.id,
-                                    type: 'finish',
-                                  })
-                                }
-                                className="flex-[1.5] bg-gradient-to-r from-emerald-500 to-emerald-600 text-white border border-emerald-400 font-bold py-3.5 md:py-6 rounded-xl md:rounded-3xl shadow-[0_0_15px_rgba(16,185,129,0.4)] active:scale-95 transition-all text-[15px] md:text-[26px] hover:shadow-[0_0_25px_rgba(16,185,129,0.8)] hover:brightness-110 hover:-translate-y-1"
-                              >
-                                ปิดงานซ่อม
+                              
+                              {/* 🌟 ฟันธง: ซ่อนปุ่มปิดงาน ถ้าสถานะคือ on_hold */}
+                              {t.status !== 'on_hold' && (
+                                <button
+                                  onClick={() =>
+                                    setActionModal({
+                                      isOpen: true,
+                                      ticketId: t.id,
+                                      type: 'finish',
+                                    })
+                                  }
+                                  className="flex-[1.5] bg-gradient-to-r from-emerald-500 to-emerald-600 text-white border border-emerald-400 font-bold py-3.5 md:py-6 rounded-xl md:rounded-3xl shadow-[0_0_15px_rgba(16,185,129,0.4)] active:scale-95 transition-all text-[15px] md:text-[26px] hover:shadow-[0_0_25px_rgba(16,185,129,0.8)] hover:brightness-110 hover:-translate-y-1"
+                                >
+                                  ปิดงานซ่อม
                                 </button>
+                              )}
                             </div>
-                          )}
+                          )} {/* <--- 🌟 ฟันธง! บรรทัด 3348 ต้องเป็นตัวนี้ครับ ถึงจะสมบูรณ์ 100% */}
 
                           {t.status === 'completed' && (
                             <button
