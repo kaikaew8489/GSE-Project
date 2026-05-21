@@ -2782,7 +2782,7 @@ const renderTracking = () => (
 
                     {/* 🌟 โซนนาฬิกาจับเวลา (ฟันธง: โฉมใหม่กรอบโค้งมน + ไอคอนนาฬิกาด้านใน) */}
                   {!isCancelled && (
-                    <div className="w-full mt-5 md:mt-8 border-[1.5px] border-2 border-solid border-orange-600 rounded-2xl md:rounded-[1rem] p-5 md:p-8 bg-orange-200/30 shadow-sm flex flex-col gap-4 md:gap-6 relative">
+                    <div className="w-full mt-2 md:mt-4 border-[1.5px] border-2 border-solid border-orange-600 rounded-2xl md:rounded-[1rem] p-5 md:p-8 bg-orange-200/30 shadow-sm flex flex-col gap-4 md:gap-6 relative">
                       
                       {/* 1. เวลารอดำเนินการ */}
                       <div className="flex justify-between items-center pl-1 md:pl-4">
@@ -2879,7 +2879,7 @@ const renderTracking = () => (
 
                   {/* 🌟 โซนกล่องสรุป SLA */}
                   {t.status === 'completed' || t.status === 'verified' ? (
-                          <div className="bg-emerald-50 border-2 border-emerald-500/30 rounded-2xl md:rounded-[2rem] p-4 md:p-8 mt-4 md:mt-8 mb-4 md:mb-8 mx-0 md:mx-4 shadow-sm">
+                          <div className="bg-emerald-50 border-2 border-solid border-emerald-500/40 rounded-2xl md:rounded-[1rem] p-4 md:p-8 mt-2 md:mt-4 mb-4 md:mb-8 w-auto mx-5 md:mx-10 shadow-sm">
                             {(() => {
                               const startMs = new Date(t.date).getTime();
                               const endMs = new Date(t.completedAt).getTime();
@@ -2911,7 +2911,7 @@ const renderTracking = () => (
                                       <span className="text-[14px] md:text-[24px] font-black text-orange-500 uppercase tracking-widest">สรุป SLA</span>
                                     </div>
                                     
-                                    <div className={`px-3 py-1.5 md:px-6 md:py-3 rounded-full text-[12px] md:text-[20px] font-black tracking-widest flex items-center gap-1.5 md:gap-3 border-2 shadow-lg -mt-1 ${
+                                    <div className={`px-3 py-1.5 md:px-6 md:py-3 rounded-2xl text-[12px] md:text-[20px] font-black tracking-widest flex items-center gap-1.5 md:gap-3 border-2 shadow-lg -mt-1 ${
                                       isSLAPassed 
                                         ? 'bg-gradient-to-r from-emerald-500 to-teal-500 text-white border-emerald-300 shadow-emerald-500/40' 
                                         : 'bg-gradient-to-r from-rose-500 to-red-500 text-white border-rose-300 shadow-rose-500/40'
@@ -2969,7 +2969,7 @@ const renderTracking = () => (
                         ) : null}
 
                   {/* 🌟 โซนรายละเอียดข้อความและการติดต่อ (อัปเกรด PC ไซส์เบิ้ม) */}
-<div className="p-5 md:p-10 space-y-4 md:space-y-8">
+  <div className="px-5 md:px-10 pb-5 md:pb-10 pt-0 md:pt-0 space-y-4 md:space-y-8 -mt-2 md:-mt-4">
   {/* 🌟 ฟันธงสเต็ป 1: เคลียร์กรอบซ้อน! เปลี่ยนกรอบนอกเป็นสีขาวคลีนๆ ไร้ขอบเทาหนา */}
   <div className="bg-emerald-200/30 p-4 md:p-8 rounded-2xl md:rounded-[1rem] border-2 border-solid border-indigo-800 shadow-sm relative overflow-hidden mb-6">
     
@@ -3098,13 +3098,15 @@ const renderTracking = () => (
       </>
     )}
 
-    {/* 📋 สรุปผลและข้อแนะนำ (Flat Design) */}
+    {/* 📋 สรุปผลและข้อแนะนำ (ฟันธง: เติม rounded-xl md:rounded-2xl ลบเหลี่ยมแข็งโป๊ก) */}
     {t.cause && (
-      <div className="bg-emerald-50/70 border-l-[4px] border-solid border-emerald-400 p-3 md:p-5 flex gap-3 md:gap-4 w-full mb-4 mt-2">
+      <div className="bg-emerald-100/70 border-l-[4px] border-2 border-solid border-emerald-600 rounded-xl md:rounded-2xl p-3 md:p-5 flex gap-3 md:gap-4 w-full mb-4 mt-2">
         <CheckSquare className="w-5 h-5 md:w-8 md:h-8 shrink-0 mt-0.5 text-emerald-600" />
         <div className="w-full">
-          <span className="block mb-1 text-emerald-600/80 text-[11px] md:text-[16px] font-bold">สรุปผลและข้อแนะนำ:</span>
-          <span className="text-[13px] md:text-[18px] text-emerald-900 font-bold">{String(t.cause)}</span>
+          <span className="block mb-1 text-emerald-800/80 text-[16px] md:text-[20px] font-bold">สรุปผลและข้อแนะนำ:</span>
+          <span className="text-[18px] md:text-[22px] text-indigo-900 font-bold">
+            "{String(t.cause)}"
+            </span>
         </div>
       </div>
     )}
@@ -3134,25 +3136,36 @@ const renderTracking = () => (
                           </div>
                         )}
                         
-                        <div className="mt-4 md:mt-8 mb-1 md:mb-4">
-                          <span className="text-[13px] md:text-[22px] font-black text-indigo-600 uppercase tracking-widest flex items-center gap-1.5 md:gap-3">
-                            <AlertCircle className="w-3 h-3 md:w-6 md:h-6 text-rose-600" /> รายละเอียดอาการเสีย:
-                          </span>
-                          <p className={`text-[14px] md:text-[30px] font-black mt-1.5 md:mt-4 leading-relaxed pl-1 md:pl-4 ${
-                            isCancelled ? 'text-slate-400 line-through' : 'text-rose-600 drop-shadow-sm'
-                          }`}>
-                            "{String(t.description)}"
-                          </p>
+                       {/* 🌟 ฟันธง: สร้างกล่องแม่ครอบโซนอาการเสียและ Asset No ทั้งหมด พร้อมหดความกว้างให้เท่ากรอบส้มด้านบน */}
+                       <div className="bg-orange-100/70 border-l-[4px] border-2 border-solid border-indigo-600 rounded-xl md:rounded-2xl p-3 md:p-5 flex gap-3 md:gap-4 w-full mb-4 mt-2">
+                          
+                          {/* บรรทัดหัวเรื่อง */}
+                          <div className="mb-2 md:mb-4">
+                            <span className="text-[13px] md:text-[22px] font-black text-indigo-600 uppercase tracking-widest flex items-center gap-1.5 md:gap-3">
+                              <AlertCircle className="w-3 h-3 md:w-6 md:h-6 text-rose-600" /> รายละเอียดอาการเสีย:
+                            </span>
+                            {/* ตัวหนังสือรายละเอียด - ปรับ mt ลดลงนิดนึงให้อยู่ในกรอบสวยๆ */}
+                            <p className={`text-[14px] md:text-[26px] font-black mt-1.5 md:mt-3 leading-relaxed pl-1 md:pl-2 ${
+                              isCancelled ? 'text-slate-400 line-through' : 'text-rose-600 drop-shadow-sm'
+                            }`}>
+                              "{String(t.description)}"
+                            </p>
+                          </div>
+                          
+                          {/* ส่วน Asset No (แสดงเมื่อมีข้อมูล) */}
+                          {t.assetNumber && (
+                            // 🌟 เติมเส้นคั่นภายในกรอบ เพื่อแยก Asset No ออกจากรายละเอียด
+                            <div className="mt-3 md:mt-5 pt-3 md:pt-5 border-t border-slate-200">
+                              <p className="text-[12px] md:text-[20px] text-slate-500 font-mono mt-0 mb-0">
+                                <span className="font-bold text-slate-400">
+                                  Asset No:
+                                </span>{' '}
+                                {t.assetNumber}
+                              </p>
+                            </div>
+                          )}
+
                         </div>
-                        
-                        {t.assetNumber && (
-                          <p className="text-[12px] md:text-[20px] text-slate-500 font-mono mt-3 md:mt-6">
-                            <span className="font-bold text-slate-400">
-                              Asset No:
-                            </span>{' '}
-                            {t.assetNumber}
-                          </p>
-                        )}
 
                         <div className="pt-3 md:pt-8 border-t border-2 border-orange-400/70 flex flex-col gap-2 md:gap-6 mt-3 md:mt-8 text-xs md:text-[20px] text-slate-600">
                           
@@ -3164,11 +3177,11 @@ const renderTracking = () => (
                               <span className="font-bold text-orange-800 flex items-start gap-1 md:gap-3 leading-tight mb-1 md:mb-3">
                                 <User className={`w-3.5 h-3.5 md:w-8 md:h-8 shrink-0 mt-0.5 ${isCancelled ? 'text-slate-400' : 'text-emerald-500'}`} />
 
-                                <span className="whitespace-normal break-words leading-snug tracking-tight md:text-[28px]">
+                                <span className="whitespace-normal break-words leading-snug tracking-tight md:text-[26px]">
                                   {String(t.reporter)}
                                 </span>
                               </span>
-                              <span className="text-[12px] md:text-[24px] font-bold text-blue-600 mt-1 md:mt-3 pl-1 md:pl-2">
+                              <span className="text-[13px] md:text-[24px] font-bold text-blue-600 mt-1 md:mt-3 pl-1 md:pl-2">
                                 {formatDateTimeString(t.date)}
                               </span>
                             </div>
@@ -3190,7 +3203,7 @@ const renderTracking = () => (
                                 </span>
                                 <span className="font-bold text-indigo-600 flex items-start gap-1 md:gap-3 leading-tight">
                                   <User className="w-3.5 h-3.5 md:w-8 md:h-8 text-orange-500 shrink-0 mt-0.5" />
-                                  <span className="whitespace-normal break-words tracking-tight md:text-[28px]">
+                                  <span className="whitespace-normal break-words tracking-tight md:text-[26px]">
                                     {String(t.techName)}
                                   </span>
                                 </span>
