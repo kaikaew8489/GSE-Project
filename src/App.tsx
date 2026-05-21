@@ -2986,7 +2986,17 @@ const renderTracking = () => (
           </div>
         ) : (
 
+
+          
           filteredTickets.map((t) => {
+            // 🌟 ฟันธง: แทรกสมองกล 3 บรรทัดนี้ลงไป เพื่อค้นหาชื่อเวรจากวันที่! 🌟
+            // 🌟 ฟันธง: เพิ่มสมองกลจับคู่ชื่อเวรและเบอร์โทรจากฐานข้อมูล rosters ตามวันที่ของตั๋ว
+            const ticketDate = new Date(t.date).toISOString().split('T')[0];
+            const sscRosterForDate = allRosters.find(r => r.date === ticketDate);
+            const sscName = sscRosterForDate ? sscRosterForDate.techName : null;
+            const sscPhone = sscRosterForDate ? sscRosterForDate.techPhone : null; // 🌟 เติมบรรทัดนี้!
+
+            // ... (โค้ด const isPending ... ที่เหลือของท่าน) ...
               const isPending = t.status === 'pending';
               const isFixing = [
                 'acknowledged',
@@ -3508,6 +3518,34 @@ const renderTracking = () => (
                             }`}>
                               "{String(t.description)}"
                             </p>
+
+              {/* 🌟 ฟันธง: วางกล่องแสดงชื่อเวร SSC และเบอร์โทร! */}
+             {t.isOutOfHours && (
+               <div className="bg-purple-100/50 border-l-[4px] border-purple-500 p-3 rounded-lg mt-4 ml-1 md:ml-2">
+                 <div className="flex flex-col md:flex-row md:items-center justify-between gap-3">
+                   <div>
+                     <p className="text-purple-700 font-black text-[12px] md:text-[18px] flex items-center gap-2">
+                       <AlertTriangle size={16} className="md:w-6 md:h-6 animate-pulse" /> เจ้าหน้าที่เวร SSC ประจำวันที่ {new Date(t.date).getDate()}:
+                     </p>
+                     <p className="text-purple-900 font-black text-[15px] md:text-[22px] mt-1 ml-6 md:ml-8">
+                       {sscName || t.sscTechName || "ยังไม่ระบุเวร"}
+                     </p>
+                   </div>
+                   
+                   {/* 🌟 ปุ่มกดโทรหาเวร SSC */}
+                   {(sscPhone || t.sscTechPhone) && (sscPhone || t.sscTechPhone) !== '-' && (
+                     <a
+                       href={`tel:${String(sscPhone || t.sscTechPhone).replace(/\D/g, '')}`}
+                       className="font-mono shrink-0 whitespace-nowrap text-[12px] md:text-[18px] font-bold bg-purple-200 px-3 py-1.5 md:px-4 md:py-2.5 rounded-lg md:rounded-xl flex items-center gap-1.5 md:gap-3 text-purple-800 border border-solid border-purple-300 shadow-sm hover:bg-purple-300 transition-colors ml-6 md:ml-0 w-fit active:scale-95"
+                     >
+                       <Phone className="w-3 h-3 md:w-5 md:h-5 text-purple-600" />
+                       {formatDisplayPhone(sscPhone || t.sscTechPhone)}
+                     </a>
+                   )}
+                 </div>
+               </div>
+             )}
+
                           </div>
                           
                           {/* ส่วน Asset No (แสดงเมื่อมีข้อมูล) */}
