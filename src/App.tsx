@@ -1894,7 +1894,7 @@ const executeRatingSubmit = async () => {
               <p className="text-[15px] md:text-lg font-bold text-slate-200 leading-relaxed">
                 ระบบบันทึกข้อมูลและส่งแจ้งเตือนให้<br/>
                 <span className="text-orange-500 font-black text-lg md:text-xl mt-2 mb-1 inline-block drop-shadow-[0_0_8px_rgba(249,115,22,0.8)] border-b-2 border-dashed border-orange-500">
-                  เจ้าหน้าที่ ฝวด.
+                  ผู้เกี่ยวข้อง.
                 </span><br/>
                 รับทราบเรียบร้อยแล้ว!!
               </p>
