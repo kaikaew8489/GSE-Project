@@ -3246,17 +3246,17 @@ const renderTracking = () => (
                   <div className="p-5 md:p-8 md:px-10 border-b border-slate-100 bg-slate-50/50">
                     <div className="flex justify-between items-start mb-4 md:mb-6">
                       <div className="flex items-center">
-                        <span className="text-[13px] md:text-[22px] font-mono text-emerald-600 bg-emerald-100 px-3 py-1 md:px-5 md:py-2 rounded-lg md:rounded-xl font-black tracking-widest border border-emerald-200 shadow-sm">
+                        <span className="text-[14px] md:text-[22px] font-mono text-emerald-600 bg-emerald-100 px-3 py-1 md:px-5 md:py-2 rounded-lg md:rounded-xl font-black tracking-widest border border-emerald-200 shadow-sm">
                           {String(t.id)}
                         </span>
                         {t.isOutOfHours && (
-                          <span className="ml-2 md:ml-4 text-[10px] md:text-[16px] font-black text-rose-600 bg-rose-100 border border-rose-200 px-2 py-0.5 md:px-4 md:py-1.5 rounded-md md:rounded-xl animate-pulse">
-                            SSC (นอกเวลา)
+                          <span className="ml-2 md:ml-4 text-[12px] md:text-[16px] font-black text-rose-600 bg-rose-100 border border-rose-200 px-2 py-0.5 md:px-4 md:py-1.5 rounded-md md:rounded-xl animate-pulse">
+                            วันหยุด
                           </span>
                         )}
                       </div>
                       <div
-                        className={`px-3 py-1 md:px-6 md:py-3 rounded-lg md:rounded-2xl text-[15px] md:text-[24px] font-bold border border-2 border-solid shadow-sm flex items-center gap-1.5 md:gap-3 ${styleColor}`}
+                        className={`px-3 py-1 md:px-6 md:py-3 rounded-lg md:rounded-2xl text-[14px] md:text-[24px] font-bold border border-2 border-solid shadow-sm flex items-center gap-1.5 md:gap-3 ${styleColor}`}
                       >
                         {isPending && (
                           <div className="w-1.5 h-1.5 md:w-3 md:h-3 rounded-full bg-rose-500 animate-pulse"></div>
