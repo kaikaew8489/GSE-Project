@@ -85,7 +85,7 @@ const auth = getAuth(appInstance);
 const db = getFirestore(appInstance);
 
 // ==========================================
-// 🌟 ฟันธง: เริ่มต้นโค้ดส่วนหน้าจอจัดตารางเวร SSC
+// 🌟 ฟันธง: เริ่มต้นโค้ดส่วนหน้าจอจัดตารางเวร SSC (อัปเกรด Sci-Fi + มือถือ 1,000,000%)
 // ==========================================
 
 function AdminRosterSettings() {
@@ -112,7 +112,7 @@ function AdminRosterSettings() {
       const dayOfWeek = new Date(selectedYear, selectedMonth - 1, i).getDay();
       const isWeekend = dayOfWeek === 0 || dayOfWeek === 6;
 
-      daysArray.push({ dateStr, dayNum: i, isWeekend });
+      daysArray.push({ dateStr, dayNum: i, dayOfWeek, isWeekend });
     }
     setDaysInMonth(daysArray);
   };
@@ -195,24 +195,35 @@ function AdminRosterSettings() {
     setLoading(false);
   };
 
+  // 🌟 ฟันธง: ฟังก์ชันกำหนดสีตามวัน
+  const getDayColorClass = (dayOfWeek, isHoliday) => {
+    if (isHoliday) return 'bg-orange-500/20 text-orange-400 border-orange-500/50 shadow-[0_0_15px_rgba(249,115,22,0.3)]';
+    if (dayOfWeek === 0) return 'bg-rose-500/20 text-rose-400 border-rose-500/50 shadow-[0_0_15px_rgba(225,29,72,0.3)]'; // วันอาทิตย์
+    if (dayOfWeek === 6) return 'bg-blue-500/20 text-blue-400 border-blue-500/50 shadow-[0_0_15px_rgba(59,130,246,0.3)]'; // วันเสาร์
+    return 'bg-slate-800 text-slate-300 border-slate-700 hover:border-cyan-500/50 hover:shadow-[0_0_15px_rgba(6,182,212,0.3)]';
+  };
+
   return (
-    <div className="min-h-screen bg-slate-950 text-slate-100 p-3 md:p-8 font-sans">
-      <div className="max-w-5xl mx-auto bg-slate-900/60 backdrop-blur-xl rounded-[2rem] border-2 border-solid border-cyan-500/20 p-4 md:p-8 shadow-2xl">
-        <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 border-b border-solid border-slate-800 pb-6 mb-6">
+    <div className="min-h-screen bg-slate-950 text-slate-100 p-2 md:p-8 font-sans">
+      <div className="max-w-5xl mx-auto bg-slate-900/60 backdrop-blur-xl rounded-2xl md:rounded-[2rem] border-2 border-solid border-cyan-500/20 p-3 md:p-8 shadow-2xl shadow-cyan-900/20">
+        
+        {/* Header Section */}
+        <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 border-b border-solid border-slate-800 pb-4 md:pb-6 mb-4 md:mb-6">
           <div className="flex items-center gap-3">
-            <div className="bg-gradient-to-br from-cyan-500 to-blue-600 p-3 rounded-2xl shadow-lg">
-              <Calendar className="w-6 h-6 text-white" />
+            <div className="bg-gradient-to-br from-cyan-500 to-blue-600 p-2.5 md:p-3 rounded-xl md:rounded-2xl shadow-[0_0_20px_rgba(6,182,212,0.4)]">
+              <Calendar className="w-5 h-5 md:w-6 md:h-6 text-white" />
             </div>
             <div>
-              <h1 className="text-xl md:text-3xl font-black text-cyan-400">จัดตารางเวรปฏิบัติงาน SSC</h1>
-              <p className="text-xs md:text-sm font-bold text-slate-400 mt-0.5">ระบบจัดการและบันทึกเวรวันหยุดประจำ ฝวด. รายเดือน</p>
+              <h1 className="text-lg md:text-3xl font-black text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 to-blue-400">จัดตารางเวรปฏิบัติงาน SSC</h1>
+              <p className="text-[11px] md:text-sm font-bold text-slate-400 mt-0.5">ระบบจัดการและบันทึกเวรวันหยุดประจำ ฝวด. รายเดือน</p>
             </div>
           </div>
+          
           <div className="flex gap-2 w-full md:w-auto">
             <select 
               value={selectedMonth} 
               onChange={(e) => setSelectedMonth(Number(e.target.value))}
-              className="flex-1 md:flex-none bg-slate-800 text-cyan-300 font-bold px-4 py-2.5 rounded-xl border border-solid border-cyan-500/30 text-[14px]"
+              className="flex-1 md:flex-none bg-slate-800 text-cyan-300 font-bold px-3 md:px-4 py-2 md:py-2.5 rounded-lg md:rounded-xl border border-solid border-cyan-500/30 text-[13px] md:text-[14px] focus:border-cyan-400 focus:shadow-[0_0_15px_rgba(34,211,238,0.4)] transition-all outline-none"
             >
               {['มกราคม', 'กุมภาพันธ์', 'มีนาคม', 'เมษายน', 'พฤษภาคม', 'มิถุนายน', 'กรกฎาคม', 'สิงหาคม', 'กันยายน', 'ตุลาคม', 'พฤศจิกายน', 'ธันวาคม'].map((m, idx) => (
                 <option key={idx} value={idx + 1}>{m}</option>
@@ -221,33 +232,94 @@ function AdminRosterSettings() {
             <select 
               value={selectedYear} 
               onChange={(e) => setSelectedYear(Number(e.target.value))}
-              className="bg-slate-800 text-cyan-300 font-bold px-4 py-2.5 rounded-xl border border-solid border-cyan-500/30 text-[14px]"
+              className="flex-1 md:flex-none bg-slate-800 text-cyan-300 font-bold px-3 md:px-4 py-2 md:py-2.5 rounded-lg md:rounded-xl border border-solid border-cyan-500/30 text-[13px] md:text-[14px] focus:border-cyan-400 focus:shadow-[0_0_15px_rgba(34,211,238,0.4)] transition-all outline-none"
             >
-              {[2026, 2027, 2028].map(y => (
+              {/* 🌟 ฟันธง 1: ลดจำนวนปี เหลือแค่ปีนี้ และปีหน้า */}
+              {[2026, 2027].map(y => (
                 <option key={y} value={y}>พ.ศ. {y + 543}</option>
               ))}
             </select>
           </div>
         </div>
-        <div className="overflow-hidden rounded-2xl border border-solid border-slate-800 mb-6 bg-slate-950/40">
-          <div className="max-h-[60vh] overflow-y-auto [&::-webkit-scrollbar]:w-2 [&::-webkit-scrollbar-thumb]:bg-slate-800 [&::-webkit-scrollbar-thumb]:rounded-full">
+
+        {/* 🌟 ฟันธง 4: ปรับ Layout แบบ Card List สำหรับมือถือ และ Table สำหรับ PC */}
+        <div className="md:hidden space-y-3 mb-6">
+          {daysInMonth.map((d) => {
+            const currentInfo = rosterData[d.dateStr] || {};
+            const isRowHighlighted = d.isWeekend || currentInfo.isHoliday;
+            const dateBadgeClass = getDayColorClass(d.dayOfWeek, currentInfo.isHoliday);
+
+            return (
+              <div key={d.dateStr} className={`p-3 rounded-xl border border-solid transition-all ${isRowHighlighted ? 'bg-slate-800/80 border-slate-600 shadow-md' : 'bg-slate-900/50 border-slate-800'}`}>
+                <div className="flex justify-between items-center mb-2 pb-2 border-b border-slate-700/50">
+                  <span className={`inline-flex items-center justify-center w-8 h-8 md:w-auto md:h-auto md:px-3 md:py-1 rounded-lg border font-mono font-black text-[14px] transition-all duration-300 ${dateBadgeClass}`}>
+                    {d.dayNum}
+                  </span>
+                  
+                  <label className="inline-flex items-center gap-1.5 cursor-pointer">
+                    <input 
+                      type="checkbox"
+                      checked={currentInfo.isHoliday || d.isWeekend}
+                      disabled={d.isWeekend}
+                      onChange={(e) => handleHolidayToggle(d.dateStr, e.target.checked)}
+                      className="w-4 h-4 rounded border-slate-600 text-cyan-500 bg-slate-900 focus:ring-cyan-500 accent-cyan-500"
+                    />
+                    <span className={`font-bold text-[11px] ${d.isWeekend ? 'text-slate-400' : currentInfo.isHoliday ? 'text-orange-400 animate-pulse' : 'text-slate-500'}`}>
+                      {d.isWeekend ? 'วันหยุดสัปดาห์' : 'วันหยุดพิเศษ'}
+                    </span>
+                  </label>
+                </div>
+
+                <div className="space-y-2">
+                  <select
+                    value={currentInfo.techName || ''}
+                    onChange={(e) => handleTechChange(d.dateStr, e.target.value)}
+                    className={`w-full bg-slate-950 font-bold px-3 py-2.5 rounded-lg border border-solid transition-all text-[13px] outline-none ${currentInfo.techName ? 'text-cyan-400 border-cyan-500/50 shadow-[0_0_15px_rgba(6,182,212,0.2)]' : 'text-slate-500 border-slate-700 hover:border-slate-500'}`}
+                  >
+                    {/* 🌟 ฟันธง 3: เปลี่ยนคำ "ยังไม่มีเจ้าหน้าที่เวร" */}
+                    <option value="">-- โปรดเลือกผู้ปฏิบัติงาน --</option>
+                    {technicianList.map((t, tIdx) => (
+                      <option key={tIdx} value={t.name}>{t.name}</option>
+                    ))}
+                  </select>
+
+                  <input 
+                    type="text"
+                    disabled={!currentInfo.isHoliday && !d.isWeekend}
+                    value={d.isWeekend ? 'วันหยุดประจำสัปดาห์' : currentInfo.holidayName || ''}
+                    onChange={(e) => handleHolidayNameChange(d.dateStr, e.target.value)}
+                    placeholder="เช่น วันสงกรานต์, มติ ครม."
+                    className="w-full bg-slate-950 text-slate-300 px-3 py-2.5 rounded-lg border border-solid border-slate-700 focus:border-cyan-500 focus:shadow-[0_0_15px_rgba(6,182,212,0.2)] text-[12px] font-bold disabled:opacity-30 disabled:bg-slate-900 outline-none transition-all"
+                  />
+                </div>
+              </div>
+            );
+          })}
+        </div>
+
+        {/* 🌟 แสดงผลแบบ Table สำหรับ PC */}
+        <div className="hidden md:block overflow-hidden rounded-2xl border border-solid border-slate-700 mb-6 bg-slate-950/60 shadow-[inset_0_0_20px_rgba(0,0,0,0.5)]">
+          <div className="max-h-[60vh] overflow-y-auto [&::-webkit-scrollbar]:w-2 [&::-webkit-scrollbar-thumb]:bg-slate-700 [&::-webkit-scrollbar-thumb]:rounded-full hover:[&::-webkit-scrollbar-thumb]:bg-cyan-600">
             <table className="w-full text-left border-collapse">
               <thead>
-                <tr className="bg-slate-900 text-slate-400 text-[12px] md:text-[14px] font-black uppercase tracking-wider sticky top-0 z-10 border-b border-solid border-slate-800">
-                  <th className="py-3.5 px-4 text-center w-16">วันที่</th>
-                  <th className="py-3.5 px-4">เจ้าหน้าที่อยู่เวรประจำวันหยุด (SSC)</th>
-                  <th className="py-3.5 px-4 w-44 text-center">ประเภทวันหยุด</th>
-                  <th className="py-3.5 px-4 w-52">ระบุชื่อวันหยุดพิเศษ (ถ้ามี)</th>
+                <tr className="bg-slate-900/90 backdrop-blur-md text-cyan-500/80 text-[13px] font-black uppercase tracking-wider sticky top-0 z-10 border-b border-solid border-slate-700 shadow-md">
+                  <th className="py-4 px-4 text-center w-16">วันที่</th>
+                  <th className="py-4 px-4">เจ้าหน้าที่อยู่เวรประจำวันหยุด (SSC)</th>
+                  <th className="py-4 px-4 w-44 text-center">ประเภทวันหยุด</th>
+                  <th className="py-4 px-4 w-52">ระบุชื่อวันหยุดพิเศษ (ถ้ามี)</th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-solid divide-slate-800/60 text-[13px] md:text-[16px]">
+              <tbody className="divide-y divide-solid divide-slate-800/80 text-[14px]">
                 {daysInMonth.map((d) => {
                   const currentInfo = rosterData[d.dateStr] || {};
                   const isRowHighlighted = d.isWeekend || currentInfo.isHoliday;
+                  const dateBadgeClass = getDayColorClass(d.dayOfWeek, currentInfo.isHoliday);
+
                   return (
-                    <tr key={d.dateStr} className={`transition-colors hover:bg-slate-800/30 ${isRowHighlighted ? 'bg-purple-950/10' : ''}`}>
+                    <tr key={d.dateStr} className={`transition-all duration-300 hover:bg-slate-800/60 ${isRowHighlighted ? 'bg-slate-800/30' : ''}`}>
                       <td className="py-3 px-4 text-center font-mono font-black">
-                        <span className={`inline-block w-8 py-1 rounded-lg ${d.isWeekend ? 'bg-purple-500/20 text-purple-400 border border-solid border-purple-500/30' : 'bg-slate-800 text-slate-300'}`}>
+                        {/* 🌟 ฟันธง 5: สีสัน Sci-Fi แบ่งตามวันหยุด */}
+                        <span className={`inline-block w-10 py-1.5 rounded-lg border transition-all duration-300 ${dateBadgeClass}`}>
                           {d.dayNum}
                         </span>
                       </td>
@@ -255,24 +327,24 @@ function AdminRosterSettings() {
                         <select
                           value={currentInfo.techName || ''}
                           onChange={(e) => handleTechChange(d.dateStr, e.target.value)}
-                          className={`w-full max-w-md bg-slate-900 font-bold px-3 py-2 rounded-lg border border-solid transition-all ${currentInfo.techName ? 'text-orange-400 border-orange-500/50 shadow-[0_0_10px_rgba(249,115,22,0.1)]' : 'text-slate-500 border-slate-800'}`}
+                          className={`w-full max-w-md bg-slate-900/80 font-bold px-4 py-2.5 rounded-xl border border-solid transition-all outline-none ${currentInfo.techName ? 'text-cyan-400 border-cyan-500/60 shadow-[0_0_20px_rgba(6,182,212,0.25)]' : 'text-slate-400 border-slate-700 hover:border-cyan-500/40'}`}
                         >
-                          <option value="">-- ยังไม่มีเจ้าหน้าที่เวร --</option>
+                          <option value="">-- โปรดเลือกผู้ปฏิบัติงาน --</option>
                           {technicianList.map((t, tIdx) => (
-                            <option key={tIdx} value={t.name}>{t.name} ({t.phone})</option>
+                            <option key={tIdx} value={t.name}>{t.name}</option>
                           ))}
                         </select>
                       </td>
                       <td className="py-3 px-4 text-center">
-                        <label className="inline-flex items-center gap-2 cursor-pointer select-none">
+                        <label className="inline-flex items-center gap-2 cursor-pointer select-none group">
                           <input 
                             type="checkbox"
                             checked={currentInfo.isHoliday || d.isWeekend}
                             disabled={d.isWeekend}
                             onChange={(e) => handleHolidayToggle(d.dateStr, e.target.checked)}
-                            className="w-4 h-4 rounded border-slate-700 text-purple-600 bg-slate-900 focus:ring-purple-500 accent-purple-500"
+                            className="w-4.5 h-4.5 rounded border-slate-600 text-cyan-500 bg-slate-900 focus:ring-cyan-500 accent-cyan-500 cursor-pointer"
                           />
-                          <span className={`font-bold text-[12px] md:text-[14px] ${d.isWeekend ? 'text-purple-400' : currentInfo.isHoliday ? 'text-amber-500 animate-pulse' : 'text-slate-400'}`}>
+                          <span className={`font-bold transition-colors ${d.isWeekend ? 'text-slate-500' : currentInfo.isHoliday ? 'text-orange-400 animate-pulse drop-shadow-[0_0_8px_rgba(249,115,22,0.6)]' : 'text-slate-500 group-hover:text-cyan-400'}`}>
                             {d.isWeekend ? 'วันหยุดสัปดาห์' : 'วันหยุดพิเศษ'}
                           </span>
                         </label>
@@ -284,7 +356,7 @@ function AdminRosterSettings() {
                           value={d.isWeekend ? 'วันหยุดประจำสัปดาห์' : currentInfo.holidayName || ''}
                           onChange={(e) => handleHolidayNameChange(d.dateStr, e.target.value)}
                           placeholder="เช่น วันสงกรานต์, มติ ครม."
-                          className="w-full bg-slate-900 text-slate-300 px-3 py-2 rounded-lg border border-solid border-slate-800 focus:border-purple-500 text-[13px] font-bold disabled:opacity-30 disabled:bg-slate-950"
+                          className="w-full bg-slate-900/80 text-cyan-100 px-4 py-2.5 rounded-xl border border-solid border-slate-700 focus:border-cyan-400 focus:shadow-[0_0_20px_rgba(34,211,238,0.2)] text-[13px] font-bold disabled:opacity-30 disabled:bg-transparent outline-none transition-all"
                         />
                       </td>
                     </tr>
@@ -294,24 +366,26 @@ function AdminRosterSettings() {
             </table>
           </div>
         </div>
-        <div className="flex flex-col sm:flex-row justify-between items-center gap-4 border-t border-solid border-slate-800 pt-6">
-          <div className="flex items-center gap-2 text-amber-500 text-[12px] md:text-[14px] font-bold">
+
+        {/* Footer Section */}
+        <div className="flex flex-col sm:flex-row justify-between items-center gap-4 border-t border-solid border-slate-800 pt-5 md:pt-6">
+          <div className="flex items-center gap-2 text-cyan-500 text-[11px] md:text-[13px] font-bold bg-cyan-500/10 px-3 py-2 rounded-lg border border-cyan-500/20">
             <ShieldAlert className="w-4 h-4 shrink-0" />
-            <span>ฟันธง: การแก้ไขตารางเวรในหน้านี้ จะมีผลผูกมัดกับใบแจ้งซ่อมทันทีเมื่อมีการกดตั๋วใหม่</span>
+            <span>ฟันธง: การแก้ไขตารางเวรในหน้านี้ จะอัปเดตระบบอัตโนมัติ 1,000,000%</span>
           </div>
-          <div className="flex items-center gap-4 w-full sm:w-auto">
+          <div className="flex flex-col sm:flex-row items-center gap-3 w-full sm:w-auto">
             {showSuccess && (
-              <span className="flex items-center gap-1.5 text-emerald-400 font-bold text-[14px] animate-bounce">
+              <span className="flex items-center gap-1.5 text-emerald-400 font-bold text-[13px] animate-pulse bg-emerald-500/10 px-3 py-1.5 rounded-lg border border-emerald-500/30">
                 <CheckCircle2 className="w-4 h-4" /> บันทึกตารางเวรสำเร็จ!
               </span>
             )}
             <button
               onClick={handleSaveAll}
               disabled={loading}
-              className="w-full sm:w-auto bg-gradient-to-r from-cyan-500 to-blue-600 text-white font-black px-8 py-3.5 rounded-xl shadow-lg shadow-cyan-500/20 active:scale-95 transition-all text-[15px] flex items-center justify-center gap-2 hover:brightness-110 disabled:opacity-50"
+              className="w-full sm:w-auto bg-gradient-to-r from-cyan-600 to-blue-600 hover:from-cyan-500 hover:to-blue-500 text-white font-black px-6 md:px-8 py-3 md:py-3.5 rounded-xl md:rounded-2xl shadow-[0_0_20px_rgba(6,182,212,0.3)] hover:shadow-[0_0_30px_rgba(6,182,212,0.6)] active:scale-95 transition-all duration-300 text-[14px] md:text-[15px] flex items-center justify-center gap-2 disabled:opacity-50 disabled:grayscale"
             >
-              <Save className="w-5 h-5" />
-              {loading ? 'กำลังบันทึกข้อมูล...' : 'บันทึกตารางเวรประจำเดือน'}
+              <Save className="w-4 h-4 md:w-5 md:h-5" />
+              {loading ? 'กำลังซิงค์ข้อมูล...' : 'บันทึกตารางเวรประจำเดือน'}
             </button>
           </div>
         </div>
@@ -319,6 +393,7 @@ function AdminRosterSettings() {
     </div>
   );
 }
+
 // ==========================================
 // 🌟 ฟันธง: สิ้นสุดโค้ดส่วนหน้าจอจัดตารางเวร SSC 
 // (โค้ดของท่านหัวหน้าเช่น export default function App() หรือ MainApp จะอยู่ต่อจากบรรทัดนี้ไปครับ)
@@ -3489,23 +3564,31 @@ const renderTracking = () => (
         </div>
       </div>
     )}
+    
 
-                        {/* โซนรูปภาพ */}
-                        {t.images && t.images.length > 0 && (
-                          <div className="flex gap-2 md:gap-5 overflow-x-auto mb-3 md:mb-8 pb-2 md:pb-4 [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]">
-                            {t.images.map((img, i) => (
-                              <img
-                                key={i}
-                                src={img}
-                                onClick={() => setLightboxImg(img)}
-                                className="w-16 h-16 md:w-40 md:h-40 object-cover rounded-xl md:rounded-3xl border-2 border-solid border-orange-400/70 shrink-0 cursor-pointer shadow-sm hover:scale-105 transition-transform"
-                              />
-                            ))}
-                          </div>
-                        )}
+        {/* ==================== โซนภาพประกอบ (แบบมีกรอบ Card แยกชัดเจน) ==================== */}
+        {t.images && t.images.length > 0 && (
+          <div className="bg-slate-100 border-2 border-solid border-emerald-500 p-4 md:p-6 rounded-2xl md:rounded-[1.5rem] mt-4 shadow-sm w-full">
+            <span className="text-[14px] md:text-[22px] font-black text-rose-700 mb-3 md:mb-4 flex items-center gap-2">
+               📸 ภาพประกอบการแจ้งซ่อม:
+            </span>
+            <div className="grid grid-cols-3 gap-2 md:gap-4 mt-2">
+              {t.images.map((img, i) => (
+                <img 
+                  key={i} 
+                  src={img} 
+                  alt={`ภาพประกอบ ${i+1}`} 
+                  className="rounded-lg w-full aspect-square object-cover border border-slate-200 shadow-sm hover:scale-105 transition-transform cursor-pointer" 
+                />
+              ))}
+            </div>
+          </div>
+        )}
+
+        {/* ============================================================================== */}
                         
                        {/* 🌟 ฟันธง: สร้างกล่องแม่ครอบโซนอาการเสียและ Asset No ทั้งหมด พร้อมหดความกว้างให้เท่ากรอบส้มด้านบน */}
-                       <div className="bg-orange-100/70 border-l-[4px] border-2 border-solid border-indigo-600 rounded-xl md:rounded-2xl p-3 md:p-5 flex gap-3 md:gap-4 w-full mb-4 mt-2">
+                       <div className="bg-orange-100/70 border-l-[4px] border-2 border-solid border-indigo-600 rounded-xl md:rounded-2xl p-3 md:p-5 flex gap-3 md:gap-4 w-full mb-4 mt-4">
                           
                           {/* บรรทัดหัวเรื่อง */}
                           <div className="mb-2 md:mb-4">
@@ -3518,33 +3601,6 @@ const renderTracking = () => (
                             }`}>
                               "{String(t.description)}"
                             </p>
-
-              {/* 🌟 ฟันธง: วางกล่องแสดงชื่อเวร SSC และเบอร์โทร! */}
-             {t.isOutOfHours && (
-               <div className="bg-purple-100/50 border-l-[4px] border-purple-500 p-3 rounded-lg mt-4 ml-1 md:ml-2">
-                 <div className="flex flex-col md:flex-row md:items-center justify-between gap-3">
-                   <div>
-                     <p className="text-purple-700 font-black text-[12px] md:text-[18px] flex items-center gap-2">
-                       <AlertTriangle size={16} className="md:w-6 md:h-6 animate-pulse" /> เจ้าหน้าที่เวร SSC ประจำวันที่ {new Date(t.date).getDate()}:
-                     </p>
-                     <p className="text-purple-900 font-black text-[15px] md:text-[22px] mt-1 ml-6 md:ml-8">
-                       {sscName || t.sscTechName || "ยังไม่ระบุเวร"}
-                     </p>
-                   </div>
-                   
-                   {/* 🌟 ปุ่มกดโทรหาเวร SSC */}
-                   {(sscPhone || t.sscTechPhone) && (sscPhone || t.sscTechPhone) !== '-' && (
-                     <a
-                       href={`tel:${String(sscPhone || t.sscTechPhone).replace(/\D/g, '')}`}
-                       className="font-mono shrink-0 whitespace-nowrap text-[12px] md:text-[18px] font-bold bg-purple-200 px-3 py-1.5 md:px-4 md:py-2.5 rounded-lg md:rounded-xl flex items-center gap-1.5 md:gap-3 text-purple-800 border border-solid border-purple-300 shadow-sm hover:bg-purple-300 transition-colors ml-6 md:ml-0 w-fit active:scale-95"
-                     >
-                       <Phone className="w-3 h-3 md:w-5 md:h-5 text-purple-600" />
-                       {formatDisplayPhone(sscPhone || t.sscTechPhone)}
-                     </a>
-                   )}
-                 </div>
-               </div>
-             )}
 
                           </div>
                           
@@ -3563,64 +3619,96 @@ const renderTracking = () => (
 
                         </div>
 
-                        <div className="pt-3 md:pt-8 border-t border-2 border-orange-400/70 flex flex-col gap-2 md:gap-6 mt-3 md:mt-8 text-xs md:text-[20px] text-slate-600">
-                          
-                          <div className="flex justify-between items-start gap-1 md:gap-6 -mx-1 sm:mx-0">
-                            <div className="flex flex-col flex-1 min-w-0 pl-1 md:pl-0">
-                              <span className="text-[13px] md:text-[24px] font-bold text-green-600 mb-1 md:mb-3">
-                                ผู้แจ้งปัญหา
-                              </span>
-                              <span className="font-bold text-orange-800 flex items-start gap-1 md:gap-3 leading-tight mb-1 md:mb-3">
-                                <User className={`w-3.5 h-3.5 md:w-8 md:h-8 shrink-0 mt-0.5 ${isCancelled ? 'text-slate-400' : 'text-emerald-500'}`} />
+                        {/* ==================== โซนผู้แจ้ง & ผู้รับผิดชอบ (แบบมีกรอบ Card) ==================== */}
+        <div className="bg-emerald-50/40 border-2 border-solid border-emerald-400 p-4 md:p-6 rounded-2xl md:rounded-[1.5rem] mt-4 shadow-sm w-full">
+          <div className="flex flex-col md:flex-row gap-4 md:gap-8">
+            
+            {/* 👤 ฝั่งซ้าย: ผู้แจ้งปัญหา */}
+            <div className="flex-1 flex flex-col border-b md:border-b-0 md:border-r border-emerald-300/50 pb-4 md:pb-0 md:pr-8">
+              <span className="text-[14px] md:text-[18px] font-black text-emerald-700 mb-2 md:mb-4">
+                ผู้แจ้งปัญหา
+              </span>
+              <div className="flex items-center justify-between mb-3">
+                <span className="font-black text-emerald-950 flex items-center gap-2 text-[16px] md:text-[24px]">
+                  <User className={`w-4 h-4 md:w-6 md:h-6 ${isCancelled ? 'text-slate-400' : 'text-emerald-500'}`} />
+                  {String(t.reporter)}
+                </span>
+              </div>
+              <div className="flex flex-wrap items-center justify-between mt-auto gap-3">
+                <span className="text-[13px] md:text-[16px] font-bold text-blue-600 flex items-center gap-1.5">
+                  <Clock className="w-3 h-3 md:w-4 md:h-4" />
+                  {formatDateTimeString(t.date)}
+                </span>
+                <a href={`tel:${String(t.reporterContact).replace(/\D/g, '')}`} className="font-mono text-[13px] md:text-[16px] font-bold bg-emerald-100 px-3 py-1.5 md:px-4 md:py-2 rounded-xl text-emerald-800 border border-emerald-300 shadow-sm hover:bg-emerald-200 transition-colors flex items-center gap-2 active:scale-95">
+                  <Phone className="w-4 h-4 md:w-5 md:h-5 text-emerald-600" />
+                  {formatDisplayPhone(t.reporterContact)}
+                </a>
+              </div>
+            </div>
 
-                                <span className="whitespace-normal break-words leading-snug tracking-tight md:text-[26px]">
-                                  {String(t.reporter)}
-                                </span>
-                              </span>
-                              <span className="text-[12px] md:text-[24px] font-bold text-blue-600 mt-1 md:mt-3 pl-1 md:pl-2">
-                                {formatDateTimeString(t.date)}
-                              </span>
-                            </div>
-                            
-                            <a
-                              href={`tel:${String(t.reporterContact).replace(/\D/g, '')}`}
-                              className="font-mono shrink-0 whitespace-nowrap text-[12px] sm:text-[12px] md:text-[22px] font-bold bg-emerald-100 px-1.5 md:px-5 py-1.5 md:py-4 rounded-lg md:rounded-2xl flex items-center gap-1 md:gap-3 text-emerald-700 border-2 border-solid border-emerald-400 mt-4 md:mt-8 tracking-tighter hover:bg-emerald-100 transition-colors shadow-sm"
-                            >
-                              <Phone className="w-3 h-3 md:w-6 md:h-6 text-emerald-500" />
-                              {formatDisplayPhone(t.reporterContact)}
-                            </a>
-                          </div>
-                          
-                          {/* 🌟 ฟันธง: ลด mt และ pt ลงเพื่อดูดกรอบขึ้นไปชิดด้านบน */}
-                          {t.techName && (
-                            <div className="flex justify-between items-start gap-1 md:gap-6 mt-0 md:mt-1 pt-1 md:pt-2 border-t border-slate-100 -mx-1 sm:mx-0">
-                              <div className="flex flex-col flex-1 min-w-0 pl-1 md:pl-0">
-                                <span className="text-[13px] md:text-[24px] font-bold text-orange-600 mb-2 md:mb-4">
-                                  ผู้รับผิดชอบ
-                                </span>
-                                <span className="font-bold text-indigo-600 flex items-start gap-1 md:gap-3 leading-tight">
-                                  <User className="w-3.5 h-3.5 md:w-8 md:h-8 text-orange-500 shrink-0 mt-0.5" />
-                                  <span className="whitespace-normal break-words tracking-tight md:text-[26px]">
-                                    {String(t.techName)}
-                                  </span>
-                                </span>
-                              </div>
-                              {t.techPhone && t.techPhone !== '-' && t.techPhone !== 'N/A' ? (
-                                <a
-                                  href={`tel:${String(t.techPhone).replace(/\D/g, '')}`}
-                                  className="font-mono shrink-0 whitespace-nowrap text-[12px] sm:text-[12px] md:text-[22px] font-bold bg-orange-100 px-1.5 md:px-5 py-1.5 md:py-4 rounded-lg md:rounded-2xl flex items-center gap-1 md:gap-3 text-orange-700 border-2 border-solid border-orange-500 mt-4 md:mt-8 tracking-tighter hover:bg-orange-100 transition-colors shadow-sm"
-                                >
-                                  <Phone className="w-3 h-3 md:w-6 md:h-6 text-orange-500" />
-                                  {formatDisplayPhone(t.techPhone)}
-                                </a>
-                              ) : (
-                                <span className="font-mono shrink-0 whitespace-nowrap text-[11px] md:text-[20px] text-slate-400 bg-white px-1.5 md:px-5 py-1 md:py-4 rounded md:rounded-2xl border border-slate-200 mt-4 md:mt-8 shadow-sm">
-                                  {String(t.techPhone || 'N/A')}
-                                </span>
-                              )}
-                            </div>
-                          )}
-                        </div>
+            {/* 🛠️ ฝั่งขวา: ผู้รับผิดชอบหลัก */}
+            <div className="flex-1 flex flex-col">
+              <span className="text-[14px] md:text-[18px] font-black text-orange-600 mb-2 md:mb-4">
+                ผู้รับผิดชอบหลัก
+              </span>
+              <div className="flex items-center justify-between mb-3">
+                <span className="font-black text-orange-950 flex items-center gap-2 text-[16px] md:text-[24px]">
+                  <Wrench className="w-4 h-4 md:w-6 md:h-6 text-orange-500" />
+                  {t.techName ? String(t.techName) : "รอดำเนินการ"}
+                </span>
+              </div>
+              <div className="flex flex-wrap items-center justify-between mt-auto gap-3">
+                <span className="text-[13px] md:text-[16px] font-bold text-slate-400 flex items-center gap-1.5">
+                  <Clock className="w-3 h-3 md:w-4 md:h-4" /> เวลาปฏิบัติงานปกติ
+                </span>
+                {t.techPhone && t.techPhone !== '-' && t.techPhone !== 'N/A' ? (
+                  <a href={`tel:${String(t.techPhone).replace(/\D/g, '')}`} className="font-mono text-[13px] md:text-[16px] font-bold bg-orange-100 px-3 py-1.5 md:px-4 md:py-2 rounded-xl text-orange-800 border border-orange-300 shadow-sm hover:bg-orange-200 transition-colors flex items-center gap-2 active:scale-95">
+                    <Phone className="w-4 h-4 md:w-5 md:h-5 text-orange-600" />
+                    {formatDisplayPhone(t.techPhone)}
+                  </a>
+                ) : (
+                  <span className="font-mono text-[13px] md:text-[16px] text-slate-400 bg-slate-100 px-3 py-1.5 rounded-xl border border-slate-200">
+                    {String(t.techPhone || 'N/A')}
+                  </span>
+                )}
+              </div>
+            </div>
+            
+          </div>
+        </div>
+
+        {/* ==================== โซนเจ้าหน้าที่เวร SSC (วางต่อจากผู้รับผิดชอบหลัก) ==================== */}
+        {t.isOutOfHours && (
+          <div className="bg-purple-50/80 border-2 border-solid border-purple-400 p-4 md:p-6 rounded-2xl md:rounded-[1.5rem] mt-4 shadow-sm w-full">
+            <div className="flex flex-col">
+              <span className="text-[14px] md:text-[18px] font-black text-purple-700 mb-2 md:mb-4 flex items-center gap-2 uppercase tracking-wider">
+                <AlertTriangle size={18} className="animate-pulse" /> เจ้าหน้าที่เวร SSC ประจำวัน
+              </span>
+              
+              <div className="flex items-center justify-between mb-3">
+                <span className="font-black text-purple-950 flex items-center gap-2 text-[16px] md:text-[24px]">
+                  <User className="w-4 h-4 md:w-6 md:h-6 text-purple-500" />
+                  {sscName || t.sscTechName || "ยังไม่ระบุเวร"}
+                </span>
+              </div>
+
+              <div className="flex flex-wrap items-center justify-between mt-auto gap-3 pt-1 border-t border-purple-200/50">
+                <span className="text-[13px] md:text-[16px] font-bold text-purple-800 flex items-center gap-1.5 bg-purple-200 px-2 py-0.5 rounded-lg mt-2">
+                  <Clock className="w-3 h-3 md:w-4 md:h-4 text-purple-600" />
+                  วันที่: {new Date(t.date).toLocaleDateString('th-TH', { day: 'numeric', month: 'long', year: 'numeric' })}
+                </span>
+                
+                {(sscPhone || t.sscTechPhone) && (sscPhone || t.sscTechPhone) !== '-' && (
+                  <a href={`tel:${String(sscPhone || t.sscTechPhone).replace(/\D/g, '')}`} className="font-mono text-[13px] md:text-[16px] font-bold bg-purple-100 px-3 py-1.5 md:px-4 md:py-2 rounded-xl text-purple-800 border border-purple-300 shadow-sm hover:bg-purple-200 transition-colors flex items-center gap-2 active:scale-95 mt-2">
+                    <Phone className="w-4 h-4 md:w-5 md:h-5 text-purple-600" />
+                    {formatDisplayPhone(sscPhone || t.sscTechPhone)}
+                  </a>
+                )}
+              </div>
+            </div>
+          </div>
+        )}
+        {/* =================================================================================== */}
                       </div>
 
                      {/* 🌟 โซนปุ่มกด Action (ขนาดบิ๊กเบิ้ม สำหรับช่าง) */}
