@@ -204,18 +204,26 @@ function AdminRosterSettings() {
   };
 
   return (
-    <div className="min-h-screen bg-slate-950 text-slate-100 p-2 md:p-8 font-sans">
-      <div className="max-w-5xl mx-auto bg-slate-900/60 backdrop-blur-xl rounded-2xl md:rounded-[2rem] border-2 border-solid border-cyan-500/20 p-3 md:p-8 shadow-2xl shadow-cyan-900/20">
+    <div className="min-h-screen bg-slate-950 text-slate-100 p-2 md:p-8 font-sans flex flex-col justify-center">
+      <div className="max-w-5xl mx-auto bg-slate-900/80 backdrop-blur-xl rounded-2xl md:rounded-[2rem] border-2 border-solid border-orange-500/30 p-4 md:p-8 shadow-[0_0_30px_rgba(249,115,22,0.15)] relative w-full">
         
+        {/* 🌟 ฟันธง 1: ปุ่ม X ปิดหน้าต่างมุมขวาบน */}
+        <button
+          onClick={() => { /* ใส่ฟังก์ชันปิด Modal ตรงนี้ */ }}
+          className="absolute top-4 right-4 md:top-6 md:right-6 text-slate-400 hover:text-rose-500 bg-slate-800/50 hover:bg-rose-500/20 p-1.5 md:p-2 rounded-full transition-all duration-300 border border-transparent hover:border-rose-500/50 shadow-sm hover:shadow-[0_0_15px_rgba(225,29,72,0.5)] z-20"
+        >
+          <XCircle className="w-6 h-6 md:w-8 md:h-8" />
+        </button>
+
         {/* Header Section */}
-        <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 border-b border-solid border-slate-800 pb-4 md:pb-6 mb-4 md:mb-6">
+        <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 border-b border-solid border-orange-500/20 pb-4 md:pb-6 mb-4 md:mb-6 pr-10 md:pr-14">
           <div className="flex items-center gap-3">
-            <div className="bg-gradient-to-br from-cyan-500 to-blue-600 p-2.5 md:p-3 rounded-xl md:rounded-2xl shadow-[0_0_20px_rgba(6,182,212,0.4)]">
+            <div className="bg-gradient-to-br from-orange-500 to-red-600 p-2.5 md:p-3 rounded-xl md:rounded-2xl shadow-[0_0_20px_rgba(249,115,22,0.4)]">
               <Calendar className="w-5 h-5 md:w-6 md:h-6 text-white" />
             </div>
             <div>
-              <h1 className="text-lg md:text-3xl font-black text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 to-blue-400">จัดตารางเวรปฏิบัติงาน SSC</h1>
-              <p className="text-[11px] md:text-sm font-bold text-slate-400 mt-0.5">ระบบจัดการและบันทึกเวรวันหยุดประจำ ฝวด. รายเดือน</p>
+              <h1 className="text-lg md:text-3xl font-black text-transparent bg-clip-text bg-gradient-to-r from-orange-400 to-amber-400">จัดตารางเวรปฏิบัติงาน SSC</h1>
+              <p className="text-[11px] md:text-sm font-bold text-slate-400 mt-0.5">ระบบจัดการและบันทึกเวรวันหยุดประจำ ฝวด.</p>
             </div>
           </div>
           
@@ -223,7 +231,7 @@ function AdminRosterSettings() {
             <select 
               value={selectedMonth} 
               onChange={(e) => setSelectedMonth(Number(e.target.value))}
-              className="flex-1 md:flex-none bg-slate-800 text-cyan-300 font-bold px-3 md:px-4 py-2 md:py-2.5 rounded-lg md:rounded-xl border border-solid border-cyan-500/30 text-[13px] md:text-[14px] focus:border-cyan-400 focus:shadow-[0_0_15px_rgba(34,211,238,0.4)] transition-all outline-none"
+              className="flex-1 md:flex-none bg-slate-800 text-orange-400 font-bold px-3 md:px-4 py-2 md:py-2.5 rounded-lg md:rounded-xl border border-solid border-orange-500/30 text-[13px] md:text-[14px] focus:border-orange-500 focus:shadow-[0_0_15px_rgba(249,115,22,0.4)] transition-all outline-none"
             >
               {['มกราคม', 'กุมภาพันธ์', 'มีนาคม', 'เมษายน', 'พฤษภาคม', 'มิถุนายน', 'กรกฎาคม', 'สิงหาคม', 'กันยายน', 'ตุลาคม', 'พฤศจิกายน', 'ธันวาคม'].map((m, idx) => (
                 <option key={idx} value={idx + 1}>{m}</option>
@@ -232,9 +240,8 @@ function AdminRosterSettings() {
             <select 
               value={selectedYear} 
               onChange={(e) => setSelectedYear(Number(e.target.value))}
-              className="flex-1 md:flex-none bg-slate-800 text-cyan-300 font-bold px-3 md:px-4 py-2 md:py-2.5 rounded-lg md:rounded-xl border border-solid border-cyan-500/30 text-[13px] md:text-[14px] focus:border-cyan-400 focus:shadow-[0_0_15px_rgba(34,211,238,0.4)] transition-all outline-none"
+              className="flex-1 md:flex-none bg-slate-800 text-orange-400 font-bold px-3 md:px-4 py-2 md:py-2.5 rounded-lg md:rounded-xl border border-solid border-orange-500/30 text-[13px] md:text-[14px] focus:border-orange-500 focus:shadow-[0_0_15px_rgba(249,115,22,0.4)] transition-all outline-none"
             >
-              {/* 🌟 ฟันธง 1: ลดจำนวนปี เหลือแค่ปีนี้ และปีหน้า */}
               {[2026, 2027].map(y => (
                 <option key={y} value={y}>พ.ศ. {y + 543}</option>
               ))}
@@ -242,8 +249,8 @@ function AdminRosterSettings() {
           </div>
         </div>
 
-        {/* 🌟 ฟันธง 4: ปรับ Layout แบบ Card List สำหรับมือถือ และ Table สำหรับ PC */}
-        <div className="md:hidden space-y-3 mb-6">
+        {/* 🌟 ฟันธง 4: Mobile List - ล็อกความสูง Scroll ข้างในกันมือหงิก! */}
+        <div className="md:hidden max-h-[60vh] overflow-y-auto space-y-3 mb-4 pr-1 [&::-webkit-scrollbar]:w-1.5 [&::-webkit-scrollbar-thumb]:bg-orange-500/50 [&::-webkit-scrollbar-thumb]:rounded-full">
           {daysInMonth.map((d) => {
             const currentInfo = rosterData[d.dateStr] || {};
             const isRowHighlighted = d.isWeekend || currentInfo.isHoliday;
@@ -252,7 +259,7 @@ function AdminRosterSettings() {
             return (
               <div key={d.dateStr} className={`p-3 rounded-xl border border-solid transition-all ${isRowHighlighted ? 'bg-slate-800/80 border-slate-600 shadow-md' : 'bg-slate-900/50 border-slate-800'}`}>
                 <div className="flex justify-between items-center mb-2 pb-2 border-b border-slate-700/50">
-                  <span className={`inline-flex items-center justify-center w-8 h-8 md:w-auto md:h-auto md:px-3 md:py-1 rounded-lg border font-mono font-black text-[14px] transition-all duration-300 ${dateBadgeClass}`}>
+                  <span className={`inline-flex items-center justify-center w-8 h-8 rounded-lg border font-mono font-black text-[14px] transition-all duration-300 ${dateBadgeClass}`}>
                     {d.dayNum}
                   </span>
                   
@@ -262,7 +269,7 @@ function AdminRosterSettings() {
                       checked={currentInfo.isHoliday || d.isWeekend}
                       disabled={d.isWeekend}
                       onChange={(e) => handleHolidayToggle(d.dateStr, e.target.checked)}
-                      className="w-4 h-4 rounded border-slate-600 text-cyan-500 bg-slate-900 focus:ring-cyan-500 accent-cyan-500"
+                      className="w-4 h-4 rounded border-slate-600 text-orange-500 bg-slate-900 focus:ring-orange-500 accent-orange-500"
                     />
                     <span className={`font-bold text-[11px] ${d.isWeekend ? 'text-slate-400' : currentInfo.isHoliday ? 'text-orange-400 animate-pulse' : 'text-slate-500'}`}>
                       {d.isWeekend ? 'วันหยุดสัปดาห์' : 'วันหยุดพิเศษ'}
@@ -274,9 +281,8 @@ function AdminRosterSettings() {
                   <select
                     value={currentInfo.techName || ''}
                     onChange={(e) => handleTechChange(d.dateStr, e.target.value)}
-                    className={`w-full bg-slate-950 font-bold px-3 py-2.5 rounded-lg border border-solid transition-all text-[13px] outline-none ${currentInfo.techName ? 'text-cyan-400 border-cyan-500/50 shadow-[0_0_15px_rgba(6,182,212,0.2)]' : 'text-slate-500 border-slate-700 hover:border-slate-500'}`}
+                    className={`w-full bg-slate-950 font-bold px-3 py-2.5 rounded-lg border border-solid transition-all text-[13px] outline-none ${currentInfo.techName ? 'text-orange-400 border-orange-500/50 shadow-[0_0_15px_rgba(249,115,22,0.2)]' : 'text-slate-500 border-slate-700 hover:border-orange-500/50'}`}
                   >
-                    {/* 🌟 ฟันธง 3: เปลี่ยนคำ "ยังไม่มีเจ้าหน้าที่เวร" */}
                     <option value="">-- โปรดเลือกผู้ปฏิบัติงาน --</option>
                     {technicianList.map((t, tIdx) => (
                       <option key={tIdx} value={t.name}>{t.name}</option>
@@ -289,7 +295,7 @@ function AdminRosterSettings() {
                     value={d.isWeekend ? 'วันหยุดประจำสัปดาห์' : currentInfo.holidayName || ''}
                     onChange={(e) => handleHolidayNameChange(d.dateStr, e.target.value)}
                     placeholder="เช่น วันสงกรานต์, มติ ครม."
-                    className="w-full bg-slate-950 text-slate-300 px-3 py-2.5 rounded-lg border border-solid border-slate-700 focus:border-cyan-500 focus:shadow-[0_0_15px_rgba(6,182,212,0.2)] text-[12px] font-bold disabled:opacity-30 disabled:bg-slate-900 outline-none transition-all"
+                    className="w-full bg-slate-950 text-slate-300 px-3 py-2.5 rounded-lg border border-solid border-slate-700 focus:border-orange-500 focus:shadow-[0_0_15px_rgba(249,115,22,0.2)] text-[12px] font-bold disabled:opacity-30 disabled:bg-slate-900 outline-none transition-all"
                   />
                 </div>
               </div>
@@ -297,12 +303,12 @@ function AdminRosterSettings() {
           })}
         </div>
 
-        {/* 🌟 แสดงผลแบบ Table สำหรับ PC */}
-        <div className="hidden md:block overflow-hidden rounded-2xl border border-solid border-slate-700 mb-6 bg-slate-950/60 shadow-[inset_0_0_20px_rgba(0,0,0,0.5)]">
-          <div className="max-h-[60vh] overflow-y-auto [&::-webkit-scrollbar]:w-2 [&::-webkit-scrollbar-thumb]:bg-slate-700 [&::-webkit-scrollbar-thumb]:rounded-full hover:[&::-webkit-scrollbar-thumb]:bg-cyan-600">
+        {/* PC Table */}
+        <div className="hidden md:block overflow-hidden rounded-2xl border border-solid border-slate-700 mb-2 bg-slate-950/60 shadow-[inset_0_0_20px_rgba(0,0,0,0.5)]">
+          <div className="max-h-[60vh] overflow-y-auto [&::-webkit-scrollbar]:w-2 [&::-webkit-scrollbar-thumb]:bg-slate-700 [&::-webkit-scrollbar-thumb]:rounded-full hover:[&::-webkit-scrollbar-thumb]:bg-orange-600">
             <table className="w-full text-left border-collapse">
               <thead>
-                <tr className="bg-slate-900/90 backdrop-blur-md text-cyan-500/80 text-[13px] font-black uppercase tracking-wider sticky top-0 z-10 border-b border-solid border-slate-700 shadow-md">
+                <tr className="bg-slate-900/90 backdrop-blur-md text-orange-500/80 text-[13px] font-black uppercase tracking-wider sticky top-0 z-10 border-b border-solid border-slate-700 shadow-md">
                   <th className="py-4 px-4 text-center w-16">วันที่</th>
                   <th className="py-4 px-4">เจ้าหน้าที่อยู่เวรประจำวันหยุด (SSC)</th>
                   <th className="py-4 px-4 w-44 text-center">ประเภทวันหยุด</th>
@@ -318,7 +324,6 @@ function AdminRosterSettings() {
                   return (
                     <tr key={d.dateStr} className={`transition-all duration-300 hover:bg-slate-800/60 ${isRowHighlighted ? 'bg-slate-800/30' : ''}`}>
                       <td className="py-3 px-4 text-center font-mono font-black">
-                        {/* 🌟 ฟันธง 5: สีสัน Sci-Fi แบ่งตามวันหยุด */}
                         <span className={`inline-block w-10 py-1.5 rounded-lg border transition-all duration-300 ${dateBadgeClass}`}>
                           {d.dayNum}
                         </span>
@@ -327,7 +332,7 @@ function AdminRosterSettings() {
                         <select
                           value={currentInfo.techName || ''}
                           onChange={(e) => handleTechChange(d.dateStr, e.target.value)}
-                          className={`w-full max-w-md bg-slate-900/80 font-bold px-4 py-2.5 rounded-xl border border-solid transition-all outline-none ${currentInfo.techName ? 'text-cyan-400 border-cyan-500/60 shadow-[0_0_20px_rgba(6,182,212,0.25)]' : 'text-slate-400 border-slate-700 hover:border-cyan-500/40'}`}
+                          className={`w-full max-w-md bg-slate-900/80 font-bold px-4 py-2.5 rounded-xl border border-solid transition-all outline-none ${currentInfo.techName ? 'text-orange-400 border-orange-500/60 shadow-[0_0_20px_rgba(249,115,22,0.25)]' : 'text-slate-400 border-slate-700 hover:border-orange-500/40'}`}
                         >
                           <option value="">-- โปรดเลือกผู้ปฏิบัติงาน --</option>
                           {technicianList.map((t, tIdx) => (
@@ -342,9 +347,9 @@ function AdminRosterSettings() {
                             checked={currentInfo.isHoliday || d.isWeekend}
                             disabled={d.isWeekend}
                             onChange={(e) => handleHolidayToggle(d.dateStr, e.target.checked)}
-                            className="w-4.5 h-4.5 rounded border-slate-600 text-cyan-500 bg-slate-900 focus:ring-cyan-500 accent-cyan-500 cursor-pointer"
+                            className="w-4.5 h-4.5 rounded border-slate-600 text-orange-500 bg-slate-900 focus:ring-orange-500 accent-orange-500 cursor-pointer"
                           />
-                          <span className={`font-bold transition-colors ${d.isWeekend ? 'text-slate-500' : currentInfo.isHoliday ? 'text-orange-400 animate-pulse drop-shadow-[0_0_8px_rgba(249,115,22,0.6)]' : 'text-slate-500 group-hover:text-cyan-400'}`}>
+                          <span className={`font-bold transition-colors ${d.isWeekend ? 'text-slate-500' : currentInfo.isHoliday ? 'text-orange-400 animate-pulse drop-shadow-[0_0_8px_rgba(249,115,22,0.6)]' : 'text-slate-500 group-hover:text-orange-400'}`}>
                             {d.isWeekend ? 'วันหยุดสัปดาห์' : 'วันหยุดพิเศษ'}
                           </span>
                         </label>
@@ -356,7 +361,7 @@ function AdminRosterSettings() {
                           value={d.isWeekend ? 'วันหยุดประจำสัปดาห์' : currentInfo.holidayName || ''}
                           onChange={(e) => handleHolidayNameChange(d.dateStr, e.target.value)}
                           placeholder="เช่น วันสงกรานต์, มติ ครม."
-                          className="w-full bg-slate-900/80 text-cyan-100 px-4 py-2.5 rounded-xl border border-solid border-slate-700 focus:border-cyan-400 focus:shadow-[0_0_20px_rgba(34,211,238,0.2)] text-[13px] font-bold disabled:opacity-30 disabled:bg-transparent outline-none transition-all"
+                          className="w-full bg-slate-900/80 text-orange-100 px-4 py-2.5 rounded-xl border border-solid border-slate-700 focus:border-orange-400 focus:shadow-[0_0_20px_rgba(249,115,22,0.2)] text-[13px] font-bold disabled:opacity-30 disabled:bg-transparent outline-none transition-all"
                         />
                       </td>
                     </tr>
@@ -367,28 +372,25 @@ function AdminRosterSettings() {
           </div>
         </div>
 
-        {/* Footer Section */}
-        <div className="flex flex-col sm:flex-row justify-between items-center gap-4 border-t border-solid border-slate-800 pt-5 md:pt-6">
-          <div className="flex items-center gap-2 text-cyan-500 text-[11px] md:text-[13px] font-bold bg-cyan-500/10 px-3 py-2 rounded-lg border border-cyan-500/20">
-            <ShieldAlert className="w-4 h-4 shrink-0" />
-            <span>ฟันธง: การแก้ไขตารางเวรในหน้านี้ จะอัปเดตระบบอัตโนมัติ 1,000,000%</span>
-          </div>
-          <div className="flex flex-col sm:flex-row items-center gap-3 w-full sm:w-auto">
+        {/* Footer Section (🌟 ฟันธง 3: ลบข้อความรกๆ ทิ้ง เหลือแค่สถานะเซฟและปุ่ม) */}
+        <div className="flex justify-end items-center border-t border-solid border-orange-500/20 pt-4 md:pt-5 mt-2">
+          <div className="flex items-center gap-4 w-full md:w-auto">
             {showSuccess && (
               <span className="flex items-center gap-1.5 text-emerald-400 font-bold text-[13px] animate-pulse bg-emerald-500/10 px-3 py-1.5 rounded-lg border border-emerald-500/30">
-                <CheckCircle2 className="w-4 h-4" /> บันทึกตารางเวรสำเร็จ!
+                <CheckCircle2 className="w-4 h-4" /> บันทึกสำเร็จ!
               </span>
             )}
             <button
               onClick={handleSaveAll}
               disabled={loading}
-              className="w-full sm:w-auto bg-gradient-to-r from-cyan-600 to-blue-600 hover:from-cyan-500 hover:to-blue-500 text-white font-black px-6 md:px-8 py-3 md:py-3.5 rounded-xl md:rounded-2xl shadow-[0_0_20px_rgba(6,182,212,0.3)] hover:shadow-[0_0_30px_rgba(6,182,212,0.6)] active:scale-95 transition-all duration-300 text-[14px] md:text-[15px] flex items-center justify-center gap-2 disabled:opacity-50 disabled:grayscale"
+              className="w-full md:w-auto bg-gradient-to-r from-orange-500 to-red-600 hover:from-orange-400 hover:to-red-500 text-white font-black px-6 md:px-10 py-3 md:py-3.5 rounded-xl md:rounded-2xl shadow-[0_0_20px_rgba(249,115,22,0.4)] hover:shadow-[0_0_30px_rgba(249,115,22,0.7)] active:scale-95 transition-all duration-300 text-[15px] flex items-center justify-center gap-2 disabled:opacity-50 disabled:grayscale"
             >
               <Save className="w-4 h-4 md:w-5 md:h-5" />
-              {loading ? 'กำลังซิงค์ข้อมูล...' : 'บันทึกตารางเวรประจำเดือน'}
+              {loading ? 'กำลังซิงค์...' : 'บันทึกตารางเวร'}
             </button>
           </div>
         </div>
+
       </div>
     </div>
   );
@@ -4339,12 +4341,6 @@ const renderTracking = () => (
           <div className="fixed inset-0 z-[99999] bg-slate-950 overflow-y-auto pb-20">
             {/* ปุ่มปิดหน้าแอดมิน */}
             <div className="sticky top-0 right-0 p-4 md:p-6 flex justify-end z-[100] bg-gradient-to-b from-slate-950/90 to-transparent pointer-events-none">
-              <button 
-                onClick={() => setShowAdminRoster(false)}
-                className="pointer-events-auto bg-rose-600 text-white flex items-center gap-2 px-6 py-3 rounded-full font-black text-[14px] md:text-xl shadow-[0_0_20px_rgba(225,29,72,0.8)] hover:bg-rose-500 active:scale-95 transition-all"
-              >
-                <XCircle size={24} className="md:w-6 md:h-6" /> ปิดหน้าตั้งค่าเวร
-              </button>
             </div>
             {/* ดึงหน้าจอแอดมินมาแสดง */}
             <div className="-mt-16 md:-mt-20">
@@ -4352,9 +4348,6 @@ const renderTracking = () => (
             </div>
           </div>
         )}
-
-        {/* 🌟 ฟันธง: เรียกใช้ฟอนต์ Sarabun เรียบร้อย สะอาดตา */}
-        <SarabunFontEmbed />
 
    {/* 🌟 ฟันธง: เรียกใช้ฟอนต์ Sarabun เรียบร้อย สะอาดตา */}
    <SarabunFontEmbed />
