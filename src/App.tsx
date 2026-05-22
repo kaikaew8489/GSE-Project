@@ -225,8 +225,8 @@ function AdminRosterSettings({ onClose }) {
               <Calendar className="w-5 h-5 md:w-6 md:h-6 text-white" />
             </div>
             <div>
-              <h1 className="text-lg md:text-3xl font-black text-transparent bg-clip-text bg-gradient-to-r from-orange-400 to-amber-400 drop-shadow-sm">ตารางเวรปฏิบัติงาน SSC</h1>
-              <p className="text-[11px] md:text-sm font-bold text-slate-300 mt-0.5 hidden md:block">ระบบบริหารจัดการและบันทึกเวรวันหยุด SSC</p>
+              <h1 className="text-lg md:text-3xl font-black text-transparent bg-clip-text bg-gradient-to-r from-orange-400 to-amber-400 drop-shadow-sm">จัดตารางเวรปฏิบัติงาน SSC</h1>
+              <p className="text-[11px] md:text-sm font-bold text-slate-400 mt-0.5 hidden md:block">ระบบจัดการและบันทึกเวรวันหยุดประจำ ฝวด.</p>
             </div>
           </div>
           
@@ -467,7 +467,7 @@ function AdminRosterSettings({ onClose }) {
         <div className="fixed inset-0 z-[999999] flex items-center justify-center p-4 bg-slate-950/80 backdrop-blur-md animate-in fade-in duration-200 overscroll-none">
           
           {/* 🌟 ฟันธง 2: ขอบนอกสุดสีฟ้าสว่างวาบ อัดแสง Flare ทวีคูณ (Outer + Inner Glow) */}
-          <div className="relative bg-slate-900 border-[3px] border-solid border-cyan-500 rounded-3xl w-full max-w-sm p-6 shadow-[0_0_60px_rgba(34,211,238,0.7),inset_0_0_20px_rgba(34,211,238,0.3)] flex flex-col max-h-[85vh]">
+          <div className="relative bg-slate-900 border-[3px] border-cyan-400 rounded-3xl w-full max-w-sm p-6 shadow-[0_0_60px_rgba(34,211,238,0.7),inset_0_0_20px_rgba(34,211,238,0.3)] flex flex-col max-h-[85vh]">
             
             {/* 🌟 ฟันธง 3: หัวข้อและกากบาท ปล่อยโล่ง ไม่มีกรอบล้อม เน้นเส้นใต้บางๆ เรืองแสง ดู Sci-Fi สุดๆ */}
             <div className="flex justify-between items-center mb-5 border-b-[2px] border-cyan-500/40 pb-4">
@@ -504,7 +504,7 @@ function AdminRosterSettings({ onClose }) {
                       ${isSelected 
                         ? 'bg-orange-900/40 text-orange-400 border-orange-400 shadow-[0_0_30px_rgba(249,115,22,0.8),inset_0_0_15px_rgba(249,115,22,0.4)]' 
                         /* 🌟 ฟันธง 1: เอาคำสั่งเด้งขึ้น (-translate-y-1) ออกเช่นกัน ให้อยู่กับที่แต่แสงระเบิดออก */
-                        : 'bg-slate-900/80 text-cyan-100 border-2 border-solid border-emerald-300/60 shadow-[0_0_15px_rgba(16,185,129,0.2)] hover:bg-emerald-500/20 hover:border-emerald-400 hover:text-white hover:shadow-[0_0_35px_rgba(16,185,129,1)]'
+                        : 'bg-slate-900/80 text-cyan-100 border-emerald-500/60 shadow-[0_0_15px_rgba(16,185,129,0.2)] hover:bg-emerald-500/20 hover:border-emerald-400 hover:text-white hover:shadow-[0_0_35px_rgba(16,185,129,1)]'
                       }`}
                   >
                     <span className="text-[14px] md:text-[15px]">{t.name}</span>
@@ -705,8 +705,8 @@ const technicianList = [
   { name: 'นายประมินทร์ พิชิตการค้า', phone: '08-1135-1599', photo: '/pramin.webp' },
   { name: 'นายธนกาญจน์ ไตรปิฎก', phone: '06-2463-5544', photo: '/karn.webp' },
   { name: 'นายชุติพงษ์ ลาวงศ์เกิด', phone: '09-8938-9839', photo: '/neng.webp' },
-  { name: 'น.ส.จินวะรา สุรัตนกุล', phone: '08-2480-2280', photo: '/jun.webp' },
   { name: 'นายวิชญ์ภาส ดรบัณฑิต', phone: '09-1415-5194', photo: '/top.webp' },
+  { name: 'น.ส.จินวะรา สุรัตนกุล', phone: '08-2480-2280', photo: '/jun.webp' },
 ];
 
 // ==========================================
@@ -2022,42 +2022,42 @@ const executeRatingSubmit = async () => {
           <div className="absolute top-0 right-0 w-40 h-40 md:w-60 md:h-60 bg-white/50 rounded-full blur-3xl -mr-10 -mt-10 pointer-events-none"></div>
 
           <div className="relative z-10">
-  <div className="flex justify-between items-start">
-    <div>
-      <p className="text-slate-300 text-[16px] md:text-[20px] font-black uppercase tracking-widest mb-2 drop-shadow-sm">
-        จำนวนงานทั้งหมด
-      </p>
-      
-      {/* 🌟 ตัวเลข 14 (ย้ายมาไว้บนสุดให้เป็นจุดสนใจ) */}
-      <div className="flex items-baseline gap-2 mb-1">
-        <span className="text-7xl md:text-[6.5rem] font-black font-mono tracking-tighter leading-none text-orange-500 drop-shadow-[0_4px_4px_rgba(0,0,0,0.4)]">
-          {String(stats.total).padStart(2, '0')}
-        </span>
-        <span className="text-slate-300 text-[16px] md:text-[22px] font-bold tracking-widest ml-1">
-          รายการ
-        </span>
-      </div>
+            <div className="flex justify-between items-start">
+              <div>
+                <p className="text-slate-300 text-[16px] md:text-[20px] font-black uppercase tracking-widest mb-2 drop-shadow-sm">
+                  จำนวนงานทั้งหมด
+                </p>
+                
+                {/* 🌟 ป้ายบอกช่วงเวลา (อัปเกรดให้ใหญ่และเรืองแสง) */}
+                <div className="bg-orange-500/20 border-2 border-orange-400/50 text-orange-300 text-[13px] md:text-[16px] font-black px-3 md:px-4 py-1 md:py-1.5 rounded-lg inline-block mb-4 shadow-[0_0_15px_rgba(249,115,22,0.3)] backdrop-blur-md">
+                  {getTimeframeLabel()}
+                </div>
+                
+                {/* 🌟 ตัวเลข (ขยายเป็น text-7xl ให้เบิ้มๆ) */}
+                <div className="flex items-baseline gap-2">
+                  <span className="text-7xl md:text-[6.5rem] font-black font-mono tracking-tighter leading-none text-orange-500 drop-shadow-[0_4px_4px_rgba(0,0,0,0.4)]">
+                    {String(stats.total).padStart(2, '0')}
+                  </span>
+                  <span className="text-slate-300 text-[16px] md:text-[22px] font-bold tracking-widest ml-1">
+                    รายการ
+                  </span>
+                </div>
+              </div>
 
-      {/* 🌟 ฟันธง: ย้ายช่วงเวลาลงมาไว้ข้างล่าง และเปลี่ยนสไตล์ให้จางลง (Secondary Text) เพื่อให้ตัวเลขเด่นสุด! */}
-      <div className="text-[16px] md:text-[20px] font-bold text-cyan-400 tracking-wide">
-        {getTimeframeLabel()}
-      </div>
-    </div>
-
-    {/* 🌟 วงกลม % อัตราปิดงาน (ปรับให้สมดุล) */}
-    <div className="bg-white/90 backdrop-blur-md border-[3px] border-solid border-emerald-400/50 px-4 md:px-6 py-3 md:py-5 rounded-2xl flex flex-col items-center shadow-lg mt-1">
-      <span className="text-[16px] md:text-[20px] font-black uppercase tracking-widest text-emerald-800 mb-1">
-        อัตราปิดงาน
-      </span>
-      <div className="flex items-center gap-1.5 md:gap-2 text-orange-600">
-        <PieChart className="w-6 h-6 md:w-8 md:h-8 animate-pulse text-orange-600" />
-        <span className="text-[34px] md:text-[44px] font-black drop-shadow-sm">
-          {completionRate}%
-        </span>
-      </div>
-    </div>
-  </div>
-</div>
+              {/* 🌟 วงกลม % อัตราปิดงาน (ขยายกรอบให้สมดุล) */}
+              <div className="bg-white/90 backdrop-blur-md border-[3px] border-solid border-emerald-400/50 px-4 md:px-6 py-3 md:py-5 rounded-2xl flex flex-col items-center shadow-lg mt-1">
+                <span className="text-[14px] md:text-[16px] font-black uppercase tracking-widest text-emerald-800 mb-1">
+                  อัตราปิดงาน
+                </span>
+                <div className="flex items-center gap-1.5 md:gap-2 text-orange-600">
+                  <PieChart className="w-6 h-6 md:w-8 md:h-8 animate-pulse text-orange-600" />
+                  <span className="text-[34px] md:text-[44px] font-black drop-shadow-sm">
+                    {completionRate}%
+                  </span>
+                </div>
+              </div>
+            </div>
+          </div>
         </div>
   
 
@@ -3244,24 +3244,25 @@ const renderTracking = () => (
                   }`}
                 >
                   <div className="p-5 md:p-8 md:px-10 border-b border-slate-100 bg-slate-50/50">
-                    {/* 🌟 ฟันธง: ผ่าตัดเปลี่ยนเลขตั๋วและสถานะ ให้กลายเป็น Badge สวยๆ ตามโจทย์ครับ */}
-                    <div className="flex flex-wrap gap-2 md:gap-4 mb-4 md:mb-8">
-                      {/* 1. เลขตั๋ว (ใช้รหัสตั๋วเดิมของท่าน) */}
-                      <span className="bg-emerald-800/80 text-orange-400 px-4 py-2 rounded-xl text-[13px] md:text-[18px] font-black border-2 border-solid border-emerald-800/30 shadow-[0_0_10px_rgba(16,185,129,0.2)]">
-                        {String(t.id)}
-                      </span>
-
-                      {/* 2. สถานะ SSC -> วันหยุด (เช็คจากเงื่อนไข isOutOfHours ของท่าน) */}
-                      {t.isOutOfHours && (
-                        <span className="bg-blue 800/80 text-rose-600 px-5 py-2 rounded-xl text-[13px] md:text-[18px] font-black border-2 border-solid border-blue-800/80 shadow-[0_0_10px_rgba(59,130,246,0.2)] animate-pulse">
-                          วันหยุด
+                    <div className="flex justify-between items-start mb-4 md:mb-6">
+                      <div className="flex items-center">
+                        <span className="text-[13px] md:text-[22px] font-mono text-emerald-600 bg-emerald-100 px-3 py-1 md:px-5 md:py-2 rounded-lg md:rounded-xl font-black tracking-widest border border-emerald-200 shadow-sm">
+                          {String(t.id)}
                         </span>
-                      )}
-
-                      {/* 3. สถานะงาน (รอดำเนินการ/อื่นๆ) */}
-                      <span className={`px-5 py-2 rounded-xl text-[13px] md:text-[18px] font-black border-2 border-solid shadow-[0_0_10px_rgba(251,113,133,0.2)] ${styleColor}`}>
+                        {t.isOutOfHours && (
+                          <span className="ml-2 md:ml-4 text-[10px] md:text-[16px] font-black text-rose-600 bg-rose-100 border border-rose-200 px-2 py-0.5 md:px-4 md:py-1.5 rounded-md md:rounded-xl animate-pulse">
+                            SSC (นอกเวลา)
+                          </span>
+                        )}
+                      </div>
+                      <div
+                        className={`px-3 py-1 md:px-6 md:py-3 rounded-lg md:rounded-2xl text-[15px] md:text-[24px] font-bold border border-2 border-solid shadow-sm flex items-center gap-1.5 md:gap-3 ${styleColor}`}
+                      >
+                        {isPending && (
+                          <div className="w-1.5 h-1.5 md:w-3 md:h-3 rounded-full bg-rose-500 animate-pulse"></div>
+                        )}
                         {statusLabel}
-                      </span>
+                      </div>
                     </div>
 
                     {/* 🌟 โซนดาวประเมิน (อัปเกรด: บรรทัดเดียว ชิดขวา ขนาดใหญ่ขึ้น) */}
@@ -3868,7 +3869,7 @@ const renderTracking = () => (
                                 }
                                 className="w-full bg-gradient-to-r from-orange-400 to-orange-500 text-white border border-orange-300 font-bold py-3.5 md:py-6 rounded-xl md:rounded-3xl shadow-[0_0_15px_rgba(249,115,22,0.4)] hover:shadow-[0_0_25px_rgba(249,115,22,0.6)] active:scale-95 transition-all text-[15px] md:text-[26px]"
                             >
-                              เจ้าหน้าที่เวรวันหยุด SSC แก้ไขเบื้องต้น
+                              แก้ไขเบื้องต้น (ส่งต่อช่างหลัก)
                             </button>
                             )}
 
