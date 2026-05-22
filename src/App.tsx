@@ -91,8 +91,15 @@ function AdminRosterSettings({ onClose }) {
   const [rosterData, setRosterData] = useState({}); 
   const [loading, setLoading] = useState(false);
 
+  // 🌟 ฟันธง: เพิ่มตัวแปรควบคุม Pop-up เดือน และ ปี
+  const [isMonthModalOpen, setIsMonthModalOpen] = useState(false);
+  const [isYearModalOpen, setIsYearModalOpen] = useState(false);
   const [selectingTechForDate, setSelectingTechForDate] = useState(null);
   const [modalConfig, setModalConfig] = useState({ isOpen: false, type: null });
+
+  // 🌟 ฟันธง: ข้อมูลรายชื่อเดือนและปี สำหรับใช้ใน Pop-up
+  const monthsThai = ['มกราคม', 'กุมภาพันธ์', 'มีนาคม', 'เมษายน', 'พฤษภาคม', 'มิถุนายน', 'กรกฎาคม', 'สิงหาคม', 'กันยายน', 'ตุลาคม', 'พฤศจิกายน', 'ธันวาคม'];
+  const yearsList = [2026, 2027];
 
   useEffect(() => {
     generateMonthDays();
@@ -133,7 +140,6 @@ function AdminRosterSettings({ onClose }) {
       ...prev,
       [dateStr]: {
         ...prev[dateStr],
-        dateStr,
         techName,
         techPhone: matchedTech ? matchedTech.phone : '-',
       }
@@ -145,7 +151,6 @@ function AdminRosterSettings({ onClose }) {
       ...prev,
       [dateStr]: {
         ...prev[dateStr],
-        dateStr,
         holidayName: name,
         isHoliday: name.trim().length > 0 
       }
@@ -216,27 +221,23 @@ function AdminRosterSettings({ onClose }) {
             </div>
           </div>
           
+          {/* 🌟 ฟันธง: เปลี่ยน Select เดือน/ปี เป็นปุ่มกด Sci-Fi สีส้ม */}
           <div className="grid grid-cols-2 md:flex md:justify-center gap-2 w-full md:w-auto mt-3 md:mt-0">
-            <select 
-              value={selectedMonth} 
-              onChange={(e) => setSelectedMonth(Number(e.target.value))}
-              className="w-full bg-slate-800 text-orange-400 font-bold px-2 py-2.5 rounded-xl border border-solid border-orange-500/30 text-[13px] outline-none text-center"
-              style={{ textAlignLast: 'center' }}
+            <button 
+              onClick={() => setIsMonthModalOpen(true)}
+              className="w-full md:w-40 bg-slate-800 text-orange-400 font-bold px-3 py-2.5 rounded-xl border border-solid border-orange-500/30 text-[14px] flex justify-between items-center hover:bg-slate-700 hover:border-orange-500/60 transition-all shadow-[0_0_10px_rgba(249,115,22,0.1)] outline-none"
             >
-              {['มกราคม', 'กุมภาพันธ์', 'มีนาคม', 'เมษายน', 'พฤษภาคม', 'มิถุนายน', 'กรกฎาคม', 'สิงหาคม', 'กันยายน', 'ตุลาคม', 'พฤศจิกายน', 'ธันวาคม'].map((m, idx) => (
-                <option key={idx} value={idx + 1}>{m}</option>
-              ))}
-            </select>
-            <select 
-              value={selectedYear} 
-              onChange={(e) => setSelectedYear(Number(e.target.value))}
-              className="w-full bg-slate-800 text-orange-400 font-bold px-2 py-2.5 rounded-xl border border-solid border-orange-500/30 text-[13px] outline-none text-center"
-              style={{ textAlignLast: 'center' }}
+              <span className="flex-1 text-center">{monthsThai[selectedMonth - 1]}</span>
+              <svg className="w-4 h-4 opacity-70" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 9l-7 7-7-7"></path></svg>
+            </button>
+            
+            <button 
+              onClick={() => setIsYearModalOpen(true)}
+              className="w-full md:w-32 bg-slate-800 text-orange-400 font-bold px-3 py-2.5 rounded-xl border border-solid border-orange-500/30 text-[14px] flex justify-between items-center hover:bg-slate-700 hover:border-orange-500/60 transition-all shadow-[0_0_10px_rgba(249,115,22,0.1)] outline-none"
             >
-              {[2026, 2027].map(y => (
-                <option key={y} value={y}>พ.ศ. {y + 543}</option>
-              ))}
-            </select>
+              <span className="flex-1 text-center">พ.ศ. {selectedYear + 543}</span>
+              <svg className="w-4 h-4 opacity-70" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 9l-7 7-7-7"></path></svg>
+            </button>
           </div>
         </div>
 
@@ -329,9 +330,78 @@ function AdminRosterSettings({ onClose }) {
         </div>
       </div>
 
-      {/* 🌟 ย้าย Pop-up ต่างๆ มาไว้ตรงนี้ (ใน return แต่ก่อนปิด div ตัวสุดท้าย) 🌟 */}
-      
-      {/* 1. Pop-up ยืนยัน บันทึก/ล้างข้อมูล */}
+      {/* ======================= 🌟 โซน Pop-up ทั้งหมด 🌟 ======================= */}
+
+      {/* 1. Pop-up เลือกเดือน (Sci-Fi Grid สีส้ม) */}
+      {isMonthModalOpen && (
+        <div className="fixed inset-0 z-[999999] flex items-center justify-center p-4 bg-slate-950/80 backdrop-blur-md animate-in fade-in duration-200 overscroll-none">
+          <div className="relative bg-slate-900 border-[3px] border-orange-500/80 rounded-3xl w-full max-w-sm p-6 shadow-[0_0_50px_rgba(249,115,22,0.3)] flex flex-col">
+            <div className="flex justify-between items-center mb-5 border-b border-orange-500/30 pb-3">
+              <h3 className="text-lg font-black text-orange-400 flex items-center gap-2">
+                <Calendar className="w-5 h-5" /> เลือกเดือน
+              </h3>
+              <button onClick={() => setIsMonthModalOpen(false)} className="text-slate-400 hover:text-rose-500 bg-slate-800 p-1.5 rounded-full transition-colors border border-slate-700">
+                <XCircle className="w-6 h-6" />
+              </button>
+            </div>
+            <div className="grid grid-cols-3 gap-3">
+              {monthsThai.map((m, idx) => {
+                const isSelected = selectedMonth === idx + 1;
+                return (
+                  <button
+                    key={idx}
+                    onClick={() => { setSelectedMonth(idx + 1); setIsMonthModalOpen(false); }}
+                    className={`py-3.5 rounded-2xl font-black border-[2px] transition-all duration-200 text-[13px] md:text-[14px] active:scale-95
+                      ${isSelected
+                        ? 'bg-gradient-to-br from-orange-500 to-red-600 text-white border-orange-400 shadow-[0_0_20px_rgba(249,115,22,0.5)]'
+                        : 'bg-slate-800 text-slate-300 border-slate-700 hover:border-orange-500/60 hover:bg-slate-700 hover:text-orange-400'
+                      }`}
+                  >
+                    {m}
+                  </button>
+                );
+              })}
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* 2. Pop-up เลือกปี พ.ศ. (Sci-Fi List สีส้ม) */}
+      {isYearModalOpen && (
+        <div className="fixed inset-0 z-[999999] flex items-center justify-center p-4 bg-slate-950/80 backdrop-blur-md animate-in fade-in duration-200 overscroll-none">
+          <div className="relative bg-slate-900 border-[3px] border-orange-500/80 rounded-3xl w-full max-w-xs p-6 shadow-[0_0_50px_rgba(249,115,22,0.3)] flex flex-col">
+            <div className="flex justify-between items-center mb-5 border-b border-orange-500/30 pb-3">
+              <h3 className="text-lg font-black text-orange-400 flex items-center gap-2">
+                <Calendar className="w-5 h-5" /> เลือกปี พ.ศ.
+              </h3>
+              <button onClick={() => setIsYearModalOpen(false)} className="text-slate-400 hover:text-rose-500 bg-slate-800 p-1.5 rounded-full transition-colors border border-slate-700">
+                <XCircle className="w-6 h-6" />
+              </button>
+            </div>
+            <div className="flex flex-col gap-3">
+              {yearsList.map((y) => {
+                const isSelected = selectedYear === y;
+                return (
+                  <button
+                    key={y}
+                    onClick={() => { setSelectedYear(y); setIsYearModalOpen(false); }}
+                    className={`w-full relative py-4 rounded-2xl font-black border-[2px] transition-all duration-200 text-[15px] active:scale-95
+                      ${isSelected
+                        ? 'bg-gradient-to-r from-orange-500 to-red-600 text-white border-orange-400 shadow-[0_0_20px_rgba(249,115,22,0.5)]'
+                        : 'bg-slate-800 text-slate-300 border-slate-700 hover:border-orange-500/60 hover:bg-slate-700 hover:text-orange-400'
+                      }`}
+                  >
+                    <span className="flex-1 text-center">พ.ศ. {y + 543}</span>
+                    {isSelected && <CheckCircle2 className="w-5 h-5 text-white absolute right-5 top-1/2 -translate-y-1/2" />}
+                  </button>
+                );
+              })}
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* 3. Pop-up ยืนยัน บันทึก/ล้างข้อมูล */}
       {modalConfig.isOpen && (
         <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-slate-950/80 backdrop-blur-sm animate-in fade-in duration-200 overscroll-none">
           <div className={`relative bg-slate-900 border-[3px] border-solid rounded-3xl w-full max-w-sm p-6 text-center shadow-2xl ${modalConfig.type === 'save' ? 'border-orange-500 shadow-[0_0_50px_rgba(249,115,22,0.4)]' : 'border-rose-500 shadow-[0_0_50px_rgba(225,29,72,0.4)]'}`}>
@@ -369,7 +439,7 @@ function AdminRosterSettings({ onClose }) {
         </div>
       )}
 
-      {/* 2. Pop-up Sci-Fi สำหรับเลือกชื่อช่าง (ย้ายมาไว้ตรงนี้) */}
+      {/* 4. Pop-up Sci-Fi สำหรับเลือกชื่อช่าง (สีฟ้า) */}
       {selectingTechForDate && (
         <div className="fixed inset-0 z-[999999] flex items-center justify-center p-4 bg-slate-950/80 backdrop-blur-md animate-in fade-in duration-200 overscroll-none">
           <div className="relative bg-slate-900 border-[3px] border-cyan-500/80 rounded-3xl w-full max-w-sm p-5 shadow-[0_0_40px_rgba(6,182,212,0.4)] flex flex-col max-h-[80vh]">
@@ -388,9 +458,9 @@ function AdminRosterSettings({ onClose }) {
               
               <button 
                 onClick={() => { handleTechChange(selectingTechForDate, ''); setSelectingTechForDate(null); }}
-                className="w-full text-left px-4 py-3 rounded-xl font-bold border-2 transition-all duration-200 bg-slate-950/50 text-slate-500 border-slate-700 hover:border-slate-500"
+                className="w-full text-center px-4 py-3 rounded-xl font-bold border-2 transition-all duration-200 bg-slate-950/50 text-slate-500 border-slate-700 hover:border-rose-500/50 hover:text-rose-400"
               >
-                -- ไม่ระบุผู้ปฏิบัติงาน --
+                -- ยกเลิกเวร / ไม่ระบุ --
               </button>
 
               {technicianList.map((t, idx) => {
@@ -399,10 +469,10 @@ function AdminRosterSettings({ onClose }) {
                   <button 
                     key={idx}
                     onClick={() => { handleTechChange(selectingTechForDate, t.name); setSelectingTechForDate(null); }}
-                    className={`w-full text-left px-4 py-3 rounded-xl font-bold border-2 transition-all duration-200 flex justify-between items-center
+                    className={`w-full text-left px-4 py-3.5 rounded-xl font-bold border-2 transition-all duration-200 flex justify-between items-center active:scale-95
                       ${isSelected 
                         ? 'bg-cyan-900/40 text-cyan-400 border-cyan-500 shadow-[0_0_15px_rgba(6,182,212,0.3)]' 
-                        : 'bg-slate-800 text-slate-300 border-slate-700 hover:border-cyan-500/50 hover:bg-slate-800/80'
+                        : 'bg-slate-800 text-slate-300 border-slate-700 hover:border-cyan-500/50 hover:bg-slate-800/80 hover:text-cyan-300'
                       }`}
                   >
                     {t.name}
