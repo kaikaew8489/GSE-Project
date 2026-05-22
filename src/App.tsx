@@ -207,13 +207,10 @@ function AdminRosterSettings({ onClose }) {
   const activeRecordsCount = Object.values(rosterData).filter(info => (info.techName && info.techName.trim() !== '') || info.isHoliday).length;
 
   return (
-   
     <div className="min-h-[100dvh] bg-slate-950 text-slate-100 p-3 pb-24 md:p-8 font-sans flex flex-col justify-start md:justify-center relative overflow-y-auto overscroll-none">
       
-      {/* 🌟 ฟันธง 2: อัดแสง Flare สีส้ม (shadow-[0_0_90px...]) ให้สว่างทะลุจอ */}
       <div className="max-w-4xl mx-auto bg-slate-900/80 backdrop-blur-xl rounded-2xl md:rounded-[2rem] border-[3px] border-solid border-orange-500 p-4 pb-6 md:p-8 shadow-[0_0_90px_rgba(249,115,22,0.5)] relative w-full mt-10 md:mt-0 mb-10 md:mb-0 my-auto">
         
-        {/* 🌟 ฟันธง 2: ปุ่ม X ปิดหน้าต่างหลัก - สีส้มเรืองแสง + วูบวาบ (animate-pulse) */}
         <button
           onClick={() => { if(onClose) onClose(); }}
           className="absolute top-4 right-4 md:top-6 md:right-6 text-orange-500 hover:text-white animate-pulse bg-slate-900 hover:bg-orange-600 p-1.5 md:p-2 rounded-full transition-all duration-300 border border-orange-500 shadow-[0_0_25px_rgba(249,115,22,1)] hover:shadow-[0_0_35px_rgba(249,115,22,1)] z-20 cursor-pointer"
@@ -221,7 +218,8 @@ function AdminRosterSettings({ onClose }) {
           <XCircle className="w-6 h-6 md:w-8 md:h-8" />
         </button>
 
-        <div className="flex flex-col md:flex-row justify-between items-center gap-4 border-b border-solid border-orange-500/20 pb-4 md:pb-6 mb-4 md:mb-6 pr-10 md:pr-14 md:items-center">
+        {/* 🌟 ฟันธง 3: ลบเส้นแบ่ง border-b สีส้มออก ประหยัดพื้นที่! */}
+        <div className="flex flex-col md:flex-row justify-between items-center gap-4 pr-10 md:pr-14 md:items-center mb-3">
           <div className="flex items-center gap-3 w-full md:w-auto justify-center md:justify-start">
             <div className="bg-gradient-to-br from-orange-500 to-red-600 p-2.5 md:p-3 rounded-xl md:rounded-2xl shadow-[0_0_20px_rgba(249,115,22,0.4)]">
               <Calendar className="w-5 h-5 md:w-6 md:h-6 text-white" />
@@ -232,46 +230,47 @@ function AdminRosterSettings({ onClose }) {
             </div>
           </div>
           
-          <div className="grid grid-cols-2 md:flex md:justify-center gap-2 w-full md:w-auto mt-3 md:mt-0">
+          <div className="grid grid-cols-2 md:flex md:justify-center gap-2 w-full md:w-auto mt-2 md:mt-0">
+            {/* 🌟 ฟันธง 2: ขยายฟอนต์เดือนให้เบิ้มๆ text-[16px] md:text-[18px] */}
             <button 
               onClick={() => setIsMonthModalOpen(true)}
-              className="w-full md:w-40 bg-slate-800 text-orange-400 font-bold px-3 py-2.5 rounded-xl border border-solid border-orange-500/30 text-[14px] flex justify-between items-center hover:bg-slate-700 hover:border-orange-500/60 transition-all shadow-[0_0_10px_rgba(249,115,22,0.1)] outline-none"
+              className="w-full md:w-44 bg-slate-800 text-orange-400 font-black px-3 py-3 md:py-3.5 rounded-xl border-[2px] border-solid border-orange-500/50 text-[16px] md:text-[18px] flex justify-between items-center hover:bg-slate-700 hover:border-orange-400 transition-all shadow-[0_0_15px_rgba(249,115,22,0.2)] outline-none"
             >
               <span className="flex-1 text-center">{monthsThai[selectedMonth - 1]}</span>
-              <svg className="w-4 h-4 opacity-70" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 9l-7 7-7-7"></path></svg>
+              <svg className="w-5 h-5 opacity-70" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="3" d="M19 9l-7 7-7-7"></path></svg>
             </button>
             
+            {/* 🌟 ฟันธง 2: ขยายฟอนต์ปีให้เบิ้มๆ text-[16px] md:text-[18px] */}
             <button 
               onClick={() => setIsYearModalOpen(true)}
-              className="w-full md:w-32 bg-slate-800 text-orange-400 font-bold px-3 py-2.5 rounded-xl border border-solid border-orange-500/30 text-[14px] flex justify-between items-center hover:bg-slate-700 hover:border-orange-500/60 transition-all shadow-[0_0_10px_rgba(249,115,22,0.1)] outline-none"
+              className="w-full md:w-36 bg-slate-800 text-orange-400 font-black px-3 py-3 md:py-3.5 rounded-xl border-[2px] border-solid border-orange-500/50 text-[16px] md:text-[18px] flex justify-between items-center hover:bg-slate-700 hover:border-orange-400 transition-all shadow-[0_0_15px_rgba(249,115,22,0.2)] outline-none"
             >
               <span className="flex-1 text-center">พ.ศ. {selectedYear + 543}</span>
-              <svg className="w-4 h-4 opacity-70" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 9l-7 7-7-7"></path></svg>
+              <svg className="w-5 h-5 opacity-70" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="3" d="M19 9l-7 7-7-7"></path></svg>
             </button>
           </div>
         </div>
 
-        <div className="overflow-hidden rounded-2xl border-2 border-solid border-cyan-500/60 mb-4 bg-slate-950/60 shadow-[0_0_20px_rgba(6,182,212,0.2)]">
+        {/* 🌟 ฟันธง 4: อัดแสง Flare สีฟ้าให้ขอบตาราง shadow-[0_0_40px_rgba(6,182,212,0.4)] */}
+        <div className="overflow-hidden rounded-2xl border-[2px] border-solid border-cyan-400 mb-3 bg-slate-950/60 shadow-[0_0_40px_rgba(6,182,212,0.4)]">
           <div className="max-h-[55vh] overflow-y-auto overflow-x-hidden pr-1 [&::-webkit-scrollbar]:w-1.5 [&::-webkit-scrollbar-track]:bg-transparent [&::-webkit-scrollbar-thumb]:bg-cyan-900/20 hover:[&::-webkit-scrollbar-thumb]:bg-cyan-500/60 [&::-webkit-scrollbar-thumb]:rounded-full transition-all duration-300 overscroll-contain">
             <table className="w-full text-left border-collapse">
               <thead>
-                <tr className="bg-slate-900/90 backdrop-blur-md text-cyan-400 text-[13px] font-black uppercase tracking-wider sticky top-0 z-10 border-b-2 border-solid border-cyan-500/50 shadow-md">
+                <tr className="bg-slate-900/90 backdrop-blur-md text-cyan-400 text-[14px] md:text-[16px] font-black uppercase tracking-wider sticky top-0 z-10 border-b-[2px] border-solid border-cyan-400 shadow-[0_5px_15px_rgba(6,182,212,0.2)]">
+                  {/* 🌟 ฟันธง 2: ขยายฟอนต์หัวตารางให้ใหญ่ขึ้น */}
                   <th className="py-4 pl-2 pr-1 md:px-4 text-center w-12 md:w-20">วันที่</th>
                   <th className="py-4 px-2 md:px-4 w-[75%] md:w-[40%]">เจ้าหน้าที่อยู่เวร (SSC)</th>
                   <th className="hidden md:table-cell py-4 px-4">ระบุชื่อวันหยุดพิเศษ (ถ้ามี)</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-solid divide-cyan-900/40 text-[14px]">
-              {daysInMonth.map((d) => {
+                {daysInMonth.map((d) => {
                   const currentInfo = rosterData[d.dateStr] || {};
                   const dateBadgeClass = getDateBadgeClass(d.dayOfWeek, currentInfo.isHoliday, currentInfo.techName);
-                  // 🌟 ฟันธง: ส่งค่า currentInfo.isHoliday เข้าไปด้วย!
                   const selectColorClass = getSelectColorClass(d.dayOfWeek, currentInfo.isHoliday, currentInfo.techName);
 
                   return (
                     <tr key={d.dateStr} className="transition-all duration-300 hover:bg-cyan-950/30">
-                      
-                      {/* 🌟 ฟันธงขยายไซส์: ปรับความกว้างคอลัมน์เป็น w-14 และปุ่มใหญ่ขึ้น w-10 h-10 ฟอนต์ 16px! */}
                       <td className="py-3 pl-1 pr-1 md:px-4 text-center font-mono align-top md:align-middle pt-4 md:pt-3 w-14 md:w-24">
                         <span className={`inline-flex items-center justify-center w-10 h-10 md:w-14 md:h-14 rounded-xl border-[2px] transition-all duration-300 text-[16px] md:text-[20px] font-black ${dateBadgeClass}`}>
                          {d.dayNum}
@@ -289,36 +288,43 @@ function AdminRosterSettings({ onClose }) {
                           <svg className="w-4 h-4 ml-2 opacity-70" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 9l-7 7-7-7"></path></svg>
                         </button>
 
-                        <input 
-                          type="text"
-                          disabled={d.isWeekend}
-                          value={d.isWeekend ? 'วันหยุดประจำสัปดาห์' : currentInfo.holidayName || ''}
-                          onChange={(e) => handleHolidayNameChange(d.dateStr, e.target.value)}
-                          placeholder="ระบุวันหยุด (เช่น สงกรานต์)"
-                          className="md:hidden w-full bg-slate-900/80 text-cyan-100 px-3 py-2.5 rounded-xl border border-solid border-cyan-500/30 focus:border-cyan-400 text-[12px] font-bold disabled:opacity-30 disabled:bg-transparent outline-none transition-all mt-2"
-                        />
+                        {/* 🌟 ฟันธง 1: ซ่อนช่องวันหยุดในมือถือ ถ้าเป็นเสาร์-อาทิตย์ เพื่อประหยัดพื้นที่! */}
+                        {!d.isWeekend && (
+                          <input 
+                            type="text"
+                            value={currentInfo.holidayName || ''}
+                            onChange={(e) => handleHolidayNameChange(d.dateStr, e.target.value)}
+                            placeholder="ระบุวันหยุด (เช่น สงกรานต์)"
+                            className="md:hidden w-full bg-slate-900/80 text-cyan-100 px-3 py-2.5 rounded-xl border border-solid border-cyan-500/30 focus:border-cyan-400 focus:shadow-[0_0_15px_rgba(6,182,212,0.3)] text-[12px] font-bold outline-none transition-all mt-2"
+                          />
+                        )}
                       </td>
 
                       <td className="hidden md:table-cell py-3 px-4">
+                        {/* 🌟 ฟันธง 1: ใน PC เปลี่ยนข้อความเป็น วันเสาร์(น้ำเงิน) วันอาทิตย์(แดง) */}
                         <input 
                           type="text"
                           disabled={d.isWeekend}
-                          value={d.isWeekend ? 'วันหยุดประจำสัปดาห์' : currentInfo.holidayName || ''}
+                          value={d.isWeekend ? (d.dayOfWeek === 0 ? 'วันอาทิตย์' : 'วันเสาร์') : currentInfo.holidayName || ''}
                           onChange={(e) => handleHolidayNameChange(d.dateStr, e.target.value)}
                           placeholder="เช่น วันสงกรานต์, มติ ครม."
-                          className="w-full bg-slate-900/80 text-cyan-100 px-4 py-3 rounded-xl border border-solid border-cyan-500/30 focus:border-cyan-400 focus:shadow-[0_0_20px_rgba(6,182,212,0.3)] text-[14px] font-bold disabled:opacity-30 disabled:bg-transparent outline-none transition-all"
+                          className={`w-full px-4 py-3 rounded-xl border border-solid border-cyan-500/30 focus:border-cyan-400 focus:shadow-[0_0_20px_rgba(6,182,212,0.3)] text-[14px] font-bold outline-none transition-all 
+                            ${d.isWeekend 
+                              ? (d.dayOfWeek === 0 ? 'text-rose-400/60 bg-rose-950/20 border-rose-500/20' : 'text-blue-400/60 bg-blue-950/20 border-blue-500/20') 
+                              : 'text-cyan-100 bg-slate-900/80'
+                            }`}
                         />
                       </td>
                     </tr>
                   );
                 })}
-
               </tbody>
             </table>
           </div>
         </div>
 
-        <div className="flex flex-col md:flex-row justify-center items-center gap-4 border-t border-solid border-orange-500/20 pt-5 mt-2">
+        {/* 🌟 ฟันธง 3: ลบเส้นแบ่ง border-t สีส้มออก ประหยัดพื้นที่! */}
+        <div className="flex flex-col md:flex-row justify-center items-center gap-4 pt-2 mt-2">
           
           <button
             onClick={() => setModalConfig({ isOpen: true, type: 'save' })}
@@ -346,15 +352,13 @@ function AdminRosterSettings({ onClose }) {
 
       {/* ======================= 🌟 โซน Pop-up ทั้งหมด 🌟 ======================= */}
 
-      {/* 1. Pop-up เลือกเดือน (🌟 ฟันธง 2: อัดแสง Flare สีส้ม สว่างๆ) */}
       {isMonthModalOpen && (
         <div className="fixed inset-0 z-[999999] flex items-center justify-center p-4 bg-slate-950/80 backdrop-blur-md animate-in fade-in duration-200 overscroll-none">
-          <div className="relative bg-slate-900 border-[3px] border-solid border-orange-500 rounded-3xl w-full max-w-sm p-6 shadow-[0_0_90px_rgba(249,115,22,0.6)] flex flex-col">
+          <div className="relative bg-slate-900 border-[3px] border-orange-500 rounded-3xl w-full max-w-sm p-6 shadow-[0_0_90px_rgba(249,115,22,0.6)] flex flex-col">
             <div className="flex justify-between items-center mb-5 border-b border-orange-500/30 pb-3">
               <h3 className="text-lg font-black text-orange-400 flex items-center gap-2">
                 <Calendar className="w-5 h-5" /> เลือกเดือน
               </h3>
-              {/* 🌟 ฟันธง 2: ปุ่ม X เลือกเดือน - สีส้มเรืองแสง + วูบวาบ */}
               <button 
                 onClick={() => setIsMonthModalOpen(false)} 
                 className="text-orange-500 hover:text-white bg-slate-900 animate-pulse p-1.5 md:p-2 rounded-full transition-all border border-orange-500/50 shadow-[0_0_15px_rgba(249,115,22,0.7)] hover:shadow-[0_0_20px_rgba(249,115,22,1)] cursor-pointer"
@@ -384,15 +388,13 @@ function AdminRosterSettings({ onClose }) {
         </div>
       )}
 
-      {/* 2. Pop-up เลือกปี พ.ศ. (🌟 ฟันธง 2: อัดแสง Flare สีส้ม สว่างๆ) */}
       {isYearModalOpen && (
         <div className="fixed inset-0 z-[999999] flex items-center justify-center p-4 bg-slate-950/80 backdrop-blur-md animate-in fade-in duration-200 overscroll-none">
-          <div className="relative bg-slate-900 border-[3px] border-solid border-orange-500 rounded-3xl w-full max-w-xs p-6 shadow-[0_0_90px_rgba(249,115,22,0.6)] flex flex-col">
+          <div className="relative bg-slate-900 border-[3px] border-orange-500 rounded-3xl w-full max-w-xs p-6 shadow-[0_0_90px_rgba(249,115,22,0.6)] flex flex-col">
             <div className="flex justify-between items-center mb-5 border-b border-orange-500/30 pb-3">
               <h3 className="text-lg font-black text-orange-400 flex items-center gap-2">
                 <Calendar className="w-5 h-5" /> เลือกปี พ.ศ.
               </h3>
-              {/* 🌟 ฟันธง 2: ปุ่ม X เลือกปี - สีส้มเรืองแสง + วูบวาบ */}
               <button 
                 onClick={() => setIsYearModalOpen(false)} 
                 className="text-orange-500 hover:text-white bg-slate-900 animate-pulse p-1.5 md:p-2 rounded-full transition-all border border-orange-500/50 shadow-[0_0_15px_rgba(249,115,22,0.7)] hover:shadow-[0_0_20px_rgba(249,115,22,1)] cursor-pointer"
@@ -423,7 +425,6 @@ function AdminRosterSettings({ onClose }) {
         </div>
       )}
 
-      {/* 3. Pop-up ยืนยัน บันทึก/ล้างข้อมูล */}
       {modalConfig.isOpen && (
         <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-slate-950/80 backdrop-blur-sm animate-in fade-in duration-200 overscroll-none">
           <div className={`relative bg-slate-900 border-[3px] border-solid rounded-3xl w-full max-w-sm p-6 text-center shadow-2xl ${modalConfig.type === 'save' ? 'border-orange-500 shadow-[0_0_50px_rgba(249,115,22,0.4)]' : 'border-rose-500 shadow-[0_0_50px_rgba(225,29,72,0.4)]'}`}>
@@ -461,26 +462,33 @@ function AdminRosterSettings({ onClose }) {
         </div>
       )}
 
-      {/* 4. Pop-up Sci-Fi สำหรับเลือกชื่อช่าง (สีฟ้า) */}
+      {/* 4. Pop-up Sci-Fi สำหรับเลือกชื่อช่าง (อัปเกรดแสง Flare คัลเลอร์ฟูลขั้นสุด!) */}
       {selectingTechForDate && (
         <div className="fixed inset-0 z-[999999] flex items-center justify-center p-4 bg-slate-950/80 backdrop-blur-md animate-in fade-in duration-200 overscroll-none">
-          <div className="relative bg-slate-900 border-[3px] border-cyan-500/80 rounded-3xl w-full max-w-sm p-5 shadow-[0_0_40px_rgba(6,182,212,0.4)] flex flex-col max-h-[80vh]">
+          
+          {/* 🌟 ฟันธง 1: กรอบนอกสีฟ้าขอบหนา พร้อมแสง Flare ฟุ้งกระจาย shadow-[0_0_90px...] */}
+          <div className="relative bg-slate-900 border-[3px] border-cyan-400 rounded-3xl w-full max-w-sm p-6 shadow-[0_0_90px_rgba(6,182,212,0.6)] flex flex-col max-h-[85vh]">
             
-            <div className="flex justify-between items-center mb-4 border-b border-cyan-500/30 pb-3">
-              <h3 className="text-[16px] md:text-lg font-black text-cyan-400 flex items-center gap-2">
+            <div className="flex justify-between items-center mb-5 border-b border-cyan-500/30 pb-3">
+              <h3 className="text-[16px] md:text-lg font-black text-cyan-400 flex items-center gap-2 drop-shadow-[0_0_10px_rgba(6,182,212,0.8)]">
                 <User className="w-5 h-5" /> 
                 เลือกผู้ปฏิบัติงาน
               </h3>
-              <button onClick={() => setSelectingTechForDate(null)} className="text-slate-400 hover:text-rose-500 bg-slate-800 p-1.5 rounded-full transition-colors border border-slate-700">
-                <XCircle className="w-6 h-6" />
+              
+              {/* 🌟 ฟันธง 4: ปุ่ม X ปิดหน้าต่าง สีแดง/ชมพู เรืองแสงวูบวาบ */}
+              <button 
+                onClick={() => setSelectingTechForDate(null)} 
+                className="text-rose-500 hover:text-white animate-pulse bg-slate-900 hover:bg-rose-600 p-1.5 md:p-2 rounded-full transition-all duration-300 border-[2px] border-rose-500 shadow-[0_0_20px_rgba(225,29,72,0.8)] hover:shadow-[0_0_35px_rgba(225,29,72,1)] cursor-pointer"
+              >
+                <XCircle className="w-6 h-6 md:w-7 md:h-7" />
               </button>
             </div>
 
-            <div className="overflow-y-auto pr-1 space-y-2 [&::-webkit-scrollbar]:w-1.5 [&::-webkit-scrollbar-thumb]:bg-cyan-700 [&::-webkit-scrollbar-thumb]:rounded-full">
+            <div className="overflow-y-auto pr-2 space-y-3 [&::-webkit-scrollbar]:w-1.5 [&::-webkit-scrollbar-thumb]:bg-cyan-500/50 [&::-webkit-scrollbar-thumb]:rounded-full pb-2">
               
               <button 
                 onClick={() => { handleTechChange(selectingTechForDate, ''); setSelectingTechForDate(null); }}
-                className="w-full text-center px-4 py-3 rounded-xl font-bold border-2 transition-all duration-200 bg-slate-950/50 text-slate-500 border-slate-700 hover:border-rose-500/50 hover:text-rose-400"
+                className="w-full text-center px-4 py-3.5 rounded-xl font-black border-[2px] transition-all duration-300 bg-slate-900/50 text-slate-400 border-slate-700 hover:border-rose-500 hover:text-rose-400 hover:shadow-[0_0_25px_rgba(225,29,72,0.6)]"
               >
                 -- ยกเลิกเวร / ไม่ระบุ --
               </button>
@@ -491,14 +499,16 @@ function AdminRosterSettings({ onClose }) {
                   <button 
                     key={idx}
                     onClick={() => { handleTechChange(selectingTechForDate, t.name); setSelectingTechForDate(null); }}
-                    className={`w-full text-left px-4 py-3.5 rounded-xl font-bold border-2 transition-all duration-200 flex justify-between items-center active:scale-95
+                    className={`w-full text-left px-4 py-4 rounded-xl font-black border-[2px] transition-all duration-300 flex justify-between items-center active:scale-95
                       ${isSelected 
-                        ? 'bg-cyan-900/40 text-cyan-400 border-cyan-500 shadow-[0_0_15px_rgba(6,182,212,0.3)]' 
-                        : 'bg-slate-800 text-slate-300 border-slate-700 hover:border-cyan-500/50 hover:bg-slate-800/80 hover:text-cyan-300'
+                        // 🌟 ฟันธง 2 & 3: ตอนเลือกแล้วให้เป็น สีส้มเรืองแสงสว่างสุดๆ
+                        ? 'bg-orange-900/40 text-orange-400 border-orange-400 shadow-[0_0_30px_rgba(249,115,22,0.8),inset_0_0_15px_rgba(249,115,22,0.4)]' 
+                        // 🌟 ฟันธง 2 & 3: ตอนปกติเป็น สีเขียวมรกต, พอ Hover (เอาเมาส์ชี้) ให้สว่างวาบ ตัวหนังสือขาว
+                        : 'bg-slate-900/80 text-emerald-400 border-emerald-500/50 shadow-[0_0_15px_rgba(16,185,129,0.2)] hover:bg-emerald-900/50 hover:border-emerald-400 hover:text-white hover:shadow-[0_0_30px_rgba(16,185,129,0.8)]'
                       }`}
                   >
-                    {t.name}
-                    {isSelected && <CheckCircle2 className="w-5 h-5 text-cyan-400" />}
+                    <span className="text-[14px] md:text-[15px]">{t.name}</span>
+                    {isSelected && <CheckCircle2 className="w-6 h-6 text-orange-400 drop-shadow-[0_0_10px_rgba(249,115,22,1)]" />}
                   </button>
                 );
               })}
@@ -3800,7 +3810,7 @@ const renderTracking = () => (
           <div className="bg-purple-50/80 border-2 border-solid border-purple-400 p-4 md:p-6 rounded-2xl md:rounded-[1.5rem] mt-4 shadow-sm w-full">
             <div className="flex flex-col">
               <span className="text-[14px] md:text-[18px] font-black text-purple-700 mb-2 md:mb-4 flex items-center gap-2 uppercase tracking-wider">
-                <AlertTriangle size={18} className="animate-pulse" /> เจ้าหน้าที่เวร SSC ประจำวัน
+                <AlertTriangle size={18} className="animate-pulse" /> เจ้าหน้าที่เวร SSC ประจำวันหยุด
               </span>
               
               <div className="flex items-center justify-between mb-3">
