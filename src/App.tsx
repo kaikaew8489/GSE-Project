@@ -462,20 +462,20 @@ function AdminRosterSettings({ onClose }) {
         </div>
       )}
 
-      {/* 4. Pop-up Sci-Fi สำหรับเลือกชื่อช่าง (อัปเกรดแสง Flare คัลเลอร์ฟูลขั้นสุด!) */}
+      {/* 4. Pop-up Sci-Fi สำหรับเลือกชื่อช่าง */}
       {selectingTechForDate && (
         <div className="fixed inset-0 z-[999999] flex items-center justify-center p-4 bg-slate-950/80 backdrop-blur-md animate-in fade-in duration-200 overscroll-none">
           
-          {/* 🌟 ฟันธง 1: กรอบนอกสีฟ้าขอบหนา พร้อมแสง Flare ฟุ้งกระจาย shadow-[0_0_90px...] */}
-          <div className="relative bg-slate-900 border-[3px] border-cyan-400 rounded-3xl w-full max-w-sm p-6 shadow-[0_0_90px_rgba(6,182,212,0.6)] flex flex-col max-h-[85vh]">
+          {/* 🌟 ฟันธง 2: ขอบนอกสุดสีฟ้าสว่างวาบ อัดแสง Flare ทวีคูณ (Outer + Inner Glow) */}
+          <div className="relative bg-slate-900 border-[3px] border-cyan-400 rounded-3xl w-full max-w-sm p-6 shadow-[0_0_60px_rgba(34,211,238,0.7),inset_0_0_20px_rgba(34,211,238,0.3)] flex flex-col max-h-[85vh]">
             
-            <div className="flex justify-between items-center mb-5 border-b border-cyan-500/30 pb-3">
-              <h3 className="text-[16px] md:text-lg font-black text-cyan-400 flex items-center gap-2 drop-shadow-[0_0_10px_rgba(6,182,212,0.8)]">
+            {/* 🌟 ฟันธง 3: หัวข้อและกากบาท ปล่อยโล่ง ไม่มีกรอบล้อม เน้นเส้นใต้บางๆ เรืองแสง ดู Sci-Fi สุดๆ */}
+            <div className="flex justify-between items-center mb-5 border-b-[2px] border-cyan-500/40 pb-4">
+              <h3 className="text-[16px] md:text-lg font-black text-cyan-300 flex items-center gap-2 drop-shadow-[0_0_15px_rgba(34,211,238,0.9)]">
                 <User className="w-5 h-5" /> 
                 เลือกผู้ปฏิบัติงาน
               </h3>
               
-              {/* 🌟 ฟันธง 4: ปุ่ม X ปิดหน้าต่าง สีแดง/ชมพู เรืองแสงวูบวาบ */}
               <button 
                 onClick={() => setSelectingTechForDate(null)} 
                 className="text-rose-500 hover:text-white animate-pulse bg-slate-900 hover:bg-rose-600 p-1.5 md:p-2 rounded-full transition-all duration-300 border-[2px] border-rose-500 shadow-[0_0_20px_rgba(225,29,72,0.8)] hover:shadow-[0_0_35px_rgba(225,29,72,1)] cursor-pointer"
@@ -484,11 +484,12 @@ function AdminRosterSettings({ onClose }) {
               </button>
             </div>
 
-            <div className="overflow-y-auto pr-2 space-y-3 [&::-webkit-scrollbar]:w-1.5 [&::-webkit-scrollbar-thumb]:bg-cyan-500/50 [&::-webkit-scrollbar-thumb]:rounded-full pb-2">
+            <div className="overflow-y-auto pr-1 space-y-3 pb-2 [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden pt-1">
               
+              {/* 🌟 ฟันธง 1: เอาคำสั่งเด้งขึ้น (-translate-y-1) ออกไปแล้ว ปุ่มจะไม่กระโดดบังจอ! */}
               <button 
                 onClick={() => { handleTechChange(selectingTechForDate, ''); setSelectingTechForDate(null); }}
-                className="w-full text-center px-4 py-3.5 rounded-xl font-black border-[2px] transition-all duration-300 bg-slate-900/50 text-slate-400 border-slate-700 hover:border-rose-500 hover:text-rose-400 hover:shadow-[0_0_25px_rgba(225,29,72,0.6)]"
+                className="w-full text-center px-4 py-3.5 rounded-xl font-black border-[2px] transition-all duration-300 bg-slate-900/50 text-rose-400 border-rose-500/60 shadow-[0_0_15px_rgba(225,29,72,0.3)] hover:border-rose-400 hover:text-white hover:bg-rose-900/60 hover:shadow-[0_0_35px_rgba(225,29,72,0.9)]"
               >
                 -- ยกเลิกเวร / ไม่ระบุ --
               </button>
@@ -501,10 +502,9 @@ function AdminRosterSettings({ onClose }) {
                     onClick={() => { handleTechChange(selectingTechForDate, t.name); setSelectingTechForDate(null); }}
                     className={`w-full text-left px-4 py-4 rounded-xl font-black border-[2px] transition-all duration-300 flex justify-between items-center active:scale-95
                       ${isSelected 
-                        // 🌟 ฟันธง 2 & 3: ตอนเลือกแล้วให้เป็น สีส้มเรืองแสงสว่างสุดๆ
                         ? 'bg-orange-900/40 text-orange-400 border-orange-400 shadow-[0_0_30px_rgba(249,115,22,0.8),inset_0_0_15px_rgba(249,115,22,0.4)]' 
-                        // 🌟 ฟันธง 2 & 3: ตอนปกติเป็น สีเขียวมรกต, พอ Hover (เอาเมาส์ชี้) ให้สว่างวาบ ตัวหนังสือขาว
-                        : 'bg-slate-900/80 text-emerald-400 border-emerald-500/50 shadow-[0_0_15px_rgba(16,185,129,0.2)] hover:bg-emerald-900/50 hover:border-emerald-400 hover:text-white hover:shadow-[0_0_30px_rgba(16,185,129,0.8)]'
+                        /* 🌟 ฟันธง 1: เอาคำสั่งเด้งขึ้น (-translate-y-1) ออกเช่นกัน ให้อยู่กับที่แต่แสงระเบิดออก */
+                        : 'bg-slate-900/80 text-cyan-100 border-emerald-500/60 shadow-[0_0_15px_rgba(16,185,129,0.2)] hover:bg-emerald-500/20 hover:border-emerald-400 hover:text-white hover:shadow-[0_0_35px_rgba(16,185,129,1)]'
                       }`}
                   >
                     <span className="text-[14px] md:text-[15px]">{t.name}</span>
@@ -517,7 +517,6 @@ function AdminRosterSettings({ onClose }) {
           </div>
         </div>
       )}
-
     </div>
   );
 }
