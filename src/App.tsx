@@ -84,17 +84,15 @@ const appInstance =
 const auth = getAuth(appInstance);
 const db = getFirestore(appInstance);
 
-// ==========================================
-// 🌟 ฟันธง: เริ่มต้นโค้ดส่วนหน้าจอจัดตารางเวร SSC (อัปเกรด Sci-Fi + มือถือ 1,000,000%)
-// ==========================================
-
-function AdminRosterSettings() {
+function AdminRosterSettings({ onClose }) { // 🌟 รับ prop onClose มาเพื่อปิดหน้าจอ (ถ้าท่านใช้แบบอื่น แก้ตรงนี้ได้เลย)
   const [selectedYear, setSelectedYear] = useState(2026);
   const [selectedMonth, setSelectedMonth] = useState(5); 
   const [daysInMonth, setDaysInMonth] = useState([]);
   const [rosterData, setRosterData] = useState({}); 
   const [loading, setLoading] = useState(false);
-  const [showSuccess, setShowSuccess] = useState(false);
+  
+  // 🌟 State สำหรับควบคุม Pop-up
+  const [modalConfig, setModalConfig] = useState({ isOpen: false, type: null }); // type: 'save' หรือ 'clear'
 
   useEffect(() => {
     generateMonthDays();
@@ -108,10 +106,8 @@ function AdminRosterSettings() {
       const day = String(i).padStart(2, '0');
       const month = String(selectedMonth).padStart(2, '0');
       const dateStr = `${selectedYear}-${month}-${day}`;
-      
       const dayOfWeek = new Date(selectedYear, selectedMonth - 1, i).getDay();
       const isWeekend = dayOfWeek === 0 || dayOfWeek === 6;
-
       daysArray.push({ dateStr, dayNum: i, dayOfWeek, isWeekend });
     }
     setDaysInMonth(daysArray);
@@ -122,22 +118,12 @@ function AdminRosterSettings() {
     try {
       const monthStr = String(selectedMonth).padStart(2, '0');
       const prefix = `${selectedYear}-${monthStr}`;
-      
-      const q = query(
-        collection(db, 'rosters'),
-        where('dateStr', '>=', `${prefix}-01`),
-        where('dateStr', '<=', `${prefix}-31`)
-      );
-      
+      const q = query(collection(db, 'rosters'), where('dateStr', '>=', `${prefix}-01`), where('dateStr', '<=', `${prefix}-31`));
       const snap = await getDocs(q);
       const existingData = {};
-      snap.forEach((docSnap) => {
-        existingData[docSnap.id] = docSnap.data();
-      });
+      snap.forEach((docSnap) => { existingData[docSnap.id] = docSnap.data(); });
       setRosterData(existingData);
-    } catch (err) {
-      console.error("Error fetching roster: ", err);
-    }
+    } catch (err) { console.error("Error: ", err); }
     setLoading(false);
   };
 
@@ -154,29 +140,26 @@ function AdminRosterSettings() {
     }));
   };
 
-  const handleHolidayToggle = (dateStr, isChecked) => {
-    setRosterData(prev => ({
-      ...prev,
-      [dateStr]: {
-        ...prev[dateStr],
-        dateStr,
-        isHoliday: isChecked,
-        holidayName: isChecked ? prev[dateStr]?.holidayName || 'วันหยุดนักขัตฤกษ์/ครม.' : '',
-      }
-    }));
-  };
-
   const handleHolidayNameChange = (dateStr, name) => {
     setRosterData(prev => ({
       ...prev,
       [dateStr]: {
         ...prev[dateStr],
-        holidayName: name
+        dateStr,
+        holidayName: name,
+        isHoliday: name.trim().length > 0 
       }
     }));
   };
 
-  const handleSaveAll = async () => {
+  // 🌟 ฟังก์ชันยืนยันการล้างฟอร์ม
+  const executeClear = () => {
+    setRosterData({});
+    setModalConfig({ isOpen: false, type: null });
+  };
+
+  // 🌟 ฟังก์ชันยืนยันการบันทึก
+  const executeSave = async () => {
     setLoading(true);
     try {
       const batch = writeBatch(db);
@@ -187,42 +170,52 @@ function AdminRosterSettings() {
         }
       });
       await batch.commit();
-      setShowSuccess(true);
-      setTimeout(() => setShowSuccess(false), 3000);
+      setModalConfig({ isOpen: false, type: null });
+      // 🌟 บันทึกเสร็จ ปิดหน้าต่างให้ทันที!
+      if(onClose) onClose(); 
     } catch (err) {
-      alert("เกิดข้อผิดพลาดในการบันทึก: " + err.message);
+      alert("เกิดข้อผิดพลาด: " + err.message);
     }
     setLoading(false);
   };
 
-  // 🌟 ฟันธง: ฟังก์ชันกำหนดสีตามวัน
-  const getDayColorClass = (dayOfWeek, isHoliday) => {
-    if (isHoliday) return 'bg-orange-500/20 text-orange-400 border-orange-500/50 shadow-[0_0_15px_rgba(249,115,22,0.3)]';
-    if (dayOfWeek === 0) return 'bg-rose-500/20 text-rose-400 border-rose-500/50 shadow-[0_0_15px_rgba(225,29,72,0.3)]'; // วันอาทิตย์
-    if (dayOfWeek === 6) return 'bg-blue-500/20 text-blue-400 border-blue-500/50 shadow-[0_0_15px_rgba(59,130,246,0.3)]'; // วันเสาร์
-    return 'bg-slate-800 text-slate-300 border-slate-700 hover:border-cyan-500/50 hover:shadow-[0_0_15px_rgba(6,182,212,0.3)]';
+  // 🌟 ฟันธง 5: สีกรอบวันที่แบบไดนามิก (ถ้าไม่เลือก=ฟ้าเรืองแสง, ถ้าเลือก=เปลี่ยนตามวัน)
+  const getDateBadgeClass = (dayOfWeek, isHoliday, hasTech) => {
+    if (!hasTech) return 'border-cyan-500 text-cyan-400 bg-cyan-950/50 shadow-[0_0_10px_rgba(6,182,212,0.4)] animate-pulse'; 
+    if (isHoliday) return 'bg-orange-500/20 text-orange-400 border-orange-500 shadow-[0_0_15px_rgba(249,115,22,0.5)]';
+    if (dayOfWeek === 0) return 'bg-rose-500/20 text-rose-400 border-rose-500 shadow-[0_0_15px_rgba(225,29,72,0.5)]';
+    if (dayOfWeek === 6) return 'bg-blue-500/20 text-blue-400 border-blue-500 shadow-[0_0_15px_rgba(59,130,246,0.5)]';
+    return 'bg-emerald-500/20 text-emerald-400 border-emerald-500 shadow-[0_0_15px_rgba(16,185,129,0.5)]';
+  };
+
+  const getSelectColorClass = (dayOfWeek, hasTech) => {
+    if (!hasTech) return 'text-cyan-300 border-cyan-500/50 hover:border-cyan-400 hover:shadow-[0_0_15px_rgba(6,182,212,0.4)] bg-slate-900/80';
+    if (dayOfWeek === 0) return 'text-rose-400 border-rose-500/80 shadow-[0_0_15px_rgba(225,29,72,0.4)] bg-slate-900/80';
+    if (dayOfWeek === 6) return 'text-blue-400 border-blue-500/80 shadow-[0_0_15px_rgba(59,130,246,0.4)] bg-slate-900/80';
+    return 'text-orange-400 border-orange-500/80 shadow-[0_0_15px_rgba(249,115,22,0.4)] bg-slate-900/80';
   };
 
   return (
-    <div className="min-h-screen bg-slate-950 text-slate-100 p-2 md:p-8 font-sans flex flex-col justify-center">
-      <div className="max-w-5xl mx-auto bg-slate-900/80 backdrop-blur-xl rounded-2xl md:rounded-[2rem] border-2 border-solid border-orange-500/30 p-4 md:p-8 shadow-[0_0_30px_rgba(249,115,22,0.15)] relative w-full">
+    // 🌟 ฟันธง 1: แก้ไข py-8 เพื่อให้มีช่องว่างด้านบนและล่าง กรอบไม่หายแน่นอน
+    <div className="min-h-screen bg-slate-950 text-slate-100 p-2 py-8 md:p-8 font-sans flex flex-col justify-center relative overflow-y-auto">
+      
+      <div className="max-w-4xl mx-auto bg-slate-900/80 backdrop-blur-xl rounded-2xl md:rounded-[2rem] border-[3px] border-solid border-orange-500 p-4 md:p-8 shadow-[0_0_60px_rgba(249,115,22,0.25)] relative w-full my-auto">
         
-        {/* 🌟 ฟันธง 1: ปุ่ม X ปิดหน้าต่างมุมขวาบน */}
+        {/* 🌟 ฟันธง 2: ปุ่ม X ปิดหน้าต่าง (ตรง onClick ให้ใส่ฟังก์ชันปิดของท่าน หรือใช้ onClose) */}
         <button
-          onClick={() => { /* ใส่ฟังก์ชันปิด Modal ตรงนี้ */ }}
-          className="absolute top-4 right-4 md:top-6 md:right-6 text-slate-400 hover:text-rose-500 bg-slate-800/50 hover:bg-rose-500/20 p-1.5 md:p-2 rounded-full transition-all duration-300 border border-transparent hover:border-rose-500/50 shadow-sm hover:shadow-[0_0_15px_rgba(225,29,72,0.5)] z-20"
+          onClick={() => { if(onClose) onClose(); else console.log("กรุณาใส่ฟังก์ชันปิดที่นี่!"); }}
+          className="absolute top-4 right-4 md:top-6 md:right-6 text-orange-500 hover:text-white animate-pulse bg-slate-900 hover:bg-orange-600 p-1.5 md:p-2 rounded-full transition-all duration-300 border border-orange-500/50 shadow-[0_0_15px_rgba(249,115,22,0.6)] hover:shadow-[0_0_25px_rgba(249,115,22,1)] z-20 cursor-pointer"
         >
           <XCircle className="w-6 h-6 md:w-8 md:h-8" />
         </button>
 
-        {/* Header Section */}
         <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 border-b border-solid border-orange-500/20 pb-4 md:pb-6 mb-4 md:mb-6 pr-10 md:pr-14">
           <div className="flex items-center gap-3">
             <div className="bg-gradient-to-br from-orange-500 to-red-600 p-2.5 md:p-3 rounded-xl md:rounded-2xl shadow-[0_0_20px_rgba(249,115,22,0.4)]">
               <Calendar className="w-5 h-5 md:w-6 md:h-6 text-white" />
             </div>
             <div>
-              <h1 className="text-lg md:text-3xl font-black text-transparent bg-clip-text bg-gradient-to-r from-orange-400 to-amber-400">จัดตารางเวรปฏิบัติงาน SSC</h1>
+              <h1 className="text-lg md:text-3xl font-black text-transparent bg-clip-text bg-gradient-to-r from-orange-400 to-amber-400 drop-shadow-sm">จัดตารางเวรปฏิบัติงาน SSC</h1>
               <p className="text-[11px] md:text-sm font-bold text-slate-400 mt-0.5">ระบบจัดการและบันทึกเวรวันหยุดประจำ ฝวด.</p>
             </div>
           </div>
@@ -231,7 +224,7 @@ function AdminRosterSettings() {
             <select 
               value={selectedMonth} 
               onChange={(e) => setSelectedMonth(Number(e.target.value))}
-              className="flex-1 md:flex-none bg-slate-800 text-orange-400 font-bold px-3 md:px-4 py-2 md:py-2.5 rounded-lg md:rounded-xl border border-solid border-orange-500/30 text-[13px] md:text-[14px] focus:border-orange-500 focus:shadow-[0_0_15px_rgba(249,115,22,0.4)] transition-all outline-none"
+              className="flex-1 md:flex-none bg-slate-800 text-orange-400 font-bold px-3 py-2.5 rounded-xl border border-solid border-orange-500/30 text-[13px] outline-none"
             >
               {['มกราคม', 'กุมภาพันธ์', 'มีนาคม', 'เมษายน', 'พฤษภาคม', 'มิถุนายน', 'กรกฎาคม', 'สิงหาคม', 'กันยายน', 'ตุลาคม', 'พฤศจิกายน', 'ธันวาคม'].map((m, idx) => (
                 <option key={idx} value={idx + 1}>{m}</option>
@@ -240,7 +233,7 @@ function AdminRosterSettings() {
             <select 
               value={selectedYear} 
               onChange={(e) => setSelectedYear(Number(e.target.value))}
-              className="flex-1 md:flex-none bg-slate-800 text-orange-400 font-bold px-3 md:px-4 py-2 md:py-2.5 rounded-lg md:rounded-xl border border-solid border-orange-500/30 text-[13px] md:text-[14px] focus:border-orange-500 focus:shadow-[0_0_15px_rgba(249,115,22,0.4)] transition-all outline-none"
+              className="flex-1 md:flex-none bg-slate-800 text-orange-400 font-bold px-3 py-2.5 rounded-xl border border-solid border-orange-500/30 text-[13px] outline-none"
             >
               {[2026, 2027].map(y => (
                 <option key={y} value={y}>พ.ศ. {y + 543}</option>
@@ -249,82 +242,27 @@ function AdminRosterSettings() {
           </div>
         </div>
 
-        {/* 🌟 ฟันธง 4: Mobile List - ล็อกความสูง Scroll ข้างในกันมือหงิก! */}
-        <div className="md:hidden max-h-[60vh] overflow-y-auto space-y-3 mb-4 pr-1 [&::-webkit-scrollbar]:w-1.5 [&::-webkit-scrollbar-thumb]:bg-orange-500/50 [&::-webkit-scrollbar-thumb]:rounded-full">
-          {daysInMonth.map((d) => {
-            const currentInfo = rosterData[d.dateStr] || {};
-            const isRowHighlighted = d.isWeekend || currentInfo.isHoliday;
-            const dateBadgeClass = getDayColorClass(d.dayOfWeek, currentInfo.isHoliday);
-
-            return (
-              <div key={d.dateStr} className={`p-3 rounded-xl border border-solid transition-all ${isRowHighlighted ? 'bg-slate-800/80 border-slate-600 shadow-md' : 'bg-slate-900/50 border-slate-800'}`}>
-                <div className="flex justify-between items-center mb-2 pb-2 border-b border-slate-700/50">
-                  <span className={`inline-flex items-center justify-center w-8 h-8 rounded-lg border font-mono font-black text-[14px] transition-all duration-300 ${dateBadgeClass}`}>
-                    {d.dayNum}
-                  </span>
-                  
-                  <label className="inline-flex items-center gap-1.5 cursor-pointer">
-                    <input 
-                      type="checkbox"
-                      checked={currentInfo.isHoliday || d.isWeekend}
-                      disabled={d.isWeekend}
-                      onChange={(e) => handleHolidayToggle(d.dateStr, e.target.checked)}
-                      className="w-4 h-4 rounded border-slate-600 text-orange-500 bg-slate-900 focus:ring-orange-500 accent-orange-500"
-                    />
-                    <span className={`font-bold text-[11px] ${d.isWeekend ? 'text-slate-400' : currentInfo.isHoliday ? 'text-orange-400 animate-pulse' : 'text-slate-500'}`}>
-                      {d.isWeekend ? 'วันหยุดสัปดาห์' : 'วันหยุดพิเศษ'}
-                    </span>
-                  </label>
-                </div>
-
-                <div className="space-y-2">
-                  <select
-                    value={currentInfo.techName || ''}
-                    onChange={(e) => handleTechChange(d.dateStr, e.target.value)}
-                    className={`w-full bg-slate-950 font-bold px-3 py-2.5 rounded-lg border border-solid transition-all text-[13px] outline-none ${currentInfo.techName ? 'text-orange-400 border-orange-500/50 shadow-[0_0_15px_rgba(249,115,22,0.2)]' : 'text-slate-500 border-slate-700 hover:border-orange-500/50'}`}
-                  >
-                    <option value="">-- โปรดเลือกผู้ปฏิบัติงาน --</option>
-                    {technicianList.map((t, tIdx) => (
-                      <option key={tIdx} value={t.name}>{t.name}</option>
-                    ))}
-                  </select>
-
-                  <input 
-                    type="text"
-                    disabled={!currentInfo.isHoliday && !d.isWeekend}
-                    value={d.isWeekend ? 'วันหยุดประจำสัปดาห์' : currentInfo.holidayName || ''}
-                    onChange={(e) => handleHolidayNameChange(d.dateStr, e.target.value)}
-                    placeholder="เช่น วันสงกรานต์, มติ ครม."
-                    className="w-full bg-slate-950 text-slate-300 px-3 py-2.5 rounded-lg border border-solid border-slate-700 focus:border-orange-500 focus:shadow-[0_0_15px_rgba(249,115,22,0.2)] text-[12px] font-bold disabled:opacity-30 disabled:bg-slate-900 outline-none transition-all"
-                  />
-                </div>
-              </div>
-            );
-          })}
-        </div>
-
-        {/* PC Table */}
-        <div className="hidden md:block overflow-hidden rounded-2xl border border-solid border-slate-700 mb-2 bg-slate-950/60 shadow-[inset_0_0_20px_rgba(0,0,0,0.5)]">
-          <div className="max-h-[60vh] overflow-y-auto [&::-webkit-scrollbar]:w-2 [&::-webkit-scrollbar-thumb]:bg-slate-700 [&::-webkit-scrollbar-thumb]:rounded-full hover:[&::-webkit-scrollbar-thumb]:bg-orange-600">
-            <table className="w-full text-left border-collapse">
+        {/* 💻 ตารางรายชื่อ (รองรับทั้ง PC และ ย่อส่วนบน Mobile แบบคลีนๆ) */}
+        <div className="overflow-hidden rounded-2xl border-2 border-solid border-cyan-500/60 mb-4 bg-slate-950/60 shadow-[0_0_20px_rgba(6,182,212,0.2)]">
+        <div className="max-h-[55vh] overflow-y-auto overflow-x-hidden pr-1 [&::-webkit-scrollbar]:w-1.5 [&::-webkit-scrollbar-track]:bg-transparent [&::-webkit-scrollbar-thumb]:bg-cyan-900/20 hover:[&::-webkit-scrollbar-thumb]:bg-cyan-500/60 [&::-webkit-scrollbar-thumb]:rounded-full transition-all duration-300">
+            <table className="w-full text-left border-collapse min-w-[600px]">
               <thead>
-                <tr className="bg-slate-900/90 backdrop-blur-md text-orange-500/80 text-[13px] font-black uppercase tracking-wider sticky top-0 z-10 border-b border-solid border-slate-700 shadow-md">
-                  <th className="py-4 px-4 text-center w-16">วันที่</th>
-                  <th className="py-4 px-4">เจ้าหน้าที่อยู่เวรประจำวันหยุด (SSC)</th>
-                  <th className="py-4 px-4 w-44 text-center">ประเภทวันหยุด</th>
-                  <th className="py-4 px-4 w-52">ระบุชื่อวันหยุดพิเศษ (ถ้ามี)</th>
+                <tr className="bg-slate-900/90 backdrop-blur-md text-cyan-400 text-[13px] font-black uppercase tracking-wider sticky top-0 z-10 border-b-2 border-solid border-cyan-500/50 shadow-md">
+                  <th className="py-4 px-4 text-center w-20">วันที่</th>
+                  <th className="py-4 px-4 w-[40%]">เจ้าหน้าที่อยู่เวรประจำวันหยุด (SSC)</th>
+                  <th className="py-4 px-4">ระบุชื่อวันหยุดพิเศษ (ถ้ามี)</th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-solid divide-slate-800/80 text-[14px]">
+              <tbody className="divide-y divide-solid divide-cyan-900/40 text-[14px]">
                 {daysInMonth.map((d) => {
                   const currentInfo = rosterData[d.dateStr] || {};
-                  const isRowHighlighted = d.isWeekend || currentInfo.isHoliday;
-                  const dateBadgeClass = getDayColorClass(d.dayOfWeek, currentInfo.isHoliday);
+                  const dateBadgeClass = getDateBadgeClass(d.dayOfWeek, currentInfo.isHoliday, currentInfo.techName);
+                  const selectColorClass = getSelectColorClass(d.dayOfWeek, currentInfo.techName);
 
                   return (
-                    <tr key={d.dateStr} className={`transition-all duration-300 hover:bg-slate-800/60 ${isRowHighlighted ? 'bg-slate-800/30' : ''}`}>
+                    <tr key={d.dateStr} className="transition-all duration-300 hover:bg-cyan-950/30">
                       <td className="py-3 px-4 text-center font-mono font-black">
-                        <span className={`inline-block w-10 py-1.5 rounded-lg border transition-all duration-300 ${dateBadgeClass}`}>
+                        <span className={`inline-block w-10 py-1.5 rounded-lg border-2 transition-all duration-300 ${dateBadgeClass}`}>
                           {d.dayNum}
                         </span>
                       </td>
@@ -332,36 +270,22 @@ function AdminRosterSettings() {
                         <select
                           value={currentInfo.techName || ''}
                           onChange={(e) => handleTechChange(d.dateStr, e.target.value)}
-                          className={`w-full max-w-md bg-slate-900/80 font-bold px-4 py-2.5 rounded-xl border border-solid transition-all outline-none ${currentInfo.techName ? 'text-orange-400 border-orange-500/60 shadow-[0_0_20px_rgba(249,115,22,0.25)]' : 'text-slate-400 border-slate-700 hover:border-orange-500/40'}`}
+                          className={`w-full font-bold px-4 py-2.5 rounded-xl border border-solid transition-all outline-none ${selectColorClass}`}
                         >
-                          <option value="">-- โปรดเลือกผู้ปฏิบัติงาน --</option>
+                          <option value="" className="text-slate-500">-- โปรดเลือกผู้ปฏิบัติงาน --</option>
                           {technicianList.map((t, tIdx) => (
                             <option key={tIdx} value={t.name}>{t.name}</option>
                           ))}
                         </select>
                       </td>
-                      <td className="py-3 px-4 text-center">
-                        <label className="inline-flex items-center gap-2 cursor-pointer select-none group">
-                          <input 
-                            type="checkbox"
-                            checked={currentInfo.isHoliday || d.isWeekend}
-                            disabled={d.isWeekend}
-                            onChange={(e) => handleHolidayToggle(d.dateStr, e.target.checked)}
-                            className="w-4.5 h-4.5 rounded border-slate-600 text-orange-500 bg-slate-900 focus:ring-orange-500 accent-orange-500 cursor-pointer"
-                          />
-                          <span className={`font-bold transition-colors ${d.isWeekend ? 'text-slate-500' : currentInfo.isHoliday ? 'text-orange-400 animate-pulse drop-shadow-[0_0_8px_rgba(249,115,22,0.6)]' : 'text-slate-500 group-hover:text-orange-400'}`}>
-                            {d.isWeekend ? 'วันหยุดสัปดาห์' : 'วันหยุดพิเศษ'}
-                          </span>
-                        </label>
-                      </td>
                       <td className="py-3 px-4">
                         <input 
                           type="text"
-                          disabled={!currentInfo.isHoliday && !d.isWeekend}
+                          disabled={d.isWeekend}
                           value={d.isWeekend ? 'วันหยุดประจำสัปดาห์' : currentInfo.holidayName || ''}
                           onChange={(e) => handleHolidayNameChange(d.dateStr, e.target.value)}
                           placeholder="เช่น วันสงกรานต์, มติ ครม."
-                          className="w-full bg-slate-900/80 text-orange-100 px-4 py-2.5 rounded-xl border border-solid border-slate-700 focus:border-orange-400 focus:shadow-[0_0_20px_rgba(249,115,22,0.2)] text-[13px] font-bold disabled:opacity-30 disabled:bg-transparent outline-none transition-all"
+                          className="w-full bg-slate-900/80 text-cyan-100 px-4 py-2.5 rounded-xl border border-solid border-cyan-500/30 focus:border-cyan-400 focus:shadow-[0_0_20px_rgba(6,182,212,0.3)] text-[13px] font-bold disabled:opacity-30 disabled:bg-transparent outline-none transition-all"
                         />
                       </td>
                     </tr>
@@ -372,26 +296,66 @@ function AdminRosterSettings() {
           </div>
         </div>
 
-        {/* Footer Section (🌟 ฟันธง 3: ลบข้อความรกๆ ทิ้ง เหลือแค่สถานะเซฟและปุ่ม) */}
-        <div className="flex justify-end items-center border-t border-solid border-orange-500/20 pt-4 md:pt-5 mt-2">
-          <div className="flex items-center gap-4 w-full md:w-auto">
-            {showSuccess && (
-              <span className="flex items-center gap-1.5 text-emerald-400 font-bold text-[13px] animate-pulse bg-emerald-500/10 px-3 py-1.5 rounded-lg border border-emerald-500/30">
-                <CheckCircle2 className="w-4 h-4" /> บันทึกสำเร็จ!
-              </span>
-            )}
-            <button
-              onClick={handleSaveAll}
-              disabled={loading}
-              className="w-full md:w-auto bg-gradient-to-r from-orange-500 to-red-600 hover:from-orange-400 hover:to-red-500 text-white font-black px-6 md:px-10 py-3 md:py-3.5 rounded-xl md:rounded-2xl shadow-[0_0_20px_rgba(249,115,22,0.4)] hover:shadow-[0_0_30px_rgba(249,115,22,0.7)] active:scale-95 transition-all duration-300 text-[15px] flex items-center justify-center gap-2 disabled:opacity-50 disabled:grayscale"
-            >
-              <Save className="w-4 h-4 md:w-5 md:h-5" />
-              {loading ? 'กำลังซิงค์...' : 'บันทึกตารางเวร'}
-            </button>
+        {/* 🌟 โซนปุ่มบันทึก และ ล้างฟอร์ม */}
+        <div className="flex flex-col md:flex-row justify-center items-center gap-4 border-t border-solid border-orange-500/20 pt-5 mt-2">
+          
+          {/* 🌟 ฟันธง 4: ปุ่มล้างฟอร์ม สีแดง/ชมพู เรืองแสงวูบวาบ */}
+          <button
+            onClick={() => setModalConfig({ isOpen: true, type: 'clear' })}
+            className="w-full md:w-auto bg-slate-900 text-rose-500 hover:text-white hover:bg-rose-600 font-black px-6 py-3.5 rounded-xl border border-solid border-rose-500/50 shadow-[0_0_15px_rgba(225,29,72,0.3)] hover:shadow-[0_0_25px_rgba(225,29,72,0.6)] active:scale-95 transition-all duration-300 text-[14px] flex items-center justify-center gap-2"
+          >
+            <RotateCcw className="w-5 h-5" />
+            ล้างข้อมูลทั้งหมด
+          </button>
+
+          <button
+            onClick={() => setModalConfig({ isOpen: true, type: 'save' })}
+            className="w-full md:w-80 bg-gradient-to-r from-orange-500 to-red-600 hover:from-orange-400 hover:to-red-500 text-white font-black px-6 py-3.5 rounded-xl shadow-[0_0_20px_rgba(249,115,22,0.5)] hover:shadow-[0_0_40px_rgba(249,115,22,0.8)] active:scale-95 transition-all duration-300 text-[15px] flex items-center justify-center gap-2"
+          >
+            <Save className="w-5 h-5" />
+            บันทึกตารางเวร
+          </button>
+
+        </div>
+      </div>
+
+      {/* 🌟 ฟันธง 3: Pop-up ยืนยันสไตล์ Sci-Fi โผล่กลางจอ */}
+      {modalConfig.isOpen && (
+        <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-slate-950/80 backdrop-blur-sm animate-in fade-in duration-200">
+          <div className={`relative bg-slate-900 border-[3px] border-solid rounded-3xl w-full max-w-sm p-6 text-center shadow-2xl ${modalConfig.type === 'save' ? 'border-orange-500 shadow-[0_0_50px_rgba(249,115,22,0.4)]' : 'border-rose-500 shadow-[0_0_50px_rgba(225,29,72,0.4)]'}`}>
+            
+            <div className={`w-20 h-20 mx-auto rounded-full flex items-center justify-center mb-4 border-[3px] border-solid animate-pulse ${modalConfig.type === 'save' ? 'bg-orange-500/20 border-orange-500 text-orange-400' : 'bg-rose-500/20 border-rose-500 text-rose-400'}`}>
+              {modalConfig.type === 'save' ? <Save className="w-10 h-10" /> : <AlertTriangle className="w-10 h-10" />}
+            </div>
+
+            <h3 className="text-2xl font-black text-white mb-2">
+              {modalConfig.type === 'save' ? 'ยืนยันการบันทึก?' : 'ยืนยันการล้างข้อมูล?'}
+            </h3>
+            <p className="text-slate-400 text-[14px] font-bold mb-6">
+              {modalConfig.type === 'save' 
+                ? 'ระบบจะทำการบันทึกตารางเวรประจำเดือนนี้ และอัปเดตข้อมูลทั้งหมดทันที' 
+                : 'ข้อมูลเวรที่คุณเลือกไว้ในหน้านี้จะถูกลบออกทั้งหมด (ไม่สามารถย้อนกลับได้)'}
+            </p>
+
+            <div className="flex gap-3">
+              <button 
+                onClick={() => setModalConfig({ isOpen: false, type: null })}
+                className="flex-1 py-3 rounded-xl font-black text-slate-300 bg-slate-800 hover:bg-slate-700 transition-all border border-slate-600"
+              >
+                ยกเลิก
+              </button>
+              <button 
+                onClick={modalConfig.type === 'save' ? executeSave : executeClear}
+                disabled={loading}
+                className={`flex-1 py-3 rounded-xl font-black text-white transition-all shadow-lg active:scale-95 ${modalConfig.type === 'save' ? 'bg-orange-600 hover:bg-orange-500 shadow-orange-500/40' : 'bg-rose-600 hover:bg-rose-500 shadow-rose-500/40'}`}
+              >
+                {loading ? 'รอสักครู่...' : modalConfig.type === 'save' ? 'ยืนยันบันทึก' : 'ล้างข้อมูล'}
+              </button>
+            </div>
           </div>
         </div>
+      )}
 
-      </div>
     </div>
   );
 }
@@ -4336,15 +4300,16 @@ const renderTracking = () => (
         );
       })()}
 
-      {/* 🌟 ฟันธง: ย้ายหน้าต่างจัดเวรมาไว้ตรงนี้ เพื่อให้กางบังมิดทั้งจอ 100% ทะลุเมนู */}
-      {showAdminRoster && (
+    {/* 🌟 ฟันธง: ย้ายหน้าต่างจัดเวรมาไว้ตรงนี้ เพื่อให้กางบังมิดทั้งจอ 100% ทะลุเมนู */}
+    {showAdminRoster && (
           <div className="fixed inset-0 z-[99999] bg-slate-950 overflow-y-auto pb-20">
             {/* ปุ่มปิดหน้าแอดมิน */}
             <div className="sticky top-0 right-0 p-4 md:p-6 flex justify-end z-[100] bg-gradient-to-b from-slate-950/90 to-transparent pointer-events-none">
             </div>
             {/* ดึงหน้าจอแอดมินมาแสดง */}
             <div className="-mt-16 md:-mt-20">
-               <AdminRosterSettings />
+               {/* 🌟 ฟันธงแก้ไขจุดนี้: ส่งสัญญาณ onClose ไปสั่งให้ปิดหน้าต่าง (เปลี่ยนค่าเป็น false) */}
+               <AdminRosterSettings onClose={() => setShowAdminRoster(false)} />
             </div>
           </div>
         )}
