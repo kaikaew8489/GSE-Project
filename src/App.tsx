@@ -45,6 +45,7 @@ import {
   Save,           // 🌟 ฟันธง: พิมพ์เพิ่มคำนี้!
   ShieldAlert,    // 🌟 ฟันธง: พิมพ์เพิ่มคำนี้!
   CheckCircle2,   // 🌟 ฟันธง: พิมพ์เพิ่มคำนี้!
+  ClipboardList,
 } from 'lucide-react';
 
 
@@ -95,6 +96,8 @@ function AdminRosterSettings({ onClose }) {
   const [isYearModalOpen, setIsYearModalOpen] = useState(false);
   const [selectingTechForDate, setSelectingTechForDate] = useState(null);
   const [modalConfig, setModalConfig] = useState({ isOpen: false, type: null });
+  // 🌟 ฟันธง: เพิ่มตัวแปรควบคุม Pop-up สรุปเวร
+  const [isSummaryModalOpen, setIsSummaryModalOpen] = useState(false);
 
   const monthsThai = ['มกราคม', 'กุมภาพันธ์', 'มีนาคม', 'เมษายน', 'พฤษภาคม', 'มิถุนายน', 'กรกฎาคม', 'สิงหาคม', 'กันยายน', 'ตุลาคม', 'พฤศจิกายน', 'ธันวาคม'];
   const yearsList = [2026, 2027, 2028, 2029, 2030 ];
@@ -207,6 +210,7 @@ function AdminRosterSettings({ onClose }) {
   const activeRecordsCount = Object.values(rosterData).filter(info => (info.techName && info.techName.trim() !== '') || info.isHoliday).length;
 
   return (
+
     <div className="min-h-[100dvh] bg-slate-950 text-slate-100 p-3 pb-24 md:p-8 font-sans flex flex-col justify-start md:justify-center relative overflow-y-auto overscroll-none">
       
       <div className="max-w-4xl mx-auto bg-slate-900/80 backdrop-blur-xl rounded-2xl md:rounded-[2rem] border-[3px] border-solid border-orange-500 p-4 pb-6 md:p-8 shadow-[0_0_90px_rgba(249,115,22,0.5)] relative w-full mt-10 md:mt-0 mb-10 md:mb-0 my-auto">
@@ -324,27 +328,41 @@ function AdminRosterSettings({ onClose }) {
         </div>
 
         {/* 🌟 ฟันธง 3: ลบเส้นแบ่ง border-t สีส้มออก ประหยัดพื้นที่! */}
-        <div className="flex flex-col md:flex-row justify-center items-center gap-4 pt-2 mt-2">
+       {/* 🌟 ฟันธง: อัปเกรดแผงปุ่มควบคุม เรียงแนวนอน 3 ปุ่ม จัดกึ่งกลางพอดีเป๊ะทั้ง Mobile และ PC */}
+       <div className="flex flex-row justify-between items-stretch gap-2 md:gap-4 pt-3 mt-2 w-full">
           
+          {/* 1. ปุ่มดูสรุปเวร (สีฟ้าเรืองแสง) */}
+          <button
+            onClick={() => setIsSummaryModalOpen(true)}
+            className="flex-1 bg-slate-900 text-cyan-400 hover:text-white hover:bg-cyan-900/60 font-black py-2.5 md:py-3.5 rounded-xl border-[2px] border-solid border-cyan-500/50 shadow-[0_0_15px_rgba(6,182,212,0.3)] hover:shadow-[0_0_30px_rgba(6,182,212,0.6)] active:scale-95 transition-all duration-300 flex flex-col md:flex-row items-center justify-center gap-1 md:gap-2"
+          >
+            <ClipboardList className="w-5 h-5 md:w-5 md:h-5" />
+            <span className="text-[11px] md:text-[14px] leading-none md:leading-normal">ดูสรุปเวร</span>
+          </button>
+
+          {/* 2. ปุ่มบันทึกตารางเวร (สีส้มเรืองแสง - ให้พื้นที่กว้างกว่าเพื่อนนิดนึง flex-[1.2]) */}
           <button
             onClick={() => setModalConfig({ isOpen: true, type: 'save' })}
             disabled={activeRecordsCount === 0} 
-            className={`w-full md:w-80 font-black px-6 py-3.5 rounded-xl transition-all duration-300 text-[15px] flex items-center justify-center gap-2
+            className={`flex-[1.2] font-black py-2.5 md:py-3.5 rounded-xl transition-all duration-300 flex flex-col md:flex-row items-center justify-center gap-1 md:gap-2
               ${activeRecordsCount === 0 
                 ? 'bg-slate-800 text-slate-500 border border-slate-700 cursor-not-allowed grayscale' 
                 : 'bg-gradient-to-r from-orange-500 to-red-600 hover:from-orange-400 hover:to-red-500 text-white shadow-[0_0_20px_rgba(249,115,22,0.5)] hover:shadow-[0_0_40px_rgba(249,115,22,0.8)] active:scale-95' 
               }`}
           >
-            <Save className="w-5 h-5" />
-            {activeRecordsCount === 0 ? 'ไม่มีข้อมูลให้บันทึก' : 'บันทึกตารางเวร'}
+            <Save className="w-5 h-5 md:w-5 md:h-5" />
+            <span className="text-[11px] md:text-[15px] leading-none md:leading-normal text-center">
+              {activeRecordsCount === 0 ? 'ไม่มีข้อมูล' : 'บันทึกเวร'}
+            </span>
           </button>
 
+          {/* 3. ปุ่มล้างข้อมูลทั้งหมด (สีแดงเรืองแสง) */}
           <button
             onClick={() => setModalConfig({ isOpen: true, type: 'clear' })}
-            className="w-full md:w-auto bg-slate-900 text-rose-500 hover:text-white hover:bg-rose-600 font-black px-6 py-3.5 rounded-xl border border-solid border-rose-500/50 shadow-[0_0_15px_rgba(225,29,72,0.3)] hover:shadow-[0_0_25px_rgba(225,29,72,0.6)] active:scale-95 transition-all duration-300 text-[14px] flex items-center justify-center gap-2"
+            className="flex-1 bg-slate-900 text-rose-500 hover:text-white hover:bg-rose-600 font-black py-2.5 md:py-3.5 rounded-xl border-[2px] border-solid border-rose-500/50 shadow-[0_0_15px_rgba(225,29,72,0.3)] hover:shadow-[0_0_25px_rgba(225,29,72,0.6)] active:scale-95 transition-all duration-300 flex flex-col md:flex-row items-center justify-center gap-1 md:gap-2"
           >
-            <RotateCcw className="w-5 h-5" />
-            ล้างข้อมูลทั้งหมด
+            <RotateCcw className="w-5 h-5 md:w-5 md:h-5" />
+            <span className="text-[11px] md:text-[14px] leading-none md:leading-normal">ล้างข้อมูล</span>
           </button>
 
         </div>
@@ -467,7 +485,7 @@ function AdminRosterSettings({ onClose }) {
         <div className="fixed inset-0 z-[999999] flex items-center justify-center p-4 bg-slate-950/80 backdrop-blur-md animate-in fade-in duration-200 overscroll-none">
           
           {/* 🌟 ฟันธง 2: ขอบนอกสุดสีฟ้าสว่างวาบ อัดแสง Flare ทวีคูณ (Outer + Inner Glow) */}
-          <div className="relative bg-slate-900 border-[3px] border-cyan-400 rounded-3xl w-full max-w-sm p-6 shadow-[0_0_60px_rgba(34,211,238,0.7),inset_0_0_20px_rgba(34,211,238,0.3)] flex flex-col max-h-[85vh]">
+          <div className="relative bg-slate-900 border-[3px] border-solid border-cyan-400 rounded-3xl w-full max-w-sm p-6 shadow-[0_0_60px_rgba(34,211,238,0.7),inset_0_0_20px_rgba(34,211,238,0.3)] flex flex-col max-h-[85vh]">
             
             {/* 🌟 ฟันธง 3: หัวข้อและกากบาท ปล่อยโล่ง ไม่มีกรอบล้อม เน้นเส้นใต้บางๆ เรืองแสง ดู Sci-Fi สุดๆ */}
             <div className="flex justify-between items-center mb-5 border-b-[2px] border-cyan-500/40 pb-4">
@@ -517,10 +535,109 @@ function AdminRosterSettings({ onClose }) {
           </div>
         </div>
       )}
+
+     {/* ========================================================= */}
+      {/* 🌟 5. Pop-up Sci-Fi สรุปตารางเวร (ตีมส้ม + สีตามวันเป๊ะๆ 1,000,000%) */}
+      {/* ========================================================= */}
+      {isSummaryModalOpen && (
+        <div className="fixed inset-0 z-[999999] flex items-center justify-center p-4 bg-slate-950/80 backdrop-blur-md animate-in fade-in duration-200 overscroll-none">
+          
+          <div className="relative bg-slate-900 border-[3px] border-orange-500 rounded-3xl w-full max-w-md p-6 shadow-[0_0_80px_rgba(249,115,22,0.5),inset_0_0_20px_rgba(249,115,22,0.2)] flex flex-col max-h-[85vh]">
+            
+            {/* หัวข้อ */}
+            <div className="flex justify-between items-center mb-5 border-b-[2px] border-orange-500/40 pb-4">
+              <h3 className="text-[16px] md:text-lg font-black text-orange-400 flex items-center gap-2 drop-shadow-[0_0_15px_rgba(249,115,22,0.9)]">
+                <ClipboardList className="w-5 h-5 md:w-6 md:h-6" /> 
+                สรุปเวร: {monthsThai[selectedMonth - 1]} พ.ศ. {selectedYear + 543}
+              </h3>
+              <button 
+                onClick={() => setIsSummaryModalOpen(false)} 
+                className="text-rose-500 hover:text-white animate-pulse bg-slate-900 hover:bg-rose-600 p-1.5 md:p-2 rounded-full transition-all duration-300 border-[2px] border-rose-500 shadow-[0_0_20px_rgba(225,29,72,0.8)] hover:shadow-[0_0_35px_rgba(225,29,72,1)] cursor-pointer"
+              >
+                <XCircle className="w-6 h-6 md:w-7 md:h-7" />
+              </button>
+            </div>
+
+            {/* รายชื่อ (แก้ไขพื้นที่ให้แสงไม่แหว่งแล้ว) */}
+            <div className="overflow-y-auto px-4 -mx-4 space-y-4 pb-4 pt-2 [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden">
+              {(() => {
+                const activeRosters = Object.values(rosterData)
+                  .filter(info => info.techName && info.techName.trim() !== '')
+                  .sort((a, b) => a.dateStr.localeCompare(b.dateStr));
+
+                if (activeRosters.length === 0) {
+                  return (
+                    <div className="text-center py-10 bg-rose-950/20 border-[2px] border-rose-500/50 rounded-2xl shadow-[0_0_30px_rgba(225,29,72,0.3)] animate-pulse mt-4">
+                      <AlertTriangle className="w-14 h-14 text-rose-500 mx-auto mb-3 drop-shadow-[0_0_15px_rgba(225,29,72,0.8)]" />
+                      <h4 className="text-rose-400 font-black text-[18px]">ยังไม่มีข้อมูลการจัดเวรในเดือนนี้</h4>
+                      <p className="text-rose-500/80 font-bold text-[13px] mt-2">โปรดเลือกผู้ปฏิบัติงานในตารางเพื่อจัดเวร</p>
+                    </div>
+                  );
+                }
+
+                return activeRosters.map((info, idx) => {
+                  const [yyyy, mm, dd] = info.dateStr.split('-');
+                  const dateObj = new Date(parseInt(yyyy, 10), parseInt(mm, 10) - 1, parseInt(dd, 10));
+                  const dayOfWeek = dateObj.getDay();
+                  const dayNum = parseInt(dd, 10);
+
+                  let rowClass, nameColor, subText, subTextColor, dotColor;
+
+                  if (info.isHoliday) {
+                    rowClass = "border-orange-500/80 shadow-[0_0_15px_rgba(249,115,22,0.3)] hover:shadow-[0_0_25px_rgba(249,115,22,0.6)]";
+                    nameColor = "text-orange-400 drop-shadow-[0_0_8px_rgba(249,115,22,0.8)]";
+                    subText = info.holidayName || "วันหยุดพิเศษ";
+                    subTextColor = "text-orange-400 drop-shadow-[0_0_5px_rgba(249,115,22,0.8)]";
+                    dotColor = "bg-orange-500";
+                  } else if (dayOfWeek === 0) { 
+                    rowClass = "border-rose-500/80 shadow-[0_0_15px_rgba(225,29,72,0.3)] hover:shadow-[0_0_25px_rgba(225,29,72,0.6)]";
+                    nameColor = "text-rose-400 drop-shadow-[0_0_8px_rgba(225,29,72,0.8)]";
+                    subText = "วันอาทิตย์";
+                    subTextColor = "text-rose-400 drop-shadow-[0_0_5px_rgba(225,29,72,0.8)]";
+                    dotColor = "bg-rose-500";
+                  } else if (dayOfWeek === 6) { 
+                    rowClass = "border-blue-500/80 shadow-[0_0_15px_rgba(59,130,246,0.3)] hover:shadow-[0_0_25px_rgba(59,130,246,0.6)]";
+                    nameColor = "text-blue-400 drop-shadow-[0_0_8px_rgba(59,130,246,0.8)]";
+                    subText = "วันเสาร์";
+                    subTextColor = "text-blue-400 drop-shadow-[0_0_5px_rgba(59,130,246,0.8)]";
+                    dotColor = "bg-blue-500";
+                  } else { 
+                    rowClass = "border-orange-500/80 shadow-[0_0_15px_rgba(249,115,22,0.3)] hover:shadow-[0_0_25px_rgba(249,115,22,0.6)]";
+                    nameColor = "text-orange-400 drop-shadow-[0_0_8px_rgba(249,115,22,0.8)]";
+                    subText = ""; 
+                  }
+
+                  return (
+                    <div key={idx} className={`flex items-center justify-between p-4 rounded-xl border-[2px] bg-slate-900/80 transition-all ${rowClass}`}>
+                      <div className="flex items-center gap-4">
+                        <span className={`flex items-center justify-center w-12 h-12 rounded-xl border-[2px] font-black text-[18px] transition-all duration-300 ${getDateBadgeClass(dayOfWeek, info.isHoliday, true)}`}>
+                          {dayNum}
+                        </span>
+                        <div className="flex flex-col justify-center">
+                          <p className={`font-black text-[15px] md:text-[17px] ${nameColor}`}>
+                            {info.techName}
+                          </p>
+                          {subText && (
+                            <p className={`text-[12px] md:text-[13px] font-bold mt-0.5 flex items-center gap-1.5 ${subTextColor}`}>
+                              <span className={`w-2 h-2 rounded-full animate-pulse ${dotColor}`}></span>
+                              {subText}
+                            </p>
+                          )}
+                        </div>
+                      </div>
+                    </div>
+                  );
+                });
+              })()}
+            </div>
+
+          </div>
+        </div>
+      )}
+
     </div>
   );
 }
-
 // ==========================================
 // 🌟 ฟันธง: สิ้นสุดโค้ดส่วนหน้าจอจัดตารางเวร SSC 
 // (โค้ดของท่านหัวหน้าเช่น export default function App() หรือ MainApp จะอยู่ต่อจากบรรทัดนี้ไปครับ)
@@ -3869,7 +3986,7 @@ const renderTracking = () => (
                                 }
                                 className="w-full bg-gradient-to-r from-orange-400 to-orange-500 text-white border border-orange-300 font-bold py-3.5 md:py-6 rounded-xl md:rounded-3xl shadow-[0_0_15px_rgba(249,115,22,0.4)] hover:shadow-[0_0_25px_rgba(249,115,22,0.6)] active:scale-95 transition-all text-[15px] md:text-[26px]"
                             >
-                              แก้ไขเบื้องต้น (ส่งต่อช่างหลัก)
+                              เจ้าหน้าที่เวร SSC แก้ไขเบื้องต้น
                             </button>
                             )}
 
