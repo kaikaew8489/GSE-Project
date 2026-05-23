@@ -2658,7 +2658,7 @@ const executeRatingSubmit = async () => {
           const dutyPerson = sscRosterForDate ? { techName: sscRosterForDate.techName, techPhone: sscRosterForDate.techPhone } : null;
 
           return (
-            <div className="mb-2 mt-4 p-4 md:p-6 rounded-2xl border-[2px] border-orange-500/50 bg-slate-900/80 shadow-[0_0_20px_rgba(249,115,22,0.2)] flex items-center justify-between transition-all hover:shadow-[0_0_30px_rgba(249,115,22,0.4)]">
+            <div className="mb-2 mt-4 p-4 md:p-6 rounded-2xl border-[2px] border-solid border-orange-400/80 bg-slate-900/80 shadow-[0_0_20px_rgba(249,115,22,0.2)] flex items-center justify-between transition-all hover:shadow-[0_0_30px_rgba(249,115,22,0.4)]">
               <div className="flex items-center gap-4">
                 <div className="relative">
                   <div className="w-12 h-12 md:w-16 md:h-16 rounded-xl bg-orange-500/20 flex items-center justify-center border border-orange-500">
@@ -2667,7 +2667,7 @@ const executeRatingSubmit = async () => {
                   <span className="absolute -top-1 -right-1 w-3 h-3 md:w-4 md:h-4 bg-emerald-500 rounded-full animate-pulse border-2 border-slate-900 shadow-[0_0_8px_rgba(16,185,129,1)]"></span>
                 </div>
                 <div>
-                  <p className="text-[12px] md:text-[14px] text-slate-400 font-bold uppercase tracking-widest">วิศวกรเวรประจำการวันนี้</p>
+                  <p className="text-[12px] md:text-[14px] text-slate-400 font-bold uppercase tracking-widest">เจ้าหน้าที่เวร SSC วันนี้</p>
                   <p className="text-[17px] md:text-[22px] font-black text-orange-400 drop-shadow-[0_0_8px_rgba(249,115,22,0.8)] mt-0.5">
                     {dutyPerson?.techName || 'ไม่มีเวร SSC วันนี้'}
                   </p>
@@ -2686,238 +2686,252 @@ const executeRatingSubmit = async () => {
         })()}
 
         {/* ================= กรอบที่ 1: ข้อมูลผู้แจ้งซ่อม ================= */}
-        <div className="relative bg-slate-800/60 backdrop-blur-xl border-2 border-solid border-orange-400 rounded-[1rem] p-6 md:p-8 pt-10 shadow-[0_0_40px_rgba(0,0,0,0.4)] text-left mt-6">
-            <div className="absolute -top-4 left-6 bg-emerald-50 text-emerald-600 px-4 py-2.5 rounded-xl font-black text-[18px] shadow-sm border-2 border-solid border-green-500 flex items-center gap-2 tracking-widest uppercase">
-              <User size={24} className="text-orange-500"/> ข้อมูลผู้แจ้งซ่อม
-            </div>
-
-            <div className="space-y-4 md:space-y-6 mt-2">
-              {/* 🌟 1. ดรอปดาวน์ชื่อผู้แจ้ง (ธีมเขียว Emerald) */}
-              <SciFiSelectModal
-                id="field-reporter"
-                themeColor="emerald"
-                label={
-                  <span className="text-[14px] md:text-[18px] font-black tracking-wide text-emerald-400 flex items-center gap-1.5 md:gap-2">
-                    <User size={18} className="md:w-5 md:h-5"/> ชื่อ-นามสกุล <span className="text-rose-500">*</span>
-                  </span>
-                }
-                icon={<User size={16} className="text-emerald-400 md:w-5 md:h-5"/>}
-                placeholder="เลือกผู้แจ้งซ่อม"
-                options={employeeList.map((e) => String(e.name))}
-                value={formData.reporter}
-                onChange={handleReporterChange}
-                error={formErrors.reporter}
-              />
-
-              <div className="space-y-1.5 md:space-y-2">
-                <label className="text-[14px] md:text-[18px] font-black text-slate-200 uppercase tracking-wide ml-1 flex items-center gap-1.5 md:gap-2">
-                  <Briefcase size={18} className="text-orange-400 md:w-5 md:h-5" /> ตำแหน่ง
-                </label>
-                <input
-                  value={formData.position}
-                  readOnly
-                  className="w-full bg-slate-900 border-[2px] border-solid border-orange-500/30 rounded-2xl px-5 py-4 md:py-5 text-sm md:text-[16px] font-bold text-orange-200 outline-none cursor-not-allowed shadow-[0_0_15px_rgba(249,115,22,0.15)] transition-all"
-                  placeholder="-"
-                />
-              </div>
-
-              <div className="space-y-1.5 md:space-y-2">
-                <label className="text-[14px] md:text-[18px] font-black text-slate-200 uppercase tracking-wide ml-1 flex items-center gap-1.5 md:gap-2">
-                  <Users size={18} className="text-orange-400 md:w-5 md:h-5" /> ฝ่าย
-                </label>
-                <input
-                  value={formData.department}
-                  readOnly
-                  className="w-full bg-slate-900 border-[2px] border-solid border-orange-500/30 rounded-2xl px-5 py-4 md:py-5 text-sm md:text-[16px] font-bold text-orange-200 outline-none cursor-not-allowed shadow-[0_0_15px_rgba(249,115,22,0.15)] transition-all"
-                  placeholder="-"
-                />
-              </div>
-
-              <div className="space-y-1.5 md:space-y-2">
-                <label className="text-[14px] md:text-[18px] font-black text-slate-200 uppercase tracking-wide ml-1 flex items-center gap-1.5 md:gap-2">
-                  <Landmark size={18} className="text-orange-400 md:w-5 md:h-5" /> สำนัก
-                </label>
-                <input
-                  value={formData.bureau}
-                  readOnly
-                  className="w-full bg-slate-900 border-[2px] border-solid border-orange-500/30 rounded-2xl px-5 py-4 md:py-5 text-sm md:text-[16px] font-bold text-orange-200 outline-none cursor-not-allowed shadow-[0_0_15px_rgba(249,115,22,0.15)] transition-all"
-                  placeholder="สำนักปฏิบัติการดาวเทียม"
-                />
-              </div>
-
-              <div className="space-y-1.5 md:space-y-2" id="field-reporterContact">
-                <label className="text-[14px] md:text-[18px] font-black text-slate-200 uppercase tracking-wide ml-1 flex items-center gap-1.5 md:gap-2">
-                  <Phone size={18} className="text-orange-400 md:w-5 md:h-5" /> เบอร์โทรศัพท์ <span className="text-rose-500">*</span>
-                </label>
-                <div 
-                  onClick={() => setShowNumpad(true)}
-                  className={`w-full bg-slate-900 border-[2px] border-solid ${
-                    formErrors.reporterContact ? 'border-rose-500 ring-1 ring-rose-500/30' : 'border-orange-500/30 hover:border-orange-400 shadow-[0_0_15px_rgba(249,115,22,0.15)] hover:shadow-[0_0_25px_rgba(249,115,22,0.4)]'
-                  } rounded-2xl px-5 py-4 md:py-5 cursor-pointer transition-all duration-300`}
-                >
-                  <span className={`text-[15px] md:text-[18px] font-bold font-mono tracking-widest ${formData.reporterContact ? 'text-orange-300' : 'text-slate-500'}`}>
-                    {formData.reporterContact || '0X-XXXX-XXXX'}
-                  </span>
-                </div>
-                {formErrors.reporterContact && (
-                  <div className="text-rose-500 text-[11px] md:text-[13px] font-bold mt-1 px-1">⚠️ {formErrors.reporterContact}</div>
-                )}
-              </div>
-            </div>
+        <div className="relative bg-slate-800/60 backdrop-blur-xl border-2 border-solid border-emerald-500/80 rounded-[1rem] p-6 md:p-8 pt-10 shadow-[0_0_40px_rgba(16,185,129,0.2)] text-left mt-6">
+          <div className="absolute -top-4 left-6 bg-emerald-900/80 text-emerald-400 px-4 py-2.5 rounded-xl font-black text-[18px] shadow-[0_0_15px_rgba(16,185,129,0.5)] border-[2px] border-solid border-emerald-400 flex items-center gap-2 tracking-widest uppercase">
+            <User size={24} className="text-emerald-400"/> ข้อมูลผู้แจ้งซ่อม
           </div>
 
-          {/* ================= กรอบที่ 2: รายละเอียดการแจ้งซ่อม ================= */}
-          <div className="relative bg-slate-800/60 backdrop-blur-xl border-2 border-solid border-white-500/80 rounded-[1rem] p-6 md:p-8 pt-10 shadow-[0_0_40px_rgba(0,0,0,0.4)] text-left mt-6">
-            <div className="absolute -top-4 left-6 bg-emerald-50 text-emerald-600 px-4 py-2.5 rounded-xl font-black text-[18px] shadow-sm border-2 border-solid border-green-500 flex items-center gap-2 tracking-widest uppercase">
-              <Wrench size={24} className="text-orange-500" />{' '}
-              รายละเอียดการแจ้งซ่อม
+          <div className="space-y-4 md:space-y-6 mt-2">
+            {/* 🌟 1. ดรอปดาวน์ชื่อผู้แจ้ง (ธีมเขียว Emerald) */}
+            <SciFiSelectModal
+              id="field-reporter"
+              themeColor="emerald"
+              label={
+                <span className="text-[14px] md:text-[18px] font-black tracking-wide text-emerald-400 flex items-center gap-1.5 md:gap-2">
+                  <User size={18} className="md:w-5 md:h-5"/> ชื่อ-นามสกุล <span className="text-rose-500">*</span>
+                </span>
+              }
+              icon={<User size={16} className="text-emerald-400 md:w-5 md:h-5"/>}
+              placeholder="เลือกผู้แจ้งซ่อม"
+              options={employeeList.map((e) => String(e.name))}
+              value={formData.reporter}
+              onChange={handleReporterChange}
+              error={formErrors.reporter}
+            />
+
+            <div className="space-y-1.5 md:space-y-2">
+              <label className="text-[14px] md:text-[18px] font-black text-slate-200 uppercase tracking-wide ml-1 flex items-center gap-1.5 md:gap-2">
+                <Briefcase size={18} className="text-emerald-400 md:w-5 md:h-5" /> ตำแหน่ง
+              </label>
+              <input
+                value={formData.position}
+                readOnly
+                className="w-full bg-slate-900 border-[2px] border-solid border-emerald-500/30 rounded-2xl px-5 py-4 md:py-5 text-sm md:text-[16px] font-bold text-emerald-200 outline-none cursor-not-allowed shadow-[0_0_15px_rgba(16,185,129,0.1)] transition-all"
+                placeholder="-"
+              />
             </div>
 
-            <div className="space-y-5 md:space-y-6 mt-2">
-              {/* 🌟 2. ดรอปดาวน์กลุ่มงาน (ธีมเหลือง Amber) */}
-              <SciFiSelectModal
-                id="field-equipmentCategory"
-                themeColor="amber"
-                label={
-                  <span className="text-[14px] md:text-[18px] font-black tracking-wide text-amber-400 flex items-center gap-1.5 md:gap-2">
-                    <Activity size={18} className="md:w-5 md:h-5"/> กลุ่มงาน / ภารกิจรับผิดชอบ <span className="text-rose-500">*</span>
-                  </span>
-                }
-                icon={<Activity size={16} className="text-amber-400 md:w-5 md:h-5" />}
-                placeholder="เลือกกลุ่มภารกิจของ ฝวด."
-                options={Object.keys(equipmentCategories)}
-                value={formData.equipmentCategory}
-                onChange={(val) => {
-                  setFormData({ ...formData, equipmentCategory: val, equipment: '' });
-                  if (formErrors.equipmentCategory) setFormErrors({ ...formErrors, equipmentCategory: null });
-                }}
-                error={formErrors.equipmentCategory}
+            <div className="space-y-1.5 md:space-y-2">
+              <label className="text-[14px] md:text-[18px] font-black text-slate-200 uppercase tracking-wide ml-1 flex items-center gap-1.5 md:gap-2">
+                <Users size={18} className="text-emerald-400 md:w-5 md:h-5" /> ฝ่าย
+              </label>
+              <input
+                value={formData.department}
+                readOnly
+                className="w-full bg-slate-900 border-[2px] border-solid border-emerald-500/30 rounded-2xl px-5 py-4 md:py-5 text-sm md:text-[16px] font-bold text-emerald-200 outline-none cursor-not-allowed shadow-[0_0_15px_rgba(16,185,129,0.1)] transition-all"
+                placeholder="-"
               />
+            </div>
 
-              {/* 🌟 3. ดรอปดาวน์รายการอุปกรณ์ (ธีมฟ้า Cyan) */}
-              <SciFiSelectModal
-                id="field-equipment"
-                themeColor="cyan"
-                label={
-                  <span className="text-[14px] md:text-[18px] font-black tracking-wide text-cyan-400 flex items-center gap-1.5 md:gap-2">
-                    <Monitor size={18} className="md:w-5 md:h-5"/> รายการอุปกรณ์ / ระบบ <span className="text-rose-500">*</span>
-                  </span>
-                }
-                icon={<Monitor size={16} className="text-cyan-400 md:w-5 md:h-5" />}
-                placeholder={formData.equipmentCategory ? "เลือกอุปกรณ์" : "กรุณาเลือกกลุ่มงานก่อน"}
-                options={formData.equipmentCategory ? equipmentCategories[formData.equipmentCategory] : []}
-                value={formData.equipment}
-                onChange={(val) => {
-                  setFormData({ ...formData, equipment: val });
-                  if (formErrors.equipment) setFormErrors({ ...formErrors, equipment: null });
-                }}
-                error={formErrors.equipment}
+            <div className="space-y-1.5 md:space-y-2">
+              <label className="text-[14px] md:text-[18px] font-black text-slate-200 uppercase tracking-wide ml-1 flex items-center gap-1.5 md:gap-2">
+                <Landmark size={18} className="text-emerald-400 md:w-5 md:h-5" /> สำนัก
+              </label>
+              <input
+                value={formData.bureau}
+                readOnly
+                className="w-full bg-slate-900 border-[2px] border-solid border-emerald-500/30 rounded-2xl px-5 py-4 md:py-5 text-sm md:text-[16px] font-bold text-emerald-200 outline-none cursor-not-allowed shadow-[0_0_15px_rgba(16,185,129,0.1)] transition-all"
+                placeholder="สำนักปฏิบัติการดาวเทียม"
               />
+            </div>
 
-              <div className="space-y-1.5 md:space-y-2" id="field-description">
-                <label className="text-[14px] md:text-[18px] font-black text-slate-200 uppercase tracking-wide ml-1 flex items-center gap-1.5 md:gap-2">
-                  <AlertCircle size={18} className="text-orange-400 md:w-5 md:h-5" /> อาการเสีย / รายละเอียดปัญหา <span className="text-rose-500">*</span>
-                </label>
-                <textarea
-                  name="description"
-                  value={formData.description}
-                  onChange={handleInputChange}
-                  rows={3}
-                  className={`w-full bg-slate-900 border-[2px] border-solid ${
-                    formErrors.description
-                      ? 'border-rose-500 ring-1 ring-rose-500/30'
-                      : 'border-orange-500/30 focus:border-orange-400 shadow-[0_0_15px_rgba(249,115,22,0.15)] focus:shadow-[0_0_25px_rgba(249,115,22,0.4)]'
-                  } rounded-2xl px-5 py-4 md:py-5 outline-none text-sm md:text-[16px] font-bold text-orange-100 placeholder:text-slate-600 resize-none transition-all duration-300`}
-                  placeholder="อธิบายรายละเอียดอาการเสีย..."
-                />
-                {formErrors.description && (
-                  <div className="text-rose-500 text-[11px] md:text-[13px] font-bold mt-1.5 ml-1 animate-in fade-in">
-                    ⚠️ {formErrors.description}
-                  </div>
-                )}
+            <div className="space-y-1.5 md:space-y-2" id="field-reporterContact">
+              <label className="text-[14px] md:text-[18px] font-black text-slate-200 uppercase tracking-wide ml-1 flex items-center gap-1.5 md:gap-2">
+                <Phone size={18} className="text-emerald-400 md:w-5 md:h-5" /> เบอร์โทรศัพท์ <span className="text-rose-500">*</span>
+              </label>
+              <div 
+                onClick={() => setShowNumpad(true)}
+                className={`w-full bg-slate-900 border-[2px] border-solid ${
+                  formErrors.reporterContact ? 'border-rose-500 ring-1 ring-rose-500/30' : 'border-emerald-500/30 hover:border-emerald-400 shadow-[0_0_15px_rgba(16,185,129,0.1)] hover:shadow-[0_0_25px_rgba(16,185,129,0.3)]'
+                } rounded-2xl px-5 py-4 md:py-5 cursor-pointer transition-all duration-300`}
+              >
+                <span className={`text-[15px] md:text-[18px] font-bold font-mono tracking-widest ${formData.reporterContact ? 'text-emerald-300' : 'text-slate-500'}`}>
+                  {formData.reporterContact || '0X-XXXX-XXXX'}
+                </span>
               </div>
+              {formErrors.reporterContact && (
+                <div className="text-rose-500 text-[11px] md:text-[13px] font-bold mt-1 px-1">⚠️ {formErrors.reporterContact}</div>
+              )}
+            </div>
+          </div>
+        </div>
 
-              <div className="space-y-1.5 md:space-y-2">
-                <label className="text-[14px] md:text-[18px] font-black text-slate-200 uppercase tracking-wide ml-1 flex items-center gap-1.5 md:gap-2">
-                  <Hash size={18} className="text-orange-400 md:w-5 md:h-5" /> หมายเลขครุภัณฑ์ (หากมี)
-                </label>
-                <input
-                  name="assetNumber"
-                  value={formData.assetNumber}
-                  onChange={handleInputChange}
-                  className="w-full bg-slate-900 border-[2px] border-solid border-orange-500/30 focus:border-orange-400 shadow-[0_0_15px_rgba(249,115,22,0.15)] focus:shadow-[0_0_25px_rgba(249,115,22,0.4)] rounded-2xl px-5 py-4 md:py-5 text-sm md:text-[16px] font-bold text-orange-100 outline-none font-mono tracking-widest transition-all duration-300 placeholder:text-slate-600"
-                  placeholder="ระบุหมายเลข..."
-                />
-              </div>
+        {/* ================= กรอบที่ 2: รายละเอียดการแจ้งซ่อม ================= */}
+        <div className="relative bg-slate-800/60 backdrop-blur-xl border-2 border-solid border-orange-500/80 rounded-[1rem] p-6 md:p-8 pt-10 shadow-[0_0_40px_rgba(249,115,22,0.15)] text-left mt-6">
+          <div className="absolute -top-4 left-6 bg-orange-900/80 text-orange-400 px-4 py-2.5 rounded-xl font-black text-[18px] shadow-[0_0_15px_rgba(249,115,22,0.5)] border-[2px] border-solid border-orange-400 flex items-center gap-2 tracking-widest uppercase">
+            <Wrench size={24} className="text-orange-400" /> รายละเอียดการแจ้งซ่อม
+          </div>
 
-              {/* 🌟 4. ดรอปดาวน์อาคาร (ธีมส้ม Orange) */}
-              <SciFiSelectModal
-                id="field-building"
-                themeColor="orange"
-                label={
-                  <span className="text-[14px] md:text-[18px] font-black tracking-wide text-orange-400 flex items-center gap-1.5 md:gap-2">
-                    <Building size={18} className="md:w-5 md:h-5"/> อาคาร / ตึก <span className="text-rose-500">*</span>
-                  </span>
-                }
-                icon={<Building size={16} className="text-orange-400 md:w-5 md:h-5" />}
-                placeholder="เลือกอาคาร"
-                options={buildingList}
-                value={formData.building}
-                onChange={(val) => {
-                  setFormData({ ...formData, building: val });
-                  if (formErrors.building) setFormErrors({ ...formErrors, building: null });
-                }}
-                error={formErrors.building}
+          <div className="space-y-5 md:space-y-6 mt-2">
+            {/* 🌟 2. ดรอปดาวน์กลุ่มงาน (ธีมเหลือง Amber) */}
+            <SciFiSelectModal
+              id="field-equipmentCategory"
+              themeColor="amber"
+              label={
+                <span className="text-[14px] md:text-[18px] font-black tracking-wide text-amber-400 flex items-center gap-1.5 md:gap-2">
+                  <Activity size={18} className="md:w-5 md:h-5"/> กลุ่มงาน / ภารกิจรับผิดชอบ <span className="text-rose-500">*</span>
+                </span>
+              }
+              icon={<Activity size={16} className="text-amber-400 md:w-5 md:h-5" />}
+              placeholder="เลือกกลุ่มภารกิจของ ฝวด."
+              options={Object.keys(equipmentCategories)}
+              value={formData.equipmentCategory}
+              onChange={(val) => {
+                setFormData({ ...formData, equipmentCategory: val, equipment: '' });
+                if (formErrors.equipmentCategory) setFormErrors({ ...formErrors, equipmentCategory: null });
+              }}
+              error={formErrors.equipmentCategory}
+            />
+
+            {/* 🌟 3. ดรอปดาวน์รายการอุปกรณ์ (ธีมฟ้า Cyan) */}
+            <SciFiSelectModal
+              id="field-equipment"
+              themeColor="cyan"
+              label={
+                <span className="text-[14px] md:text-[18px] font-black tracking-wide text-cyan-400 flex items-center gap-1.5 md:gap-2">
+                  <Monitor size={18} className="md:w-5 md:h-5"/> รายการอุปกรณ์ / ระบบ <span className="text-rose-500">*</span>
+                </span>
+              }
+              icon={<Monitor size={16} className="text-cyan-400 md:w-5 md:h-5" />}
+              placeholder={formData.equipmentCategory ? "เลือกอุปกรณ์" : "กรุณาเลือกกลุ่มงานก่อน"}
+              options={formData.equipmentCategory ? equipmentCategories[formData.equipmentCategory] : []}
+              value={formData.equipment}
+              onChange={(val) => {
+                setFormData({ ...formData, equipment: val });
+                if (formErrors.equipment) setFormErrors({ ...formErrors, equipment: null });
+              }}
+              error={formErrors.equipment}
+            />
+
+            <div className="space-y-1.5 md:space-y-2" id="field-description">
+              <label className="text-[14px] md:text-[18px] font-black text-slate-200 uppercase tracking-wide ml-1 flex items-center gap-1.5 md:gap-2">
+                <AlertCircle size={18} className="text-orange-400 md:w-5 md:h-5" /> อาการเสีย / รายละเอียดปัญหา <span className="text-rose-500">*</span>
+              </label>
+              <textarea
+                name="description"
+                value={formData.description}
+                onChange={handleInputChange}
+                rows={3}
+                className={`w-full bg-slate-900 border-[2px] border-solid ${
+                  formErrors.description
+                    ? 'border-rose-500 ring-1 ring-rose-500/30'
+                    : 'border-orange-500/30 focus:border-orange-400 shadow-[0_0_15px_rgba(249,115,22,0.15)] focus:shadow-[0_0_25px_rgba(249,115,22,0.4)]'
+                } rounded-2xl px-5 py-4 md:py-5 outline-none text-sm md:text-[16px] font-bold text-orange-100 placeholder:text-slate-600 resize-none transition-all duration-300`}
+                placeholder="อธิบายรายละเอียดอาการเสีย..."
               />
-              
-              <div className="space-y-1.5 md:space-y-2" id="field-room">
-                <label className="text-[14px] md:text-[18px] font-black text-slate-200 uppercase tracking-wide ml-1 flex items-center gap-1.5 md:gap-2">
-                  <DoorOpen size={18} className="text-orange-400 md:w-5 md:h-5" /> สถานที่ / ห้อง <span className="text-rose-500">*</span>
-                </label>
-                <input
-                  name="room"
-                  value={formData.room}
-                  onChange={handleInputChange}
-                  className={`w-full bg-slate-900 border-[2px] border-solid ${
-                    formErrors.room
-                      ? 'border-rose-500 ring-1 ring-rose-500/30'
-                      : 'border-orange-500/30 focus:border-orange-400 shadow-[0_0_15px_rgba(249,115,22,0.15)] focus:shadow-[0_0_25px_rgba(249,115,22,0.4)]'
-                  } rounded-2xl px-5 py-4 md:py-5 text-sm md:text-[16px] font-bold text-orange-100 outline-none transition-all duration-300 placeholder:text-slate-600`}
-                  placeholder="ระบุสถานที่หรือห้อง"
-                />
-                {formErrors.room && (
-                  <div className="text-rose-500 text-[11px] md:text-[13px] font-bold mt-1.5 ml-1 animate-in fade-in">
-                    ⚠️ {formErrors.room}
-                  </div>
-                )}
-              </div>
-
-              <div className="pt-4 border-t border-slate-100 flex items-center justify-between">
-                <div>
-                  <label className="text-[14px] md:text-[16px] font-black text-rose-500 uppercase tracking-widest flex items-center gap-1.5 md:gap-2">
-                    <AlertTriangle
-                      size={16}
-                      className={`md:w-5 md:h-5 ${formData.isSsc ? 'animate-pulse' : ''}`}
-                    />{' '}
-                    แจ้งด่วนนอกเวลาทำการ (เวร SSC)
-                  </label>
-                  <p className="text-[13px] md:text-[15px] font-bold text-slate-300 mt-0.5 ml-5 md:ml-7">
-                    เลือกเพื่อส่งแจ้งเตือนไปยังวิศวกรเวร SSC
-                  </p>
+              {formErrors.description && (
+                <div className="text-rose-500 text-[11px] md:text-[13px] font-bold mt-1.5 ml-1 animate-in fade-in">
+                  ⚠️ {formErrors.description}
                 </div>
-                <div
-                  onClick={() =>
-                    setFormData({ ...formData, isSsc: !formData.isSsc })
-                  }
-                  className={`w-12 h-6 md:w-16 md:h-8 rounded-full flex items-center px-1 cursor-pointer transition-all shadow-inner ${
-                    formData.isSsc
-                      ? 'bg-rose-500 justify-end'
-                      : 'bg-slate-200 justify-start'
-                  }`}
-                >
-                  <div className="w-4 h-4 md:w-6 md:h-6 bg-white rounded-full shadow-sm"></div>
+              )}
+            </div>
+
+            <div className="space-y-1.5 md:space-y-2">
+              <label className="text-[14px] md:text-[18px] font-black text-slate-200 uppercase tracking-wide ml-1 flex items-center gap-1.5 md:gap-2">
+                <Hash size={18} className="text-orange-400 md:w-5 md:h-5" /> หมายเลขครุภัณฑ์ (หากมี)
+              </label>
+              <input
+                name="assetNumber"
+                value={formData.assetNumber}
+                onChange={handleInputChange}
+                className="w-full bg-slate-900 border-[2px] border-solid border-orange-500/30 focus:border-orange-400 shadow-[0_0_15px_rgba(249,115,22,0.15)] focus:shadow-[0_0_25px_rgba(249,115,22,0.4)] rounded-2xl px-5 py-4 md:py-5 text-sm md:text-[16px] font-bold text-orange-100 outline-none font-mono tracking-widest transition-all duration-300 placeholder:text-slate-600"
+                placeholder="ระบุหมายเลข..."
+              />
+            </div>
+
+            {/* 🌟 4. ดรอปดาวน์อาคาร (ธีมส้ม Orange) */}
+            <SciFiSelectModal
+              id="field-building"
+              themeColor="orange"
+              label={
+                <span className="text-[14px] md:text-[18px] font-black tracking-wide text-orange-400 flex items-center gap-1.5 md:gap-2">
+                  <Building size={18} className="md:w-5 md:h-5"/> อาคาร / ตึก <span className="text-rose-500">*</span>
+                </span>
+              }
+              icon={<Building size={16} className="text-orange-400 md:w-5 md:h-5" />}
+              placeholder="เลือกอาคาร"
+              options={buildingList}
+              value={formData.building}
+              onChange={(val) => {
+                setFormData({ ...formData, building: val });
+                if (formErrors.building) setFormErrors({ ...formErrors, building: null });
+              }}
+              error={formErrors.building}
+            />
+            
+            <div className="space-y-1.5 md:space-y-2" id="field-room">
+              <label className="text-[14px] md:text-[18px] font-black text-slate-200 uppercase tracking-wide ml-1 flex items-center gap-1.5 md:gap-2">
+                <DoorOpen size={18} className="text-orange-400 md:w-5 md:h-5" /> สถานที่ / ห้อง <span className="text-rose-500">*</span>
+              </label>
+              <input
+                name="room"
+                value={formData.room}
+                onChange={handleInputChange}
+                className={`w-full bg-slate-900 border-[2px] border-solid ${
+                  formErrors.room
+                    ? 'border-rose-500 ring-1 ring-rose-500/30'
+                    : 'border-orange-500/30 focus:border-orange-400 shadow-[0_0_15px_rgba(249,115,22,0.15)] focus:shadow-[0_0_25px_rgba(249,115,22,0.4)]'
+                } rounded-2xl px-5 py-4 md:py-5 text-sm md:text-[16px] font-bold text-orange-100 outline-none transition-all duration-300 placeholder:text-slate-600`}
+                placeholder="ระบุสถานที่หรือห้อง"
+              />
+              {formErrors.room && (
+                <div className="text-rose-500 text-[11px] md:text-[13px] font-bold mt-1.5 ml-1 animate-in fade-in">
+                  ⚠️ {formErrors.room}
                 </div>
-              </div>
+              )}
+            </div>
+
+            {/* ======================================================= */}
+            {/* 🌟 ฟันธง: สมองกลดักจับเวร SSC (ไม่มีปุ่มกดแล้ว โชว์เฉพาะวันหยุด) */}
+            {/* ======================================================= */}
+            {(() => {
+              const todayStr = new Date(sysTime).toISOString().split('T')[0];
+              const sscRosterForDate = allRosters.find(r => r.date === todayStr);
+              const hasDutyPerson = sscRosterForDate && sscRosterForDate.techName && sscRosterForDate.techName.trim() !== '';
+
+              if (hasDutyPerson) {
+                // บังคับล็อคสถานะ SSC เป็น true ทันที
+                if (!formData.isSsc) {
+                  setFormData(prev => ({ ...prev, isSsc: true }));
+                }
+
+                return (
+                  <div className="pt-4 mt-6 border-t border-orange-500/30 flex items-center justify-between bg-orange-950/40 p-4 rounded-xl border border-solid border-orange-500/50">
+                    <div>
+                      <label className="text-[14px] md:text-[16px] font-black text-rose-400 uppercase tracking-widest flex items-center gap-1.5 md:gap-2">
+                        <AlertTriangle size={18} className="md:w-6 md:h-6 animate-pulse" /> 
+                        แจ้งด่วนนอกเวลาทำการ (เวร SSC)
+                      </label>
+                      <p className="text-[12px] md:text-[14px] font-bold text-orange-200 mt-1 ml-6 md:ml-8">
+                        ระบบตรวจพบว่าเป็นวันหยุด การแจ้งซ่อมจะถูกส่งไปยังวิศวกรเวร SSC โดยอัตโนมัติ
+                      </p>
+                    </div>
+                    {/* ไอคอนล็อคสถานะ (แทนปุ่ม Toggle) */}
+                    <div className="w-12 h-6 md:w-16 md:h-8 rounded-full flex items-center px-1 transition-all shadow-inner bg-rose-500 justify-end opacity-90 cursor-not-allowed">
+                      <div className="w-4 h-4 md:w-6 md:h-6 bg-white rounded-full shadow-sm"></div>
+                    </div>
+                  </div>
+                );
+              } else {
+                // บังคับปลดสถานะ SSC เป็น false ในวันธรรมดา
+                if (formData.isSsc) {
+                  setFormData(prev => ({ ...prev, isSsc: false }));
+                }
+              }
+              return null;
+            })()}
+
+      
 
             <div
               className="space-y-4 pt-5 border-t border-slate-600/50"
