@@ -1106,6 +1106,105 @@ const calculateDuration = (start, end, holdMs = 0) => {
   return result.length > 0 ? result.join(' ') : "น้อยกว่า 1 นาที";
 };
 
+// ==========================================
+// 🌟 ฟันธง: Component ใหม่ Sci-Fi Modal Dropdown
+// ==========================================
+function SciFiSelectModal({ 
+  id, label, icon, value, options, onChange, error, 
+  placeholder, themeColor = 'orange' 
+}) {
+  const [isOpen, setIsOpen] = useState(false);
+  const [searchTerm, setSearchTerm] = useState('');
+
+  // กำหนดสีตาม Theme ที่ส่งมา
+  const theme = {
+    emerald: { text: 'text-emerald-400', border: 'border-emerald-500/30', hover: 'hover:border-emerald-400 hover:shadow-[0_0_25px_rgba(16,185,129,0.4)]', glow: 'shadow-[0_0_15px_rgba(16,185,129,0.15)]', active: 'border-emerald-400 shadow-[0_0_30px_rgba(16,185,129,0.8),inset_0_0_15px_rgba(16,185,129,0.4)] bg-emerald-900/40 text-emerald-300' },
+    amber: { text: 'text-amber-400', border: 'border-amber-500/30', hover: 'hover:border-amber-400 hover:shadow-[0_0_25px_rgba(245,158,11,0.4)]', glow: 'shadow-[0_0_15px_rgba(245,158,11,0.15)]', active: 'border-amber-400 shadow-[0_0_30px_rgba(245,158,11,0.8),inset_0_0_15px_rgba(245,158,11,0.4)] bg-amber-900/40 text-amber-300' },
+    cyan: { text: 'text-cyan-400', border: 'border-cyan-500/30', hover: 'hover:border-cyan-400 hover:shadow-[0_0_25px_rgba(6,182,212,0.4)]', glow: 'shadow-[0_0_15px_rgba(6,182,212,0.15)]', active: 'border-cyan-400 shadow-[0_0_30px_rgba(6,182,212,0.8),inset_0_0_15px_rgba(6,182,212,0.4)] bg-cyan-900/40 text-cyan-300' },
+    orange: { text: 'text-orange-400', border: 'border-orange-500/30', hover: 'hover:border-orange-400 hover:shadow-[0_0_25px_rgba(249,115,22,0.4)]', glow: 'shadow-[0_0_15px_rgba(249,115,22,0.15)]', active: 'border-orange-400 shadow-[0_0_30px_rgba(249,115,22,0.8),inset_0_0_15px_rgba(249,115,22,0.4)] bg-orange-900/40 text-orange-300' },
+  }[themeColor];
+
+  const filteredOptions = options.filter(opt => String(opt).toLowerCase().includes(searchTerm.toLowerCase()));
+
+  return (
+    <div className="space-y-1.5 md:space-y-2 relative text-left" id={id}>
+      <label className="text-[14px] md:text-[18px] font-black tracking-wide ml-1 flex items-center gap-1.5 md:gap-2 text-slate-200">
+        {label}
+      </label>
+      
+      {/* 🌟 ปุ่มกดเปิด Modal (หน้าตาเหมือนตอนไม่ได้กด) */}
+      <div 
+        onClick={() => { setIsOpen(true); setSearchTerm(''); }}
+        className={`w-full bg-slate-900 rounded-2xl border-[2px] ${theme.border} ${theme.glow} ${theme.hover} px-5 py-4 md:py-5 flex items-center justify-between cursor-pointer transition-all duration-300 ${error ? 'border-rose-500 ring-1 ring-rose-500/50' : ''}`}
+      >
+        <div className="flex items-center gap-3">
+          {icon}
+          <span className={`text-sm md:text-[16px] font-bold truncate ${value ? 'text-slate-100' : 'text-slate-500'}`}>
+            {value || placeholder}
+          </span>
+        </div>
+        <ChevronDown size={18} className="text-slate-400 md:w-6 md:h-6" />
+      </div>
+
+      {error && <div className="text-rose-500 text-[11px] md:text-[13px] font-bold mt-1.5 md:mt-2 ml-1 animate-in fade-in">⚠️ {error}</div>}
+
+      {/* 🌟 หน้าต่าง Modal (Sci-Fi แท้ๆ) */}
+      {isOpen && (
+        <div className="fixed inset-0 z-[999999] flex items-center justify-center p-4 bg-slate-950/80 backdrop-blur-md animate-in fade-in duration-200 overscroll-none" onClick={() => setIsOpen(false)}>
+          <div 
+            className={`relative bg-slate-900 border-[3px] border-solid rounded-3xl w-full max-w-sm p-6 flex flex-col max-h-[85vh] ${theme.active.split(' ')[0]} ${theme.glow.replace('15px', '60px')}`}
+            onClick={(e) => e.stopPropagation()}
+          >
+            {/* หัวข้อ Modal */}
+            <div className={`flex justify-between items-center mb-5 border-b-[2px] pb-4 ${theme.border}`}>
+              <h3 className={`text-[16px] md:text-lg font-black flex items-center gap-2 ${theme.text} drop-shadow-md`}>
+                {icon} {placeholder}
+              </h3>
+              <button onClick={() => setIsOpen(false)} className="text-rose-500 hover:text-white animate-pulse bg-slate-900 hover:bg-rose-600 p-1.5 md:p-2 rounded-full transition-all duration-300 border-[2px] border-rose-500 shadow-[0_0_20px_rgba(225,29,72,0.8)] cursor-pointer">
+                <XCircle className="w-6 h-6 md:w-7 md:h-7" />
+              </button>
+            </div>
+
+            {/* ช่องค้นหา (ถ้ามี Options เยอะ) */}
+            {options.length > 5 && (
+              <div className="mb-4 relative">
+                <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-500 w-5 h-5" />
+                <input 
+                  type="text" 
+                  placeholder="พิมพ์ค้นหา..." 
+                  value={searchTerm}
+                  onChange={(e) => setSearchTerm(e.target.value)}
+                  className="w-full bg-slate-950 border-[2px] border-slate-700 rounded-xl py-3 pl-10 pr-4 text-white outline-none focus:border-slate-500 transition-colors"
+                />
+              </div>
+            )}
+
+            {/* รายการตัวเลือก */}
+            <div className="overflow-y-auto pr-1 space-y-3 pb-2 [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden pt-1">
+              {filteredOptions.length > 0 ? filteredOptions.map((opt, idx) => {
+                const isSelected = value === opt;
+                return (
+                  <button 
+                    key={idx}
+                    onClick={() => { onChange(opt); setIsOpen(false); }}
+                    className={`w-full text-left px-4 py-4 rounded-xl font-black border-[2px] transition-all duration-300 flex justify-between items-center active:scale-95
+                      ${isSelected ? theme.active : `bg-slate-900/80 text-slate-300 border-slate-700/60 shadow-[0_0_15px_rgba(0,0,0,0.2)] hover:${theme.border} hover:${theme.text} hover:${theme.glow}`}`}
+                  >
+                    <span className="text-[14px] md:text-[15px]">{opt}</span>
+                    {isSelected && <CheckCircle2 className={`w-6 h-6 ${theme.text}`} />}
+                  </button>
+                );
+              }) : (
+                <div className="text-center py-6 text-slate-500 font-bold">ไม่พบข้อมูล</div>
+              )}
+            </div>
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}
+
 
 // ==========================================
 // 🌟 5. Main App Logic
@@ -2548,225 +2647,245 @@ const executeRatingSubmit = async () => {
       ) : (
 
         <form onSubmit={handleSubmit} className="space-y-6 w-full">
-          <div className="bg-slate-800/60 backdrop-blur-xl  border-2 border-solid border-white-600/50 rounded-[1rem] py-4 text-center shadow-[0_0_30px_rgba(0,0,0,0.3)] font-sans tracking-widest text-white font-bold md:text-[18px]">
-            {ThaiDateFormatter(sysTime)}
-          </div>
+        <div className="bg-slate-800/60 backdrop-blur-xl  border-2 border-solid border-white-600/50 rounded-[1rem] py-4 text-center shadow-[0_0_30px_rgba(0,0,0,0.3)] font-sans tracking-widest text-white font-bold md:text-[18px]">
+          {ThaiDateFormatter(sysTime)}
+        </div>
 
-          {/* ================= กรอบที่ 1: ข้อมูลผู้แจ้งซ่อม ================= */}
-          <div className="relative bg-slate-800/60 backdrop-blur-xl border-2 border-solid border-orange-400 rounded-[1rem] p-6 md:p-8 pt-10 shadow-[0_0_40px_rgba(0,0,0,0.4)] text-left">
-            <div className="absolute -top-4 left-6 bg-emerald-50 text-emerald-600 px-4 py-2.5 rounded-xl font-black text-[18px] shadow-sm border-2 border-solid border-green-500 flex items-center gap-2 tracking-widest uppercase">
-              <User size={24} className="text-orange-500"/> ข้อมูลผู้แจ้งซ่อม
-            </div>
+        {/* 🌟 วิดเจ็ตแสดงวิศวกรเวรประจำการ (แปะบนสุด) */}
+        {(() => {
+          const todayStr = new Date(sysTime).toISOString().split('T')[0];
+          const sscRosterForDate = allRosters.find(r => r.date === todayStr);
+          const dutyPerson = sscRosterForDate ? { techName: sscRosterForDate.techName, techPhone: sscRosterForDate.techPhone } : null;
 
-            <div className="space-y-4 md:space-y-6 mt-2">
-              <SearchableDropdown
-                id="field-reporter"
-                label={
-                  <span className="text-[14px] md:text-[18px] font-black tracking-wide">
-                    ชื่อ-นามสกุล <span className="text-rose-500">*</span>
-                  </span>
-                }
-                icon={<User size={16} className="text-emerald-300 md:w-5 md:h-5"/>}
-                placeholder="เลือกชื่อหรือพิมพ์ค้นหา"
-                options={employeeList.map((e) => String(e.name))}
-                value={formData.reporter}
-                onChange={handleReporterChange}
-                error={formErrors.reporter}
-              />
-
-              <div className="space-y-1.5 md:space-y-2">
-                {/* 🌟 ฟันธง: ขยาย Label ให้ใหญ่ขึ้นบน PC (md:text-[18px]) */}
-                <label className="text-[14px] md:text-[18px] font-black text-slate-200 uppercase tracking-wide ml-1 flex items-center gap-1.5 md:gap-2">
-                  <Briefcase size={16} className="text-emerald-500 md:w-5 md:h-5" /> ตำแหน่ง
-                </label>
-                {/* 🌟 ฟันธง: ขยายช่องกรอกข้อมูลให้กว้างและตัวหนังสือใหญ่ขึ้น (md:py-5 md:text-[16px]) */}
-                <input
-                  value={formData.position}
-                  readOnly
-                  className="w-full bg-slate-50 border-2 border-solid border-orange-500 rounded-2xl px-5 py-4 md:py-5 text-sm md:text-[16px] font-bold text-slate-500 outline-none cursor-not-allowed shadow-inner"
-                  placeholder="-"
-                />
-              </div>
-
-              <div className="space-y-1.5 md:space-y-2">
-                <label className="text-[14px] md:text-[18px] font-black text-slate-200 uppercase tracking-wide ml-1 flex items-center gap-1.5 md:gap-2">
-                  <Users size={16} className="text-emerald-500 md:w-5 md:h-5" /> ฝ่าย
-                </label>
-                <input
-                  value={formData.department}
-                  readOnly
-                  className="w-full bg-slate-50 border-2 border-solid border-orange-500 rounded-2xl px-5 py-4 md:py-5 text-sm md:text-[16px] font-bold text-slate-500 outline-none cursor-not-allowed shadow-inner"
-                  placeholder="-"
-                />
-              </div>
-
-              <div className="space-y-1.5 md:space-y-2">
-                <label className="text-[14px] md:text-[18px] font-black text-slate-200 uppercase tracking-wide ml-1 flex items-center gap-1.5 md:gap-2">
-                  <Landmark size={16} className="text-emerald-500 md:w-5 md:h-5" /> สำนัก
-                </label>
-                <input
-                  value={formData.bureau}
-                  readOnly
-                  className="w-full bg-slate-50 border-2 border-solid border-orange-500 rounded-2xl px-5 py-4 md:py-5 text-sm md:text-[16px] font-bold text-slate-500 outline-none cursor-not-allowed shadow-inner"
-                  placeholder="สำนักปฏิบัติการดาวเทียม"
-                />
-              </div>
-
-              <div className="space-y-1.5 md:space-y-2" id="field-reporterContact">
-                <label className="text-[14px] md:text-[18px] font-black text-slate-200 uppercase tracking-wide ml-1 flex items-center gap-1.5 md:gap-2">
-                  <Phone size={16} className="text-emerald-500 md:w-5 md:h-5" /> เบอร์โทรศัพท์ <span className="text-rose-500">*</span>
-                </label>
-                
-                <div 
-                  onClick={() => setShowNumpad(true)}
-                  className={`w-full bg-white border-2 border-solid border-orange-500 flex items-center ${
-                    formErrors.reporterContact ? 'border-rose-500 ring-1 ring-rose-500/30' : 'hover:border-orange-600 hover:ring-2 hover:ring-orange-500/30'
-                  } rounded-2xl px-5 py-4 md:py-5 cursor-pointer shadow-sm transition-all`}
-                >
-                  <span className={`text-[15px] md:text-[18px] font-bold font-mono tracking-widest ${formData.reporterContact ? 'text-slate-800' : 'text-slate-400'}`}>
-                    {formData.reporterContact || '0X-XXXX-XXXX'}
-                  </span>
+          return (
+            <div className="mb-2 mt-4 p-4 md:p-6 rounded-2xl border-[2px] border-orange-500/50 bg-slate-900/80 shadow-[0_0_20px_rgba(249,115,22,0.2)] flex items-center justify-between transition-all hover:shadow-[0_0_30px_rgba(249,115,22,0.4)]">
+              <div className="flex items-center gap-4">
+                <div className="relative">
+                  <div className="w-12 h-12 md:w-16 md:h-16 rounded-xl bg-orange-500/20 flex items-center justify-center border border-orange-500">
+                    <User className="w-6 h-6 md:w-8 md:h-8 text-orange-400" />
+                  </div>
+                  <span className="absolute -top-1 -right-1 w-3 h-3 md:w-4 md:h-4 bg-emerald-500 rounded-full animate-pulse border-2 border-slate-900 shadow-[0_0_8px_rgba(16,185,129,1)]"></span>
                 </div>
-                
-                {formErrors.reporterContact && (
-                  <div className="text-rose-500 text-[11px] md:text-[13px] font-bold mt-1 px-1">⚠️ {formErrors.reporterContact}</div>
-                )}
-                {/* 🎯 ฟันธง: ลบ Numpad ตัวปลอมที่แอบซ่อนอยู่ตรงนี้ทิ้งไปเรียบร้อยแล้วครับ! 1,000,000% */}
+                <div>
+                  <p className="text-[12px] md:text-[14px] text-slate-400 font-bold uppercase tracking-widest">วิศวกรเวรประจำการวันนี้</p>
+                  <p className="text-[17px] md:text-[22px] font-black text-orange-400 drop-shadow-[0_0_8px_rgba(249,115,22,0.8)] mt-0.5">
+                    {dutyPerson?.techName || 'ไม่มีเวร SSC วันนี้'}
+                  </p>
+                </div>
               </div>
+              {dutyPerson?.techName && dutyPerson?.techPhone && dutyPerson.techPhone !== '-' && (
+                <a 
+                  href={`tel:${dutyPerson.techPhone.replace(/\D/g, '')}`} 
+                  className="bg-blue-600 hover:bg-blue-500 text-white p-3 md:p-4 rounded-xl shadow-[0_0_15px_rgba(37,99,235,0.5)] transition-all hover:scale-105 active:scale-95"
+                >
+                  <Phone className="w-6 h-6 md:w-8 md:h-8" />
+                </a>
+              )}
             </div>
+          );
+        })()}
+
+        {/* ================= กรอบที่ 1: ข้อมูลผู้แจ้งซ่อม ================= */}
+
+        
+        <div className="relative bg-slate-800/60 backdrop-blur-xl border-2 border-solid border-orange-400 rounded-[1rem] p-6 md:p-8 pt-10 shadow-[0_0_40px_rgba(0,0,0,0.4)] text-left mt-6">
+          <div className="absolute -top-4 left-6 bg-emerald-50 text-emerald-600 px-4 py-2.5 rounded-xl font-black text-[18px] shadow-sm border-2 border-solid border-green-500 flex items-center gap-2 tracking-widest uppercase">
+            <User size={24} className="text-orange-500"/> ข้อมูลผู้แจ้งซ่อม
           </div>
 
-          {/* ================= กรอบที่ 2: รายละเอียดการแจ้งซ่อม ================= */}
-          <div className="relative bg-slate-800/60 backdrop-blur-xl border-2 border-solid border-white-500/80 rounded-[1rem] p-6 md:p-8 pt-10 shadow-[0_0_40px_rgba(0,0,0,0.4)] text-left mt-6">
-            <div className="absolute -top-4 left-6 bg-emerald-50 text-emerald-600 px-4 py-2.5 rounded-xl font-black text-[18px] shadow-sm border-2 border-solid border-green-500 flex items-center gap-2 tracking-widest uppercase">
-              <Wrench size={24} className="text-orange-500" />{' '}
-              รายละเอียดการแจ้งซ่อม
+          <div className="space-y-4 md:space-y-6 mt-2">
+            {/* 🌟 1. ดรอปดาวน์ชื่อผู้แจ้ง (ธีมเขียว Emerald) */}
+            <SciFiSelectModal
+              id="field-reporter"
+              themeColor="emerald"
+              label={<span className="text-emerald-400">ชื่อ-นามสกุล <span className="text-rose-500">*</span></span>}
+              icon={<User size={16} className="text-emerald-400 md:w-5 md:h-5"/>}
+              placeholder="เลือกผู้แจ้งซ่อม"
+              options={employeeList.map((e) => String(e.name))}
+              value={formData.reporter}
+              onChange={handleReporterChange}
+              error={formErrors.reporter}
+            />
+
+            <div className="space-y-1.5 md:space-y-2">
+              <label className="text-[14px] md:text-[18px] font-black text-slate-200 uppercase tracking-wide ml-1 flex items-center gap-1.5 md:gap-2">
+                <Briefcase size={16} className="text-emerald-500 md:w-5 md:h-5" /> ตำแหน่ง
+              </label>
+              <input
+                value={formData.position}
+                readOnly
+                className="w-full bg-slate-50 border-2 border-solid border-orange-500 rounded-2xl px-5 py-4 md:py-5 text-sm md:text-[16px] font-bold text-slate-500 outline-none cursor-not-allowed shadow-inner"
+                placeholder="-"
+              />
             </div>
 
-            <div className="space-y-5 md:space-y-6 mt-2">
-              <SearchableDropdown
-                id="field-equipmentCategory"
-                label={
-                  <span className="text-[14px] md:text-[18px] font-black tracking-wide">
-                    กลุ่มงาน / ภารกิจรับผิดชอบ <span className="text-rose-500">*</span>
-                  </span>
-                }
-                icon={<Activity size={16} className="text-yellow-500 md:w-5 md:h-5" />}
-                placeholder="เลือกกลุ่มภารกิจของ ฝวด."
-                options={Object.keys(equipmentCategories)}
-                value={formData.equipmentCategory}
-                onChange={(val) => {
-                  setFormData({ 
-                    ...formData, 
-                    equipmentCategory: val, 
-                    equipment: ''
-                  });
-                  if (formErrors.equipmentCategory) setFormErrors({ ...formErrors, equipmentCategory: null });
-                }}
-                error={formErrors.equipmentCategory}
+            <div className="space-y-1.5 md:space-y-2">
+              <label className="text-[14px] md:text-[18px] font-black text-slate-200 uppercase tracking-wide ml-1 flex items-center gap-1.5 md:gap-2">
+                <Users size={16} className="text-emerald-500 md:w-5 md:h-5" /> ฝ่าย
+              </label>
+              <input
+                value={formData.department}
+                readOnly
+                className="w-full bg-slate-50 border-2 border-solid border-orange-500 rounded-2xl px-5 py-4 md:py-5 text-sm md:text-[16px] font-bold text-slate-500 outline-none cursor-not-allowed shadow-inner"
+                placeholder="-"
+              />
+            </div>
+
+            <div className="space-y-1.5 md:space-y-2">
+              <label className="text-[14px] md:text-[18px] font-black text-slate-200 uppercase tracking-wide ml-1 flex items-center gap-1.5 md:gap-2">
+                <Landmark size={16} className="text-emerald-500 md:w-5 md:h-5" /> สำนัก
+              </label>
+              <input
+                value={formData.bureau}
+                readOnly
+                className="w-full bg-slate-50 border-2 border-solid border-orange-500 rounded-2xl px-5 py-4 md:py-5 text-sm md:text-[16px] font-bold text-slate-500 outline-none cursor-not-allowed shadow-inner"
+                placeholder="สำนักปฏิบัติการดาวเทียม"
+              />
+            </div>
+
+            <div className="space-y-1.5 md:space-y-2" id="field-reporterContact">
+              <label className="text-[14px] md:text-[18px] font-black text-slate-200 uppercase tracking-wide ml-1 flex items-center gap-1.5 md:gap-2">
+                <Phone size={16} className="text-emerald-500 md:w-5 md:h-5" /> เบอร์โทรศัพท์ <span className="text-rose-500">*</span>
+              </label>
+              
+              <div 
+                onClick={() => setShowNumpad(true)}
+                className={`w-full bg-white border-2 border-solid border-orange-500 flex items-center ${
+                  formErrors.reporterContact ? 'border-rose-500 ring-1 ring-rose-500/30' : 'hover:border-orange-600 hover:ring-2 hover:ring-orange-500/30'
+                } rounded-2xl px-5 py-4 md:py-5 cursor-pointer shadow-sm transition-all`}
+              >
+                <span className={`text-[15px] md:text-[18px] font-bold font-mono tracking-widest ${formData.reporterContact ? 'text-slate-800' : 'text-slate-400'}`}>
+                  {formData.reporterContact || '0X-XXXX-XXXX'}
+                </span>
+              </div>
+              
+              {formErrors.reporterContact && (
+                <div className="text-rose-500 text-[11px] md:text-[13px] font-bold mt-1 px-1">⚠️ {formErrors.reporterContact}</div>
+              )}
+            </div>
+          </div>
+        </div>
+
+        {/* ================= กรอบที่ 2: รายละเอียดการแจ้งซ่อม ================= */}
+        <div className="relative bg-slate-800/60 backdrop-blur-xl border-2 border-solid border-white-500/80 rounded-[1rem] p-6 md:p-8 pt-10 shadow-[0_0_40px_rgba(0,0,0,0.4)] text-left mt-6">
+          <div className="absolute -top-4 left-6 bg-emerald-50 text-emerald-600 px-4 py-2.5 rounded-xl font-black text-[18px] shadow-sm border-2 border-solid border-green-500 flex items-center gap-2 tracking-widest uppercase">
+            <Wrench size={24} className="text-orange-500" />{' '}
+            รายละเอียดการแจ้งซ่อม
+          </div>
+
+          <div className="space-y-5 md:space-y-6 mt-2">
+            {/* 🌟 2. ดรอปดาวน์กลุ่มงาน (ธีมเหลือง Amber) */}
+            <SciFiSelectModal
+              id="field-equipmentCategory"
+              themeColor="amber"
+              label={<span className="text-amber-400">กลุ่มงาน / ภารกิจรับผิดชอบ <span className="text-rose-500">*</span></span>}
+              icon={<Activity size={16} className="text-amber-400 md:w-5 md:h-5" />}
+              placeholder="เลือกกลุ่มภารกิจของ ฝวด."
+              options={Object.keys(equipmentCategories)}
+              value={formData.equipmentCategory}
+              onChange={(val) => {
+                setFormData({ ...formData, equipmentCategory: val, equipment: '' });
+                if (formErrors.equipmentCategory) setFormErrors({ ...formErrors, equipmentCategory: null });
+              }}
+              error={formErrors.equipmentCategory}
+            />
+
+            {/* 🌟 3. ดรอปดาวน์รายการอุปกรณ์ (ธีมฟ้า Cyan) */}
+            <SciFiSelectModal
+              id="field-equipment"
+              themeColor="cyan"
+              label={<span className="text-cyan-400">รายการอุปกรณ์ / ระบบ <span className="text-rose-500">*</span></span>}
+              icon={<Monitor size={16} className="text-cyan-400 md:w-5 md:h-5" />}
+              placeholder={formData.equipmentCategory ? "เลือกอุปกรณ์" : "กรุณาเลือกกลุ่มงานก่อน"}
+              options={formData.equipmentCategory ? equipmentCategories[formData.equipmentCategory] : []}
+              value={formData.equipment}
+              onChange={(val) => {
+                setFormData({ ...formData, equipment: val });
+                if (formErrors.equipment) setFormErrors({ ...formErrors, equipment: null });
+              }}
+              error={formErrors.equipment}
+            />
+
+            <div className="space-y-1.5 md:space-y-2" id="field-description">
+              <label className="text-[14px] md:text-[18px] font-black text-slate-200 uppercase tracking-wide ml-1 flex items-center gap-1.5 md:gap-2">
+                <AlertCircle size={16} className="text-yellow-500 md:w-5 md:h-5" />{' '}
+                อาการเสีย / รายละเอียดปัญหา{' '}
+                <span className="text-rose-500">*</span>
+              </label>
+
+              <textarea
+                name="description"
+                value={formData.description}
+                onChange={handleInputChange}
+                rows={3}
+                className={`w-full bg-white border ${
+                  formErrors.description
+                    ? 'border-rose-500 focus:border-rose-500 ring-1 ring-rose-500/30'
+                    : 'border-2 border-orange-400 focus:border-orange-500 focus:ring-2 focus:ring-orange-500/30'
+                } rounded-2xl px-5 py-4 md:py-5 outline-none text-sm md:text-[16px] font-bold text-slate-800 shadow-sm resize-none transition-all`}
+                placeholder="อธิบายรายละเอียดอาการเสีย..."
               />
 
-              <SearchableDropdown
-                id="field-equipment"
-                label={
-                  <span className="text-[14px] md:text-[18px] font-black tracking-wide">
-                    รายการอุปกรณ์ / ระบบ <span className="text-rose-500">*</span>
-                  </span>
-                }
-                icon={<Monitor size={16} className="text-yellow-500 md:w-5 md:h-5" />}
-                placeholder={formData.equipmentCategory ? "เลือกอุปกรณ์หรือพิมพ์ค้นหา" : "กรุณาเลือกกลุ่มงานก่อน"}
-                options={formData.equipmentCategory ? equipmentCategories[formData.equipmentCategory] : []}
-                value={formData.equipment}
-                onChange={(val) => {
-                  setFormData({ ...formData, equipment: val });
-                  if (formErrors.equipment) setFormErrors({ ...formErrors, equipment: null });
-                }}
-                error={formErrors.equipment}
+              {formErrors.description && (
+                <div className="text-rose-500 text-[11px] md:text-[13px] font-bold mt-1.5 ml-1 animate-in fade-in">
+                  ⚠️ {formErrors.description}
+                </div>
+              )}
+            </div>
+
+            <div className="space-y-1.5 md:space-y-2">
+              <label className="text-[14px] md:text-[18px] font-black text-slate-200 uppercase tracking-wide ml-1 flex items-center gap-1.5 md:gap-2">
+                <Hash size={16} className="text-yellow-500 md:w-5 md:h-5" />{' '}
+                หมายเลขครุภัณฑ์ (หากมี)
+              </label>
+
+              <input
+                name="assetNumber"
+                value={formData.assetNumber}
+                onChange={handleInputChange}
+                className="w-full bg-white border-2 border-orange-400 focus:border-orange-500 focus:ring-2 focus:ring-orange-500/30 rounded-2xl px-5 py-4 md:py-5 text-sm md:text-[16px] font-bold text-slate-800 outline-none font-mono tracking-widest shadow-sm transition-all"
+                placeholder="ระบุหมายเลข..."
               />
+            </div>
 
-              <div className="space-y-1.5 md:space-y-2" id="field-description">
-                <label className="text-[14px] md:text-[18px] font-black text-slate-200 uppercase tracking-wide ml-1 flex items-center gap-1.5 md:gap-2">
-                  <AlertCircle size={16} className="text-yellow-500 md:w-5 md:h-5" />{' '}
-                  อาการเสีย / รายละเอียดปัญหา{' '}
-                  <span className="text-rose-500">*</span>
-                </label>
-
-                <textarea
-                  name="description"
-                  value={formData.description}
-                  onChange={handleInputChange}
-                  rows={3}
-                  className={`w-full bg-white border ${
-                    formErrors.description
-                      ? 'border-rose-500 focus:border-rose-500 ring-1 ring-rose-500/30'
-                      : 'border-2 border-orange-400 focus:border-orange-500 focus:ring-2 focus:ring-orange-500/30'
-                  } rounded-2xl px-5 py-4 md:py-5 outline-none text-sm md:text-[16px] font-bold text-slate-800 shadow-sm resize-none transition-all`}
-                  placeholder="อธิบายรายละเอียดอาการเสีย..."
-                />
-
-                {formErrors.description && (
-                  <div className="text-rose-500 text-[11px] md:text-[13px] font-bold mt-1.5 ml-1 animate-in fade-in">
-                    ⚠️ {formErrors.description}
-                  </div>
-                )}
-              </div>
-
-              <div className="space-y-1.5 md:space-y-2">
-                <label className="text-[14px] md:text-[18px] font-black text-slate-200 uppercase tracking-wide ml-1 flex items-center gap-1.5 md:gap-2">
-                  <Hash size={16} className="text-yellow-500 md:w-5 md:h-5" />{' '}
-                  หมายเลขครุภัณฑ์ (หากมี)
-                </label>
-
-                <input
-                  name="assetNumber"
-                  value={formData.assetNumber}
-                  onChange={handleInputChange}
-                  className="w-full bg-white border-2 border-orange-400 focus:border-orange-500 focus:ring-2 focus:ring-orange-500/30 rounded-2xl px-5 py-4 md:py-5 text-sm md:text-[16px] font-bold text-slate-800 outline-none font-mono tracking-widest shadow-sm transition-all"
-                  placeholder="ระบุหมายเลข..."
-                />
-              </div>
-
-              <SearchableDropdown
-                id="field-building"
-                label={
-                  <span className="text-[14px] md:text-[18px] font-black tracking-wide">
-                    อาคาร / ตึก <span className="text-rose-500">*</span>
-                  </span>
-                }
-                icon={<Building size={16} className="text-yellow-500 md:w-5 md:h-5" />}
-                placeholder="เลือกอาคารหรือพิมพ์ค้นหา"
-                options={buildingList}
-                value={formData.building}
-                onChange={(val) => {
-                  setFormData({ ...formData, building: val });
-                  if (formErrors.building)
-                    setFormErrors({ ...formErrors, building: null });
-                }}
-                error={formErrors.building}
+            {/* 🌟 4. ดรอปดาวน์อาคาร (ธีมส้ม Orange) */}
+            <SciFiSelectModal
+              id="field-building"
+              themeColor="orange"
+              label={<span className="text-orange-400">อาคาร / ตึก <span className="text-rose-500">*</span></span>}
+              icon={<Building size={16} className="text-orange-400 md:w-5 md:h-5" />}
+              placeholder="เลือกอาคาร"
+              options={buildingList}
+              value={formData.building}
+              onChange={(val) => {
+                setFormData({ ...formData, building: val });
+                if (formErrors.building) setFormErrors({ ...formErrors, building: null });
+              }}
+              error={formErrors.building}
+            />
+            
+            <div className="space-y-1.5 md:space-y-2" id="field-room">
+              <label className="text-[14px] md:text-[18px] font-black text-slate-200 uppercase tracking-wide ml-1 flex items-center gap-1.5 md:gap-2">
+                <DoorOpen size={16} className="text-yellow-500 md:w-5 md:h-5" /> สถานที่ /
+                ห้อง <span className="text-rose-500">*</span>
+              </label>
+              <input
+                name="room"
+                value={formData.room}
+                onChange={handleInputChange}
+                className={`w-full bg-white border ${
+                  formErrors.room
+                    ? 'border-rose-500 focus:border-rose-500 ring-1 ring-rose-500/30'
+                    : 'border-2 border-orange-400 focus:border-orange-500 focus:ring-2 focus:ring-orange-500/30'
+                } rounded-2xl px-5 py-4 md:py-5 text-sm md:text-[16px] font-bold text-slate-800 outline-none shadow-sm transition-all`}
+                placeholder="ระบุสถานที่หรือห้อง"
               />
-
-              <div className="space-y-1.5 md:space-y-2" id="field-room">
-                <label className="text-[14px] md:text-[18px] font-black text-slate-200 uppercase tracking-wide ml-1 flex items-center gap-1.5 md:gap-2">
-                  <DoorOpen size={16} className="text-yellow-500 md:w-5 md:h-5" /> สถานที่ /
-                  ห้อง <span className="text-rose-500">*</span>
-                </label>
-                <input
-                  name="room"
-                  value={formData.room}
-                  onChange={handleInputChange}
-                  className={`w-full bg-white border ${
-                    formErrors.room
-                      ? 'border-rose-500 focus:border-rose-500 ring-1 ring-rose-500/30'
-                      : 'border-2 border-orange-400 focus:border-orange-500 focus:ring-2 focus:ring-orange-500/30'
-                  } rounded-2xl px-5 py-4 md:py-5 text-sm md:text-[16px] font-bold text-slate-800 outline-none shadow-sm transition-all`}
-                  placeholder="ระบุสถานที่หรือห้อง"
-                />
-                {formErrors.room && (
-                  <div className="text-rose-500 text-[11px] md:text-[13px] font-bold mt-1.5 ml-1 animate-in fade-in">
-                    ⚠️ {formErrors.room}
-                  </div>
-                )}
-              </div>
+              {formErrors.room && (
+                <div className="text-rose-500 text-[11px] md:text-[13px] font-bold mt-1.5 ml-1 animate-in fade-in">
+                  ⚠️ {formErrors.room}
+                </div>
+              )}
+            </div>
 
               <div className="pt-4 border-t border-slate-100 flex items-center justify-between">
                 <div>
@@ -3250,7 +3369,7 @@ const renderTracking = () => (
                         return (
                           <button 
                             key={m} 
-                            onClick={() => { setTrackMonth(monthValue); setTrackTimeframe('custom_date'); setShowTrackMonthPicker(false); }}
+                            onClick={() => { setTrackMonth(monthValue); setTrackTimeframe('custom_month'); setShowTrackMonthPicker(false); }}
                             className={`py-3.5 md:py-6 rounded-xl md:rounded-2xl text-[15px] md:text-[24px] font-black transition-all duration-300 active:scale-95 ${
                               isSelected 
                                 ? 'bg-gradient-to-r from-cyan-600 to-blue-600 text-white shadow-[0_0_20px_rgba(6,182,212,0.9)] border-[2px] border-solid border-cyan-300 scale-110 z-10' 
