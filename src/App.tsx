@@ -1640,47 +1640,38 @@ const toggleTag = (tag) => {
     setIsSubmitting(true);
     const newId = getNextReqId(tickets);
 
-    // 🌟 1. ดึงช่างรับผิดชอบหลัก (จากกลุ่มภารกิจ เหมือนเดิม)
+    // 🌟 1. ดึงช่างรับผิดชอบหลัก (จากกลุ่มภารกิจ)
     const selectedCategory = formData.equipmentCategory; 
     const autoAssignedTech = techMapping[selectedCategory];
 
-    // 🌟 2. สมองกลดึงเวร SSC อัตโนมัติ (ทำงานเฉพาะตอนติ๊กแจ้งนอกเวลา)
+    // 🌟 2. สมองกลดึงเวร SSC อัตโนมัติ (ตรวจสอบแบบเซฟสุดๆ ป้องกันแอปพัง)
     let currentSscTechName = null;
     let currentSscTechPhone = null;
+    let isHolidaySSC = false;
 
-    if (formData.isSsc) {
-      try {
-        const today = new Date();
-        const todayStr = `${today.getFullYear()}-${String(today.getMonth() + 1).padStart(2, '0')}-${String(today.getDate()).padStart(2, '0')}`;
-        
-        // วิ่งไปค้นหาเวร SSC ของวันนี้ในฐานข้อมูล rosters
-        const rosterRef = doc(db, 'rosters', todayStr);
-        const rosterSnap = await getDoc(rosterRef);
-        
-        if (rosterSnap.exists() && rosterSnap.data().techName) {
-          currentSscTechName = rosterSnap.data().techName;
-          currentSscTechPhone = rosterSnap.data().techPhone;
-        } else {
-          currentSscTechName = "ยังไม่ระบุเวร SSC";
-          currentSscTechPhone = "-";
-        }
-      } catch (error) {
-        console.error("ดึงข้อมูลเวร SSC ไม่สำเร็จ:", error);
+    try {
+      const todayStr = new Date(sysTime).toISOString().split('T')[0];
+      const sscRosterForDate = allRosters.find(r => r.date === todayStr);
+      
+      if (sscRosterForDate && sscRosterForDate.techName && sscRosterForDate.techName.trim() !== '') {
+        isHolidaySSC = true;
+        currentSscTechName = sscRosterForDate.techName;
+        currentSscTechPhone = sscRosterForDate.techPhone;
       }
+    } catch (error) {
+      console.error("ดึงข้อมูลเวร SSC ไม่สำเร็จ:", error);
     }
 
-    // 🌟 3. ประกอบร่างตั๋วแจ้งซ่อม (ฝังชื่อช่าง 2 คนลงไปเลย)
+    // 🌟 3. ประกอบร่างตั๋วแจ้งซ่อม
     const newTicket = {
       id: newId,
       ...formData,
-      // เก็บข้อมูลช่างหลัก
       techName: autoAssignedTech ? autoAssignedTech.name : 'รอเจ้าหน้าที่รับงาน',
       techPhone: autoAssignedTech ? autoAssignedTech.phone : '-',
-      // เก็บข้อมูลเวร SSC (ถ้าไม่ได้ติ๊กนอกเวลา ค่านี้จะเป็น null)
       sscTechName: currentSscTechName,
       sscTechPhone: currentSscTechPhone,
       status: 'pending',
-      isOutOfHours: formData.isSsc,
+      isOutOfHours: isHolidaySSC, // ใช้ค่าที่สมองกลเช็คมา
       date: new Date().toISOString(),
     };
 
@@ -1688,54 +1679,49 @@ const toggleTag = (tag) => {
       await addDoc(collection(db, 'tickets'), newTicket);
       setShowSuccess(true);
 
-   // 🌟 โค้ดยิงแจ้งเตือนเข้า LINE ผ่าน GAS
-   const gasUrl = "https://script.google.com/macros/s/AKfycbxBoB_e637WkWMeSuX9NP3BSKcSiE8J3dSXmlzNV9aeiq6DRUvn81bSp6w-B0nzCVA5/exec"; 
+      // 🌟 โค้ดยิงแจ้งเตือนเข้า LINE ผ่าน GAS
+      const gasUrl = "https://script.google.com/macros/s/AKfycbxBoB_e637WkWMeSuX9NP3BSKcSiE8J3dSXmlzNV9aeiq6DRUvn81bSp6w-B0nzCVA5/exec"; 
+      let primaryTech = "ทีมช่าง ฝวด."; 
       
-   // 🌟🌟 ฟันธง: เพิ่มระบบสมองกลจับคู่ "กลุ่มงาน" กับ "ผู้รับผิดชอบหลัก" 🌟🌟
-   let primaryTech = "ทีมช่าง ฝวด."; // ค่าเริ่มต้นถ้าหาไม่เจอ
-   
-   // ⚠️ หัวหน้าต้องเปลี่ยนชื่อในเครื่องหมายคำพูดด้านล่าง ให้ตรงกับคนรับผิดชอบจริงนะครับ! ⚠️
-   if (formData.equipmentCategory === 'ภารกิจด้านจานสายอากาศ') {
-     primaryTech = "คุณทศพล/นรัตว์"; 
-   } else if (formData.equipmentCategory === 'ภารกิจด้านคอมพิวเตอร์แม่ข่ายและไอที') {
-     primaryTech = "คุณธนกาญจน์/คุณชุติพงษ์"; 
-   } else if (formData.equipmentCategory === 'ภารกิจด้านโครงสร้างพื้นฐานไฟฟ้า') {
-     primaryTech = "คุณประมินทร์/คุณนรัตว์"; 
-    } else if (formData.equipmentCategory === 'ภารกิจด้านการให้บริการโครงการ SSC') {
-      primaryTech = "คุณนรัตว์/คุณทศพล"; 
-   }
+      if (formData.equipmentCategory === 'ภารกิจด้านจานสายอากาศ') {
+        primaryTech = "คุณทศพล/นรัตว์"; 
+      } else if (formData.equipmentCategory === 'ภารกิจด้านคอมพิวเตอร์แม่ข่ายและไอที') {
+        primaryTech = "คุณธนกาญจน์/คุณชุติพงษ์"; 
+      } else if (formData.equipmentCategory === 'ภารกิจด้านโครงสร้างพื้นฐานไฟฟ้า') {
+        primaryTech = "คุณประมินทร์/คุณนรัตว์"; 
+      } else if (formData.equipmentCategory === 'ภารกิจด้านการให้บริการโครงการ SSC') {
+        primaryTech = "คุณนรัตว์/คุณทศพล"; 
+      }
 
-   try {
-    fetch(gasUrl, {
-      method: 'POST',
-      mode: 'no-cors',
-      headers: { 'Content-Type': 'text/plain;charset=utf-8' }, 
-      body: JSON.stringify({
-        ticketId: newId,
-        equipment: formData.equipment,
-        description: formData.description,
-        reporter: formData.reporter,
-        phone: formData.reporterContact,
-        primaryTech: primaryTech,
-        status: 'NEW', // 🌟 ส่งสถานะให้ GAS รู้ว่าเป็นงานใหม่
-        building: formData.building, // 🌟 พิกัด: เพิ่มตรงนี้
-        room: formData.room          // 🌟 พิกัด: เพิ่มตรงนี้
-      })
-    });
-    // (โค้ดแจ้งเตือนสำเร็จของท่าน)
-  } catch (err) {
-    console.error("Line Notify Error:", err);
-  }
+      try {
+        fetch(gasUrl, {
+          method: 'POST',
+          mode: 'no-cors',
+          headers: { 'Content-Type': 'text/plain;charset=utf-8' }, 
+          body: JSON.stringify({
+            ticketId: newId,
+            equipment: formData.equipment,
+            description: formData.description,
+            reporter: formData.reporter,
+            phone: formData.reporterContact,
+            primaryTech: primaryTech,
+            status: 'NEW',
+            building: formData.building,
+            room: formData.room
+          })
+        });
+      } catch (err) {
+        console.error("Line Notify Error:", err);
+      }
 
-
-    // 🌟 ฟันธง: โค้ดหน่วงเวลา 5 วินาที (5000ms) แล้วเด้งกลับหน้าติดตามงาน
-    setTimeout(() => {
-      setShowSuccess(false);      // 1. ปิดหน้าต่าง Success
-      setFilterStatus('all');     // 2. รีเซ็ตตัวกรองเป็น 'ทั้งหมด'
-      setActiveTab('tracking');   // 3. สั่งเด้งไปหน้า 'ติดตามสถานะ'
-    }, 5000);
+      setTimeout(() => {
+        setShowSuccess(false);
+        setFilterStatus('all');
+        setActiveTab('tracking');
+      }, 5000);
+      
     } catch (e) {
-      console.error(e);
+      console.error("Submit Error:", e);
     } finally {
       setIsSubmitting(false);
     }
@@ -2255,25 +2241,22 @@ const executeRatingSubmit = async () => {
           </div>
         </div>
 
-        {/* 📊 3. กล่องแสดงตัวเลขรวม (ขยายตัวหนังสือ + ปรับกรอบ) */}
-        <div className="bg-slate-800/60 backdrop-blur-xl border-2 border-solid border-orange-500/80 shadow-[0_0_25px_rgba(249,115,22,0.2)] rounded-[1.5rem] p-6 md:p-8 relative overflow-hidden">
-          <div className="absolute top-0 right-0 w-40 h-40 md:w-60 md:h-60 bg-white/50 rounded-full blur-3xl -mr-10 -mt-10 pointer-events-none"></div>
+       {/* 📊 3. กล่องแสดงตัวเลขรวม (🌟 ฟันธง: รวมร่างทุกอย่างไว้ในกรอบส้มเรืองแสงก้อนเดียวตามแบบเดิมเป๊ะ) */}
+       <div className="bg-slate-900/80 backdrop-blur-xl border-[2px] border-solid border-orange-500/80 rounded-[1.5rem] p-5 md:p-8 shadow-[0_0_30px_rgba(249,115,22,0.4)] hover:shadow-[0_0_40px_rgba(249,115,22,0.5)] transition-all relative overflow-hidden mt-6">
+          
+          {/* แสง Flare ด้านหลัง */}
+          <div className="absolute top-0 right-0 w-40 h-40 md:w-60 md:h-60 bg-orange-500/10 rounded-full blur-[60px] pointer-events-none"></div>
 
-          <div className="relative z-10">
-            <div className="flex justify-between items-start">
+          <div className="relative z-10 flex flex-col h-full gap-4">
+            
+            <div className="flex justify-between items-start w-full">
+              {/* โซนหัวข้อและตัวเลข */}
               <div>
-                <p className="text-slate-300 text-[16px] md:text-[20px] font-black uppercase tracking-widest mb-2 drop-shadow-sm">
+                <p className="text-slate-300 text-[16px] md:text-[20px] font-black uppercase tracking-widest mb-1 md:mb-2 drop-shadow-sm">
                   จำนวนงานทั้งหมด
                 </p>
-                
-                {/* 🌟 ป้ายบอกช่วงเวลา (อัปเกรดให้ใหญ่และเรืองแสง) */}
-                <div className="bg-orange-500/20 border-2 border-orange-400/50 text-orange-300 text-[13px] md:text-[16px] font-black px-3 md:px-4 py-1 md:py-1.5 rounded-lg inline-block mb-4 shadow-[0_0_15px_rgba(249,115,22,0.3)] backdrop-blur-md">
-                  {getTimeframeLabel()}
-                </div>
-                
-                {/* 🌟 ตัวเลข (ขยายเป็น text-7xl ให้เบิ้มๆ) */}
                 <div className="flex items-baseline gap-2">
-                  <span className="text-7xl md:text-[6.5rem] font-black font-mono tracking-tighter leading-none text-orange-500 drop-shadow-[0_4px_4px_rgba(0,0,0,0.4)]">
+                  <span className="text-7xl md:text-[6.5rem] font-black font-mono tracking-tighter leading-none text-orange-400 drop-shadow-[0_0_15px_rgba(249,115,22,0.6)]">
                     {String(stats.total).padStart(2, '0')}
                   </span>
                   <span className="text-slate-300 text-[16px] md:text-[22px] font-bold tracking-widest ml-1">
@@ -2282,22 +2265,27 @@ const executeRatingSubmit = async () => {
                 </div>
               </div>
 
-              {/* 🌟 วงกลม % อัตราปิดงาน (ขยายกรอบให้สมดุล) */}
-              <div className="bg-white/90 backdrop-blur-md border-[3px] border-solid border-emerald-400/50 px-4 md:px-6 py-3 md:py-5 rounded-2xl flex flex-col items-center shadow-lg mt-1">
-                <span className="text-[14px] md:text-[16px] font-black uppercase tracking-widest text-emerald-800 mb-1">
+              {/* 🌟 วงกลม % อัตราปิดงาน */}
+              <div className="bg-slate-950/60 border-[2px] border-solid border-emerald-500/50 px-4 md:px-6 py-4 md:py-6 rounded-2xl flex flex-col items-center justify-center shadow-[0_0_15px_rgba(16,185,129,0.5)] shrink-0">
+                <span className="text-[13px] md:text-[16px] font-black uppercase tracking-widest text-emerald-400 mb-1">
                   อัตราปิดงาน
                 </span>
-                <div className="flex items-center gap-1.5 md:gap-2 text-orange-600">
-                  <PieChart className="w-6 h-6 md:w-8 md:h-8 animate-pulse text-orange-600" />
-                  <span className="text-[34px] md:text-[44px] font-black drop-shadow-sm">
+                <div className="flex items-center gap-1.5 md:gap-2 text-emerald-300">
+                  <PieChart className="w-5 h-5 md:w-8 md:h-8 animate-pulse" />
+                  <span className="text-[30px] md:text-[44px] font-black drop-shadow-[0_0_15px_rgba(16,185,129,0.5)] leading-none">
                     {completionRate}%
                   </span>
                 </div>
               </div>
             </div>
+
+            {/* 🌟 ป้ายบอกช่วงเวลา (อยู่ตำแหน่งเดิมที่ท่านต้องการ) */}
+            <div className="w-full bg-slate-950 border-[2px] border-solid border-orange-500/50 text-orange-300 text-[16px] md:text-[20px] font-black px-4 py-3 rounded-xl flex items-center justify-center shadow-[0_0_15px_rgba(249,115,22,0.8)]">
+              {getTimeframeLabel()}
+            </div>
+
           </div>
         </div>
-  
 
         <div className="grid grid-cols-2 gap-4 md:gap-6">
           <div
@@ -2936,26 +2924,28 @@ const executeRatingSubmit = async () => {
             />
             
             <div className="space-y-1.5 md:space-y-2" id="field-room">
-              <label className="text-[14px] md:text-[18px] font-black text-orange-300 uppercase tracking-wide ml-1 flex items-center gap-1.5 md:gap-2">
-                <DoorOpen size={18} className="md:w-5 md:h-5" /> สถานที่ / ห้อง <span className="text-rose-500">*</span>
-              </label>
-              <input
-                name="room"
-                value={formData.room}
-                onChange={handleInputChange}
-                className={`w-full bg-slate-900 border-[2px] border-solid ${
-                  formErrors.room
-                    ? 'border-rose-500 ring-1 ring-rose-500/30'
-                    : 'border-orange-500/40 focus:border-orange-400 shadow-[0_0_15px_rgba(249,115,22,0.1)] focus:shadow-[0_0_25px_rgba(249,115,22,0.3)]'
-                } rounded-2xl px-5 py-4 md:py-5 text-sm md:text-[16px] font-bold text-orange-100 outline-none transition-all duration-300 placeholder:placeholder:text-orange-900/50 เป็น placeholder:text-orange-200/40`}
-                placeholder="ระบุสถานที่หรือห้อง"
-              />
-              {formErrors.room && (
-                <div className="text-rose-500 text-[11px] md:text-[13px] font-bold mt-1.5 ml-1 animate-in fade-in">
-                  ⚠️ {formErrors.room}
-                </div>
-              )}
-            </div>
+                <label className="text-[14px] md:text-[18px] font-black text-slate-200 uppercase tracking-wide ml-1 flex items-center gap-1.5 md:gap-2">
+                  <DoorOpen size={18} className="text-orange-400 md:w-5 md:h-5" /> สถานที่ / ห้อง <span className="text-rose-500">*</span>
+                </label>
+                <input
+                  name="room"
+                  value={formData.room}
+                  onChange={handleInputChange}
+                  className={`w-full bg-slate-900 border-[2px] border-solid ${
+                    formErrors.room
+                      ? 'border-rose-500 ring-1 ring-rose-500/30'
+                      : 'border-orange-500/30 focus:border-orange-400 shadow-[0_0_15px_rgba(249,115,22,0.15)] focus:shadow-[0_0_25px_rgba(249,115,22,0.4)]'
+                  } rounded-2xl px-5 py-4 md:py-5 text-sm md:text-[16px] font-bold text-orange-100 outline-none transition-all duration-300 placeholder:text-slate-600`}
+                  placeholder="ระบุสถานที่หรือห้อง"
+                />
+                {formErrors.room && (
+                  <div className="text-rose-500 text-[11px] md:text-[13px] font-bold mt-1.5 ml-1 animate-in fade-in">
+                    ⚠️ {formErrors.room}
+                  </div>
+                )}
+              </div>
+
+              {/* ❌ สไนเปอร์ลบก้อนป้ายเตือน SSC ออกให้หมดแล้วครับ! คลีนสุดๆ ประหยัดไปอีก 1 บรรทัด! */}
 
             {/* ================= โซนอัปโหลดภาพ (Sci-Fi เรืองแสง) ================= */}
             <div className="space-y-4 pt-6 border-t-[2px] border-dashed border-orange-500/30" id="field-images">
@@ -4127,8 +4117,8 @@ const renderTracking = () => (
             </div>
           </div>
 
-          {/* ==================== โซนเจ้าหน้าที่เวร SSC (🌟 อัปเกรดสีตามวัน และมีเส้นประคั่น) ==================== */}
-          {t.isOutOfHours && (() => {
+         {/* ==================== โซนเจ้าหน้าที่เวร SSC (🌟 อัปเกรดสีตามวัน และมีเส้นประคั่น) ==================== */}
+         {t.isOutOfHours && (() => {
             // 🌟 สมองกลคำนวณหาสีประจำวันของตั๋วใบนั้น
             const tDateObj = new Date(t.date);
             const dayOfWeek = tDateObj.getDay();
