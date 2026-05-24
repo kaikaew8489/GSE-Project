@@ -1408,6 +1408,19 @@ function MainApp({ onGoHome, initialRole }) {
     type: null,
   });
 
+  // =======================================================
+  // 🎯 แทรกจุดที่ 1 ตรงนี้ครับ (ต่อจาก useState ตัวสุดท้าย)
+  // =======================================================
+  useEffect(() => {
+    if (showImagePicker) {
+      document.body.style.overflow = 'hidden'; // ล็อกไม่ให้ไถหน้าจอ
+    } else {
+      document.body.style.overflow = 'unset';  // ปลดล็อกเมื่อปิดป๊อบอัพ
+    }
+    return () => { document.body.style.overflow = 'unset'; };
+  }, [showImagePicker]);
+  // =======================================================
+
 // 🌟 ฟันธง: ตัวแปรควบคุม Popup ประเมินความพึงพอใจ
 const [ratingModal, setRatingModal] = useState({
   isOpen: false,
@@ -2979,70 +2992,72 @@ const executeRatingSubmit = async () => {
   </span>
 </div>
 
-{/* 🌟 หน้าต่างเมนูเลือก Sci-Fi (ใส่ครอบไว้ใน renderReport) */}
+
 {/* 🌟 หน้าต่างเมนูเลือก Sci-Fi (แก้บั๊กกดแล้วเด้งปิด + เพิ่มแสงเรืองแสง) */}
-{showImagePicker && (
+{/* ======================================================= */}
+{/* 🌟 จุดเริ่มต้น: หน้าต่างป๊อบอัพเลือกรูปภาพ (Sci-Fi Edition) */}
+{/* ======================================================= */}
+
+{/* ======================================================= */}
+{/* 🌟 จุดเริ่มต้น: หน้าต่างป๊อบอัพเลือกรูปภาพ (ใช้ Portal วาร์ปทะลุกรอบ 1,000,000%) */}
+{/* ======================================================= */}
+{showImagePicker && typeof document !== 'undefined' ? createPortal(
   <div 
-    className="fixed inset-0 z-[9999] flex items-center justify-center bg-slate-950/90 backdrop-blur-md p-4 animate-in fade-in" 
-    onClick={() => setShowImagePicker(false)} 
+    className="fixed inset-0 w-screen h-screen z-[999999] flex items-center justify-center bg-slate-950/90 backdrop-blur-md overscroll-none touch-none" 
+    onClick={() => setShowImagePicker(false)}
   >
+    {/* 🎯 กล่องหลัก: สีกรอบฟ้า (Cyan) เรืองแสง */}
     <div 
-      className="bg-slate-900 border-[3px] border-solid border-orange-500 rounded-[2rem] p-6 w-full max-w-sm text-center shadow-[0_0_40px_rgba(249,115,22,0.5)] animate-in zoom-in-95"
-      onClick={(e) => e.stopPropagation()} /* 🎯 จุดแก้บั๊กรูปไม่มา: ป้องกันการคลิกทะลุไปโดนฉากหลัง */
+      className="bg-slate-900 border-[2px] border-cyan-400 rounded-[2rem] p-6 w-11/12 max-w-sm text-center shadow-[0_0_40px_rgba(34,211,238,0.5)] animate-in zoom-in-95 relative"
+      onClick={(e) => e.stopPropagation()} 
     >
-      <h3 className="text-xl font-black text-white mb-6 tracking-widest">เลือกแหล่งที่มา</h3>
+      <h3 className="text-xl font-black text-cyan-200 mb-6 tracking-widest drop-shadow-[0_0_10px_rgba(34,211,238,0.8)]">
+        เลือกแหล่งที่มา
+      </h3>
+      
       <div className="grid grid-cols-2 gap-4">
-        
-        {/* กล้อง (Capture) */}
-        <label className="bg-gradient-to-b from-orange-500 to-orange-700 p-5 rounded-2xl cursor-pointer transition-all duration-300 hover:scale-105 hover:shadow-[0_0_25px_rgba(249,115,22,0.9)] hover:brightness-110 active:scale-95 group">
+        {/* 📸 ปุ่มถ่ายรูป (สีส้ม) */}
+        <label className="flex flex-col items-center justify-center bg-gradient-to-b from-orange-500 to-orange-700 p-5 rounded-2xl cursor-pointer transition-all duration-300 shadow-[0_0_15px_rgba(249,115,22,0.4)] hover:scale-105 hover:shadow-[0_0_40px_rgba(249,115,22,1)] hover:brightness-125 active:scale-95 group">
           <input 
-            type="file" 
-            accept="image/*" 
-            capture="environment" 
-            multiple 
-            onChange={(e) => { 
-              handleImageUpload(e); 
-              setShowImagePicker(false); 
-            }} 
-            className="hidden" 
+            type="file" accept="image/*" capture="environment" multiple 
+            onChange={(e) => { handleImageUpload(e); setShowImagePicker(false); }} className="hidden" 
           />
-          <Camera size={40} className="text-white mx-auto mb-2 group-hover:animate-pulse" />
-          <span className="text-white font-black tracking-wide">ถ่ายรูป</span>
+          <Camera size={40} className="text-white mb-2 drop-shadow-[0_0_8px_rgba(255,255,255,0.8)] group-hover:animate-pulse" />
+          <span className="text-white font-black tracking-wide drop-shadow-md">ถ่ายรูป</span>
         </label>
 
-        {/* แกลลอรี่ (Gallery) */}
-        <label className="bg-gradient-to-b from-emerald-600 to-emerald-800 p-5 rounded-2xl cursor-pointer transition-all duration-300 hover:scale-105 hover:shadow-[0_0_25px_rgba(16,185,129,0.9)] hover:brightness-110 active:scale-95 group">
+        {/* 🖼️ ปุ่มคลังรูปภาพ (สีเขียว) */}
+        <label className="flex flex-col items-center justify-center bg-gradient-to-b from-emerald-500 to-emerald-700 p-5 rounded-2xl cursor-pointer transition-all duration-300 shadow-[0_0_15px_rgba(16,185,129,0.4)] hover:scale-105 hover:shadow-[0_0_40px_rgba(16,185,129,1)] hover:brightness-125 active:scale-95 group">
           <input 
-            type="file" 
-            accept="image/*" 
-            multiple 
-            onChange={(e) => { 
-              handleImageUpload(e); 
-              setShowImagePicker(false); 
-            }} 
-            className="hidden" 
+            type="file" accept="image/*" multiple 
+            onChange={(e) => { handleImageUpload(e); setShowImagePicker(false); }} className="hidden" 
           />
-          <Monitor size={40} className="text-white mx-auto mb-2 group-hover:animate-pulse" />
-          <span className="text-white font-black tracking-wide">คลังรูปภาพ</span>
+          <Monitor size={40} className="text-white mb-2 drop-shadow-[0_0_8px_rgba(255,255,255,0.8)] group-hover:animate-pulse" />
+          <span className="text-white font-black tracking-wide drop-shadow-md">คลังรูปภาพ</span>
         </label>
       </div>
 
-      {/* ปุ่มยกเลิก (เปลี่ยนเป็นธีมแดง Sci-Fi เรืองแสง) */}
+      {/* ❌ ปุ่มยกเลิก */}
       <button 
+        type="button"
         onClick={() => setShowImagePicker(false)} 
-        className="w-full mt-6 py-3 rounded-xl font-bold text-red-300 bg-slate-800/80 border-2 border-red-500/50 transition-all duration-300 hover:bg-red-900/40 hover:border-red-400 hover:shadow-[0_0_20px_rgba(239,68,68,0.8)] hover:text-white active:scale-95"
+        className="w-full mt-6 py-3 rounded-xl font-bold text-slate-300 bg-slate-800 border border-slate-600 transition-all duration-300 shadow-[0_0_10px_rgba(148,163,184,0.1)] hover:bg-slate-700 hover:border-slate-300 hover:text-white hover:shadow-[0_0_25px_rgba(255,255,255,0.5)] active:scale-95"
       >
-        ยกเลิก
-      </button>
-    </div>
-  </div>
-)}
+              ยกเลิก
+            </button>
+          </div>
+        </div>,
+        document.body
+      ) : null}
+
               </div>
             </div>
 
           </div>
         </div>
-
+{/* ======================================================= */}
+{/* 🌟 จุดสิ้นสุด: หน้าต่างป๊อบอัพเลือกรูปภาพ (Sci-Fi Edition) */}
+{/* ======================================================= */}
           
           <div className="pt-6 px-2 md:px-0 flex flex-col md:flex-row items-center gap-4 text-center">
             <button
