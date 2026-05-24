@@ -2980,25 +2980,60 @@ const executeRatingSubmit = async () => {
 </div>
 
 {/* 🌟 หน้าต่างเมนูเลือก Sci-Fi (ใส่ครอบไว้ใน renderReport) */}
+{/* 🌟 หน้าต่างเมนูเลือก Sci-Fi (แก้บั๊กกดแล้วเด้งปิด + เพิ่มแสงเรืองแสง) */}
 {showImagePicker && (
-  <div className="fixed inset-0 z-[200] flex items-center justify-center bg-slate-950/90 backdrop-blur-md p-4 animate-in fade-in" onClick={() => setShowImagePicker(false)}>
-    <div className="bg-slate-900 border-[3px] border-solid border-orange-500 rounded-[2rem] p-6 w-full max-w-sm text-center shadow-[0_0_40px_rgba(249,115,22,0.5)] animate-in zoom-in-95">
+  <div 
+    className="fixed inset-0 z-[9999] flex items-center justify-center bg-slate-950/90 backdrop-blur-md p-4 animate-in fade-in" 
+    onClick={() => setShowImagePicker(false)} 
+  >
+    <div 
+      className="bg-slate-900 border-[3px] border-solid border-orange-500 rounded-[2rem] p-6 w-full max-w-sm text-center shadow-[0_0_40px_rgba(249,115,22,0.5)] animate-in zoom-in-95"
+      onClick={(e) => e.stopPropagation()} /* 🎯 จุดแก้บั๊กรูปไม่มา: ป้องกันการคลิกทะลุไปโดนฉากหลัง */
+    >
       <h3 className="text-xl font-black text-white mb-6 tracking-widest">เลือกแหล่งที่มา</h3>
       <div className="grid grid-cols-2 gap-4">
+        
         {/* กล้อง (Capture) */}
-        <label className="bg-gradient-to-b from-orange-500 to-orange-700 p-5 rounded-2xl cursor-pointer active:scale-95 transition-all">
-          <input type="file" accept="image/*" capture="environment" multiple onChange={(e) => { handleImageUpload(e); setShowImagePicker(false); }} className="hidden" />
-          <Camera size={40} className="text-white mx-auto mb-2" />
-          <span className="text-white font-black">ถ่ายรูป</span>
+        <label className="bg-gradient-to-b from-orange-500 to-orange-700 p-5 rounded-2xl cursor-pointer transition-all duration-300 hover:scale-105 hover:shadow-[0_0_25px_rgba(249,115,22,0.9)] hover:brightness-110 active:scale-95 group">
+          <input 
+            type="file" 
+            accept="image/*" 
+            capture="environment" 
+            multiple 
+            onChange={(e) => { 
+              handleImageUpload(e); 
+              setShowImagePicker(false); 
+            }} 
+            className="hidden" 
+          />
+          <Camera size={40} className="text-white mx-auto mb-2 group-hover:animate-pulse" />
+          <span className="text-white font-black tracking-wide">ถ่ายรูป</span>
         </label>
+
         {/* แกลลอรี่ (Gallery) */}
-        <label className="bg-gradient-to-b from-emerald-600 to-emerald-800 p-5 rounded-2xl cursor-pointer active:scale-95 transition-all">
-          <input type="file" accept="image/*" multiple onChange={(e) => { handleImageUpload(e); setShowImagePicker(false); }} className="hidden" />
-          <Monitor size={40} className="text-white mx-auto mb-2" />
-          <span className="text-white font-black">คลังรูปภาพ</span>
+        <label className="bg-gradient-to-b from-emerald-600 to-emerald-800 p-5 rounded-2xl cursor-pointer transition-all duration-300 hover:scale-105 hover:shadow-[0_0_25px_rgba(16,185,129,0.9)] hover:brightness-110 active:scale-95 group">
+          <input 
+            type="file" 
+            accept="image/*" 
+            multiple 
+            onChange={(e) => { 
+              handleImageUpload(e); 
+              setShowImagePicker(false); 
+            }} 
+            className="hidden" 
+          />
+          <Monitor size={40} className="text-white mx-auto mb-2 group-hover:animate-pulse" />
+          <span className="text-white font-black tracking-wide">คลังรูปภาพ</span>
         </label>
       </div>
-      <button onClick={() => setShowImagePicker(false)} className="w-full mt-6 py-3 rounded-xl font-bold text-slate-300 bg-slate-800 border-2 border-slate-700">ยกเลิก</button>
+
+      {/* ปุ่มยกเลิก (เปลี่ยนเป็นธีมแดง Sci-Fi เรืองแสง) */}
+      <button 
+        onClick={() => setShowImagePicker(false)} 
+        className="w-full mt-6 py-3 rounded-xl font-bold text-red-300 bg-slate-800/80 border-2 border-red-500/50 transition-all duration-300 hover:bg-red-900/40 hover:border-red-400 hover:shadow-[0_0_20px_rgba(239,68,68,0.8)] hover:text-white active:scale-95"
+      >
+        ยกเลิก
+      </button>
     </div>
   </div>
 )}
