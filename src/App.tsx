@@ -1109,6 +1109,12 @@ const calculateDuration = (start, end, holdMs = 0) => {
 // ==========================================
 // 🌟 ฟันธง: Component ใหม่ Sci-Fi Modal Dropdown
 // ==========================================
+// ==========================================
+// 🌟 ฟันธง: Component ใหม่ Sci-Fi Modal Dropdown (อัปเกรด กึ่งกลาง + ขนาดตายตัว 1,000,000%)
+// ==========================================
+// ==========================================
+// 🌟 ฟันธง: Component ใหม่ Sci-Fi Modal Dropdown (ลอกแบบ "เลือกผู้ปฏิบัติงาน" มา 1,000,000%)
+// ==========================================
 function SciFiSelectModal({ 
   id, label, icon, value, options, onChange, error, 
   placeholder, themeColor = 'orange' 
@@ -1116,26 +1122,26 @@ function SciFiSelectModal({
   const [isOpen, setIsOpen] = useState(false);
   const [searchTerm, setSearchTerm] = useState('');
 
-  // กำหนดสีตาม Theme ที่ส่งมา
+  // 🌟 ฟันธง: ปรับ Theme ให้ตรงกับ Pop-up เลือกผู้ปฏิบัติงานเป๊ะๆ
   const theme = {
-    emerald: { text: 'text-emerald-400', border: 'border-emerald-500/30', hover: 'hover:border-emerald-400 hover:shadow-[0_0_25px_rgba(16,185,129,0.4)]', glow: 'shadow-[0_0_15px_rgba(16,185,129,0.15)]', active: 'border-emerald-400 shadow-[0_0_30px_rgba(16,185,129,0.8),inset_0_0_15px_rgba(16,185,129,0.4)] bg-emerald-900/40 text-emerald-300' },
-    amber: { text: 'text-amber-400', border: 'border-amber-500/30', hover: 'hover:border-amber-400 hover:shadow-[0_0_25px_rgba(245,158,11,0.4)]', glow: 'shadow-[0_0_15px_rgba(245,158,11,0.15)]', active: 'border-amber-400 shadow-[0_0_30px_rgba(245,158,11,0.8),inset_0_0_15px_rgba(245,158,11,0.4)] bg-amber-900/40 text-amber-300' },
-    cyan: { text: 'text-cyan-400', border: 'border-cyan-500/30', hover: 'hover:border-cyan-400 hover:shadow-[0_0_25px_rgba(6,182,212,0.4)]', glow: 'shadow-[0_0_15px_rgba(6,182,212,0.15)]', active: 'border-cyan-400 shadow-[0_0_30px_rgba(6,182,212,0.8),inset_0_0_15px_rgba(6,182,212,0.4)] bg-cyan-900/40 text-cyan-300' },
-    orange: { text: 'text-orange-400', border: 'border-orange-500/30', hover: 'hover:border-orange-400 hover:shadow-[0_0_25px_rgba(249,115,22,0.4)]', glow: 'shadow-[0_0_15px_rgba(249,115,22,0.15)]', active: 'border-orange-400 shadow-[0_0_30px_rgba(249,115,22,0.8),inset_0_0_15px_rgba(249,115,22,0.4)] bg-orange-900/40 text-orange-300' },
+    emerald: { text: 'text-emerald-400', border: 'border-emerald-500', glow: 'shadow-[0_0_40px_rgba(16,185,129,0.5)]', flare: 'bg-emerald-500/20', btnBg: 'bg-emerald-900/40', outBorder: 'border-emerald-500/30', outHover: 'hover:border-emerald-400', outGlow: 'shadow-[0_0_15px_rgba(16,185,129,0.15)]', outHoverGlow: 'hover:shadow-[0_0_25px_rgba(16,185,129,0.4)]' },
+    amber: { text: 'text-amber-400', border: 'border-amber-500', glow: 'shadow-[0_0_40px_rgba(245,158,11,0.5)]', flare: 'bg-amber-500/20', btnBg: 'bg-amber-900/40', outBorder: 'border-amber-500/30', outHover: 'hover:border-amber-400', outGlow: 'shadow-[0_0_15px_rgba(245,158,11,0.15)]', outHoverGlow: 'hover:shadow-[0_0_25px_rgba(245,158,11,0.4)]' },
+    cyan: { text: 'text-cyan-400', border: 'border-cyan-500', glow: 'shadow-[0_0_40px_rgba(6,182,212,0.5)]', flare: 'bg-cyan-500/20', btnBg: 'bg-cyan-900/40', outBorder: 'border-cyan-500/30', outHover: 'hover:border-cyan-400', outGlow: 'shadow-[0_0_15px_rgba(6,182,212,0.15)]', outHoverGlow: 'hover:shadow-[0_0_25px_rgba(6,182,212,0.4)]' },
+    orange: { text: 'text-orange-400', border: 'border-orange-500', glow: 'shadow-[0_0_40px_rgba(249,115,22,0.5)]', flare: 'bg-orange-500/20', btnBg: 'bg-orange-900/40', outBorder: 'border-orange-500/30', outHover: 'hover:border-orange-400', outGlow: 'shadow-[0_0_15px_rgba(249,115,22,0.15)]', outHoverGlow: 'hover:shadow-[0_0_25px_rgba(249,115,22,0.4)]' },
   }[themeColor];
 
   const filteredOptions = options.filter(opt => String(opt).toLowerCase().includes(searchTerm.toLowerCase()));
 
   return (
     <div className="space-y-1.5 md:space-y-2 relative text-left" id={id}>
-      <label className="text-[14px] md:text-[18px] font-black tracking-wide ml-1 flex items-center gap-1.5 md:gap-2 text-slate-200">
+      <label className={`text-[14px] md:text-[18px] font-black tracking-wide ml-1 flex items-center gap-1.5 md:gap-2 text-slate-200`}>
         {label}
       </label>
       
-      {/* 🌟 ปุ่มกดเปิด Modal (หน้าตาเหมือนตอนไม่ได้กด) */}
+      {/* 🌟 ปุ่มกดเปิด Modal (หน้าฟอร์มหลัก) */}
       <div 
         onClick={() => { setIsOpen(true); setSearchTerm(''); }}
-        className={`w-full bg-slate-900 rounded-2xl border-[2px] ${theme.border} ${theme.glow} ${theme.hover} px-5 py-4 md:py-5 flex items-center justify-between cursor-pointer transition-all duration-300 ${error ? 'border-rose-500 ring-1 ring-rose-500/50' : ''}`}
+        className={`w-full bg-slate-900 rounded-2xl border-[2px] ${error ? 'border-rose-500 ring-1 ring-rose-500/50 shadow-none' : `${theme.outBorder} ${theme.outHover} ${theme.outGlow} ${theme.outHoverGlow}`} px-5 py-4 md:py-5 flex items-center justify-between cursor-pointer transition-all duration-300`}
       >
         <div className="flex items-center gap-3">
           {icon}
@@ -1148,54 +1154,60 @@ function SciFiSelectModal({
 
       {error && <div className="text-rose-500 text-[11px] md:text-[13px] font-bold mt-1.5 md:mt-2 ml-1 animate-in fade-in">⚠️ {error}</div>}
 
-      {/* 🌟 หน้าต่าง Modal (Sci-Fi แท้ๆ) */}
+      {/* 🌟 หน้าต่าง Modal (Sci-Fi แท้ๆ - ถอดแบบจากหน้าเลือกช่างเป๊ะๆ กึ่งกลางจอแน่นอน) */}
       {isOpen && (
-        <div className="fixed inset-0 z-[999999] flex items-center justify-center p-4 bg-slate-950/80 backdrop-blur-md animate-in fade-in duration-200 overscroll-none" onClick={() => setIsOpen(false)}>
+        <div className="fixed inset-0 z-[999999] flex items-center justify-center p-4 bg-slate-950/80 backdrop-blur-md animate-in fade-in duration-200" onClick={() => setIsOpen(false)}>
+          
+          {/* 🌟 ฟันธงแก้ปัญหากรอบเหลือง: ลบกรอบแปลกปลอมออก ใช้โครงสร้างเดียวกับหน้าเวร SSC เป๊ะๆ */}
           <div 
-            className={`relative bg-slate-900 border-[3px] border-solid rounded-3xl w-full max-w-sm p-6 flex flex-col max-h-[85vh] ${theme.active.split(' ')[0]} ${theme.glow.replace('15px', '60px')}`}
+            className={`relative bg-slate-900 border-[3px] border-solid rounded-[2rem] w-[95%] sm:w-[85%] md:w-full max-w-sm md:max-w-md h-[70vh] md:h-[65vh] max-h-[600px] p-5 md:p-6 flex flex-col ${theme.border} ${theme.glow} shadow-[inset_0_0_20px_rgba(0,0,0,0.5)]`}
             onClick={(e) => e.stopPropagation()}
           >
-            {/* หัวข้อ Modal */}
-            <div className={`flex justify-between items-center mb-5 border-b-[2px] pb-4 ${theme.border}`}>
-              <h3 className={`text-[16px] md:text-lg font-black flex items-center gap-2 ${theme.text} drop-shadow-md`}>
-                {icon} {placeholder}
+            {/* แสง Flare ด้านหลังให้ดูล้ำ */}
+            <div className={`absolute top-0 right-0 w-32 h-32 md:w-48 md:h-48 ${theme.flare} blur-[40px] pointer-events-none rounded-full`}></div>
+
+            {/* หัวข้อ Modal & ปุ่มปิด */}
+            <div className={`flex justify-between items-center mb-4 md:mb-5 pb-3 md:pb-4 shrink-0 border-b border-slate-700/60 relative z-10`}>
+              <h3 className={`text-[16px] md:text-[20px] font-black flex items-center gap-2 ${theme.text} drop-shadow-md`}>
+                {icon} <span className="mt-0.5">{placeholder}</span>
               </h3>
-              <button onClick={() => setIsOpen(false)} className="text-rose-500 hover:text-white animate-pulse bg-slate-900 hover:bg-rose-600 p-1.5 md:p-2 rounded-full transition-all duration-300 border-[2px] border-rose-500 shadow-[0_0_20px_rgba(225,29,72,0.8)] cursor-pointer">
-                <XCircle className="w-6 h-6 md:w-7 md:h-7" />
+              <button onClick={() => setIsOpen(false)} className="text-rose-500 hover:text-white animate-pulse bg-slate-950 hover:bg-rose-600 p-1.5 md:p-2 rounded-full transition-all duration-300 border-[2px] border-rose-500 shadow-[0_0_20px_rgba(225,29,72,0.8)] cursor-pointer">
+                <XCircle className="w-5 h-5 md:w-6 md:h-6 stroke-[3px]" />
               </button>
             </div>
 
-            {/* ช่องค้นหา (ถ้ามี Options เยอะ) */}
-            {options.length > 5 && (
-              <div className="mb-4 relative">
-                <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-500 w-5 h-5" />
-                <input 
-                  type="text" 
-                  placeholder="พิมพ์ค้นหา..." 
-                  value={searchTerm}
-                  onChange={(e) => setSearchTerm(e.target.value)}
-                  className="w-full bg-slate-950 border-[2px] border-slate-700 rounded-xl py-3 pl-10 pr-4 text-white outline-none focus:border-slate-500 transition-colors"
-                />
-              </div>
-            )}
+            {/* ช่องค้นหา */}
+            <div className="mb-4 relative shrink-0 z-10">
+              <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-500 w-4 h-4 md:w-5 md:h-5" />
+              <input 
+                type="text" 
+                placeholder="พิมพ์ค้นหา..." 
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+                className="w-full bg-slate-950 border-[2px] border-slate-700 rounded-xl py-2.5 md:py-3 pl-10 pr-4 text-white outline-none focus:border-slate-500 transition-colors font-bold text-[13px] md:text-[15px]"
+              />
+            </div>
 
             {/* รายการตัวเลือก */}
-            <div className="overflow-y-auto pr-1 space-y-3 pb-2 [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden pt-1">
+            <div className="overflow-y-auto pr-2 space-y-2.5 md:space-y-3 pb-2 flex-1 [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden pt-1 relative z-10">
               {filteredOptions.length > 0 ? filteredOptions.map((opt, idx) => {
                 const isSelected = value === opt;
                 return (
                   <button 
                     key={idx}
                     onClick={() => { onChange(opt); setIsOpen(false); }}
-                    className={`w-full text-left px-4 py-4 rounded-xl font-black border-[2px] transition-all duration-300 flex justify-between items-center active:scale-95
-                      ${isSelected ? theme.active : `bg-slate-900/80 text-slate-300 border-slate-700/60 shadow-[0_0_15px_rgba(0,0,0,0.2)] hover:${theme.border} hover:${theme.text} hover:${theme.glow}`}`}
+                    className={`w-full text-left px-4 py-3.5 md:py-4 rounded-xl font-black border-[2px] transition-all duration-300 flex justify-between items-center active:scale-95
+                      ${isSelected 
+                        ? `${theme.btnBg} ${theme.text} ${theme.border} shadow-[0_0_20px_rgba(0,0,0,0.5),inset_0_0_15px_rgba(255,255,255,0.05)]` 
+                        : `bg-slate-900/80 text-slate-300 border-slate-700/60 shadow-[0_0_10px_rgba(0,0,0,0.2)] hover:${theme.border} hover:${theme.text} hover:shadow-[0_0_15px_rgba(0,0,0,0.4)]`
+                      }`}
                   >
-                    <span className="text-[14px] md:text-[15px]">{opt}</span>
-                    {isSelected && <CheckCircle2 className={`w-6 h-6 ${theme.text}`} />}
+                    <span className="text-[13px] md:text-[15px]">{opt}</span>
+                    {isSelected && <CheckCircle2 className={`w-5 h-5 md:w-6 md:h-6 ${theme.text} drop-shadow-md`} />}
                   </button>
                 );
               }) : (
-                <div className="text-center py-6 text-slate-500 font-bold">ไม่พบข้อมูล</div>
+                <div className="text-center py-6 text-slate-500 font-bold text-[13px] md:text-[15px]">ไม่พบข้อมูล</div>
               )}
             </div>
           </div>
@@ -1204,7 +1216,6 @@ function SciFiSelectModal({
     </div>
   );
 }
-
 
 // ==========================================
 // 🌟 5. Main App Logic
@@ -2891,48 +2902,6 @@ const executeRatingSubmit = async () => {
               )}
             </div>
 
-            {/* ======================================================= */}
-            {/* 🌟 ฟันธง: สมองกลดักจับเวร SSC (ไม่มีปุ่มกดแล้ว โชว์เฉพาะวันหยุด) */}
-            {/* ======================================================= */}
-            {(() => {
-              const todayStr = new Date(sysTime).toISOString().split('T')[0];
-              const sscRosterForDate = allRosters.find(r => r.date === todayStr);
-              const hasDutyPerson = sscRosterForDate && sscRosterForDate.techName && sscRosterForDate.techName.trim() !== '';
-
-              if (hasDutyPerson) {
-                // บังคับล็อคสถานะ SSC เป็น true ทันที
-                if (!formData.isSsc) {
-                  setFormData(prev => ({ ...prev, isSsc: true }));
-                }
-
-                return (
-                  <div className="pt-4 mt-6 border-t border-orange-500/30 flex items-center justify-between bg-orange-950/40 p-4 rounded-xl border border-solid border-orange-500/50">
-                    <div>
-                      <label className="text-[14px] md:text-[16px] font-black text-rose-400 uppercase tracking-widest flex items-center gap-1.5 md:gap-2">
-                        <AlertTriangle size={18} className="md:w-6 md:h-6 animate-pulse" /> 
-                        แจ้งด่วนนอกเวลาทำการ (เวร SSC)
-                      </label>
-                      <p className="text-[12px] md:text-[14px] font-bold text-orange-200 mt-1 ml-6 md:ml-8">
-                        ระบบตรวจพบว่าเป็นวันหยุด การแจ้งซ่อมจะถูกส่งไปยังวิศวกรเวร SSC โดยอัตโนมัติ
-                      </p>
-                    </div>
-                    {/* ไอคอนล็อคสถานะ (แทนปุ่ม Toggle) */}
-                    <div className="w-12 h-6 md:w-16 md:h-8 rounded-full flex items-center px-1 transition-all shadow-inner bg-rose-500 justify-end opacity-90 cursor-not-allowed">
-                      <div className="w-4 h-4 md:w-6 md:h-6 bg-white rounded-full shadow-sm"></div>
-                    </div>
-                  </div>
-                );
-              } else {
-                // บังคับปลดสถานะ SSC เป็น false ในวันธรรมดา
-                if (formData.isSsc) {
-                  setFormData(prev => ({ ...prev, isSsc: false }));
-                }
-              }
-              return null;
-            })()}
-
-      
-
             <div
               className="space-y-4 pt-5 border-t border-slate-600/50"
               id="field-images"
@@ -3066,11 +3035,21 @@ const executeRatingSubmit = async () => {
     {/* 🌟 ฟันธง: รักษารูปทรงเดิม p-4 md:p-10 แต่ทุบสกรอลล์บาร์ทิ้งถาวรด้วยการเอา max-h-[80dvh] และ overflow-y-auto ออก แล้วแทนที่ด้วย overflow-hidden */}
     <div className="relative m-auto z-10 w-[90%] max-w-[320px] sm:max-w-[340px] md:max-w-[450px] bg-slate-900 border-[2px] border-solid border-white rounded-[2rem] md:rounded-[2.5rem] p-4 sm:p-6 md:p-10 shadow-[0_0_60px_rgba(6,182,212,0.6)] flex flex-col gap-4 sm:gap-5 md:gap-8 transition-all duration-300 overflow-hidden outline-none" onClick={(e) => e.stopPropagation()}>
        
-       <div className="text-center mb-1 pb-3 md:pb-5 border-b border-white/20">
+      {/* 🌟 ฟันธง: เพิ่ม relative เข้าไปใน div นี้ เพื่อให้ปุ่มปิดไปอยู่ที่มุมขวาได้เป๊ะๆ */}
+      <div className="text-center mb-1 pb-3 md:pb-5 border-b border-white/20 relative">
          <h3 className="font-black tracking-widest text-[16px] sm:text-[18px] md:text-[24px] flex items-center justify-center gap-2 text-orange-400 drop-shadow-[0_0_10px_rgba(249,115,22,0.8)]">
            <Phone size={18} className="text-emerald-400 drop-shadow-sm md:w-6 md:h-6" />
            ระบุเบอร์โทรศัพท์
          </h3>
+
+         {/* 🌟 ปุ่มกากบาท Sci-Fi เรืองแสง (ตรงจุดนี้เลยครับ) */}
+         <button 
+           type="button"
+           onClick={() => setShowNumpad(false)} 
+           className="absolute right-0 top-1/2 -translate-y-1/2 text-rose-500 hover:text-white bg-slate-900 hover:bg-rose-600 p-1.5 md:p-2 rounded-full transition-all border-2 border-rose-500 shadow-[0_0_15px_rgba(225,29,72,0.6)] animate-pulse hover:shadow-[0_0_25px_rgba(225,29,72,1)] cursor-pointer"
+         >
+           <X size={18} className="md:w-6 md:h-6 stroke-[3px]" />
+         </button>
        </div>
        
        <div className="bg-slate-950 border-[2px] border-solid border-cyan-400 rounded-2xl md:rounded-3xl py-4 px-4 md:py-6 text-center shadow-[0_0_15px_rgba(34,211,238,0.4)] flex items-center justify-center min-h-[70px] md:min-h-[100px] shrink-0">
@@ -4002,95 +3981,127 @@ const renderTracking = () => (
                         </div>
 
                         {/* ==================== โซนผู้แจ้ง & ผู้รับผิดชอบ (แบบมีกรอบ Card) ==================== */}
-        <div className="bg-emerald-50/40 border-2 border-solid border-emerald-400 p-4 md:p-6 rounded-2xl md:rounded-[1.5rem] mt-4 shadow-sm w-full">
-          <div className="flex flex-col md:flex-row gap-4 md:gap-8">
-            
-            {/* 👤 ฝั่งซ้าย: ผู้แจ้งปัญหา */}
-            <div className="flex-1 flex flex-col border-b md:border-b-0 md:border-r border-emerald-300/50 pb-4 md:pb-0 md:pr-8">
-              <span className="text-[14px] md:text-[18px] font-black text-emerald-700 mb-2 md:mb-4">
-                ผู้แจ้งปัญหา
-              </span>
-              <div className="flex items-center justify-between mb-3">
-                <span className="font-black text-emerald-950 flex items-center gap-2 text-[16px] md:text-[24px]">
-                  <User className={`w-4 h-4 md:w-6 md:h-6 ${isCancelled ? 'text-slate-400' : 'text-emerald-500'}`} />
-                  {String(t.reporter)}
-                </span>
-              </div>
-              <div className="flex flex-wrap items-center justify-between mt-auto gap-3">
-                <span className="text-[13px] md:text-[16px] font-bold text-blue-600 flex items-center gap-1.5">
-                  <Clock className="w-3 h-3 md:w-4 md:h-4" />
-                  {formatDateTimeString(t.date)}
-                </span>
-                <a href={`tel:${String(t.reporterContact).replace(/\D/g, '')}`} className="font-mono text-[13px] md:text-[16px] font-bold bg-emerald-100 px-3 py-1.5 md:px-4 md:py-2 rounded-xl text-emerald-800 border border-emerald-300 shadow-sm hover:bg-emerald-200 transition-colors flex items-center gap-2 active:scale-95">
-                  <Phone className="w-4 h-4 md:w-5 md:h-5 text-emerald-600" />
-                  {formatDisplayPhone(t.reporterContact)}
-                </a>
-              </div>
-            </div>
-
-            {/* 🛠️ ฝั่งขวา: ผู้รับผิดชอบหลัก */}
-            <div className="flex-1 flex flex-col">
-              <span className="text-[14px] md:text-[18px] font-black text-orange-600 mb-2 md:mb-4">
-                ผู้รับผิดชอบหลัก
-              </span>
-              <div className="flex items-center justify-between mb-3">
-                <span className="font-black text-orange-950 flex items-center gap-2 text-[16px] md:text-[24px]">
-                  <Wrench className="w-4 h-4 md:w-6 md:h-6 text-orange-500" />
-                  {t.techName ? String(t.techName) : "รอดำเนินการ"}
-                </span>
-              </div>
-              <div className="flex flex-wrap items-center justify-between mt-auto gap-3">
-                <span className="text-[13px] md:text-[16px] font-bold text-slate-400 flex items-center gap-1.5">
-                  <Clock className="w-3 h-3 md:w-4 md:h-4" /> เวลาปฏิบัติงานปกติ
-                </span>
-                {t.techPhone && t.techPhone !== '-' && t.techPhone !== 'N/A' ? (
-                  <a href={`tel:${String(t.techPhone).replace(/\D/g, '')}`} className="font-mono text-[13px] md:text-[16px] font-bold bg-orange-100 px-3 py-1.5 md:px-4 md:py-2 rounded-xl text-orange-800 border border-orange-300 shadow-sm hover:bg-orange-200 transition-colors flex items-center gap-2 active:scale-95">
-                    <Phone className="w-4 h-4 md:w-5 md:h-5 text-orange-600" />
-                    {formatDisplayPhone(t.techPhone)}
-                  </a>
-                ) : (
-                  <span className="font-mono text-[13px] md:text-[16px] text-slate-400 bg-slate-100 px-3 py-1.5 rounded-xl border border-slate-200">
-                    {String(t.techPhone || 'N/A')}
-                  </span>
-                )}
-              </div>
-            </div>
-            
-          </div>
-        </div>
-
-        {/* ==================== โซนเจ้าหน้าที่เวร SSC (วางต่อจากผู้รับผิดชอบหลัก) ==================== */}
-        {t.isOutOfHours && (
-          <div className="bg-purple-50/80 border-2 border-solid border-purple-400 p-4 md:p-6 rounded-2xl md:rounded-[1.5rem] mt-4 shadow-sm w-full">
-            <div className="flex flex-col">
-              <span className="text-[14px] md:text-[18px] font-black text-purple-700 mb-2 md:mb-4 flex items-center gap-2 uppercase tracking-wider">
-                <AlertTriangle size={18} className="animate-pulse" /> เจ้าหน้าที่เวร SSC ประจำวันหยุด
-              </span>
+          <div className="bg-emerald-50/40 border-2 border-solid border-emerald-400 p-4 md:p-6 rounded-2xl md:rounded-[1.5rem] mt-4 shadow-sm w-full">
+            <div className="flex flex-col md:flex-row gap-4 md:gap-8">
               
-              <div className="flex items-center justify-between mb-3">
-                <span className="font-black text-purple-950 flex items-center gap-2 text-[16px] md:text-[24px]">
-                  <User className="w-4 h-4 md:w-6 md:h-6 text-purple-500" />
-                  {sscName || t.sscTechName || "ยังไม่ระบุเวร"}
+              {/* 👤 ฝั่งซ้าย: ผู้แจ้งปัญหา */}
+              <div className="flex-1 flex flex-col border-b md:border-b-0 md:border-r border-emerald-300/50 pb-4 md:pb-0 md:pr-8">
+                <span className="text-[14px] md:text-[18px] font-black text-emerald-700 mb-2 md:mb-4">
+                  ผู้แจ้งปัญหา
                 </span>
+                <div className="flex items-center justify-between mb-3">
+                  <span className="font-black text-emerald-950 flex items-center gap-2 text-[16px] md:text-[24px]">
+                    <User className={`w-4 h-4 md:w-6 md:h-6 ${isCancelled ? 'text-slate-400' : 'text-emerald-500'}`} />
+                    {String(t.reporter)}
+                  </span>
+                </div>
+                {/* 🌟 ฟันธง: ดัน วันที่ และ เบอร์โทร ให้อยู่บรรทัดเดียวกัน (Flex between) */}
+                <div className="flex items-center justify-between mt-auto pt-1">
+                  <span className="text-[12px] md:text-[15px] font-bold text-blue-600 flex items-center gap-1.5">
+                    <Clock className="w-3 h-3 md:w-4 md:h-4" />
+                    {formatDateTimeString(t.date)}
+                  </span>
+                  <a href={`tel:${String(t.reporterContact).replace(/\D/g, '')}`} className="font-mono text-[12px] md:text-[15px] font-bold bg-emerald-100 px-2.5 py-1 md:px-3 md:py-1.5 rounded-lg text-emerald-800 border border-emerald-300 shadow-sm hover:bg-emerald-200 transition-colors flex items-center gap-1.5 active:scale-95 shrink-0">
+                    <Phone className="w-3 h-3 md:w-4 md:h-4 text-emerald-600" />
+                    {formatDisplayPhone(t.reporterContact)}
+                  </a>
+                </div>
               </div>
 
-              <div className="flex flex-wrap items-center justify-between mt-auto gap-3 pt-1 border-t border-purple-200/50">
-                <span className="text-[13px] md:text-[16px] font-bold text-purple-800 flex items-center gap-1.5 bg-purple-200 px-2 py-0.5 rounded-lg mt-2">
-                  <Clock className="w-3 h-3 md:w-4 md:h-4 text-purple-600" />
-                  วันที่: {new Date(t.date).toLocaleDateString('th-TH', { day: 'numeric', month: 'long', year: 'numeric' })}
+              {/* 🛠️ ฝั่งขวา: ผู้รับผิดชอบหลัก (🌟 เปลี่ยนไอคอนเป็นรูปคนแล้ว) */}
+              <div className="flex-1 flex flex-col relative">
+                <span className="text-[14px] md:text-[18px] font-black text-orange-600 mb-2 md:mb-4">
+                  ผู้รับผิดชอบหลัก
                 </span>
                 
-                {(sscPhone || t.sscTechPhone) && (sscPhone || t.sscTechPhone) !== '-' && (
-                  <a href={`tel:${String(sscPhone || t.sscTechPhone).replace(/\D/g, '')}`} className="font-mono text-[13px] md:text-[16px] font-bold bg-purple-100 px-3 py-1.5 md:px-4 md:py-2 rounded-xl text-purple-800 border border-purple-300 shadow-sm hover:bg-purple-200 transition-colors flex items-center gap-2 active:scale-95 mt-2">
-                    <Phone className="w-4 h-4 md:w-5 md:h-5 text-purple-600" />
-                    {formatDisplayPhone(sscPhone || t.sscTechPhone)}
-                  </a>
-                )}
+                <div className="flex flex-col md:flex-row md:items-center justify-between mb-3 md:mb-0">
+                  <span className="font-black text-orange-950 flex items-center gap-2 text-[16px] md:text-[24px]">
+                    {/* 🌟 ฟันธง: เปลี่ยนจาก Wrench เป็น User เรียบร้อยครับ */}
+                    <User className="w-4 h-4 md:w-6 md:h-6 text-orange-500" />
+                    {t.techName ? String(t.techName) : "รอดำเนินการ"}
+                  </span>
+                  
+                  {t.techPhone && t.techPhone !== '-' && t.techPhone !== 'N/A' ? (
+                    <a href={`tel:${String(t.techPhone).replace(/\D/g, '')}`} className="mt-2 md:mt-0 font-mono text-[12px] md:text-[15px] font-bold bg-orange-100 px-2.5 py-1 md:px-3 md:py-1.5 rounded-lg text-orange-800 border border-orange-300 shadow-sm hover:bg-orange-200 transition-colors flex items-center gap-1.5 active:scale-95 self-start md:absolute md:bottom-0 md:right-0">
+                      <Phone className="w-3 h-3 md:w-4 md:h-4 text-orange-600" />
+                      {formatDisplayPhone(t.techPhone)}
+                    </a>
+                  ) : (
+                    <span className="mt-2 md:mt-0 font-mono text-[12px] md:text-[15px] text-slate-400 bg-slate-100 px-2.5 py-1 rounded-lg border border-slate-200 self-start md:absolute md:bottom-0 md:right-0">
+                      {String(t.techPhone || 'N/A')}
+                    </span>
+                  )}
+                </div>
               </div>
+              
             </div>
           </div>
-        )}
-        {/* =================================================================================== */}
+
+          {/* ==================== โซนเจ้าหน้าที่เวร SSC (🌟 อัปเกรดสีตามวัน และมีเส้นประคั่น) ==================== */}
+          {t.isOutOfHours && (() => {
+            // 🌟 สมองกลคำนวณหาสีประจำวันของตั๋วใบนั้น
+            const tDateObj = new Date(t.date);
+            const dayOfWeek = tDateObj.getDay();
+            
+            // ใช้ rosterData ที่ดึงมาแล้ว (allRosters) เพื่อเช็คว่าเป็นวันหยุดพิเศษไหม
+            const dateStr = tDateObj.toISOString().split('T')[0];
+            const rosterInfo = allRosters.find(r => r.date === dateStr);
+            const isSpecialHoliday = rosterInfo && rosterInfo.isHoliday;
+
+            // กำหนดสีและธีม
+            let theme = {
+              bg: 'bg-purple-50/80', border: 'border-purple-400', 
+              textHead: 'text-purple-700', textName: 'text-purple-950', icon: 'text-purple-500',
+              btnBg: 'bg-purple-100', btnBorder: 'border-purple-300', btnText: 'text-purple-800'
+            }; // Default สีม่วง
+
+            if (isSpecialHoliday) {
+              theme = { bg: 'bg-orange-50/80', border: 'border-orange-400', textHead: 'text-orange-700', textName: 'text-orange-950', icon: 'text-orange-500', btnBg: 'bg-orange-100', btnBorder: 'border-orange-300', btnText: 'text-orange-800' };
+            } else if (dayOfWeek === 0) { // วันอาทิตย์ (สีแดง/ชมพู)
+              theme = { bg: 'bg-rose-50/80', border: 'border-rose-400', textHead: 'text-rose-700', textName: 'text-rose-950', icon: 'text-rose-500', btnBg: 'bg-rose-100', btnBorder: 'border-rose-300', btnText: 'text-rose-800' };
+            } else if (dayOfWeek === 6) { // วันเสาร์ (สีฟ้า/น้ำเงิน)
+              theme = { bg: 'bg-blue-50/80', border: 'border-blue-400', textHead: 'text-blue-700', textName: 'text-blue-950', icon: 'text-blue-500', btnBg: 'bg-blue-100', btnBorder: 'border-blue-300', btnText: 'text-blue-800' };
+            }
+
+            return (
+              <div className={`${theme.bg} border-2 border-solid ${theme.border} p-4 md:p-6 rounded-2xl md:rounded-[1.5rem] mt-4 shadow-sm w-full`}>
+                <div className="flex flex-col">
+                  {/* 🌟 หัวข้อเวร SSC */}
+                  <span className={`text-[13px] md:text-[16px] font-black ${theme.textHead} mb-2 md:mb-4 flex items-center gap-1.5 md:gap-2 uppercase tracking-wider`}>
+                    <AlertTriangle size={16} className="animate-pulse md:w-5 md:h-5" /> เจ้าหน้าที่เวร SSC ประจำวันหยุด
+                  </span>
+                  
+                  {/* 🌟 ชื่อเวร SSC */}
+                  <div className="flex items-center justify-between mb-3">
+                    <span className={`font-black ${theme.textName} flex items-center gap-2 text-[16px] md:text-[24px]`}>
+                      <User className={`w-4 h-4 md:w-5 md:h-5 ${theme.icon}`} />
+                      {sscName || t.sscTechName || "ยังไม่ระบุเวร"}
+                    </span>
+                  </div>
+
+                  {/* 🌟 ฟันธง: เส้นประ (Dashed Line) + ดัน วันที่ & เบอร์โทร ให้อยู่บรรทัดเดียวกัน! */}
+                  <div className={`flex items-center justify-between mt-1 pt-3 border-t-[1.5px] border-dashed ${theme.border.replace('border-', 'border-').replace('400', '300')}`}>
+                    
+                    {/* ฝั่งซ้าย: วันที่ */}
+                    <span className={`text-[12px] md:text-[15px] font-bold ${theme.btnText} flex items-center gap-1.5`}>
+                      <Clock className={`w-3 h-3 md:w-4 md:h-4 ${theme.icon}`} />
+                      วันที่: {new Date(t.date).toLocaleDateString('th-TH', { day: 'numeric', month: 'long', year: 'numeric' })}
+                    </span>
+                    
+                    {/* ฝั่งขวา: เบอร์โทรศัพท์ */}
+                    {(sscPhone || t.sscTechPhone) && (sscPhone || t.sscTechPhone) !== '-' && (
+                      <a href={`tel:${String(sscPhone || t.sscTechPhone).replace(/\D/g, '')}`} className={`font-mono text-[12px] md:text-[15px] font-bold ${theme.btnBg} px-2.5 py-1 md:px-3 md:py-1.5 rounded-lg ${theme.btnText} border ${theme.btnBorder} shadow-sm transition-colors flex items-center gap-1.5 active:scale-95 shrink-0`}>
+                        <Phone className={`w-3 h-3 md:w-4 md:h-4 ${theme.icon}`} />
+                        {formatDisplayPhone(sscPhone || t.sscTechPhone)}
+                      </a>
+                    )}
+                  </div>
+                </div>
+              </div>
+            );
+          })()}
+
+        {/* ============================================ */}
                       </div>
 
                      {/* 🌟 โซนปุ่มกด Action (ขนาดบิ๊กเบิ้ม สำหรับช่าง) */}
