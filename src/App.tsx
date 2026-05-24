@@ -1110,6 +1110,9 @@ const calculateDuration = (start, end, holdMs = 0) => {
 
 // 🌟 ฟันธง: Component ใหม่ Sci-Fi Modal Dropdown (อัปเกรด ใช้ Portal วาร์ปทะลุกรอบ 1,000,000% โดยไม่กระทบสีและขนาดเดิม)
 // ==========================================
+// ==========================================
+// 🌟 ฟันธง: Component ใหม่ Sci-Fi Modal Dropdown (อัปเกรด เพิ่มแสงเรืองรองแยกจากช่องกรอกปกติ 1,000,000%)
+// ==========================================
 function SciFiSelectModal({ 
   id, label, icon, value, options, onChange, error, 
   placeholder, themeColor = 'orange' 
@@ -1117,12 +1120,12 @@ function SciFiSelectModal({
   const [isOpen, setIsOpen] = useState(false);
   const [searchTerm, setSearchTerm] = useState('');
 
-  // 🌟 Theme ให้ตรงกับ Pop-up เลือกผู้ปฏิบัติงาน
+  // 🌟 ฟันธง: ปรับ Theme ให้มีแสง Glow สว่างเรืองๆ ออกมาจากเส้นขอบตั้งแต่แรก (ไม่ต้องรอ Hover)
   const theme = {
-    emerald: { text: 'text-emerald-400', border: 'border-emerald-500', glow: 'shadow-[0_0_40px_rgba(16,185,129,0.5)]', flare: 'bg-emerald-500/20', btnBg: 'bg-emerald-900/40', outBorder: 'border-emerald-500/30', outHover: 'hover:border-emerald-400', outGlow: 'shadow-[0_0_15px_rgba(16,185,129,0.15)]', outHoverGlow: 'hover:shadow-[0_0_25px_rgba(16,185,129,0.4)]' },
-    amber: { text: 'text-amber-400', border: 'border-amber-500', glow: 'shadow-[0_0_40px_rgba(245,158,11,0.5)]', flare: 'bg-amber-500/20', btnBg: 'bg-amber-900/40', outBorder: 'border-amber-500/30', outHover: 'hover:border-amber-400', outGlow: 'shadow-[0_0_15px_rgba(245,158,11,0.15)]', outHoverGlow: 'hover:shadow-[0_0_25px_rgba(245,158,11,0.4)]' },
-    cyan: { text: 'text-cyan-400', border: 'border-cyan-500', glow: 'shadow-[0_0_40px_rgba(6,182,212,0.5)]', flare: 'bg-cyan-500/20', btnBg: 'bg-cyan-900/40', outBorder: 'border-cyan-500/30', outHover: 'hover:border-cyan-400', outGlow: 'shadow-[0_0_15px_rgba(6,182,212,0.15)]', outHoverGlow: 'hover:shadow-[0_0_25px_rgba(6,182,212,0.4)]' },
-    orange: { text: 'text-orange-400', border: 'border-orange-500', glow: 'shadow-[0_0_40px_rgba(249,115,22,0.5)]', flare: 'bg-orange-500/20', btnBg: 'bg-orange-900/40', outBorder: 'border-orange-500/30', outHover: 'hover:border-orange-400', outGlow: 'shadow-[0_0_15px_rgba(249,115,22,0.15)]', outHoverGlow: 'hover:shadow-[0_0_25px_rgba(249,115,22,0.4)]' },
+    emerald: { text: 'text-emerald-400', border: 'border-emerald-500', glow: 'shadow-[0_0_40px_rgba(16,185,129,0.5)]', flare: 'bg-emerald-500/20', btnBg: 'bg-emerald-900/40', outBorder: 'border-emerald-500/60', outHover: 'hover:border-emerald-400', outGlow: 'shadow-[0_0_15px_rgba(16,185,129,0.3),inset_0_0_10px_rgba(16,185,129,0.1)]', outHoverGlow: 'hover:shadow-[0_0_25px_rgba(16,185,129,0.5)]' },
+    amber: { text: 'text-amber-400', border: 'border-amber-500', glow: 'shadow-[0_0_40px_rgba(245,158,11,0.5)]', flare: 'bg-amber-500/20', btnBg: 'bg-amber-900/40', outBorder: 'border-amber-500/60', outHover: 'hover:border-amber-400', outGlow: 'shadow-[0_0_15px_rgba(245,158,11,0.3),inset_0_0_10px_rgba(245,158,11,0.1)]', outHoverGlow: 'hover:shadow-[0_0_25px_rgba(245,158,11,0.5)]' },
+    cyan: { text: 'text-cyan-400', border: 'border-cyan-500', glow: 'shadow-[0_0_40px_rgba(6,182,212,0.5)]', flare: 'bg-cyan-500/20', btnBg: 'bg-cyan-900/40', outBorder: 'border-cyan-500/60', outHover: 'hover:border-cyan-400', outGlow: 'shadow-[0_0_15px_rgba(6,182,212,0.3),inset_0_0_10px_rgba(6,182,212,0.1)]', outHoverGlow: 'hover:shadow-[0_0_25px_rgba(6,182,212,0.5)]' },
+    orange: { text: 'text-orange-400', border: 'border-orange-500', glow: 'shadow-[0_0_40px_rgba(249,115,22,0.5)]', flare: 'bg-orange-500/20', btnBg: 'bg-orange-900/40', outBorder: 'border-orange-500/60', outHover: 'hover:border-orange-400', outGlow: 'shadow-[0_0_15px_rgba(249,115,22,0.3),inset_0_0_10px_rgba(249,115,22,0.1)]', outHoverGlow: 'hover:shadow-[0_0_25px_rgba(249,115,22,0.5)]' },
   }[themeColor];
 
   const filteredOptions = options.filter(opt => String(opt).toLowerCase().includes(searchTerm.toLowerCase()));
@@ -1133,7 +1136,7 @@ function SciFiSelectModal({
         {label}
       </label>
       
-      {/* 🌟 ปุ่มกดเปิด Modal (หน้าฟอร์มหลัก) อัปเกรดฟอนต์เป็น 15px/18px ให้สมดุล */}
+      {/* 🌟 ปุ่มกดเปิด Modal (หน้าฟอร์มหลัก) */}
       <div 
         onClick={() => { setIsOpen(true); setSearchTerm(''); }}
         className={`w-full bg-slate-900 rounded-2xl border-[2px] ${error ? 'border-rose-500 ring-1 ring-rose-500/50 shadow-none' : `${theme.outBorder} ${theme.outHover} ${theme.outGlow} ${theme.outHoverGlow}`} px-5 py-4 md:py-5 flex items-center justify-between cursor-pointer transition-all duration-300`}
@@ -1144,12 +1147,12 @@ function SciFiSelectModal({
             {value || placeholder}
           </span>
         </div>
-        <ChevronDown size={18} className="text-slate-400 md:w-6 md:h-6" />
+        <ChevronDown size={18} className={`md:w-6 md:h-6 ${theme.text} animate-pulse`} />
       </div>
 
       {error && <div className="text-rose-500 text-[11px] md:text-[13px] font-bold mt-1.5 md:mt-2 ml-1 animate-in fade-in">⚠️ {error}</div>}
 
-      {/* 🌟 ฟันธงจุดแก้ไขสำคัญ: ใช้ createPortal ครอบเฉพาะช่วงแสดงผล Modal เพื่อวาร์ปโครงสร้างไปไว้ด้านนอกสุด (Body) รักษาสไตล์เดิมไว้ครบถ้วน */}
+      {/* 🌟 ใช้ createPortal วาร์ปทะลุกรอบ 1,000,000% */}
       {isOpen && typeof document !== 'undefined' ? createPortal(
         <div className="fixed inset-0 z-[999999] flex items-center justify-center p-4 bg-slate-950/80 backdrop-blur-md animate-in fade-in duration-200" onClick={() => setIsOpen(false)}>
           
@@ -1157,7 +1160,7 @@ function SciFiSelectModal({
             className={`relative m-auto bg-slate-900 border-[3px] border-solid rounded-[2rem] w-[95%] sm:w-[85%] md:w-full max-w-sm md:max-w-md h-auto max-h-[75vh] md:max-h-[70vh] p-5 md:p-6 flex flex-col ${theme.border} ${theme.glow} shadow-[inset_0_0_20px_rgba(0,0,0,0.5)]`}
             onClick={(e) => e.stopPropagation()}
           >
-            {/* แสนง Flare ด้านหลังให้ดูล้ำ */}
+            {/* แสง Flare ด้านหลังให้ดูล้ำ */}
             <div className={`absolute top-0 right-0 w-32 h-32 md:w-48 md:h-48 ${theme.flare} blur-[40px] pointer-events-none rounded-full`}></div>
 
             {/* หัวข้อ Modal & ปุ่มปิด */}
@@ -2659,22 +2662,41 @@ const executeRatingSubmit = async () => {
 
         {/* 🌟 วิดเจ็ตแสดงวิศวกรเวรประจำการ (แปะบนสุด) */}
         {(() => {
-          const todayStr = new Date(sysTime).toISOString().split('T')[0];
+          const today = new Date(sysTime);
+          const todayStr = `${today.getFullYear()}-${String(today.getMonth() + 1).padStart(2, '0')}-${String(today.getDate()).padStart(2, '0')}`;
           const sscRosterForDate = allRosters.find(r => r.date === todayStr);
-          const dutyPerson = sscRosterForDate ? { techName: sscRosterForDate.techName, techPhone: sscRosterForDate.techPhone } : null;
+          const dutyPerson = sscRosterForDate ? { techName: sscRosterForDate.techName, techPhone: sscRosterForDate.techPhone, isHoliday: sscRosterForDate.isHoliday, holidayName: sscRosterForDate.holidayName } : null;
+
+          const dayOfWeek = today.getDay();
+          const daysThai = ['วันอาทิตย์', 'วันจันทร์', 'วันอังคาร', 'วันพุธ', 'วันพฤหัสบดี', 'วันศุกร์', 'วันเสาร์'];
+          
+          // 🌟 สมองกลกำหนดสีเวร SSC ตามวัน 1,000,000%
+          let wTheme = { bg: 'bg-emerald-500/20', border: 'border-emerald-500/50', textHead: 'text-emerald-400', textName: 'text-emerald-400', glow: 'shadow-[0_0_20px_rgba(16,185,129,0.2)]', iconGlow: 'shadow-[0_0_8px_rgba(16,185,129,1)]', dayLabel: daysThai[dayOfWeek] };
+
+          if (dutyPerson?.isHoliday) {
+            wTheme = { bg: 'bg-orange-500/20', border: 'border-orange-500/80', textHead: 'text-orange-400', textName: 'text-orange-400', glow: 'shadow-[0_0_30px_rgba(249,115,22,0.3)]', iconGlow: 'shadow-[0_0_10px_rgba(249,115,22,1)]', dayLabel: `วันหยุดนักขัตฤกษ์ (${dutyPerson.holidayName})` };
+          } else if (dayOfWeek === 0) { // วันอาทิตย์ (สีแดง)
+            wTheme = { bg: 'bg-rose-500/20', border: 'border-rose-500/80', textHead: 'text-rose-400', textName: 'text-rose-400', glow: 'shadow-[0_0_30px_rgba(225,29,72,0.3)]', iconGlow: 'shadow-[0_0_10px_rgba(225,29,72,1)]', dayLabel: 'วันอาทิตย์' };
+          } else if (dayOfWeek === 6) { // วันเสาร์ (สีน้ำเงิน/ฟ้า)
+            wTheme = { bg: 'bg-blue-500/20', border: 'border-blue-500/80', textHead: 'text-blue-400', textName: 'text-blue-400', glow: 'shadow-[0_0_30px_rgba(59,130,246,0.3)]', iconGlow: 'shadow-[0_0_10px_rgba(59,130,246,1)]', dayLabel: 'วันเสาร์' };
+          }
+
+          const formattedDate = `${today.getDate()} ${['ม.ค.', 'ก.พ.', 'มี.ค.', 'เม.ย.', 'พ.ค.', 'มิ.ย.', 'ก.ค.', 'ส.ค.', 'ก.ย.', 'ต.ค.', 'พ.ย.', 'ธ.ค.'][today.getMonth()]} ${today.getFullYear() + 543}`;
 
           return (
-            <div className="mb-2 mt-4 p-4 md:p-6 rounded-2xl border-[2px] border-solid border-orange-400/80 bg-slate-900/80 shadow-[0_0_20px_rgba(249,115,22,0.2)] flex items-center justify-between transition-all hover:shadow-[0_0_30px_rgba(249,115,22,0.4)]">
+            <div className={`mb-2 mt-4 p-4 md:p-6 rounded-2xl border-[2px] border-solid ${wTheme.border} bg-slate-900/90 ${wTheme.glow} flex items-center justify-between transition-all hover:brightness-110`}>
               <div className="flex items-center gap-4">
                 <div className="relative">
-                  <div className="w-12 h-12 md:w-16 md:h-16 rounded-xl bg-orange-500/20 flex items-center justify-center border border-orange-500">
-                    <User className="w-6 h-6 md:w-8 md:h-8 text-orange-400" />
+                  <div className={`w-12 h-12 md:w-16 md:h-16 rounded-xl ${wTheme.bg} flex items-center justify-center border ${wTheme.border}`}>
+                    <User className={`w-6 h-6 md:w-8 md:h-8 ${wTheme.textHead}`} />
                   </div>
-                  <span className="absolute -top-1 -right-1 w-3 h-3 md:w-4 md:h-4 bg-emerald-500 rounded-full animate-pulse border-2 border-slate-900 shadow-[0_0_8px_rgba(16,185,129,1)]"></span>
+                  <span className={`absolute -top-1 -right-1 w-3 h-3 md:w-4 md:h-4 bg-emerald-500 rounded-full animate-pulse border-2 border-slate-900 ${wTheme.iconGlow}`}></span>
                 </div>
                 <div>
-                  <p className="text-[12px] md:text-[14px] text-slate-400 font-bold uppercase tracking-widest">เจ้าหน้าที่เวร SSC วันนี้</p>
-                  <p className="text-[17px] md:text-[22px] font-black text-orange-400 drop-shadow-[0_0_8px_rgba(249,115,22,0.8)] mt-0.5">
+                  <p className="text-[12px] md:text-[14px] text-slate-400 font-bold uppercase tracking-widest">
+                    เจ้าหน้าที่เวร SSC | <span className={`${wTheme.textHead}`}>{wTheme.dayLabel} ({formattedDate})</span>
+                  </p>
+                  <p className={`text-[17px] md:text-[22px] font-black ${wTheme.textName} drop-shadow-md mt-0.5`}>
                     {dutyPerson?.techName || 'ไม่มีเวร SSC วันนี้'}
                   </p>
                 </div>
@@ -2732,9 +2754,10 @@ const executeRatingSubmit = async () => {
               <input
                 value={formData.position}
                 readOnly
-                className="w-full bg-slate-950/50 border-[2px] border-solid border-emerald-500/30 rounded-2xl px-5 py-4 md:py-5 text-sm md:text-[16px] font-bold text-emerald-100 outline-none cursor-not-allowed shadow-[inset_0_0_15px_rgba(16,185,129,0.05)] transition-all placeholder:text-emerald-900/50"
+                className="w-full bg-slate-950/50 border-[2px] border-solid border-emerald-500/30 rounded-2xl px-5 py-4 md:py-5 text-sm md:text-[16px] font-bold text-emerald-100 outline-none cursor-not-allowed shadow-[inset_0_0_15px_rgba(16,185,129,0.05)] transition-all placeholder:text-emerald-200/40"
                 placeholder="-"
               />
+
             </div>
 
             <div className="space-y-1.5 md:space-y-2">
@@ -2744,7 +2767,7 @@ const executeRatingSubmit = async () => {
               <input
                 value={formData.department}
                 readOnly
-                className="w-full bg-slate-950/50 border-[2px] border-solid border-emerald-500/30 rounded-2xl px-5 py-4 md:py-5 text-sm md:text-[16px] font-bold text-emerald-100 outline-none cursor-not-allowed shadow-[inset_0_0_15px_rgba(16,185,129,0.05)] transition-all placeholder:text-emerald-900/50"
+                className="w-full bg-slate-950/50 border-[2px] border-solid border-emerald-500/30 rounded-2xl px-5 py-4 md:py-5 text-sm md:text-[16px] font-bold text-emerald-100 outline-none cursor-not-allowed shadow-[inset_0_0_15px_rgba(16,185,129,0.05)] transition-all placeholder:text-emerald-200/40"
                 placeholder="-"
               />
             </div>
@@ -2756,7 +2779,7 @@ const executeRatingSubmit = async () => {
               <input
                 value={formData.bureau}
                 readOnly
-                className="w-full bg-slate-950/50 border-[2px] border-solid border-emerald-500/30 rounded-2xl px-5 py-4 md:py-5 text-sm md:text-[16px] font-bold text-emerald-100 outline-none cursor-not-allowed shadow-[inset_0_0_15px_rgba(16,185,129,0.05)] transition-all placeholder:text-emerald-900/50"
+                className="w-full bg-slate-950/50 border-[2px] border-solid border-emerald-500/30 rounded-2xl px-5 py-4 md:py-5 text-sm md:text-[16px] font-bold text-emerald-100 outline-none cursor-not-allowed shadow-[inset_0_0_15px_rgba(16,185,129,0.05)] transition-all placeholder:text-emerald-200/40"
                 placeholder="สำนักปฏิบัติการดาวเทียม"
               />
             </div>
@@ -2839,7 +2862,7 @@ const executeRatingSubmit = async () => {
               error={formErrors.equipment}
             />
 
-            <div className="space-y-1.5 md:space-y-2" id="field-description">
+<div className="space-y-1.5 md:space-y-2" id="field-description">
               <label className="text-[14px] md:text-[18px] font-black text-orange-300 uppercase tracking-wide ml-1 flex items-center gap-1.5 md:gap-2">
                 <AlertCircle size={18} className="md:w-5 md:h-5" /> อาการเสีย / รายละเอียดปัญหา <span className="text-rose-500">*</span>
               </label>
@@ -2852,9 +2875,10 @@ const executeRatingSubmit = async () => {
                   formErrors.description
                     ? 'border-rose-500 ring-1 ring-rose-500/30'
                     : 'border-orange-500/40 focus:border-orange-400 shadow-[0_0_15px_rgba(249,115,22,0.1)] focus:shadow-[0_0_25px_rgba(249,115,22,0.3)]'
-                } rounded-2xl px-5 py-4 md:py-5 outline-none text-sm md:text-[16px] font-bold text-orange-100 placeholder:text-orange-900/50 resize-none transition-all duration-300`}
+                } rounded-2xl px-5 py-4 md:py-5 outline-none text-sm md:text-[16px] font-bold text-orange-100 placeholder:text-orange-200/40 resize-none transition-all duration-300`}
                 placeholder="อธิบายรายละเอียดอาการเสีย..."
-              />
+                />
+
               {formErrors.description && (
                 <div className="text-rose-500 text-[11px] md:text-[13px] font-bold mt-1.5 ml-1 animate-in fade-in">
                   ⚠️ {formErrors.description}
@@ -2870,7 +2894,7 @@ const executeRatingSubmit = async () => {
                 name="assetNumber"
                 value={formData.assetNumber}
                 onChange={handleInputChange}
-                className="w-full bg-slate-900 border-[2px] border-solid border-orange-500/40 focus:border-orange-400 shadow-[0_0_15px_rgba(249,115,22,0.1)] focus:shadow-[0_0_25px_rgba(249,115,22,0.3)] rounded-2xl px-5 py-4 md:py-5 text-sm md:text-[16px] font-bold text-orange-100 outline-none font-mono tracking-widest transition-all duration-300 placeholder:text-orange-900/50"
+                className="w-full bg-slate-900 border-[2px] border-solid border-orange-500/40 focus:border-orange-400 shadow-[0_0_15px_rgba(249,115,22,0.1)] focus:shadow-[0_0_25px_rgba(249,115,22,0.3)] rounded-2xl px-5 py-4 md:py-5 text-sm md:text-[16px] font-bold text-orange-100 outline-none font-mono tracking-widest transition-all duration-300 placeholder:text-orange-200/40"
                 placeholder="ระบุหมายเลข..."
               />
             </div>
@@ -2907,7 +2931,7 @@ const executeRatingSubmit = async () => {
                   formErrors.room
                     ? 'border-rose-500 ring-1 ring-rose-500/30'
                     : 'border-orange-500/40 focus:border-orange-400 shadow-[0_0_15px_rgba(249,115,22,0.1)] focus:shadow-[0_0_25px_rgba(249,115,22,0.3)]'
-                } rounded-2xl px-5 py-4 md:py-5 text-sm md:text-[16px] font-bold text-orange-100 outline-none transition-all duration-300 placeholder:text-orange-900/50`}
+                } rounded-2xl px-5 py-4 md:py-5 text-sm md:text-[16px] font-bold text-orange-100 outline-none transition-all duration-300 placeholder:placeholder:text-orange-900/50 เป็น placeholder:text-orange-200/40`}
                 placeholder="ระบุสถานที่หรือห้อง"
               />
               {formErrors.room && (
