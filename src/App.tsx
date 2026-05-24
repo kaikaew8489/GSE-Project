@@ -3861,10 +3861,10 @@ const renderTracking = () => (
                           </div>
                         ) : null}
 
-                  {/* 🌟 โซนรายละเอียดข้อความและการติดต่อ (อัปเกรด PC ไซส์เบิ้ม) */}
-  <div className="px-5 md:px-10 pb-5 md:pb-10 pt-0 md:pt-0 space-y-4 md:space-y-8 -mt-2 md:-mt-4">
-  {/* 🌟 ฟันธงสเต็ป 1: เคลียร์กรอบซ้อน! เปลี่ยนกรอบนอกเป็นสีขาวคลีนๆ ไร้ขอบเทาหนา */}
-  <div className="bg-emerald-200/30 p-4 md:p-8 rounded-2xl md:rounded-[1rem] border-2 border-solid border-indigo-800 shadow-sm relative overflow-hidden mb-6">
+                  {/* 🌟 โซนรายละเอียดข้อความและการติดต่อ (ปลดล็อกความกว้าง 100%) */}
+          <div className="px-5 md:px-10 pb-5 md:pb-10 pt-4 md:pt-6 flex flex-col w-full">
+          {/* 🌟 ฟันธงสเต็ป 1: ทุบกรอบสีน้ำเงินและพื้นหลังทิ้ง! ปล่อยให้เนื้อหากว้างเท่ากรอบด้านบน 1,000,000% */}
+          <div className="flex flex-col w-full relative z-10 mb-2 md:mb-4">
     
     {/* 🚨 เหตุผลยกเลิกงาน */}
     {t.status === 'cancelled' && t.cancelReason && (
