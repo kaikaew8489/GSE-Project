@@ -1,4 +1,5 @@
 import React, { useState, useMemo, useEffect, useRef } from 'react';
+import { createPortal } from 'react-dom'; // 🌟 ฟันธง: พิมพ์เพิ่มบรรทัดนี้เข้าไปครับ!
 import {
   Home,
   PlusCircle,
@@ -1106,14 +1107,8 @@ const calculateDuration = (start, end, holdMs = 0) => {
   return result.length > 0 ? result.join(' ') : "น้อยกว่า 1 นาที";
 };
 
-// ==========================================
-// 🌟 ฟันธง: Component ใหม่ Sci-Fi Modal Dropdown
-// ==========================================
-// ==========================================
-// 🌟 ฟันธง: Component ใหม่ Sci-Fi Modal Dropdown (อัปเกรด กึ่งกลาง + ขนาดตายตัว 1,000,000%)
-// ==========================================
-// ==========================================
-// 🌟 ฟันธง: Component ใหม่ Sci-Fi Modal Dropdown (ลอกแบบ "เลือกผู้ปฏิบัติงาน" มา 1,000,000%)
+
+// 🌟 ฟันธง: Component ใหม่ Sci-Fi Modal Dropdown (อัปเกรด ใช้ Portal วาร์ปทะลุกรอบ 1,000,000% โดยไม่กระทบสีและขนาดเดิม)
 // ==========================================
 function SciFiSelectModal({ 
   id, label, icon, value, options, onChange, error, 
@@ -1122,7 +1117,7 @@ function SciFiSelectModal({
   const [isOpen, setIsOpen] = useState(false);
   const [searchTerm, setSearchTerm] = useState('');
 
-  // 🌟 ฟันธง: ปรับ Theme ให้ตรงกับ Pop-up เลือกผู้ปฏิบัติงานเป๊ะๆ
+  // 🌟 Theme ให้ตรงกับ Pop-up เลือกผู้ปฏิบัติงาน
   const theme = {
     emerald: { text: 'text-emerald-400', border: 'border-emerald-500', glow: 'shadow-[0_0_40px_rgba(16,185,129,0.5)]', flare: 'bg-emerald-500/20', btnBg: 'bg-emerald-900/40', outBorder: 'border-emerald-500/30', outHover: 'hover:border-emerald-400', outGlow: 'shadow-[0_0_15px_rgba(16,185,129,0.15)]', outHoverGlow: 'hover:shadow-[0_0_25px_rgba(16,185,129,0.4)]' },
     amber: { text: 'text-amber-400', border: 'border-amber-500', glow: 'shadow-[0_0_40px_rgba(245,158,11,0.5)]', flare: 'bg-amber-500/20', btnBg: 'bg-amber-900/40', outBorder: 'border-amber-500/30', outHover: 'hover:border-amber-400', outGlow: 'shadow-[0_0_15px_rgba(245,158,11,0.15)]', outHoverGlow: 'hover:shadow-[0_0_25px_rgba(245,158,11,0.4)]' },
@@ -1138,14 +1133,14 @@ function SciFiSelectModal({
         {label}
       </label>
       
-      {/* 🌟 ปุ่มกดเปิด Modal (หน้าฟอร์มหลัก) */}
+      {/* 🌟 ปุ่มกดเปิด Modal (หน้าฟอร์มหลัก) อัปเกรดฟอนต์เป็น 15px/18px ให้สมดุล */}
       <div 
         onClick={() => { setIsOpen(true); setSearchTerm(''); }}
         className={`w-full bg-slate-900 rounded-2xl border-[2px] ${error ? 'border-rose-500 ring-1 ring-rose-500/50 shadow-none' : `${theme.outBorder} ${theme.outHover} ${theme.outGlow} ${theme.outHoverGlow}`} px-5 py-4 md:py-5 flex items-center justify-between cursor-pointer transition-all duration-300`}
       >
         <div className="flex items-center gap-3">
           {icon}
-          <span className={`text-sm md:text-[16px] font-bold truncate ${value ? 'text-slate-100' : 'text-slate-500'}`}>
+          <span className={`text-[15px] md:text-[18px] font-bold truncate ${value ? 'text-slate-100' : 'text-slate-500'}`}>
             {value || placeholder}
           </span>
         </div>
@@ -1154,37 +1149,36 @@ function SciFiSelectModal({
 
       {error && <div className="text-rose-500 text-[11px] md:text-[13px] font-bold mt-1.5 md:mt-2 ml-1 animate-in fade-in">⚠️ {error}</div>}
 
-      {/* 🌟 หน้าต่าง Modal (Sci-Fi แท้ๆ - ถอดแบบจากหน้าเลือกช่างเป๊ะๆ กึ่งกลางจอแน่นอน) */}
-      {isOpen && (
+      {/* 🌟 ฟันธงจุดแก้ไขสำคัญ: ใช้ createPortal ครอบเฉพาะช่วงแสดงผล Modal เพื่อวาร์ปโครงสร้างไปไว้ด้านนอกสุด (Body) รักษาสไตล์เดิมไว้ครบถ้วน */}
+      {isOpen && typeof document !== 'undefined' ? createPortal(
         <div className="fixed inset-0 z-[999999] flex items-center justify-center p-4 bg-slate-950/80 backdrop-blur-md animate-in fade-in duration-200" onClick={() => setIsOpen(false)}>
           
-          {/* 🌟 ฟันธงแก้ปัญหากรอบเหลือง: ลบกรอบแปลกปลอมออก ใช้โครงสร้างเดียวกับหน้าเวร SSC เป๊ะๆ */}
           <div 
-            className={`relative bg-slate-900 border-[3px] border-solid rounded-[2rem] w-[95%] sm:w-[85%] md:w-full max-w-sm md:max-w-md h-[70vh] md:h-[65vh] max-h-[600px] p-5 md:p-6 flex flex-col ${theme.border} ${theme.glow} shadow-[inset_0_0_20px_rgba(0,0,0,0.5)]`}
+            className={`relative m-auto bg-slate-900 border-[3px] border-solid rounded-[2rem] w-[95%] sm:w-[85%] md:w-full max-w-sm md:max-w-md h-auto max-h-[75vh] md:max-h-[70vh] p-5 md:p-6 flex flex-col ${theme.border} ${theme.glow} shadow-[inset_0_0_20px_rgba(0,0,0,0.5)]`}
             onClick={(e) => e.stopPropagation()}
           >
-            {/* แสง Flare ด้านหลังให้ดูล้ำ */}
+            {/* แสนง Flare ด้านหลังให้ดูล้ำ */}
             <div className={`absolute top-0 right-0 w-32 h-32 md:w-48 md:h-48 ${theme.flare} blur-[40px] pointer-events-none rounded-full`}></div>
 
             {/* หัวข้อ Modal & ปุ่มปิด */}
             <div className={`flex justify-between items-center mb-4 md:mb-5 pb-3 md:pb-4 shrink-0 border-b border-slate-700/60 relative z-10`}>
-              <h3 className={`text-[16px] md:text-[20px] font-black flex items-center gap-2 ${theme.text} drop-shadow-md`}>
+              <h3 className={`text-[18px] md:text-[22px] font-black flex items-center gap-2 ${theme.text} drop-shadow-md`}>
                 {icon} <span className="mt-0.5">{placeholder}</span>
               </h3>
               <button onClick={() => setIsOpen(false)} className="text-rose-500 hover:text-white animate-pulse bg-slate-950 hover:bg-rose-600 p-1.5 md:p-2 rounded-full transition-all duration-300 border-[2px] border-rose-500 shadow-[0_0_20px_rgba(225,29,72,0.8)] cursor-pointer">
-                <XCircle className="w-5 h-5 md:w-6 md:h-6 stroke-[3px]" />
+                <XCircle className="w-6 h-6 md:w-7 md:h-7 stroke-[3px]" />
               </button>
             </div>
 
             {/* ช่องค้นหา */}
             <div className="mb-4 relative shrink-0 z-10">
-              <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-500 w-4 h-4 md:w-5 md:h-5" />
+              <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-500 w-5 h-5 md:w-6 md:h-6" />
               <input 
                 type="text" 
                 placeholder="พิมพ์ค้นหา..." 
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
-                className="w-full bg-slate-950 border-[2px] border-slate-700 rounded-xl py-2.5 md:py-3 pl-10 pr-4 text-white outline-none focus:border-slate-500 transition-colors font-bold text-[13px] md:text-[15px]"
+                className="w-full bg-slate-950 border-[2px] border-slate-700 rounded-xl py-3 md:py-4 pl-10 pr-4 text-white outline-none focus:border-slate-500 transition-colors font-bold text-[15px] md:text-[18px]"
               />
             </div>
 
@@ -1196,23 +1190,24 @@ function SciFiSelectModal({
                   <button 
                     key={idx}
                     onClick={() => { onChange(opt); setIsOpen(false); }}
-                    className={`w-full text-left px-4 py-3.5 md:py-4 rounded-xl font-black border-[2px] transition-all duration-300 flex justify-between items-center active:scale-95
+                    className={`w-full text-left px-4 py-4 md:py-5 rounded-xl font-black border-[2px] transition-all duration-300 flex justify-between items-center active:scale-95
                       ${isSelected 
                         ? `${theme.btnBg} ${theme.text} ${theme.border} shadow-[0_0_20px_rgba(0,0,0,0.5),inset_0_0_15px_rgba(255,255,255,0.05)]` 
                         : `bg-slate-900/80 text-slate-300 border-slate-700/60 shadow-[0_0_10px_rgba(0,0,0,0.2)] hover:${theme.border} hover:${theme.text} hover:shadow-[0_0_15px_rgba(0,0,0,0.4)]`
                       }`}
                   >
-                    <span className="text-[13px] md:text-[15px]">{opt}</span>
-                    {isSelected && <CheckCircle2 className={`w-5 h-5 md:w-6 md:h-6 ${theme.text} drop-shadow-md`} />}
+                    <span className="text-[15px] md:text-[18px]">{opt}</span>
+                    {isSelected && <CheckCircle2 className={`w-6 h-6 md:w-7 md:h-7 ${theme.text} drop-shadow-md`} />}
                   </button>
                 );
               }) : (
-                <div className="text-center py-6 text-slate-500 font-bold text-[13px] md:text-[15px]">ไม่พบข้อมูล</div>
+                <div className="text-center py-6 text-slate-500 font-bold text-[15px] md:text-[18px]">ไม่พบข้อมูล</div>
               )}
             </div>
           </div>
-        </div>
-      )}
+        </div>,
+        document.body
+      ) : null}
     </div>
   );
 }
@@ -2696,19 +2691,29 @@ const executeRatingSubmit = async () => {
           );
         })()}
 
-        {/* ================= กรอบที่ 1: ข้อมูลผู้แจ้งซ่อม ================= */}
-        <div className="relative bg-slate-800/60 backdrop-blur-xl border-2 border-solid border-emerald-500/80 rounded-[1rem] p-6 md:p-8 pt-10 shadow-[0_0_40px_rgba(16,185,129,0.2)] text-left mt-6">
-          <div className="absolute -top-4 left-6 bg-emerald-900/80 text-emerald-400 px-4 py-2.5 rounded-xl font-black text-[18px] shadow-[0_0_15px_rgba(16,185,129,0.5)] border-[2px] border-solid border-emerald-400 flex items-center gap-2 tracking-widest uppercase">
-            <User size={24} className="text-emerald-400"/> ข้อมูลผู้แจ้งซ่อม
+        {/* ================= กรอบที่ 1: ข้อมูลผู้แจ้งซ่อม (ธีม Emerald 🟢) ================= */}
+        <div className="relative bg-slate-900/80 backdrop-blur-xl border-[2px] border-solid border-emerald-500/60 rounded-[1.5rem] p-5 md:p-8 shadow-[0_0_30px_rgba(16,185,129,0.15)] mt-6 overflow-hidden">
+          
+          {/* แสง Flare พื้นหลังเพิ่มความ Sci-Fi */}
+          <div className="absolute -top-20 -left-20 w-40 h-40 bg-emerald-500/20 blur-[60px] rounded-full pointer-events-none z-0"></div>
+
+          {/* 🌟 Header รูปแบบใหม่ ฝังในกล่อง ไร้รอยต่อ ไร้การทับซ้อน */}
+          <div className="flex items-center gap-3 md:gap-4 mb-6 md:mb-8 pb-4 border-b-2 border-dashed border-emerald-500/30 relative z-10">
+            <div className="bg-emerald-950 border-[2px] border-solid border-emerald-400 p-2 md:p-3 rounded-xl shadow-[0_0_15px_rgba(16,185,129,0.4)]">
+              <User className="text-emerald-400 w-5 h-5 md:w-7 md:h-7" strokeWidth={2.5} />
+            </div>
+            <h2 className="text-[18px] md:text-[24px] font-black text-emerald-400 tracking-widest uppercase drop-shadow-[0_0_10px_rgba(16,185,129,0.8)]">
+              1. ข้อมูลผู้แจ้งซ่อม
+            </h2>
           </div>
 
-          <div className="space-y-4 md:space-y-6 mt-2">
-            {/* 🌟 1. ดรอปดาวน์ชื่อผู้แจ้ง (ธีมเขียว Emerald) */}
+          <div className="space-y-4 md:space-y-6 relative z-10">
+            {/* 🌟 ดรอปดาวน์ชื่อผู้แจ้ง */}
             <SciFiSelectModal
               id="field-reporter"
               themeColor="emerald"
               label={
-                <span className="text-[14px] md:text-[18px] font-black tracking-wide text-emerald-400 flex items-center gap-1.5 md:gap-2">
+                <span className="text-[14px] md:text-[18px] font-black tracking-wide text-emerald-300 flex items-center gap-1.5 md:gap-2">
                   <User size={18} className="md:w-5 md:h-5"/> ชื่อ-นามสกุล <span className="text-rose-500">*</span>
                 </span>
               }
@@ -2721,52 +2726,52 @@ const executeRatingSubmit = async () => {
             />
 
             <div className="space-y-1.5 md:space-y-2">
-              <label className="text-[14px] md:text-[18px] font-black text-slate-200 uppercase tracking-wide ml-1 flex items-center gap-1.5 md:gap-2">
-                <Briefcase size={18} className="text-emerald-400 md:w-5 md:h-5" /> ตำแหน่ง
+              <label className="text-[14px] md:text-[18px] font-black text-emerald-300 uppercase tracking-wide ml-1 flex items-center gap-1.5 md:gap-2">
+                <Briefcase size={18} className="md:w-5 md:h-5" /> ตำแหน่ง
               </label>
               <input
                 value={formData.position}
                 readOnly
-                className="w-full bg-slate-900 border-[2px] border-solid border-emerald-500/30 rounded-2xl px-5 py-4 md:py-5 text-sm md:text-[16px] font-bold text-emerald-200 outline-none cursor-not-allowed shadow-[0_0_15px_rgba(16,185,129,0.1)] transition-all"
+                className="w-full bg-slate-950/50 border-[2px] border-solid border-emerald-500/30 rounded-2xl px-5 py-4 md:py-5 text-sm md:text-[16px] font-bold text-emerald-100 outline-none cursor-not-allowed shadow-[inset_0_0_15px_rgba(16,185,129,0.05)] transition-all placeholder:text-emerald-900/50"
                 placeholder="-"
               />
             </div>
 
             <div className="space-y-1.5 md:space-y-2">
-              <label className="text-[14px] md:text-[18px] font-black text-slate-200 uppercase tracking-wide ml-1 flex items-center gap-1.5 md:gap-2">
-                <Users size={18} className="text-emerald-400 md:w-5 md:h-5" /> ฝ่าย
+              <label className="text-[14px] md:text-[18px] font-black text-emerald-300 uppercase tracking-wide ml-1 flex items-center gap-1.5 md:gap-2">
+                <Users size={18} className="md:w-5 md:h-5" /> ฝ่าย
               </label>
               <input
                 value={formData.department}
                 readOnly
-                className="w-full bg-slate-900 border-[2px] border-solid border-emerald-500/30 rounded-2xl px-5 py-4 md:py-5 text-sm md:text-[16px] font-bold text-emerald-200 outline-none cursor-not-allowed shadow-[0_0_15px_rgba(16,185,129,0.1)] transition-all"
+                className="w-full bg-slate-950/50 border-[2px] border-solid border-emerald-500/30 rounded-2xl px-5 py-4 md:py-5 text-sm md:text-[16px] font-bold text-emerald-100 outline-none cursor-not-allowed shadow-[inset_0_0_15px_rgba(16,185,129,0.05)] transition-all placeholder:text-emerald-900/50"
                 placeholder="-"
               />
             </div>
 
             <div className="space-y-1.5 md:space-y-2">
-              <label className="text-[14px] md:text-[18px] font-black text-slate-200 uppercase tracking-wide ml-1 flex items-center gap-1.5 md:gap-2">
-                <Landmark size={18} className="text-emerald-400 md:w-5 md:h-5" /> สำนัก
+              <label className="text-[14px] md:text-[18px] font-black text-emerald-300 uppercase tracking-wide ml-1 flex items-center gap-1.5 md:gap-2">
+                <Landmark size={18} className="md:w-5 md:h-5" /> สำนัก
               </label>
               <input
                 value={formData.bureau}
                 readOnly
-                className="w-full bg-slate-900 border-[2px] border-solid border-emerald-500/30 rounded-2xl px-5 py-4 md:py-5 text-sm md:text-[16px] font-bold text-emerald-200 outline-none cursor-not-allowed shadow-[0_0_15px_rgba(16,185,129,0.1)] transition-all"
+                className="w-full bg-slate-950/50 border-[2px] border-solid border-emerald-500/30 rounded-2xl px-5 py-4 md:py-5 text-sm md:text-[16px] font-bold text-emerald-100 outline-none cursor-not-allowed shadow-[inset_0_0_15px_rgba(16,185,129,0.05)] transition-all placeholder:text-emerald-900/50"
                 placeholder="สำนักปฏิบัติการดาวเทียม"
               />
             </div>
 
             <div className="space-y-1.5 md:space-y-2" id="field-reporterContact">
-              <label className="text-[14px] md:text-[18px] font-black text-slate-200 uppercase tracking-wide ml-1 flex items-center gap-1.5 md:gap-2">
-                <Phone size={18} className="text-emerald-400 md:w-5 md:h-5" /> เบอร์โทรศัพท์ <span className="text-rose-500">*</span>
+              <label className="text-[14px] md:text-[18px] font-black text-emerald-300 uppercase tracking-wide ml-1 flex items-center gap-1.5 md:gap-2">
+                <Phone size={18} className="md:w-5 md:h-5" /> เบอร์โทรศัพท์ <span className="text-rose-500">*</span>
               </label>
               <div 
                 onClick={() => setShowNumpad(true)}
                 className={`w-full bg-slate-900 border-[2px] border-solid ${
-                  formErrors.reporterContact ? 'border-rose-500 ring-1 ring-rose-500/30' : 'border-emerald-500/30 hover:border-emerald-400 shadow-[0_0_15px_rgba(16,185,129,0.1)] hover:shadow-[0_0_25px_rgba(16,185,129,0.3)]'
+                  formErrors.reporterContact ? 'border-rose-500 ring-1 ring-rose-500/30' : 'border-emerald-500/40 hover:border-emerald-400 shadow-[0_0_15px_rgba(16,185,129,0.1)] hover:shadow-[0_0_25px_rgba(16,185,129,0.3)]'
                 } rounded-2xl px-5 py-4 md:py-5 cursor-pointer transition-all duration-300`}
               >
-                <span className={`text-[15px] md:text-[18px] font-bold font-mono tracking-widest ${formData.reporterContact ? 'text-emerald-300' : 'text-slate-500'}`}>
+                <span className={`text-[15px] md:text-[18px] font-bold font-mono tracking-widest ${formData.reporterContact ? 'text-emerald-300 drop-shadow-sm' : 'text-emerald-900/50'}`}>
                   {formData.reporterContact || '0X-XXXX-XXXX'}
                 </span>
               </div>
@@ -2777,19 +2782,29 @@ const executeRatingSubmit = async () => {
           </div>
         </div>
 
-        {/* ================= กรอบที่ 2: รายละเอียดการแจ้งซ่อม ================= */}
-        <div className="relative bg-slate-800/60 backdrop-blur-xl border-2 border-solid border-orange-500/80 rounded-[1rem] p-6 md:p-8 pt-10 shadow-[0_0_40px_rgba(249,115,22,0.15)] text-left mt-6">
-          <div className="absolute -top-4 left-6 bg-orange-900/80 text-orange-400 px-4 py-2.5 rounded-xl font-black text-[18px] shadow-[0_0_15px_rgba(249,115,22,0.5)] border-[2px] border-solid border-orange-400 flex items-center gap-2 tracking-widest uppercase">
-            <Wrench size={24} className="text-orange-400" /> รายละเอียดการแจ้งซ่อม
+        {/* ================= กรอบที่ 2: ข้อมูลการแจ้งซ่อม (ธีม Orange 🟠) ================= */}
+        <div className="relative bg-slate-900/80 backdrop-blur-xl border-[2px] border-solid border-orange-500/60 rounded-[1.5rem] p-5 md:p-8 shadow-[0_0_30px_rgba(249,115,22,0.15)] mt-8 overflow-hidden">
+          
+          {/* แสง Flare พื้นหลังเพิ่มความ Sci-Fi */}
+          <div className="absolute -top-20 -right-20 w-40 h-40 bg-orange-500/20 blur-[60px] rounded-full pointer-events-none z-0"></div>
+
+          {/* 🌟 Header รูปแบบใหม่ ฝังในกล่อง ไร้รอยต่อ */}
+          <div className="flex items-center gap-3 md:gap-4 mb-6 md:mb-8 pb-4 border-b-2 border-dashed border-orange-500/30 relative z-10">
+            <div className="bg-orange-950 border-[2px] border-solid border-orange-400 p-2 md:p-3 rounded-xl shadow-[0_0_15px_rgba(249,115,22,0.4)]">
+              <Wrench className="text-orange-400 w-5 h-5 md:w-7 md:h-7" strokeWidth={2.5} />
+            </div>
+            <h2 className="text-[18px] md:text-[24px] font-black text-orange-400 tracking-widest uppercase drop-shadow-[0_0_10px_rgba(249,115,22,0.8)]">
+              2. ข้อมูลการแจ้งซ่อม
+            </h2>
           </div>
 
-          <div className="space-y-5 md:space-y-6 mt-2">
-            {/* 🌟 2. ดรอปดาวน์กลุ่มงาน (ธีมเหลือง Amber) */}
+          <div className="space-y-5 md:space-y-6 relative z-10">
+            {/* 🌟 ดรอปดาวน์กลุ่มงาน */}
             <SciFiSelectModal
               id="field-equipmentCategory"
               themeColor="amber"
               label={
-                <span className="text-[14px] md:text-[18px] font-black tracking-wide text-amber-400 flex items-center gap-1.5 md:gap-2">
+                <span className="text-[14px] md:text-[18px] font-black tracking-wide text-orange-300 flex items-center gap-1.5 md:gap-2">
                   <Activity size={18} className="md:w-5 md:h-5"/> กลุ่มงาน / ภารกิจรับผิดชอบ <span className="text-rose-500">*</span>
                 </span>
               }
@@ -2804,12 +2819,12 @@ const executeRatingSubmit = async () => {
               error={formErrors.equipmentCategory}
             />
 
-            {/* 🌟 3. ดรอปดาวน์รายการอุปกรณ์ (ธีมฟ้า Cyan) */}
+            {/* 🌟 ดรอปดาวน์รายการอุปกรณ์ */}
             <SciFiSelectModal
               id="field-equipment"
               themeColor="cyan"
               label={
-                <span className="text-[14px] md:text-[18px] font-black tracking-wide text-cyan-400 flex items-center gap-1.5 md:gap-2">
+                <span className="text-[14px] md:text-[18px] font-black tracking-wide text-orange-300 flex items-center gap-1.5 md:gap-2">
                   <Monitor size={18} className="md:w-5 md:h-5"/> รายการอุปกรณ์ / ระบบ <span className="text-rose-500">*</span>
                 </span>
               }
@@ -2825,8 +2840,8 @@ const executeRatingSubmit = async () => {
             />
 
             <div className="space-y-1.5 md:space-y-2" id="field-description">
-              <label className="text-[14px] md:text-[18px] font-black text-slate-200 uppercase tracking-wide ml-1 flex items-center gap-1.5 md:gap-2">
-                <AlertCircle size={18} className="text-orange-400 md:w-5 md:h-5" /> อาการเสีย / รายละเอียดปัญหา <span className="text-rose-500">*</span>
+              <label className="text-[14px] md:text-[18px] font-black text-orange-300 uppercase tracking-wide ml-1 flex items-center gap-1.5 md:gap-2">
+                <AlertCircle size={18} className="md:w-5 md:h-5" /> อาการเสีย / รายละเอียดปัญหา <span className="text-rose-500">*</span>
               </label>
               <textarea
                 name="description"
@@ -2836,8 +2851,8 @@ const executeRatingSubmit = async () => {
                 className={`w-full bg-slate-900 border-[2px] border-solid ${
                   formErrors.description
                     ? 'border-rose-500 ring-1 ring-rose-500/30'
-                    : 'border-orange-500/30 focus:border-orange-400 shadow-[0_0_15px_rgba(249,115,22,0.15)] focus:shadow-[0_0_25px_rgba(249,115,22,0.4)]'
-                } rounded-2xl px-5 py-4 md:py-5 outline-none text-sm md:text-[16px] font-bold text-orange-100 placeholder:text-slate-600 resize-none transition-all duration-300`}
+                    : 'border-orange-500/40 focus:border-orange-400 shadow-[0_0_15px_rgba(249,115,22,0.1)] focus:shadow-[0_0_25px_rgba(249,115,22,0.3)]'
+                } rounded-2xl px-5 py-4 md:py-5 outline-none text-sm md:text-[16px] font-bold text-orange-100 placeholder:text-orange-900/50 resize-none transition-all duration-300`}
                 placeholder="อธิบายรายละเอียดอาการเสีย..."
               />
               {formErrors.description && (
@@ -2848,24 +2863,24 @@ const executeRatingSubmit = async () => {
             </div>
 
             <div className="space-y-1.5 md:space-y-2">
-              <label className="text-[14px] md:text-[18px] font-black text-slate-200 uppercase tracking-wide ml-1 flex items-center gap-1.5 md:gap-2">
-                <Hash size={18} className="text-orange-400 md:w-5 md:h-5" /> หมายเลขครุภัณฑ์ (หากมี)
+              <label className="text-[14px] md:text-[18px] font-black text-orange-300 uppercase tracking-wide ml-1 flex items-center gap-1.5 md:gap-2">
+                <Hash size={18} className="md:w-5 md:h-5" /> หมายเลขครุภัณฑ์ (หากมี)
               </label>
               <input
                 name="assetNumber"
                 value={formData.assetNumber}
                 onChange={handleInputChange}
-                className="w-full bg-slate-900 border-[2px] border-solid border-orange-500/30 focus:border-orange-400 shadow-[0_0_15px_rgba(249,115,22,0.15)] focus:shadow-[0_0_25px_rgba(249,115,22,0.4)] rounded-2xl px-5 py-4 md:py-5 text-sm md:text-[16px] font-bold text-orange-100 outline-none font-mono tracking-widest transition-all duration-300 placeholder:text-slate-600"
+                className="w-full bg-slate-900 border-[2px] border-solid border-orange-500/40 focus:border-orange-400 shadow-[0_0_15px_rgba(249,115,22,0.1)] focus:shadow-[0_0_25px_rgba(249,115,22,0.3)] rounded-2xl px-5 py-4 md:py-5 text-sm md:text-[16px] font-bold text-orange-100 outline-none font-mono tracking-widest transition-all duration-300 placeholder:text-orange-900/50"
                 placeholder="ระบุหมายเลข..."
               />
             </div>
 
-            {/* 🌟 4. ดรอปดาวน์อาคาร (ธีมส้ม Orange) */}
+            {/* 🌟 ดรอปดาวน์อาคาร */}
             <SciFiSelectModal
               id="field-building"
               themeColor="orange"
               label={
-                <span className="text-[14px] md:text-[18px] font-black tracking-wide text-orange-400 flex items-center gap-1.5 md:gap-2">
+                <span className="text-[14px] md:text-[18px] font-black tracking-wide text-orange-300 flex items-center gap-1.5 md:gap-2">
                   <Building size={18} className="md:w-5 md:h-5"/> อาคาร / ตึก <span className="text-rose-500">*</span>
                 </span>
               }
@@ -2881,8 +2896,8 @@ const executeRatingSubmit = async () => {
             />
             
             <div className="space-y-1.5 md:space-y-2" id="field-room">
-              <label className="text-[14px] md:text-[18px] font-black text-slate-200 uppercase tracking-wide ml-1 flex items-center gap-1.5 md:gap-2">
-                <DoorOpen size={18} className="text-orange-400 md:w-5 md:h-5" /> สถานที่ / ห้อง <span className="text-rose-500">*</span>
+              <label className="text-[14px] md:text-[18px] font-black text-orange-300 uppercase tracking-wide ml-1 flex items-center gap-1.5 md:gap-2">
+                <DoorOpen size={18} className="md:w-5 md:h-5" /> สถานที่ / ห้อง <span className="text-rose-500">*</span>
               </label>
               <input
                 name="room"
@@ -2891,8 +2906,8 @@ const executeRatingSubmit = async () => {
                 className={`w-full bg-slate-900 border-[2px] border-solid ${
                   formErrors.room
                     ? 'border-rose-500 ring-1 ring-rose-500/30'
-                    : 'border-orange-500/30 focus:border-orange-400 shadow-[0_0_15px_rgba(249,115,22,0.15)] focus:shadow-[0_0_25px_rgba(249,115,22,0.4)]'
-                } rounded-2xl px-5 py-4 md:py-5 text-sm md:text-[16px] font-bold text-orange-100 outline-none transition-all duration-300 placeholder:text-slate-600`}
+                    : 'border-orange-500/40 focus:border-orange-400 shadow-[0_0_15px_rgba(249,115,22,0.1)] focus:shadow-[0_0_25px_rgba(249,115,22,0.3)]'
+                } rounded-2xl px-5 py-4 md:py-5 text-sm md:text-[16px] font-bold text-orange-100 outline-none transition-all duration-300 placeholder:text-orange-900/50`}
                 placeholder="ระบุสถานที่หรือห้อง"
               />
               {formErrors.room && (
@@ -2902,70 +2917,53 @@ const executeRatingSubmit = async () => {
               )}
             </div>
 
-            <div
-              className="space-y-4 pt-5 border-t border-slate-600/50"
-              id="field-images"
-            >
-              {/* 🌟 1. ส่วนหัวข้อและตัวนับ 0/6 รูป */}
+            {/* ================= โซนอัปโหลดภาพ (Sci-Fi เรืองแสง) ================= */}
+            <div className="space-y-4 pt-6 border-t-[2px] border-dashed border-orange-500/30" id="field-images">
               <div className="flex justify-between items-center ml-1 mb-2">
-                <label className="text-[14px] md:text-[18px] font-black text-slate-200 uppercase tracking-wide flex items-center gap-1.5 md:gap-2">
-                  <Camera size={16} className="text-yellow-500 md:w-5 md:h-5" />{' '}
+                <label className="text-[14px] md:text-[18px] font-black text-orange-300 uppercase tracking-wide flex items-center gap-1.5 md:gap-2">
+                  <Camera className="md:w-5 md:h-5" /> 
                   แนบรูปภาพประกอบ <span className="text-rose-500">*</span>
                 </label>
-                <div className="bg-orange-500/20 border border-orange-400/50 text-orange-300 text-[12px] md:text-[14px] font-black px-3 py-1 rounded-lg shadow-[0_0_10px_rgba(249,115,22,0.4)] backdrop-blur-sm">
+                <div className="bg-orange-950 border border-orange-500/80 text-orange-400 text-[12px] md:text-[14px] font-black px-3 py-1 rounded-lg shadow-[0_0_10px_rgba(249,115,22,0.4)] backdrop-blur-sm">
                   {formData.images.length} / 6 รูป
                 </div>
               </div>
 
-              {/* 🌟 2. โซนแสดงรูปและกรอบเส้นปะ */}
               <div className={formData.images.length === 0 ? "flex w-full" : "grid grid-cols-3 gap-3 md:gap-4"}>
                 
-                {/* 🖼️ รูปที่ถูกเลือกแล้วจะมาเรียงตรงนี้ */}
                 {formData.images.map((img, i) => (
-                  <div
-                    key={i}
-                    className="relative aspect-square rounded-2xl md:rounded-3xl overflow-hidden border-2 border-orange-400/70 shadow-sm"
-                  >
-                    <img src={img} className="w-full h-full object-cover" />
+                  <div key={i} className="relative aspect-square rounded-2xl md:rounded-3xl overflow-hidden border-[2px] border-orange-400/80 shadow-[0_0_15px_rgba(249,115,22,0.3)] group">
+                    <img src={img} className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500" />
                     <button
                       type="button"
-                      onClick={() =>
-                        setFormData({
-                          ...formData,
-                          images: formData.images.filter((_, idx) => idx !== i),
-                        })
-                      }
-                      className="absolute top-1 right-1 md:top-2 md:right-2 bg-rose-500 text-white p-1.5 md:p-2 rounded-full shadow-lg transition-transform active:scale-75 hover:bg-rose-600"
+                      onClick={() => setFormData({ ...formData, images: formData.images.filter((_, idx) => idx !== i) })}
+                      className="absolute top-1 right-1 md:top-2 md:right-2 bg-rose-500/90 backdrop-blur-sm text-white p-1.5 md:p-2 rounded-full shadow-lg transition-all active:scale-75 hover:bg-rose-600 border border-rose-400"
                     >
-                      <X size={12} className="md:w-4 md:h-4" />
+                      <X size={14} className="md:w-4 md:h-4 stroke-[3px]" />
                     </button>
                   </div>
                 ))}
 
-                {/* 🎯 3. กรอบเส้นปะ (ลูกเล่นอัจฉริยะ) */}
                 {formData.images.length < 6 && (
                   <label 
-                    className={`border-2 border-dashed border-slate-100/80 bg-slate-800/40 hover:bg-slate-500/50 hover:border-orange-500 rounded-2xl md:rounded-3xl flex flex-col items-center justify-center transition-all cursor-pointer shadow-sm active:scale-95 group hover:bg-orange-500/10 hover:shadow-[0_0_20px_rgba(249,115,22,0.3)]
+                    className={`relative border-[2px] border-dashed border-orange-500/50 bg-orange-950/20 hover:bg-orange-900/40 hover:border-orange-400 rounded-2xl md:rounded-3xl flex flex-col items-center justify-center transition-all duration-300 cursor-pointer shadow-[inset_0_0_20px_rgba(249,115,22,0.05)] hover:shadow-[0_0_25px_rgba(249,115,22,0.3),inset_0_0_20px_rgba(249,115,22,0.2)] group overflow-hidden
                     ${formData.images.length === 0 ? 'w-full h-36 md:h-48' : 'aspect-square'}`}
                   >
-                    <input
-                      type="file"
-                      accept="image/*"
-                      multiple
-                      onChange={handleImageUpload}
-                      className="hidden"
-                    />
-                    <Camera size={formData.images.length === 0 ? 50 : 38} className={`text-emerald-400 mb-2 group-hover:text-orange-400 transition-colors ${formData.images.length === 0 ? 'md:w-16 md:h-16' : 'md:w-10 md:h-10'}`} />
-                    <span className={`font-bold tracking-widest transition-colors ${formData.images.length === 0 ? 'text-[15px] md:text-[20px] text-slate-300 group-hover:text-orange-300' : 'text-[11px] md:text-[14px] text-emerald-500 group-hover:text-orange-400'}`}>
-                      {formData.images.length === 0 ? 'คลิกเพื่อเพิ่มรูปภาพ' : 'เพิ่มรูป'}
+                    <div className="absolute inset-0 bg-gradient-to-t from-orange-500/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
+                    <input type="file" accept="image/*" multiple onChange={handleImageUpload} className="hidden" />
+                    <Camera size={formData.images.length === 0 ? 50 : 38} className={`text-orange-500/70 group-hover:text-orange-400 drop-shadow-[0_0_8px_rgba(249,115,22,0.8)] mb-2 transition-all group-hover:scale-110 duration-300 ${formData.images.length === 0 ? 'md:w-16 md:h-16' : 'md:w-10 md:h-10'}`} />
+                    <span className={`font-bold tracking-widest transition-colors z-10 ${formData.images.length === 0 ? 'text-[15px] md:text-[20px] text-orange-200/70 group-hover:text-orange-200' : 'text-[11px] md:text-[14px] text-orange-300/80 group-hover:text-orange-300'}`}>
+                      {formData.images.length === 0 ? 'คลิกเพื่อแนบรูปภาพ' : 'เพิ่มรูปภาพ'}
                     </span>
                   </label>
                 )}
               </div>
             </div>
 
-            </div>
           </div>
+        </div>
+
+          
           <div className="pt-6 px-2 md:px-0 flex flex-col md:flex-row items-center gap-4 text-center">
             <button
               type="submit"
