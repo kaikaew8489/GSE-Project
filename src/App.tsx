@@ -1401,7 +1401,7 @@ function MainApp({ onGoHome, initialRole }) {
   const [searchTerm, setSearchTerm] = useState('');
   const [filterStatus, setFilterStatus] = useState('all');
   const [emailNotify, setEmailNotify] = useState(null);
-
+  const [showImagePicker, setShowImagePicker] = useState(false);
   const [actionModal, setActionModal] = useState({
     isOpen: false,
     ticketId: null,
@@ -2692,10 +2692,13 @@ const executeRatingSubmit = async () => {
                   </div>
                   <span className={`absolute -top-1 -right-1 w-3 h-3 md:w-4 md:h-4 bg-emerald-500 rounded-full animate-pulse border-2 border-slate-900 ${wTheme.iconGlow}`}></span>
                 </div>
+
                 <div>
+                 
                   <p className="text-[12px] md:text-[14px] text-slate-400 font-bold uppercase tracking-widest">
-                    เจ้าหน้าที่เวร SSC | <span className={`${wTheme.textHead}`}>{wTheme.dayLabel} ({formattedDate})</span>
+                    เจ้าหน้าที่เวร SSC | <span className={`${wTheme.textHead}`}>{wTheme.dayLabel}</span>
                   </p>
+
                   <p className={`text-[17px] md:text-[22px] font-black ${wTheme.textName} drop-shadow-md mt-0.5`}>
                     {dutyPerson?.techName || 'ไม่มีเวร SSC วันนี้'}
                   </p>
@@ -2968,19 +2971,37 @@ const executeRatingSubmit = async () => {
                   </div>
                 ))}
 
-                {formData.images.length < 6 && (
-                  <label 
-                    className={`relative border-[2px] border-dashed border-orange-500/50 bg-orange-950/20 hover:bg-orange-900/40 hover:border-orange-400 rounded-2xl md:rounded-3xl flex flex-col items-center justify-center transition-all duration-300 cursor-pointer shadow-[inset_0_0_20px_rgba(249,115,22,0.05)] hover:shadow-[0_0_25px_rgba(249,115,22,0.3),inset_0_0_20px_rgba(249,115,22,0.2)] group overflow-hidden
-                    ${formData.images.length === 0 ? 'w-full h-36 md:h-48' : 'aspect-square'}`}
-                  >
-                    <div className="absolute inset-0 bg-gradient-to-t from-orange-500/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
-                    <input type="file" accept="image/*" multiple onChange={handleImageUpload} className="hidden" />
-                    <Camera size={formData.images.length === 0 ? 50 : 38} className={`text-orange-500/70 group-hover:text-orange-400 drop-shadow-[0_0_8px_rgba(249,115,22,0.8)] mb-2 transition-all group-hover:scale-110 duration-300 ${formData.images.length === 0 ? 'md:w-16 md:h-16' : 'md:w-10 md:h-10'}`} />
-                    <span className={`font-bold tracking-widest transition-colors z-10 ${formData.images.length === 0 ? 'text-[15px] md:text-[20px] text-orange-200/70 group-hover:text-orange-200' : 'text-[11px] md:text-[14px] text-orange-300/80 group-hover:text-orange-300'}`}>
-                      {formData.images.length === 0 ? 'คลิกเพื่อแนบรูปภาพ' : 'เพิ่มรูปภาพ'}
-                    </span>
-                  </label>
-                )}
+               {/* 🎯 ปุ่มเรียกเมนูเลือกรูป (คลิกปุ๊บ เมนูเด้งปั๊บ) */}
+<div onClick={() => setShowImagePicker(true)} className={`border-2 border-dashed border-orange-500/50 bg-orange-950/20 hover:bg-orange-900/40 hover:border-orange-400 rounded-2xl md:rounded-3xl flex flex-col items-center justify-center transition-all duration-300 cursor-pointer shadow-[inset_0_0_20px_rgba(249,115,22,0.05)] hover:shadow-[0_0_25px_rgba(249,115,22,0.3)] group ${formData.images.length === 0 ? 'w-full h-36 md:h-48' : 'aspect-square'}`}>
+  <Camera size={formData.images.length === 0 ? 50 : 38} className="text-orange-500/70 group-hover:text-orange-400 mb-2 transition-all" />
+  <span className="font-black tracking-widest text-orange-200/70 group-hover:text-orange-200">
+    {formData.images.length === 0 ? 'คลิกเพื่อแนบรูปภาพ' : 'เพิ่มรูปภาพ'}
+  </span>
+</div>
+
+{/* 🌟 หน้าต่างเมนูเลือก Sci-Fi (ใส่ครอบไว้ใน renderReport) */}
+{showImagePicker && (
+  <div className="fixed inset-0 z-[200] flex items-center justify-center bg-slate-950/90 backdrop-blur-md p-4 animate-in fade-in" onClick={() => setShowImagePicker(false)}>
+    <div className="bg-slate-900 border-[3px] border-solid border-orange-500 rounded-[2rem] p-6 w-full max-w-sm text-center shadow-[0_0_40px_rgba(249,115,22,0.5)] animate-in zoom-in-95">
+      <h3 className="text-xl font-black text-white mb-6 tracking-widest">เลือกแหล่งที่มา</h3>
+      <div className="grid grid-cols-2 gap-4">
+        {/* กล้อง (Capture) */}
+        <label className="bg-gradient-to-b from-orange-500 to-orange-700 p-5 rounded-2xl cursor-pointer active:scale-95 transition-all">
+          <input type="file" accept="image/*" capture="environment" multiple onChange={(e) => { handleImageUpload(e); setShowImagePicker(false); }} className="hidden" />
+          <Camera size={40} className="text-white mx-auto mb-2" />
+          <span className="text-white font-black">ถ่ายรูป</span>
+        </label>
+        {/* แกลลอรี่ (Gallery) */}
+        <label className="bg-gradient-to-b from-emerald-600 to-emerald-800 p-5 rounded-2xl cursor-pointer active:scale-95 transition-all">
+          <input type="file" accept="image/*" multiple onChange={(e) => { handleImageUpload(e); setShowImagePicker(false); }} className="hidden" />
+          <Monitor size={40} className="text-white mx-auto mb-2" />
+          <span className="text-white font-black">คลังรูปภาพ</span>
+        </label>
+      </div>
+      <button onClick={() => setShowImagePicker(false)} className="w-full mt-6 py-3 rounded-xl font-bold text-slate-300 bg-slate-800 border-2 border-slate-700">ยกเลิก</button>
+    </div>
+  </div>
+)}
               </div>
             </div>
 
