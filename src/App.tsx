@@ -3001,62 +3001,70 @@ const executeRatingSubmit = async () => {
 {/* ======================================================= */}
 {/* 🌟 จุดเริ่มต้น: หน้าต่างป๊อบอัพเลือกรูปภาพ (ใช้ Portal วาร์ปทะลุกรอบ 1,000,000%) */}
 {/* ======================================================= */}
+{/* ======================================================= */}
+{/* 🌟 จุดเริ่มต้น: หน้าต่างป๊อบอัพเลือกรูปภาพ (Sci-Fi Mobile-First อัดแสงเต็มหลอด 1,000,000%) */}
+{/* ======================================================= */}
+{/* ======================================================= */}
+{/* 🌟 จุดเริ่มต้น: หน้าต่างป๊อบอัพเลือกรูปภาพ (Hybrid: Mobile เรืองแสง + PC วูบวาบ 1,000,000%) */}
+{/* ======================================================= */}
 {showImagePicker && typeof document !== 'undefined' ? createPortal(
   <div 
     className="fixed inset-0 w-screen h-screen z-[999999] flex items-center justify-center bg-slate-950/90 backdrop-blur-md overscroll-none touch-none" 
     onClick={() => setShowImagePicker(false)}
   >
-    {/* 🎯 กล่องหลัก: สีกรอบฟ้า (Cyan) เรืองแสง */}
+    {/* 🔥 เอฟเฟกต์ดวงไฟพลาสม่า สว่างวาบอยู่ด้านหลังกล่อง */}
+    <div className="absolute w-[250px] h-[250px] md:w-[350px] md:h-[350px] bg-cyan-500/50 rounded-full blur-[80px] animate-pulse pointer-events-none z-0"></div>
+
+    {/* 🎯 กล่องหลัก: ขอบหนา แสง Cyan พื้นฐาน และจะสว่างขึ้นอีกถ้าเอาเมาส์ไปชี้ใน PC */}
     <div 
-      className="bg-slate-900 border-[2px] border-cyan-400 rounded-[2rem] p-6 w-11/12 max-w-sm text-center shadow-[0_0_40px_rgba(34,211,238,0.5)] animate-in zoom-in-95 relative"
+      className="bg-slate-900 border-[3px] border-cyan-400 rounded-[2.5rem] p-6 sm:p-8 w-11/12 max-w-sm text-center shadow-[0_0_40px_rgba(34,211,238,0.6),inset_0_0_15px_rgba(34,211,238,0.3)] hover:shadow-[0_0_60px_rgba(34,211,238,0.9),inset_0_0_25px_rgba(34,211,238,0.5)] transition-all duration-500 animate-in zoom-in-95 relative z-10"
       onClick={(e) => e.stopPropagation()} 
     >
-      <h3 className="text-xl font-black text-cyan-200 mb-6 tracking-widest drop-shadow-[0_0_10px_rgba(34,211,238,0.8)]">
-        เลือกแหล่งที่มา
+      <h3 className="text-[18px] md:text-2xl font-black text-cyan-200 mb-6 tracking-widest drop-shadow-[0_0_15px_rgba(34,211,238,1)] flex items-center justify-center gap-2">
+        <Monitor size={22} className="text-cyan-400 animate-pulse" /> เลือกแหล่งที่มา
       </h3>
       
-      <div className="grid grid-cols-2 gap-4">
-        {/* 📸 ปุ่มถ่ายรูป (สีส้ม) */}
-        <label className="flex flex-col items-center justify-center bg-gradient-to-b from-orange-500 to-orange-700 p-5 rounded-2xl cursor-pointer transition-all duration-300 shadow-[0_0_15px_rgba(249,115,22,0.4)] hover:scale-105 hover:shadow-[0_0_40px_rgba(249,115,22,1)] hover:brightness-125 active:scale-95 group">
+      <div className="grid grid-cols-2 gap-3 sm:gap-4">
+        {/* 📸 ปุ่มถ่ายรูป (สีส้ม): เรืองแสงในมือถือ และระเบิดแสง+เด้งขึ้น เมื่อชี้เมาส์ใน PC */}
+        <label className="flex flex-col items-center justify-center bg-gradient-to-b from-orange-500 to-orange-700 p-5 rounded-2xl cursor-pointer transition-all duration-300 border-[2px] border-orange-300 shadow-[0_0_20px_rgba(249,115,22,0.6),inset_0_0_10px_rgba(255,255,255,0.2)] md:hover:scale-105 md:hover:shadow-[0_0_45px_rgba(249,115,22,1),inset_0_0_20px_rgba(255,255,255,0.4)] md:hover:brightness-125 active:scale-90 group">
           <input 
             type="file" accept="image/*" capture="environment" multiple 
             onChange={(e) => { handleImageUpload(e); setShowImagePicker(false); }} className="hidden" 
           />
-          <Camera size={40} className="text-white mb-2 drop-shadow-[0_0_8px_rgba(255,255,255,0.8)] group-hover:animate-pulse" />
-          <span className="text-white font-black tracking-wide drop-shadow-md">ถ่ายรูป</span>
+          <Camera size={42} className="text-white mb-2 drop-shadow-[0_0_8px_rgba(255,255,255,0.8)] group-hover:animate-pulse group-hover:drop-shadow-[0_0_15px_rgba(255,255,255,1)]" />
+          <span className="text-white font-black tracking-widest drop-shadow-md text-[15px] sm:text-[16px]">ถ่ายรูป</span>
         </label>
 
-        {/* 🖼️ ปุ่มคลังรูปภาพ (สีเขียว) */}
-        <label className="flex flex-col items-center justify-center bg-gradient-to-b from-emerald-500 to-emerald-700 p-5 rounded-2xl cursor-pointer transition-all duration-300 shadow-[0_0_15px_rgba(16,185,129,0.4)] hover:scale-105 hover:shadow-[0_0_40px_rgba(16,185,129,1)] hover:brightness-125 active:scale-95 group">
+        {/* 🖼️ ปุ่มคลังรูปภาพ (สีเขียว): เรืองแสงในมือถือ และระเบิดแสง+เด้งขึ้น เมื่อชี้เมาส์ใน PC */}
+        <label className="flex flex-col items-center justify-center bg-gradient-to-b from-emerald-500 to-emerald-700 p-5 rounded-2xl cursor-pointer transition-all duration-300 border-[2px] border-emerald-300 shadow-[0_0_20px_rgba(16,185,129,0.6),inset_0_0_10px_rgba(255,255,255,0.2)] md:hover:scale-105 md:hover:shadow-[0_0_45px_rgba(16,185,129,1),inset_0_0_20px_rgba(255,255,255,0.4)] md:hover:brightness-125 active:scale-90 group">
           <input 
             type="file" accept="image/*" multiple 
             onChange={(e) => { handleImageUpload(e); setShowImagePicker(false); }} className="hidden" 
           />
-          <Monitor size={40} className="text-white mb-2 drop-shadow-[0_0_8px_rgba(255,255,255,0.8)] group-hover:animate-pulse" />
-          <span className="text-white font-black tracking-wide drop-shadow-md">คลังรูปภาพ</span>
+          <Monitor size={42} className="text-white mb-2 drop-shadow-[0_0_8px_rgba(255,255,255,0.8)] group-hover:animate-pulse group-hover:drop-shadow-[0_0_15px_rgba(255,255,255,1)]" />
+          <span className="text-white font-black tracking-widest drop-shadow-md text-[15px] sm:text-[16px]">คลังภาพ</span>
         </label>
       </div>
 
-      {/* ❌ ปุ่มยกเลิก */}
+      {/* ❌ ปุ่มยกเลิก: สีแดง Sci-Fi เอาเมาส์ชี้แล้วไฟลุก */}
       <button 
         type="button"
         onClick={() => setShowImagePicker(false)} 
-        className="w-full mt-6 py-3 rounded-xl font-bold text-slate-300 bg-slate-800 border border-slate-600 transition-all duration-300 shadow-[0_0_10px_rgba(148,163,184,0.1)] hover:bg-slate-700 hover:border-slate-300 hover:text-white hover:shadow-[0_0_25px_rgba(255,255,255,0.5)] active:scale-95"
+        className="w-full mt-6 py-3.5 sm:py-4 rounded-xl font-black text-rose-100 bg-rose-900/60 border-[2px] border-rose-500 shadow-[0_0_15px_rgba(225,29,72,0.4),inset_0_0_10px_rgba(225,29,72,0.2)] active:scale-90 transition-all duration-300 tracking-widest uppercase text-[15px] sm:text-[16px] md:hover:bg-rose-600 md:hover:text-white md:hover:shadow-[0_0_35px_rgba(225,29,72,0.9),inset_0_0_15px_rgba(225,29,72,0.5)] md:hover:-translate-y-1"
       >
-              ยกเลิก
-            </button>
-          </div>
-        </div>,
-        document.body
-      ) : null}
-
-              </div>
+        ยกเลิก
+      </button>
+    </div>
+  </div>,
+  document.body
+) : null}
+      </div>
             </div>
 
           </div>
         </div>
 {/* ======================================================= */}
-{/* 🌟 จุดสิ้นสุด: หน้าต่างป๊อบอัพเลือกรูปภาพ (Sci-Fi Edition) */}
+{/* 🌟 จุดสิ้นสุด: หน้าต่างป๊อบอัพเลือกรูปภาพ (Hybrid: Mobile เรืองแสง + PC วูบวาบ) */}
 {/* ======================================================= */}
           
           <div className="pt-6 px-2 md:px-0 flex flex-col md:flex-row items-center gap-4 text-center">
