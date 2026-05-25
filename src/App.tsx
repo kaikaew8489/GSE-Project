@@ -3904,9 +3904,6 @@ const renderTracking = () => (
       </div>
     )}
 
-    {/* 🌟 ฟันธง: Timeline ประวัติการซ่อมฉบับอัปเกรด (แสดงนาทีจริงในแต่ละรอบ สอดคล้องกับเวลาด้านบน 100%) */}
-   {/* 🌟 ฟันธง: Timeline รุ่นสมบูรณ์แบบ (ซ่อนป้ายระยะเวลาจนกว่างานจะจบ) */}
-  {/* 🌟 ฟันธง: Timeline รุ่นสมบูรณ์แบบ (แสดงเวลา HH:MM:SS สอดคล้องกับ Dashboard ด้านบน 100%) */}
   {/* 🌟 ฟันธง: Timeline รักษาสีของท่านหัวหน้า + อัปเกรดเป็นการ์ดโค้งมน (Card UI) */}
     {t.historyLog && t.historyLog.length > 0 ? (
       // 🎯 เพิ่ม gap-3 และ mt-2 เพื่อให้การ์ดแต่ละใบมีระยะห่างกัน จะได้เห็นขอบโค้งชัดเจน
@@ -4031,22 +4028,10 @@ const renderTracking = () => (
         </div>
       </div>
     )}
-
-    {/* 🛠️ บันทึกเวร SSC (Flat Design) */}
-    {t.sscNote && (
-      <div className="bg-slate-50/80 border-l-[4px] border-solid border-slate-400 p-3 md:p-5 flex gap-3 md:gap-4 w-full mt-2 mb-2">
-        <Wrench className="w-5 h-5 md:w-8 md:h-8 shrink-0 mt-0.5 text-slate-500" />
-        <div className="w-full">
-          <span className="block mb-1 text-slate-500 text-[10px] md:text-[14px] font-bold uppercase">บันทึกการแก้ไขเบื้องต้น (เวร SSC):</span>
-          <span className="text-[13px] md:text-[18px] text-slate-800 font-bold">{String(t.sscNote)}</span>
-        </div>
-      </div>
-    )}
     
-
         {/* ==================== โซนภาพประกอบ (แบบมีกรอบ Card แยกชัดเจน) ==================== */}
         {t.images && t.images.length > 0 && (
-          <div className="bg-slate-100 border-2 border-solid border-emerald-500 p-4 md:p-6 rounded-2xl md:rounded-[1.5rem] mt-4 shadow-sm w-full">
+          <div className="bg-slate-100 border-2 border-solid border-emerald-500 p-4 md:p-6 rounded-2xl md:rounded-[1.5rem] mt-2 shadow-sm w-full">
             <span className="text-[14px] md:text-[22px] font-black text-rose-700 mb-3 md:mb-4 flex items-center gap-2">
                📸 ภาพประกอบการแจ้งซ่อม:
             </span>
