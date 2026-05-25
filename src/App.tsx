@@ -1779,7 +1779,6 @@ const toggleTag = (tag) => {
         status: 'on_hold',
         holdReason: actionText,
         lastHoldAt: new Date().toISOString(),
-        // 🌟 2. ดันประวัติ "แจ้งขัดข้อง" ลงคลัง Array ไม่ให้ทับของเดิม
         historyLog: [...currentLog, { type: 'hold', reason: actionText, timestamp: new Date().toISOString() }]
       };
     } else if (type === 'finish') {
@@ -1788,18 +1787,16 @@ const toggleTag = (tag) => {
         cause: actionText,
         completedAt: new Date().toISOString(),
       };
-    } else if (type === 'ssc') {
-      updates = { 
-        sscNote: actionText,
-        status: 'pending', // 🌟 ฟันธง: เด้งสถานะกลับเป็น "รอดำเนินการ" เพื่อให้ช่างหลักมารับไม้ต่อ
-        // 🌟 ยัดประวัติลง Timeline ด้วยว่าเวร SSC ทำอะไรไปบ้าง
-        historyLog: [...currentLog, { type: 'hold', reason: `[เวร SSC แก้ไขเบื้องต้น] ${actionText}`, timestamp: new Date().toISOString() }]
-      };
     } else if (type === 'cancel') {
       updates = {
         status: 'cancelled',
         cancelReason: actionText,
         cancelledAt: new Date().toISOString(),
+      };
+    } else if (type === 'ssc') { // 🌟 กลับมาแล้ว! ไม่ยัดลง HistoryLog เพื่อป้องกันบั๊ก!
+      updates = { 
+        sscNote: actionText,
+        status: 'pending', 
       };
     } else if (type === 'resume') {
       let pauseDurationMs = 0;
@@ -1811,41 +1808,42 @@ const toggleTag = (tag) => {
         resumeReason: actionText,
         totalPauseMs: ((target ? target.totalPauseMs : 0) || 0) + pauseDurationMs,
         lastHoldAt: null,
-        // 🌟 3. ดันประวัติ "ดำเนินการต่อ" ลงคลัง Array พร้อมเวลาที่เสียไป
         historyLog: [...currentLog, { type: 'resume', reason: actionText, timestamp: new Date().toISOString(), pauseDurationMs: pauseDurationMs }]
       };
-    }
+    }    
 
+    // 🌟 2. อัปเดตขึ้นฐานข้อมูล
     await updateTicketStatus(ticketId, updates);
 
-      // 🌟 โค้ดส่งแจ้งเตือน LINE ของท่าน (ปล่อยไว้เหมือนเดิม ไม่กระทบ)
-      if (type === 'accept' || type === 'finish') {
-        if (target) {
-          try {
-            fetch("https://script.google.com/macros/s/AKfycbxBoB_e637WkWMeSuX9NP3BSKcSiE8J3dSXmlzNV9aeiq6DRUvn81bSp6w-B0nzCVA5/exec", {
-              method: 'POST',
-              mode: 'no-cors',
-              headers: { 'Content-Type': 'text/plain;charset=utf-8' }, 
-              body: JSON.stringify({
-                ticketId: target.id,
-                equipment: target.equipment,
-                description: target.description,
-                reporter: target.reporter,
-                phone: target.reporterContact || "N/A",
-                primaryTech: selectedTech || target.techName || "ทีมช่าง ฝวด.",
-                building: target.building,
-                room: target.room,
-                status: type === 'accept' ? 'ACCEPTED' : 'COMPLETED' 
-              })
-            });
-          } catch (err) { console.error("Line Notify Error:", err); }
-        }
+    // 🌟 3. โค้ดส่งแจ้งเตือน LINE ของท่าน (ปล่อยไว้เหมือนเดิม ไม่กระทบ)
+    if (type === 'accept' || type === 'finish') {
+      if (target) {
+        try {
+          fetch("https://script.google.com/macros/s/AKfycbxBoB_e637WkWMeSuX9NP3BSKcSiE8J3dSXmlzNV9aeiq6DRUvn81bSp6w-B0nzCVA5/exec", {
+            method: 'POST',
+            mode: 'no-cors',
+            headers: { 'Content-Type': 'text/plain;charset=utf-8' }, 
+            body: JSON.stringify({
+              ticketId: target.id,
+              equipment: target.equipment,
+              description: target.description,
+              reporter: target.reporter,
+              phone: target.reporterContact || "N/A",
+              primaryTech: selectedTech || target.techName || "ทีมช่าง ฝวด.",
+              building: target.building,
+              room: target.room,
+              status: type === 'accept' ? 'ACCEPTED' : 'COMPLETED' 
+            })
+          });
+        } catch (err) { console.error("Line Notify Error:", err); }
       }
+    }
   
-      setActionModal({ isOpen: false, ticketId: null, type: null });
-      setActionText('');
-      setSelectedTech('');
-    };
+    // 🌟 4. ล้างค่าในป๊อปอัปให้สะอาด
+    setActionModal({ isOpen: false, ticketId: null, type: null });
+    setActionText('');
+    setSelectedTech('');
+  };
 
 // 🌟 ฟันธง: ฟังก์ชันส่งผลประเมินและปิดงานสมบูรณ์
 const executeRatingSubmit = async () => {
@@ -3546,672 +3544,82 @@ const renderTracking = () => (
 
           
           filteredTickets.map((t) => {
-            // 🌟 ฟันธง: แทรกสมองกล 3 บรรทัดนี้ลงไป เพื่อค้นหาชื่อเวรจากวันที่! 🌟
-            // 🌟 ฟันธง: เพิ่มสมองกลจับคู่ชื่อเวรและเบอร์โทรจากฐานข้อมูล rosters ตามวันที่ของตั๋ว
+            // 1. ดึงข้อมูลเวร SSC
             const ticketDate = new Date(t.date).toISOString().split('T')[0];
             const sscRosterForDate = allRosters.find(r => r.date === ticketDate);
             const sscName = sscRosterForDate ? sscRosterForDate.techName : null;
-            const sscPhone = sscRosterForDate ? sscRosterForDate.techPhone : null; // 🌟 เติมบรรทัดนี้!
+            const sscPhone = sscRosterForDate ? sscRosterForDate.techPhone : null;
 
-            // ... (โค้ด const isPending ... ที่เหลือของท่าน) ...
-              const isPending = t.status === 'pending';
-              const isFixing = [
-                'acknowledged',
-                'in_progress',
-                'on_hold',
-              ].includes(t.status);
-              const isDone = t.status === 'completed' || t.status === 'verified';
-              const isCancelled = t.status === 'cancelled';
-
-              const fixingMin = getMinutesDiff(t.startedAt || t.date, sysTime);
-              const waitingMin = getMinutesDiff(t.date, sysTime);
-
-              const styleColor = isPending
-                ? 'border-rose-500 text-rose-600 bg-rose-50'
-                : isDone
-                ? 'border-emerald-500 text-emerald-600 bg-emerald-50'
-                : isCancelled
-                ? 'border-slate-400 text-slate-500 bg-slate-50'
-                : t.status === 'on_hold'
-                ? 'border-purple-500 text-purple-600 bg-purple-50'
-                : 'border-orange-500 text-orange-600 bg-orange-50';
-                const statusLabel = isPending
-                ? 'รอดำเนินการ'
-                : t.status === 'acknowledged'
-                ? 'รับทราบแล้ว'
-                : t.status === 'in_progress'
-                ? 'กำลังซ่อม'
-                : t.status === 'on_hold'
-                ? 'แจ้งขัดข้อง'
-                : isCancelled
-                ? 'ยกเลิกแล้ว'
-                : t.status === 'verified'
-                ? '✅ เสร็จสิ้นสมบูรณ์'
-                : '⏳ รอผู้แจ้งยืนยัน';
-
-              return (
-                <div
-                  key={t.dbId || t.id}
-                  className={`bg-white rounded-[1rem] md:rounded-[2rem] border-l-[6px] md:border-l-[12px] ${
-                    styleColor.split(' ')[0]
-                  } overflow-hidden shadow-sm border-t border-r border-b border-2 border-orange-400/70 transition-all ${
-                    isCancelled ? 'opacity-70' : ''
-                  }`}
-                >
-                  <div className="p-5 md:p-8 md:px-10 border-b border-slate-100 bg-slate-50/50">
-                    <div className="flex justify-between items-start mb-4 md:mb-6">
-                      <div className="flex items-center">
-                        <span className="text-[13px] md:text-[24px] font-mono text-emerald-600 bg-emerald-100 px-3 py-1 md:px-5 md:py-2 rounded-lg md:rounded-xl font-black tracking-widest border border-emerald-200 shadow-sm">
-                          {String(t.id)}
-                        </span>
-                        {t.isOutOfHours && (
-                          <span className="ml-2 md:ml-4 text-[11px] md:text-[24px] font-black text-rose-600 bg-rose-100 border border-rose-200 px-2 py-0.5 md:px-4 md:py-1.5 rounded-md md:rounded-xl animate-pulse">
-                            วันหยุด
-                          </span>
-                        )}
-                      </div>
-                      <div
-                        className={`px-3 py-1 md:px-6 md:py-3 rounded-lg md:rounded-2xl text-[13px] md:text-[26px] font-bold border border-2 border-solid shadow-sm flex items-center gap-1.5 md:gap-3 ${styleColor}`}
-                      >
-                        {isPending && (
-                          <div className="w-1.5 h-1.5 md:w-3 md:h-3 rounded-full bg-rose-500 animate-pulse"></div>
-                        )}
-                        {statusLabel}
-                      </div>
-                    </div>
-
-                    {/* 🌟 โซนดาวประเมิน (อัปเกรด: บรรทัดเดียว ชิดขวา ขนาดใหญ่ขึ้น) */}
-                    {t.status === 'verified' && t.rating && (() => {
-                      const rColor = t.rating === 5 ? { text: 'text-emerald-400', fill: '#34d399', drop: 'drop-shadow-[0_0_10px_rgba(52,211,153,0.8)]', border: 'border-emerald-500', glow: 'shadow-[0_0_15px_rgba(52,211,153,0.3)]', flare: 'bg-emerald-500/20' } :
-                                    t.rating === 4 ? { text: 'text-teal-400', fill: '#2dd4bf', drop: 'drop-shadow-[0_0_10px_rgba(45,212,191,0.8)]', border: 'border-teal-500', glow: 'shadow-[0_0_15px_rgba(45,212,191,0.3)]', flare: 'bg-teal-500/20' } :
-                                    t.rating === 3 ? { text: 'text-amber-400', fill: '#fbbf24', drop: 'drop-shadow-[0_0_10px_rgba(251,191,36,0.8)]', border: 'border-amber-500', glow: 'shadow-[0_0_15px_rgba(251,191,36,0.3)]', flare: 'bg-amber-500/20' } :
-                                    t.rating === 2 ? { text: 'text-orange-400', fill: '#fb923c', drop: 'drop-shadow-[0_0_10px_rgba(251,146,60,0.8)]', border: 'border-orange-500', glow: 'shadow-[0_0_15px_rgba(251,146,60,0.3)]', flare: 'bg-orange-500/20' } :
-                                                      { text: 'text-rose-400', fill: '#fb7185', drop: 'drop-shadow-[0_0_10px_rgba(251,113,133,0.8)]', border: 'border-rose-500', glow: 'shadow-[0_0_15px_rgba(225,29,72,0.3)]', flare: 'bg-rose-500/20' };
-
-                      return (
-                        <div className="mt-3 mb-5 md:mt-6 md:mb-10 animate-in slide-in-from-top-2 duration-500">
-                          {currentUserRole === 'technician' ? (
-                            <div className={`bg-slate-900 border-[2px] border-solid ${rColor.border} rounded-xl md:rounded-[2rem] p-4 md:p-8 ${rColor.glow} relative overflow-hidden`}>
-                              <div className={`absolute -right-10 -top-10 w-32 h-32 md:w-64 md:h-64 ${rColor.flare} blur-[25px] md:blur-[50px] rounded-full pointer-events-none`}></div>
-                              <div className="relative z-10">
-                                <div className="flex justify-between items-center mb-3 md:mb-6 border-b border-slate-700/50 pb-3 md:pb-6">
-                                  <span className={`text-[13px] md:text-[24px] font-black ${rColor.text} uppercase tracking-widest flex items-center gap-1.5 md:gap-3 drop-shadow-sm`}>
-                                    <Star className={`w-4 h-4 md:w-8 md:h-8 ${rColor.text}`} fill="currentColor"/> ผลการประเมิน
-                                  </span>
-                                  <div className="flex gap-1 md:gap-3">
-                                      {[1, 2, 3, 4, 5].map((s) => (
-                                        <Star key={s} className={`w-[18px] h-[18px] md:w-[32px] md:h-[32px] ${t.rating >= s ? rColor.drop : ""}`} fill={t.rating >= s ? rColor.fill : "none"} stroke={t.rating >= s ? rColor.fill : "#475569"} strokeWidth={2} />
-                                      ))}
-                                  </div>
-                                </div>
-                                
-                                {t.ratingComment ? (
-                                  <div className={`bg-slate-950 p-4 md:p-8 rounded-xl md:rounded-3xl border border-solid ${rColor.border} shadow-inner relative overflow-hidden`}>
-                                    <div className={`absolute top-0 left-0 w-1.5 md:w-3 h-full ${rColor.text.replace('text-', 'bg-')}`}></div>
-                                    <p className={`text-[13px] sm:text-[14px] md:text-[22px] font-bold ${rColor.text} leading-relaxed italic pl-1 md:pl-4`}>
-                                      <span className="text-xl md:text-4xl leading-none opacity-50 mr-1 md:mr-3">"</span>
-                                      {t.ratingComment}
-                                      <span className="text-xl md:text-4xl leading-none opacity-50 ml-1 md:ml-3">"</span>
-                                    </p>
-                                  </div>
-                                ) : (
-                                  <div className="bg-slate-950/50 p-3 md:p-6 rounded-xl md:rounded-2xl border border-slate-800 flex justify-center">
-                                    <p className="text-[12px] md:text-[20px] font-bold text-slate-500 italic">- ไม่มีข้อเสนอแนะเพิ่มเติม -</p>
-                                  </div>
-                                )}
-                              </div>
-                            </div>
-                          ) : (
-                            <div className={`flex flex-row items-center justify-between bg-slate-900/80 p-3.5 md:p-6 rounded-xl md:rounded-2xl border-[2px] border-solid ${rColor.border} ${rColor.glow} relative overflow-hidden`}>
-                              <div className={`absolute -left-10 -bottom-10 w-24 h-24 md:w-48 md:h-48 ${rColor.flare} blur-[20px] md:blur-[40px] rounded-full pointer-events-none`}></div>
-                              <span className={`text-[11.5px] sm:text-[14px] md:text-[24px] font-black ${rColor.text} uppercase tracking-widest ml-1 relative z-10 drop-shadow-sm shrink-0`}>
-                                คุณให้คะแนนงานนี้:
-                              </span>
-                              <div className="flex gap-1 md:gap-3 relative z-10 shrink-0">
-                                {[1, 2, 3, 4, 5].map((s) => (
-                                  <Star key={s} className={`w-[14px] h-[14px] sm:w-4 sm:h-4 md:w-8 md:h-8 ${t.rating >= s ? rColor.drop : ""}`} fill={t.rating >= s ? rColor.fill : "none"} stroke={t.rating >= s ? rColor.fill : "#475569"} strokeWidth={2} />
-                                ))}
-                              </div>
-                            </div>
-                          )}
-                        </div>
-                      );
-                    })()}
-
-                    <h3
-                      className={`text-lg md:text-[34px] font-black mb-1.5 md:mb-4 leading-tight ${
-                        isCancelled
-                          ? 'text-slate-400 line-through'
-                          : 'text-slate-800'
-                      }`}
-                    >
-                      {String(t.equipment)}
-                    </h3>
-                    
-                    <div className="flex flex-col gap-1 md:gap-3 mt-1.5 md:mt-4 mb-3 md:mb-6 bg-indigo-50/50 p-2 md:p-6 rounded-lg md:rounded-2xl border-2 border-solid border-indigo-500">
-                      <div className="flex items-start gap-1.5 md:gap-3 text-orange-600/90">
-                        <Building className="w-[18px] h-[18px] md:w-8 md:h-8 shrink-0 mt-0.5 md:mt-0" />
-                        <span className="text-[18px] md:text-[28px] font-bold leading-snug">
-                          {t.building || 'ไม่ระบุอาคาร'}
-                        </span>
-                      </div>
-                      <div className="flex items-start gap-1.5 md:gap-3 text-indigo-500/90">
-                        <MapPin className="w-[18px] h-[18px] md:w-8 md:h-8 shrink-0 mt-0.5 md:mt-0" />
-                        <span className="text-[15px] md:text-[24px] font-bold leading-snug">
-                          ห้อง: {t.room || 'ไม่ระบุห้อง'}
-                        </span>
-                      </div>
-                    </div>
-
-                    {/* 🌟 โซนนาฬิกาจับเวลา (ฟันธง: โฉมใหม่กรอบโค้งมน + ไอคอนนาฬิกาด้านใน) */}
-                  {!isCancelled && (
-                    <div className="w-full mt-2 md:mt-4 border-[1.5px] border-2 border-solid border-orange-600 rounded-2xl md:rounded-[1rem] p-5 md:p-8 bg-orange-200/30 shadow-sm flex flex-col gap-4 md:gap-6 relative">
-                      
-                      {/* 1. เวลารอดำเนินการ */}
-                      <div className="flex justify-between items-center pl-1 md:pl-4">
-                        <div className="flex items-center gap-3 md:gap-4">
-                          <Clock className={`w-5 h-5 md:w-6 md:h-6 ${isPending ? 'text-rose-500 animate-pulse' : 'text-slate-500'}`} />
-                          <span className={`text-[13px] md:text-[22px] font-black ${isPending ? 'text-rose-600' : 'text-slate-400'}`}>
-                            เวลารอดำเนินการ
-                          </span>
-                        </div>
-                        <span className={`text-[13px] md:text-[24px] font-bold font-mono tracking-tighter ${isPending ? 'text-rose-600' : 'text-slate-400'}`}>
-                          {getLiveStopwatch(t.date, t.acceptedAt, sysTime)}
-                        </span>
-                      </div>
-
-                      {/* 2. เวลาปฏิบัติงาน */}
-                      <div className="flex justify-between items-center pl-1 md:pl-4">
-                        <div className="flex items-center gap-3 md:gap-4">
-                          <Clock className={`w-5 h-5 md:w-6 md:h-6 ${isFixing && t.status !== 'on_hold' ? 'text-orange-600 animate-pulse' : 'text-slate-500'}`} />
-                          <span className={`text-[13px] md:text-[22px] font-black ${isFixing && t.status !== 'on_hold' ? 'text-orange-500' : 'text-slate-400'}`}>
-                            เวลาปฏิบัติงาน
-                          </span>
-                        </div>
-                        <span className={`text-[13px] md:text-[24px] font-bold font-mono tracking-tighter ${isFixing && t.status !== 'on_hold' ? 'text-orange-600' : 'text-slate-400'}`}>
-                          {t.startedAt
-                            ? getLiveStopwatch(
-                                t.startedAt,
-                                t.completedAt,
-                                sysTime,
-                                t.totalPauseMs || 0,
-                                t.status === 'on_hold',
-                                t.lastHoldAt
-                              )
-                            : '00:00:00'}
-                        </span>
-                      </div>
-
-                      {/* 3. เวลาเหตุขัดข้อง (แสดงก็ต่อเมื่อมีการหยุดเวลา) */}
-                      {(() => {
-                        const currentHoldMs = t.status === 'on_hold' && t.lastHoldAt
-                          ? sysTime.getTime() - new Date(t.lastHoldAt).getTime()
-                          : 0;
-                        const totalHoldMs = (t.totalPauseMs || 0) + currentHoldMs;
-                        
-                        if (totalHoldMs > 0) {
-                          const isHolding = t.status === 'on_hold';
-                          const hrs = Math.floor(totalHoldMs / 3600000);
-                          const days = Math.floor(hrs / 24);
-                          const remainHrs = hrs % 24;
-                          const mins = Math.floor((totalHoldMs % 3600000) / 60000);
-                          const secs = Math.floor((totalHoldMs % 60000) / 1000);
-                          const timeStr = `${String(remainHrs).padStart(2, '0')}:${String(mins).padStart(2, '0')}:${String(secs).padStart(2, '0')}`;
-                          const displayTime = days > 0 ? `${days} วัน ${timeStr}` : timeStr;
-
-                          return (
-                            <div className="flex justify-between items-center pl-1 md:pl-4">
-                              <div className="flex items-center gap-3 md:gap-4">
-                                <Clock className={`w-5 h-5 md:w-6 md:h-6 ${isHolding ? 'text-purple-600 animate-pulse' : 'text-slate-500'}`} />
-                                <span className={`text-[13px] md:text-[22px] font-black ${isHolding ? 'text-purple-600' : 'text-slate-400'}`}>
-                                  เวลาเหตุขัดข้อง
-                                </span>
-                              </div>
-                              <span className={`text-[13px] md:text-[24px] font-bold font-mono tracking-tighter ${isHolding ? 'text-purple-600' : 'text-slate-400'}`}>
-                                {displayTime}
-                              </span>
-                            </div>
-                          );
-                        }
-                        return null;
-                      })()}
-
-                      {/* 4. เวลารวมทั้งหมด */}
-                      <div className="flex justify-between items-center pl-1 md:pl-4">
-                        <div className="flex items-center gap-3 md:gap-4">
-                          <Clock className={`w-5 h-5 md:w-6 md:h-6 ${isDone ? 'text-emerald-600' : 'text-slate-500'}`} />
-                          <span className={`text-[13px] md:text-[22px] font-black ${isDone ? 'text-emerald-500' : 'text-slate-400'}`}>
-                            เวลารวมทั้งหมด
-                          </span>
-                        </div>
-                        <span className={`text-[13px] md:text-[24px] font-bold font-mono tracking-tighter ${isDone ? 'text-emerald-600' : 'text-slate-400'}`}>
-                          {getLiveStopwatch(
-                            t.date,
-                            t.completedAt,
-                            sysTime,
-                            t.totalPauseMs || 0,
-                            t.status === 'on_hold',
-                            t.lastHoldAt
-                          )}
-                        </span>
-                      </div>
-
-                    </div>
-                  )}
-                  </div>
-
-                  {/* 🌟 โซนกล่องสรุป SLA */}
-                  {/* 🌟 ฟันธง: เพิ่มเงื่อนไข currentUserRole !== 'reporter' พ่วงเข้าไปข้างหน้าสุด */}
-                  {currentUserRole !== 'reporter' && (t.status === 'completed' || t.status === 'verified') ? (
-                          <div className="bg-emerald-50 border-2 border-solid border-emerald-500/40 rounded-2xl md:rounded-[1rem] p-4 md:p-8 mt-2 md:mt-4 mb-4 md:mb-8 w-auto mx-5 md:mx-10 shadow-sm">
-                            {(() => {
-                              const startMs = new Date(t.date).getTime();
-                              const endMs = new Date(t.completedAt).getTime();
-                              const holdMs = t.totalPauseMs || 0; 
-                              let netDurationMs = endMs - startMs - holdMs;
-                              if (netDurationMs < 0) netDurationMs = 0;
-                              
-                              const slaLimitHours = 4; 
-                              const slaLimitMs = slaLimitHours * 60 * 60 * 1000; 
-                              const isSLAPassed = netDurationMs <= slaLimitMs;
-
-                              const msToText = (ms) => {
-                                if(ms === 0) return "-";
-                                const d = Math.floor(ms / (1000 * 60 * 60 * 24));
-                                const h = Math.floor((ms % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
-                                const m = Math.floor((ms % (1000 * 60 * 60)) / (1000 * 60));
-                                let res = [];
-                                if(d>0) res.push(`${d} วัน`);
-                                if(h>0) res.push(`${h} ชม.`);
-                                if(m>0) res.push(`${m} นาที`);
-                                return res.length > 0 ? res.join(' ') : "น้อยกว่า 1 นาที";
-                              };
-
-                              return (
-                                <>
-                                  <div className="flex items-start justify-between mb-3 md:mb-6 border-b border-emerald-500/20 pb-4 md:pb-6">
-                                    <div className="flex items-center gap-2 md:gap-3 mt-1">
-                                      <Clock className="w-[18px] h-[18px] md:w-8 md:h-8 text-emerald-600" />
-                                      <span className="text-[14px] md:text-[24px] font-black text-orange-500 uppercase tracking-widest">สรุป SLA</span>
-                                    </div>
-                                    
-                                    <div className={`px-3 py-1.5 md:px-6 md:py-3 rounded-2xl text-[12px] md:text-[20px] font-black tracking-widest flex items-center gap-1.5 md:gap-3 border-2 shadow-lg -mt-1 ${
-                                      isSLAPassed 
-                                        ? 'bg-gradient-to-r from-emerald-500 to-teal-500 text-white border-emerald-300 shadow-emerald-500/40' 
-                                        : 'bg-gradient-to-r from-rose-500 to-red-500 text-white border-rose-300 shadow-rose-500/40'
-                                    }`}>
-                                      {isSLAPassed ? (
-                                        <>
-                                          <CheckCircle className="w-4 h-4 md:w-6 md:h-6 text-white drop-shadow-md" strokeWidth={3} />
-                                          <span className="drop-shadow-sm mt-0.5">ผ่านเกณฑ์</span>
-                                        </>
-                                      ) : (
-                                        <>
-                                          <XCircle className="w-4 h-4 md:w-6 md:h-6 text-white animate-pulse drop-shadow-md" strokeWidth={3} />
-                                          <span className="drop-shadow-sm mt-0.5">เกินเวลา SLA</span>
-                                        </>
-                                      )}
-                                    </div>
-                                  </div>
-                                  
-                                  <div className="space-y-2.5 md:space-y-5 text-[13px] md:text-[22px]">
-                                    <div className="flex justify-between items-center">
-                                      <span className="text-slate-600 font-bold">วันที่แจ้งซ่อม:</span>
-                                      <span className="text-slate-800 font-black">{new Date(t.date).toLocaleString('th-TH')}</span>
-                                    </div>
-                                    <div className="flex justify-between items-center">
-                                      <span className="text-slate-600 font-bold">วันที่ซ่อมเสร็จ:</span>
-                                      <span className="text-slate-800 font-black">
-                                          {t.completedAt ? new Date(t.completedAt).toLocaleString('th-TH') : '-'}
-                                      </span>
-                                    </div>
-                                    
-                                    {holdMs > 0 && (
-                                      <div className="flex justify-between items-center bg-purple-100/60 p-2 md:p-4 rounded-lg md:rounded-2xl border border-purple-200 mt-1 md:mt-3">
-                                        <span className="text-purple-700 font-bold flex items-center gap-1.5 md:gap-3">
-                                          <PauseCircle className="w-[14px] h-[14px] md:w-6 md:h-6 animate-pulse"/> หักเวลารออะไหล่/ขัดข้อง:
-                                        </span>
-                                        <span className="text-purple-800 font-black">{msToText(holdMs)}</span>
-                                      </div>
-                                    )}
-                                    
-                                    <div className="flex justify-between items-baseline pt-2 md:pt-6 mt-2 md:mt-6 border-t border-emerald-500/20">
-                                      <span className="text-emerald-900 font-black">ใช้เวลาซ่อมสุทธิ:</span>
-                                      <span className={`text-[18px] md:text-[34px] font-black drop-shadow-sm ${isSLAPassed ? 'text-emerald-600' : 'text-rose-600'}`}>
-                                        {msToText(netDurationMs)}
-                                      </span>
-                                    </div>
-                                    
-                                    <div className="text-right text-[11px] md:text-[16px] text-rose-800/80 font-bold mt-1 md:mt-3">
-                                      * ประเมินจากเกณฑ์ชั่วคราว: ภายใน {slaLimitHours} ชั่วโมง
-                                    </div>
-                                  </div>
-                                </>
-                              );
-                            })()}
-                          </div>
-                        ) : null}
-
-                  {/* 🌟 โซนรายละเอียดข้อความและการติดต่อ (ปลดล็อกความกว้าง 100%) */}
-          <div className="px-5 md:px-10 pb-5 md:pb-10 pt-4 md:pt-6 flex flex-col w-full">
-          {/* 🌟 ฟันธงสเต็ป 1: ทุบกรอบสีน้ำเงินและพื้นหลังทิ้ง! ปล่อยให้เนื้อหากว้างเท่ากรอบด้านบน 1,000,000% */}
-          <div className="flex flex-col w-full relative z-10 mb-2 md:mb-4">
-    
-    {/* 🚨 เหตุผลยกเลิกงาน */}
-    {t.status === 'cancelled' && t.cancelReason && (
-          <div className="bg-rose-100/70 border-l-[4px] border-2 border-solid border-rose-600 rounded-xl md:rounded-2xl p-3 md:p-5 flex gap-3 md:gap-4 w-full mb-4 mt-2">
-        <XCircle className="w-5 h-5 md:w-8 md:h-8 shrink-0 mt-0.5 text-rose-600" />
-        <div className="w-full">
-          <span className="block mb-1 text-rose-600/80 text-[16px] md:text-[22px] font-bold uppercase">เหตุผลที่ยกเลิก:</span>
-          <span className="text-[16px] md:text-[26px] text-rose-900 font-bold">{String(t.cancelReason)}</span>
-        </div>
-      </div>
-    )}
-
-    {/* 🌟 ฟันธง: Timeline ประวัติการซ่อมฉบับอัปเกรด (แสดงนาทีจริงในแต่ละรอบ สอดคล้องกับเวลาด้านบน 100%) */}
-   {/* 🌟 ฟันธง: Timeline รุ่นสมบูรณ์แบบ (ซ่อนป้ายระยะเวลาจนกว่างานจะจบ) */}
-  {/* 🌟 ฟันธง: Timeline รุ่นสมบูรณ์แบบ (แสดงเวลา HH:MM:SS สอดคล้องกับ Dashboard ด้านบน 100%) */}
-  {/* 🌟 ฟันธง: Timeline รักษาสีของท่านหัวหน้า + อัปเกรดเป็นการ์ดโค้งมน (Card UI) */}
-    {t.historyLog && t.historyLog.length > 0 ? (
-      // 🎯 เพิ่ม gap-3 และ mt-2 เพื่อให้การ์ดแต่ละใบมีระยะห่างกัน จะได้เห็นขอบโค้งชัดเจน
-      <div className="flex flex-col w-full mb-2 gap-3 md:gap-4 mt-2">
-        {(() => {
-          let holdCounter = 0;
-          let resumeCounter = 0;
-
-          return t.historyLog.map((log, index) => {
-            const isLast = index === t.historyLog.length - 1;
-            const isHold = log.type === 'hold';
-            
-            // นับครั้งที่อัตโนมัติ
-            if (isHold) holdCounter++;
-            else resumeCounter++;
-
-            // 🌟 สมองกลคำนวณระยะเวลา (ระดับ Milliseconds)
-            let durationMs = 0;
-            let isOngoing = false;
-
-            if (isHold) {
-              const nextLog = t.historyLog[index + 1];
-              if (nextLog) {
-                durationMs = new Date(nextLog.timestamp).getTime() - new Date(log.timestamp).getTime();
-              } else {
-                isOngoing = true;
-              }
-            } else {
-              const nextLog = t.historyLog[index + 1];
-              if (nextLog) {
-                durationMs = new Date(nextLog.timestamp).getTime() - new Date(log.timestamp).getTime();
-              } else if (t.status === 'completed' || t.status === 'verified') {
-                durationMs = t.completedAt ? new Date(t.completedAt).getTime() - new Date(log.timestamp).getTime() : 0;
-              } else {
-                isOngoing = true;
-              }
-            }
-
-            // 🌟 ฟังก์ชันแปลงเวลาเป็น HH:MM:SS
-            const pad = (num) => String(num).padStart(2, '0');
-            const hours = Math.floor(durationMs / 3600000);
-            const minutes = Math.floor((durationMs % 3600000) / 60000);
-            const seconds = Math.floor((durationMs % 60000) / 1000);
-            const formattedTime = `${pad(hours)}:${pad(minutes)}:${pad(seconds)}`;
+            // 2. สถานะงาน
+            const isPending = t.status === 'pending';
+            const isDone = t.status === 'completed' || t.status === 'verified';
+            const isCancelled = t.status === 'cancelled';
+            const styleColor = isPending ? 'border-rose-500 text-rose-600 bg-rose-50' : isDone ? 'border-emerald-500 text-emerald-600 bg-emerald-50' : isCancelled ? 'border-slate-400 text-slate-500 bg-slate-50' : 'border-orange-500 text-orange-600 bg-orange-50';
+            const statusLabel = isPending ? 'รอดำเนินการ' : t.status === 'verified' ? '✅ เสร็จสิ้นสมบูรณ์' : t.status === 'completed' ? 'รอผู้แจ้งยืนยัน' : 'กำลังซ่อม';
 
             return (
-              // 🌟 ฟันธงจุดที่ 1 (กล่องแม่): เปลี่ยนเป็น flex-col md:flex-row เพื่อให้มือถือเรียงบนล่าง แต่คอมยังเรียงซ้ายขวา
-              <div key={index} className={`flex flex-col md:flex-row md:items-center justify-between gap-3 md:gap-0 p-4 md:px-6 -mx-2 md:-mx-4 rounded-2xl md:rounded-[1rem] shadow-sm hover:shadow-md transition-shadow border-2 border-solid border-slate-800 ${isHold ? 'bg-purple-100 border-l-[6px] border-l-purple-500' : 'bg-orange-100 border-l-[6px] border-l-orange-500'}`}>
-                
-                {/* 🎯 ด้านซ้าย: ชื่อเหตุการณ์ */}
-                <div className="flex gap-3 md:gap-4 w-full">
-                  {isHold ? <PauseCircle className="w-5 h-5 md:w-6 md:h-6 shrink-0 text-purple-600 drop-shadow-sm" /> : <Wrench className="w-5 h-5 md:w-6 md:h-6 shrink-0 text-orange-600 drop-shadow-sm" />}
-                  <div>
-                    <p className="font-black text-[12px] md:text-[16px] text-slate-800">{isHold ? 'แจ้งเหตุขัดข้อง' : 'ดำเนินการต่อ'}</p>
-                    <p className="text-[13px] md:text-[18px] text-slate-600 font-bold mt-0.5">{String(log.reason)}</p>
+              <div key={t.dbId || t.id} className={`bg-white rounded-[1.5rem] border-l-[10px] ${styleColor.split(' ')[0]} shadow-sm border-2 border-orange-400/70 mb-8 overflow-hidden`}>
+                {/* ส่วนหัวตั๋ว */}
+                <div className="p-6 md:p-10 border-b border-slate-100 bg-slate-50/50">
+                  <div className="flex justify-between items-center mb-6">
+                    <span className="text-[16px] md:text-[24px] font-mono font-black text-emerald-700 bg-emerald-100 px-4 py-2 rounded-xl">{String(t.id)}</span>
+                    <div className={`px-4 py-2 rounded-xl text-[14px] md:text-[20px] font-bold border-2 ${styleColor}`}>{statusLabel}</div>
+                  </div>
+                  <h3 className="text-[20px] md:text-[34px] font-black text-slate-800 mb-6">{String(t.equipment)}</h3>
+                  <div className="bg-indigo-50/50 p-6 rounded-2xl border-2 border-indigo-500">
+                    <p className="text-[16px] md:text-[26px] font-black text-rose-600">"{String(t.description)}"</p>
                   </div>
                 </div>
-                
-                {/* 🌟 ฟันธงจุดที่ 2 (กล่องเวลาด้านขวา): เติม self-end เพื่อให้มันผลักตัวเองไปชิดขวาเสมอเวลากลายเป็นจอมือถือ */}
-                {/* 🌟 ฟันธงจุดเสริมความเนียน (กล่องเวลาด้านขวา) */}
-                <div className="flex flex-col items-end self-end md:self-auto shrink-0 ml-0 md:ml-2 mt-1 md:mt-0">
-                   {isLast && isOngoing ? (
-                     <>
-                       {/* 🎯 ปรับ text-[13px] เป็น text-[11px] เฉพาะจอมือถือ และหรี่สีเป็น slate-500 */}
-                       <span className="text-[11px] md:text-[16px] font-bold mb-0.5 md:mb-1 text-slate-500 md:text-slate-800">สถานะปัจจุบัน</span>
-                       <span className={`px-2 md:px-3 py-0.5 md:py-1 rounded-md text-[12px] md:text-[16px] font-bold animate-pulse whitespace-nowrap shadow-sm border md:border-2 border-solid ${isHold ? 'bg-purple-100 text-purple-700 border-purple-500' : 'bg-orange-100 text-orange-700 border-orange-500'}`}>
-                         {isHold ? 'รออะไหล่' : 'กำลังซ่อม'}
-                       </span>
-                     </>
-                   ) : (
-                     <>
-                       {/* 🎯 ปรับ text-[13px] เป็น text-[11px] เฉพาะจอมือถือ */}
-                       <span className={`text-[11px] md:text-[16px] font-bold mb-0.5 md:mb-1 opacity-80 md:opacity-100 ${isHold ? 'text-purple-600' : 'text-orange-600'}`}>
-                         {isHold ? `ระยะเวลาที่หยุด (ครั้งที่ ${holdCounter})` : `ระยะเวลาที่ซ่อม (ครั้งที่ ${resumeCounter})`}
-                       </span>
-                       <span className="text-[12px] md:text-[16px] font-mono font-black text-slate-700 bg-white px-2 md:px-3 py-0.5 rounded border md:border-2 border-solid border-indigo-800 whitespace-nowrap shadow-sm tracking-wider">
-                         {formattedTime}
-                       </span>
-                     </>
-                   )}
+
+                {/* 🌟 โซนบุคคล (ผู้แจ้ง/ผู้รับผิดชอบ) - แก้ไขตามสั่งเป๊ะ! */}
+                <div className="px-6 md:px-10 py-6 grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div className="p-4 bg-emerald-50 rounded-2xl border border-emerald-200">
+                    <p className="text-[12px] font-bold text-emerald-700 uppercase">ผู้แจ้ง</p>
+                    <p className="text-[16px] md:text-[20px] font-black text-emerald-950">{t.reporter}</p>
+                    <a href={`tel:${String(t.reporterContact).replace(/\D/g, '')}`} className="text-emerald-700 font-bold underline text-[14px]">{formatDisplayPhone(t.reporterContact)}</a>
+                  </div>
+                  <div className="p-4 bg-orange-50 rounded-2xl border border-orange-200">
+                    <p className="text-[12px] font-bold text-orange-700 uppercase">ผู้รับผิดชอบ</p>
+                    <p className="text-[16px] md:text-[20px] font-black text-orange-950">{t.techName || "รอดำเนินการ"}</p>
+                    <a href={`tel:${String(t.techPhone).replace(/\D/g, '')}`} className="text-orange-700 font-bold underline text-[14px]">{formatDisplayPhone(t.techPhone)}</a>
+                  </div>
                 </div>
 
-              </div>
-            );
-          });
-        })()}
-      </div>
-    ) : (
-      
-      /* โค้ดสำรองกรณีข้อมูลยังเป็นแบบเก่า (เพื่อไม่ให้ Error) */
-      <>
-        {t.holdReason && (
-          <div className="bg-purple-50/70 border-l-[4px] border-solid border-purple-500 p-3 md:p-5 flex gap-3 md:gap-4 w-full mb-4">
-            <PauseCircle className="w-4 h-4 md:w-6 md:h-6 shrink-0 mt-0.5 text-purple-600" />
-            <div className="w-full">
-              <span className="block mb-0.5 text-purple-600/80 text-[10px] md:text-[14px] font-bold">แจ้งเหตุขัดข้อง:</span>
-              <span className="text-[13px] md:text-[18px] text-purple-900 font-bold">{String(t.holdReason)}</span>
-            </div>
-          </div>
-        )}
-        {t.resumeReason && (
-          <div className="bg-orange-50/70 border-l-[4px] border-solid border-orange-500 p-3 md:p-5 flex gap-3 md:gap-4 w-full mb-4">
-            <Wrench className="w-4 h-4 md:w-6 md:h-6 shrink-0 mt-0.5 text-orange-600" />
-            <div className="w-full">
-              <span className="block mb-0.5 text-orange-600/80 text-[10px] md:text-[14px] font-bold">ดำเนินการต่อ:</span>
-              <span className="text-[13px] md:text-[18px] text-orange-900 font-bold">{String(t.resumeReason)}</span>
-            </div>
-          </div>
-        )}
-      </>
-    )}
+                {/* 🚨 โซนเวร SSC (รวมบันทึก SSC ไว้ในนี้ที่เดียว ไม่มีการ์ดสีม่วงกวนใจ!) */}
+                {t.isOutOfHours && (() => {
+                  const tDateObj = new Date(t.date);
+                  const dayOfWeek = tDateObj.getDay();
+                  const dateStr = tDateObj.toISOString().split('T')[0];
+                  const rosterInfo = allRosters.find(r => r.date === dateStr);
+                  const isSpecialHoliday = rosterInfo && rosterInfo.isHoliday;
+                  let theme = { bg: 'bg-purple-50/80', border: 'border-purple-400', textHead: 'text-purple-700', textName: 'text-purple-950', icon: 'text-purple-500' };
 
-    {/* 📋 สรุปผลและข้อแนะนำ (ฟันธง: เติม rounded-xl md:rounded-2xl ลบเหลี่ยมแข็งโป๊ก) */}
-    {t.cause && (
-      <div className="bg-emerald-100/70 border-l-[4px] border-2 border-solid border-emerald-600 rounded-xl md:rounded-2xl p-3 md:p-5 flex gap-3 md:gap-4 w-full mb-4 mt-2">
-        <CheckSquare className="w-5 h-5 md:w-8 md:h-8 shrink-0 mt-0.5 text-emerald-600" />
-        <div className="w-full">
-          <span className="block mb-1 text-emerald-800/80 text-[16px] md:text-[20px] font-bold">สรุปผลและข้อแนะนำ:</span>
-          <span className="text-[18px] md:text-[22px] text-indigo-900 font-bold">
-            "{String(t.cause)}"
-            </span>
-        </div>
-      </div>
-    )}
+                  if (isSpecialHoliday) theme = { bg: 'bg-orange-50/80', border: 'border-orange-400', textHead: 'text-orange-700', textName: 'text-orange-950', icon: 'text-orange-500' };
+                  else if (dayOfWeek === 0) theme = { bg: 'bg-rose-50/80', border: 'border-rose-400', textHead: 'text-rose-700', textName: 'text-rose-950', icon: 'text-rose-500' };
+                  else if (dayOfWeek === 6) theme = { bg: 'bg-sky-50/80', border: 'border-sky-400', textHead: 'text-sky-700', textName: 'text-sky-950', icon: 'text-sky-500' };
 
-    {/* 🛠️ บันทึกเวร SSC (Flat Design) */}
-    {t.sscNote && (
-      <div className="bg-slate-50/80 border-l-[4px] border-solid border-slate-400 p-3 md:p-5 flex gap-3 md:gap-4 w-full mt-2 mb-2">
-        <Wrench className="w-5 h-5 md:w-8 md:h-8 shrink-0 mt-0.5 text-slate-500" />
-        <div className="w-full">
-          <span className="block mb-1 text-slate-500 text-[10px] md:text-[14px] font-bold uppercase">บันทึกการแก้ไขเบื้องต้น (เวร SSC):</span>
-          <span className="text-[13px] md:text-[18px] text-slate-800 font-bold">{String(t.sscNote)}</span>
-        </div>
-      </div>
-    )}
-    
-
-        {/* ==================== โซนภาพประกอบ (แบบมีกรอบ Card แยกชัดเจน) ==================== */}
-        {t.images && t.images.length > 0 && (
-          <div className="bg-slate-100 border-2 border-solid border-emerald-500 p-4 md:p-6 rounded-2xl md:rounded-[1.5rem] mt-4 shadow-sm w-full">
-            <span className="text-[14px] md:text-[22px] font-black text-rose-700 mb-3 md:mb-4 flex items-center gap-2">
-               📸 ภาพประกอบการแจ้งซ่อม:
-            </span>
-            <div className="grid grid-cols-3 gap-2 md:gap-4 mt-2">
-              {t.images.map((img, i) => (
-                <img 
-                  key={i} 
-                  src={img} 
-                  alt={`ภาพประกอบ ${i+1}`} 
-                  className="rounded-lg w-full aspect-square object-cover border border-slate-200 shadow-sm hover:scale-105 transition-transform cursor-pointer" 
-                />
-              ))}
-            </div>
-          </div>
-        )}
-
-        {/* ============================================================================== */}
-                        
-                       {/* 🌟 ฟันธง: สร้างกล่องแม่ครอบโซนอาการเสียและ Asset No ทั้งหมด พร้อมหดความกว้างให้เท่ากรอบส้มด้านบน */}
-                       <div className="bg-orange-100/70 border-l-[4px] border-2 border-solid border-indigo-600 rounded-xl md:rounded-2xl p-3 md:p-5 flex gap-3 md:gap-4 w-full mb-4 mt-4">
-                          
-                          {/* บรรทัดหัวเรื่อง */}
-                          <div className="mb-2 md:mb-4">
-                            <span className="text-[13px] md:text-[22px] font-black text-indigo-600 uppercase tracking-widest flex items-center gap-1.5 md:gap-3">
-                              <AlertCircle className="w-3 h-3 md:w-6 md:h-6 text-rose-600" /> รายละเอียดอาการเสีย:
-                            </span>
-                            {/* ตัวหนังสือรายละเอียด - ปรับ mt ลดลงนิดนึงให้อยู่ในกรอบสวยๆ */}
-                            <p className={`text-[14px] md:text-[26px] font-black mt-1.5 md:mt-3 leading-relaxed pl-1 md:pl-2 ${
-                              isCancelled ? 'text-slate-400 line-through' : 'text-rose-600 drop-shadow-sm'
-                            }`}>
-                              "{String(t.description)}"
-                            </p>
-
+                  return (
+                    <div className="px-6 md:px-10 pb-8">
+                      <div className={`${theme.bg} border-2 border-solid ${theme.border} p-4 md:p-6 rounded-2xl w-full`}>
+                        <span className={`text-[13px] md:text-[16px] font-black ${theme.textHead} mb-2 flex items-center gap-2 uppercase`}>
+                          <AlertTriangle size={16} /> เจ้าหน้าที่เวร SSC ประจำวันหยุด
+                        </span>
+                        <p className={`font-black ${theme.textName} text-[16px] md:text-[22px] flex items-center gap-2`}>
+                          <User size={18} className={theme.icon} /> {sscName || t.sscTechName || "ยังไม่ระบุเวร"}
+                        </p>
+                        {t.sscNote && (
+                          <div className={`mt-3 pt-3 border-t-[1.5px] border-dashed ${theme.border.replace('border-', 'border-').replace('400', '300')}`}>
+                            <p className="text-[11px] md:text-[14px] font-bold text-slate-500 uppercase">บันทึกการแก้ไขเบื้องต้น:</p>
+                            <p className="text-[13px] md:text-[18px] font-bold text-slate-800">{String(t.sscNote)}</p>
                           </div>
-                          
-                          {/* ส่วน Asset No (แสดงเมื่อมีข้อมูล) */}
-                          {t.assetNumber && (
-                            // 🌟 เติมเส้นคั่นภายในกรอบ เพื่อแยก Asset No ออกจากรายละเอียด
-                            <div className="mt-3 md:mt-5 pt-3 md:pt-5 border-t border-slate-200">
-                              <p className="text-[12px] md:text-[20px] text-slate-500 font-mono mt-0 mb-0">
-                                <span className="font-bold text-slate-400">
-                                  Asset No:
-                                </span>{' '}
-                                {t.assetNumber}
-                              </p>
-                            </div>
-                          )}
-
-                        </div>
-{/* ==================== โซนบุคคล (ผู้แจ้ง, ผู้รับผิดชอบหลัก) 🌟 ฟันธง: แยกกรอบชัดเจน ==================== */}
-<div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4 w-full">
-            
-            {/* 👤 การ์ด 1: ผู้แจ้งปัญหา */}
-            <div className="bg-emerald-50/40 border-2 border-solid border-emerald-400 p-4 md:p-6 rounded-2xl md:rounded-[1.5rem] shadow-sm flex flex-col w-full transition-all hover:shadow-md">
-              {/* หัวข้อ */}
-              <span className="text-[13px] md:text-[16px] font-black text-emerald-700 mb-2 md:mb-4 flex items-center gap-1.5 md:gap-2 uppercase tracking-wider">
-                <User className="w-4 h-4 md:w-5 md:h-5" /> ผู้แจ้งปัญหา
-              </span>
-              
-              {/* ชื่อ */}
-              <div className="flex items-center justify-between mb-3">
-                <span className="font-black text-emerald-950 flex items-center gap-2 text-[16px] md:text-[22px]">
-                  {String(t.reporter)}
-                </span>
-              </div>
-
-              {/* 🌟 ฟันธง: เส้นประคั่น + มือถือแยกบรรทัด (flex-col) / PC ให้อยู่ซ้าย-ขวา (md:flex-row) */}
-              <div className="flex flex-col md:flex-row md:items-center justify-between mt-auto pt-3 border-t-[1.5px] border-dashed border-emerald-400/50 gap-3">
-                <span className="text-[12px] md:text-[15px] font-bold text-blue-600 flex items-center gap-1.5">
-                  <Clock className="w-3 h-3 md:w-4 md:h-4 text-emerald-600" />
-                  {formatDateTimeString(t.date)}
-                </span>
-                {/* 🌟 ดันเบอร์โทรชิดขวา และบนมือถือให้หดพอดีตัว (w-fit) */}
-                <a href={`tel:${String(t.reporterContact).replace(/\D/g, '')}`} className="font-mono text-[12px] md:text-[15px] font-bold bg-emerald-100 px-3 py-1.5 rounded-lg text-emerald-800 border border-emerald-300 shadow-sm hover:bg-emerald-200 transition-colors flex items-center gap-1.5 active:scale-95 w-fit md:w-auto">
-                  <Phone className="w-3 h-3 md:w-4 md:h-4 text-emerald-600" />
-                  {formatDisplayPhone(t.reporterContact)}
-                </a>
-              </div>
-            </div>
-
-            {/* 🛠️ การ์ด 2: ผู้รับผิดชอบหลัก */}
-            <div className="bg-orange-50/40 border-2 border-solid border-orange-400 p-4 md:p-6 rounded-2xl md:rounded-[1.5rem] shadow-sm flex flex-col w-full transition-all hover:shadow-md">
-              <span className="text-[13px] md:text-[16px] font-black text-orange-600 mb-2 md:mb-4 flex items-center gap-1.5 md:gap-2 uppercase tracking-wider">
-                <Wrench className="w-4 h-4 md:w-5 md:h-5" /> ผู้รับผิดชอบหลัก
-              </span>
-              
-              <div className="flex items-center justify-between mb-3">
-                <span className="font-black text-orange-950 flex items-center gap-2 text-[16px] md:text-[22px]">
-                  {t.techName ? String(t.techName) : "รอดำเนินการ"}
-                </span>
-              </div>
-
-              {/* 🌟 ฟันธง: เส้นประคั่น + ดันเบอร์โทรไปขวาสุด (justify-end) */}
-              <div className="flex flex-col md:flex-row md:items-center justify-end mt-auto pt-3 border-t-[1.5px] border-dashed border-orange-400/50 gap-3">
-                {t.techPhone && t.techPhone !== '-' && t.techPhone !== 'N/A' ? (
-                  <a href={`tel:${String(t.techPhone).replace(/\D/g, '')}`} className="font-mono text-[12px] md:text-[15px] font-bold bg-orange-100 px-3 py-1.5 rounded-lg text-orange-800 border border-orange-300 shadow-sm hover:bg-orange-200 transition-colors flex items-center gap-1.5 active:scale-95 w-fit md:w-auto self-start md:self-auto">
-                    <Phone className="w-3 h-3 md:w-4 md:h-4 text-orange-600" />
-                    {formatDisplayPhone(t.techPhone)}
-                  </a>
-                ) : (
-                  <span className="font-mono text-[12px] md:text-[15px] text-slate-400 bg-slate-100 px-3 py-1.5 rounded-lg border border-slate-200 w-fit md:w-auto self-start md:self-auto">
-                    {String(t.techPhone || 'N/A')}
-                  </span>
-                )}
-              </div>
-            </div>
-          </div>
-
-          {/* ==================== 🚨 การ์ด 3: โซนเจ้าหน้าที่เวร SSC ==================== */}
-          {t.isOutOfHours && (() => {
-            const tDateObj = new Date(t.date);
-            const dayOfWeek = tDateObj.getDay();
-            const dateStr = tDateObj.toISOString().split('T')[0];
-            const rosterInfo = allRosters.find(r => r.date === dateStr);
-            const isSpecialHoliday = rosterInfo && rosterInfo.isHoliday;
-
-            let theme = { bg: 'bg-purple-50/80', border: 'border-purple-400', textHead: 'text-purple-700', textName: 'text-purple-950', icon: 'text-purple-500', btnBg: 'bg-purple-100', btnBorder: 'border-purple-300', btnText: 'text-purple-800' };
-
-            if (isSpecialHoliday) {
-              theme = { bg: 'bg-orange-50/80', border: 'border-orange-400', textHead: 'text-orange-700', textName: 'text-orange-950', icon: 'text-orange-500', btnBg: 'bg-orange-100', btnBorder: 'border-orange-300', btnText: 'text-orange-800' };
-            } else if (dayOfWeek === 0) { 
-              theme = { bg: 'bg-rose-50/80', border: 'border-rose-400', textHead: 'text-rose-700', textName: 'text-rose-950', icon: 'text-rose-500', btnBg: 'bg-rose-100', btnBorder: 'border-rose-300', btnText: 'text-rose-800' };
-            } else if (dayOfWeek === 6) { 
-              theme = { bg: 'bg-blue-50/80', border: 'border-blue-400', textHead: 'text-blue-700', textName: 'text-blue-950', icon: 'text-blue-500', btnBg: 'bg-blue-100', btnBorder: 'border-blue-300', btnText: 'text-blue-800' };
-            }
-
-            return (
-              <div className={`${theme.bg} border-2 border-solid ${theme.border} p-4 md:p-6 rounded-2xl md:rounded-[1.5rem] mt-4 shadow-sm w-full transition-all hover:shadow-md`}>
-                <div className="flex flex-col">
-                  {/* หัวข้อเวร SSC */}
-                  <span className={`text-[13px] md:text-[16px] font-black ${theme.textHead} mb-2 md:mb-4 flex items-center gap-1.5 md:gap-2 uppercase tracking-wider`}>
-                    <AlertTriangle className="w-4 h-4 md:w-5 md:h-5 animate-pulse" /> เจ้าหน้าที่เวร SSC ประจำวันหยุด
-                  </span>
-                  
-                  {/* ชื่อเวร SSC */}
-                  <div className="flex items-center justify-between mb-3">
-                    <span className={`font-black ${theme.textName} flex items-center gap-2 text-[16px] md:text-[22px]`}>
-                      <User className={`w-4 h-4 md:w-5 md:h-5 ${theme.icon}`} />
-                      {sscName || t.sscTechName || "ยังไม่ระบุเวร"}
-                    </span>
-                  </div>
-
-                  {/* 🌟 ฟันธง: เส้นประ (Dashed Line) + มือถือแยกบรรทัด / PC ซ้ายขวา! */}
-                  <div className={`flex flex-col md:flex-row md:items-center justify-between mt-auto pt-3 border-t-[1.5px] border-dashed ${theme.border.replace('border-', 'border-').replace('400', '300')} gap-3`}>
-                    
-                    <span className={`text-[12px] md:text-[15px] font-bold ${theme.btnText} flex items-center gap-1.5`}>
-                      <Clock className={`w-3 h-3 md:w-4 md:h-4 ${theme.icon}`} />
-                      วันที่: {new Date(t.date).toLocaleDateString('th-TH', { day: 'numeric', month: 'long', year: 'numeric' })}
-                    </span>
-                    
-                    {(sscPhone || t.sscTechPhone) && (sscPhone || t.sscTechPhone) !== '-' && (
-                      <a href={`tel:${String(sscPhone || t.sscTechPhone).replace(/\D/g, '')}`} className={`font-mono text-[12px] md:text-[15px] font-bold ${theme.btnBg} px-3 py-1.5 rounded-lg ${theme.btnText} border ${theme.btnBorder} shadow-sm transition-colors flex items-center gap-1.5 active:scale-95 w-fit md:w-auto`}>
-                        <Phone className={`w-3 h-3 md:w-4 md:h-4 ${theme.icon}`} />
-                        {formatDisplayPhone(sscPhone || t.sscTechPhone)}
-                      </a>
-                    )}
-                  </div>
-                </div>
+                        )}
+                      </div>
+                    </div>
+                  );
+                })()}
               </div>
             );
-          })()}
+          })
 
         {/* ============================================ */}
                       </div>
