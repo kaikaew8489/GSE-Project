@@ -299,7 +299,7 @@ function AdminRosterSettings({ onClose }) {
                             type="text"
                             value={currentInfo.holidayName || ''}
                             onChange={(e) => handleHolidayNameChange(d.dateStr, e.target.value)}
-                            placeholder="ระบุวันหยุด (เช่น สงกรานต์)"
+                            placeholder="ระบุวันหยุด (เช่น วันสงกรานต์)"
                             className="md:hidden w-full bg-slate-900/80 text-cyan-100 px-3 py-2.5 rounded-xl border border-solid border-cyan-500/30 focus:border-cyan-400 focus:shadow-[0_0_15px_rgba(6,182,212,0.3)] text-[12px] font-bold outline-none transition-all mt-2"
                           />
                         )}
@@ -3381,7 +3381,7 @@ const renderTracking = () => (
             trackTimeframe === 'all' 
               ? 'bg-gradient-to-r from-cyan-600 to-blue-600 text-white shadow-[0_0_15px_rgba(6,182,212,0.8)] border-[2px] border-solid border-cyan-300 scale-[1.02] z-10' 
               : 'bg-slate-950 text-cyan-300 border-[2px] border-solid border-cyan-400/30 shadow-[0_0_8px_rgba(34,211,238,0.4)] hover:bg-cyan-900/60 hover:text-white hover:border-cyan-300 hover:shadow-[0_0_20px_rgba(34,211,238,1)] hover:-translate-y-1'
-          }`}>ดูทุกวัน</button>
+          }`}>ทุกวัน</button>
 
           {/* ระบุวัน */}
           <div className="relative flex-1">
@@ -3510,8 +3510,8 @@ const renderTracking = () => (
 
       {/* 4. ป้ายบอกวันที่ (ย่อขนาดลง ไม่กินที่) */}
       <div className="flex items-center gap-1.5 px-1 pt-0.5 animate-in fade-in">
-        <Clock size={14} className="text-orange-500" />
-        <span className="text-[12px] font-bold text-emerald-400 tracking-widest drop-shadow-sm">
+        <Clock size={18} className="text-orange-500" />
+        <span className="text-[14px] font-bold text-emerald-400 tracking-widest drop-shadow-sm">
           {trackTimeframe === 'custom_date' && trackDate 
             ? `แสดงข้อมูลวันที่: ${parseInt(trackDate.split('-')[2])} ${['ม.ค.','ก.พ.','มี.ค.','เม.ย.','พ.ค.','มิ.ย.','ก.ค.','ส.ค.','ก.ย.','ต.ค.','พ.ย.','ธ.ค.'][parseInt(trackDate.split('-')[1])-1]} ${parseInt(trackDate.split('-')[0]) + 543}` 
           : trackTimeframe === 'custom_month' && trackMonth 
@@ -3535,9 +3535,9 @@ const renderTracking = () => (
           </div>
         ) : filteredTickets.length === 0 ? (
           <div className="text-center py-16 text-orange-500 flex flex-col items-center">
-            <CheckCircle size={50} className="mx-auto mb-4 opacity-50" />
-            <p className="font-bold text-[25px] text-lg">ไม่มีรายการ</p>
-            <p className="text-[20px] text-white-500 mt-1">ในสถานะที่คุณเลือก</p>
+            <CheckCircle size={60} className="mx-auto mb-4 opacity-50" />
+            <p className="font-bold text-[26px] text-lg">ไม่มีรายการ</p>
+            <p className="text-[22px] text-white-500 mt-1">ที่คุณเลือก</p>
           </div>
         ) : (
 
@@ -3660,7 +3660,7 @@ const renderTracking = () => (
                           ) : (
                             <div className={`flex flex-row items-center justify-between bg-slate-900/80 p-3.5 md:p-6 rounded-xl md:rounded-2xl border-[2px] border-solid ${rColor.border} ${rColor.glow} relative overflow-hidden`}>
                               <div className={`absolute -left-10 -bottom-10 w-24 h-24 md:w-48 md:h-48 ${rColor.flare} blur-[20px] md:blur-[40px] rounded-full pointer-events-none`}></div>
-                              <span className={`text-[11.5px] sm:text-[14px] md:text-[24px] font-black ${rColor.text} uppercase tracking-widest ml-1 relative z-10 drop-shadow-sm shrink-0`}>
+                              <span className={`text-[14px] sm:text-[14px] md:text-[25px] font-black ${rColor.text} uppercase tracking-widest ml-1 relative z-10 drop-shadow-sm shrink-0`}>
                                 คุณให้คะแนนงานนี้:
                               </span>
                               <div className="flex gap-1 md:gap-3 relative z-10 shrink-0">
@@ -4087,7 +4087,7 @@ const renderTracking = () => (
             {/* 👤 การ์ด 1: ผู้แจ้งปัญหา */}
             <div className="bg-emerald-50/40 border-2 border-solid border-emerald-400 p-4 md:p-6 rounded-2xl md:rounded-[1.5rem] shadow-sm flex flex-col w-full transition-all hover:shadow-md">
               {/* หัวข้อ */}
-              <span className="text-[13px] md:text-[16px] font-black text-emerald-700 mb-2 md:mb-4 flex items-center gap-1.5 md:gap-2 uppercase tracking-wider">
+              <span className="text-[15px] md:text-[18px] font-black text-emerald-700 mb-2 md:mb-4 flex items-center gap-1.5 md:gap-2 uppercase tracking-wider">
                 <User className="w-4 h-4 md:w-5 md:h-5" /> ผู้แจ้งปัญหา
               </span>
               
@@ -4105,7 +4105,7 @@ const renderTracking = () => (
                   {formatDateTimeString(t.date)}
                 </span>
                 {/* 🌟 ดันเบอร์โทรชิดขวา และบนมือถือให้หดพอดีตัว (w-fit) */}
-                <a href={`tel:${String(t.reporterContact).replace(/\D/g, '')}`} className="font-mono text-[12px] md:text-[15px] font-bold bg-emerald-100 px-3 py-1.5 rounded-lg text-emerald-800 border border-emerald-300 shadow-sm hover:bg-emerald-200 transition-colors flex items-center gap-1.5 active:scale-95 w-fit md:w-auto">
+                <a href={`tel:${String(t.reporterContact).replace(/\D/g, '')}`} className="font-mono text-[15px] md:text-[18px] font-bold bg-emerald-100 px-3 py-1.5 rounded-lg text-emerald-800 border border-emerald-300 shadow-sm hover:bg-emerald-200 transition-colors flex items-center gap-1.5 active:scale-95 w-fit md:w-auto">
                   <Phone className="w-3 h-3 md:w-4 md:h-4 text-emerald-600" />
                   {formatDisplayPhone(t.reporterContact)}
                 </a>
@@ -4114,7 +4114,7 @@ const renderTracking = () => (
 
             {/* 🛠️ การ์ด 2: ผู้รับผิดชอบหลัก */}
             <div className="bg-orange-50/40 border-2 border-solid border-orange-400 p-4 md:p-6 rounded-2xl md:rounded-[1.5rem] shadow-sm flex flex-col w-full transition-all hover:shadow-md">
-              <span className="text-[13px] md:text-[16px] font-black text-orange-600 mb-2 md:mb-4 flex items-center gap-1.5 md:gap-2 uppercase tracking-wider">
+              <span className="text-[15px] md:text-[18px] font-black text-orange-600 mb-2 md:mb-4 flex items-center gap-1.5 md:gap-2 uppercase tracking-wider">
                 <Wrench className="w-4 h-4 md:w-5 md:h-5" /> ผู้รับผิดชอบหลัก
               </span>
               
@@ -4127,7 +4127,7 @@ const renderTracking = () => (
               {/* 🌟 ฟันธง: เส้นประคั่น + ดันเบอร์โทรไปขวาสุด (justify-end) */}
               <div className="flex flex-col md:flex-row md:items-center justify-end mt-auto pt-3 border-t-[1.5px] border-dashed border-orange-400/50 gap-3">
                 {t.techPhone && t.techPhone !== '-' && t.techPhone !== 'N/A' ? (
-                  <a href={`tel:${String(t.techPhone).replace(/\D/g, '')}`} className="font-mono text-[12px] md:text-[15px] font-bold bg-orange-100 px-3 py-1.5 rounded-lg text-orange-800 border border-orange-300 shadow-sm hover:bg-orange-200 transition-colors flex items-center gap-1.5 active:scale-95 w-fit md:w-auto self-start md:self-auto">
+                  <a href={`tel:${String(t.techPhone).replace(/\D/g, '')}`} className="font-mono text-[15px] md:text-[18px] font-bold bg-orange-100 px-3 py-1.5 rounded-lg text-orange-800 border border-orange-300 shadow-sm hover:bg-orange-200 transition-colors flex items-center gap-1.5 active:scale-95 w-fit md:w-auto self-start md:self-auto">
                     <Phone className="w-3 h-3 md:w-4 md:h-4 text-orange-600" />
                     {formatDisplayPhone(t.techPhone)}
                   </a>
@@ -4176,12 +4176,12 @@ const renderTracking = () => (
 
                   {/* วันที่ และ เบอร์โทร */}
                   <div className={`flex flex-col md:flex-row md:items-center justify-between mt-auto pt-3 border-t-[1.5px] border-dashed ${theme.border.replace('border-', 'border-').replace('400', '300')} gap-3`}>
-                    <span className={`text-[12px] md:text-[15px] font-bold ${theme.btnText} flex items-center gap-1.5`}>
+                    <span className={`text-[15px] md:text-[18px] font-bold ${theme.btnText} flex items-center gap-1.5`}>
                       <Clock className={`w-3 h-3 md:w-4 md:h-4 ${theme.icon}`} />
                       วันที่: {new Date(t.date).toLocaleDateString('th-TH', { day: 'numeric', month: 'long', year: 'numeric' })}
                     </span>
                     {(sscPhone || t.sscTechPhone) && (sscPhone || t.sscTechPhone) !== '-' && (
-                      <a href={`tel:${String(sscPhone || t.sscTechPhone).replace(/\D/g, '')}`} className={`font-mono text-[12px] md:text-[15px] font-bold ${theme.btnBg} px-3 py-1.5 rounded-lg ${theme.btnText} border ${theme.btnBorder} shadow-sm transition-colors flex items-center gap-1.5 active:scale-95 w-fit md:w-auto`}>
+                      <a href={`tel:${String(sscPhone || t.sscTechPhone).replace(/\D/g, '')}`} className={`font-mono text-[15px] md:text-[18px] font-bold ${theme.btnBg} px-3 py-1.5 rounded-lg ${theme.btnText} border ${theme.btnBorder} shadow-sm transition-colors flex items-center gap-1.5 active:scale-95 w-fit md:w-auto`}>
                         <Phone className={`w-3 h-3 md:w-4 md:h-4 ${theme.icon}`} />
                         {formatDisplayPhone(sscPhone || t.sscTechPhone)}
                       </a>
@@ -4307,7 +4307,7 @@ const renderTracking = () => (
                           {isPending && (
                             <div className="flex flex-col gap-2.5 md:gap-6">
                               {waitingMin > 60 && (
-                                <div className="bg-green-600/20 border-2 border-solid border-orange-800 text-rose-600 text-[14px] md:text-[22px] font-bold px-4 py-2.5 md:py-5 rounded-xl md:rounded-2xl flex items-center gap-2 md:gap-4 mb-1 md:mb-3">
+                                <div className="bg-green-600/20 border-2 border-solid border-rose-500 text-rose-600 text-[14px] md:text-[22px] font-bold px-4 py-2.5 md:py-5 rounded-xl md:rounded-2xl flex items-center gap-2 md:gap-4 mb-1 md:mb-3">
                                   <AlertTriangle className="w-[15px] h-[15px] md:w-8 md:h-8 animate-pulse shrink-0" />
                                   รอดำเนินการเกิน 1 ชั่วโมง (SLA Breach)
                                 </div>
@@ -4321,7 +4321,7 @@ const renderTracking = () => (
                                       type: 'cancel',
                                     })
                                   }
-                                  className="flex-[1] bg-orange text-rose-500 border border-orange-500 font-bold py-3.5 md:py-6 rounded-xl md:rounded-3xl flex justify-center items-center gap-1.5 md:gap-3 active:scale-95 text-[18px] md:text-[28px] transition-colors shadow-sm hover:bg-rose-50"
+                                  className="flex-[1] bg-orange text-rose-500 border-2 border-solid border-orange-500 font-bold py-3.5 md:py-6 rounded-xl md:rounded-3xl flex justify-center items-center gap-1.5 md:gap-3 active:scale-95 text-[18px] md:text-[28px] transition-colors shadow-sm hover:bg-rose-50"
                                 >
                                   <XCircle className="w-[22px] h-[22px] md:w-9 md:h-9" /> ยกเลิก
                                 </button>
