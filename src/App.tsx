@@ -836,51 +836,56 @@ const ThaiDateFormatter = (date) => {
     'ก.ค.', 'ส.ค.', 'ก.ย.', 'ต.ค.', 'พ.ย.', 'ธ.ค.',
   ];
   const d = new Date(date);
+  const dayOfWeek = d.getDay();
+
+  // 🌟 สมองกลกำหนดสีตามวัน สำหรับตัวหนังสือและไอคอน (พร้อมเอฟเฟกต์เรืองแสง)
+  const dayColors = {
+    0: 'text-rose-400 drop-shadow-[0_0_10px_rgba(244,63,94,0.8)]',    // อาทิตย์ (แดง)
+    1: 'text-yellow-400 drop-shadow-[0_0_10px_rgba(250,204,21,0.8)]', // จันทร์ (เหลือง)
+    2: 'text-pink-400 drop-shadow-[0_0_10px_rgba(244,114,182,0.8)]',  // อังคาร (ชมพู)
+    3: 'text-emerald-400 drop-shadow-[0_0_10px_rgba(52,211,153,0.8)]',// พุธ (เขียว)
+    4: 'text-orange-400 drop-shadow-[0_0_10px_rgba(251,146,60,0.8)]', // พฤหัส (ส้ม)
+    5: 'text-sky-400 drop-shadow-[0_0_10px_rgba(56,189,248,0.8)]',    // ศุกร์ (ฟ้า)
+    6: 'text-purple-400 drop-shadow-[0_0_10px_rgba(168,85,247,0.8)]'  // เสาร์ (ม่วง)
+  };
+
+  // 🌟 สมองกลสร้างแสงเฟลอร์ (Flare) ฟุ้งๆ ด้านหลัง
+  const flareColors = {
+    0: 'bg-rose-500/20',
+    1: 'bg-yellow-500/20',
+    2: 'bg-pink-500/20',
+    3: 'bg-emerald-500/20',
+    4: 'bg-orange-500/20',
+    5: 'bg-sky-500/20',
+    6: 'bg-purple-500/20'
+  };
+
   return (
-    // 🌟 PC อัปเกรด: ขยาย text เป็น 22px และถ่างช่องไฟ gap-8
     <div className="flex items-center justify-center gap-3 sm:gap-5 md:gap-8 text-[15px] sm:text-[17px] md:text-[22px] whitespace-nowrap font-sans py-1 px-2">
-      <div className="flex items-center gap-2 md:gap-3 text-emerald-300 shrink-0">
-        {/* 🌟 PC อัปเกรด: ขยายไอคอนปฏิทิน */}
-        <Calendar className="w-[22px] h-[22px] md:w-[28px] md:h-[28px] text-emerald-400" />
-        <span className="font-black tracking-widest drop-shadow-sm">
+      
+      {/* 📅 โซนวันที่ (ฟันธง: เปลี่ยนสีตามวัน + มีแสงเฟลอร์เบาๆ ด้านหลัง) */}
+      <div className="relative flex items-center gap-2 md:gap-3 shrink-0">
+        <div className={`absolute inset-0 ${flareColors[dayOfWeek]} blur-[15px] rounded-full pointer-events-none`}></div>
+        <Calendar className={`w-[22px] h-[22px] md:w-[28px] md:h-[28px] relative z-10 ${dayColors[dayOfWeek]}`} />
+        <span className={`font-black tracking-widest relative z-10 ${dayColors[dayOfWeek]}`}>
           {d.getDate()} {months[d.getMonth()]} {d.getFullYear() + 543}
         </span>
       </div>
 
-      {/* ⏐ เส้นแบ่งคั่นกลาง (ขยายความสูงบน PC) */}
+      {/* ⏐ เส้นแบ่งคั่นกลาง */}
       <div className="w-[2px] h-6 md:h-8 bg-slate-500/50 rounded-full shrink-0"></div>
 
-      <div className="flex items-center gap-2 md:gap-3 text-orange-300 shrink-0">
-        {/* 🌟 PC อัปเกรด: ขยายไอคอนนาฬิกา */}
-        <Clock className="w-[22px] h-[22px] md:w-[28px] md:h-[28px] text-orange-500 animate-pulse" />
-        <span className="font-mono font-black tracking-[0.1em] drop-shadow-[0_0_5px_rgba(249,115,22,0.6)]">
+      {/* ⏱️ โซนเวลา (ฟันธง: ล็อกสีส้มไว้ตามสั่ง ไม่ให้เปลี่ยนตามวัน พร้อมเฟลอร์สีส้ม) */}
+      <div className="relative flex items-center gap-2 md:gap-3 shrink-0">
+         <div className="absolute inset-0 bg-orange-500/10 blur-[15px] rounded-full pointer-events-none"></div>
+        <Clock className="w-[22px] h-[22px] md:w-[28px] md:h-[28px] text-orange-500 animate-pulse relative z-10 drop-shadow-[0_0_5px_rgba(249,115,22,0.8)]" />
+        <span className="font-mono font-black text-orange-300 tracking-[0.1em] drop-shadow-[0_0_5px_rgba(249,115,22,0.6)] relative z-10">
           {d.toLocaleTimeString('th-TH', { hour12: false })} น.
         </span>
       </div>
+
     </div>
   );
-};
-
-const formatDateTimeString = (date) => {
-  if (!date) return '';
-  const d = new Date(date);
-  const months = [
-    'ม.ค.',
-    'ก.พ.',
-    'มี.ค.',
-    'เม.ย.',
-    'พ.ค.',
-    'มิ.ย.',
-    'ก.ค.',
-    'ส.ค.',
-    'ก.ย.',
-    'ต.ค.',
-    'พ.ย.',
-    'ธ.ค.',
-  ];
-  return `${d.getDate()} ${months[d.getMonth()]} ${
-    d.getFullYear() + 543
-  } | ${d.toLocaleTimeString('th-TH', { hour12: false })} น.`;
 };
 
 const getNextReqId = (tickets) => {
@@ -2661,8 +2666,9 @@ const executeRatingSubmit = async () => {
           {ThaiDateFormatter(sysTime)}
         </div>
 
-        {/* 🌟 วิดเจ็ตแสดงวิศวกรเวรประจำการ (แปะบนสุด) */}
-        {(() => {
+
+       {/* 🌟 วิดเจ็ตแสดงวิศวกรเวรประจำการ (แปะบนสุด) */}
+       {(() => {
           const today = new Date(sysTime);
           const todayStr = `${today.getFullYear()}-${String(today.getMonth() + 1).padStart(2, '0')}-${String(today.getDate()).padStart(2, '0')}`;
           const sscRosterForDate = allRosters.find(r => r.date === todayStr);
@@ -2671,48 +2677,70 @@ const executeRatingSubmit = async () => {
           const dayOfWeek = today.getDay();
           const daysThai = ['วันอาทิตย์', 'วันจันทร์', 'วันอังคาร', 'วันพุธ', 'วันพฤหัสบดี', 'วันศุกร์', 'วันเสาร์'];
           
-          // 🌟 สมองกลกำหนดสีเวร SSC ตามวัน 1,000,000%
-          let wTheme = { bg: 'bg-emerald-500/20', border: 'border-emerald-500/50', textHead: 'text-emerald-400', textName: 'text-emerald-400', glow: 'shadow-[0_0_20px_rgba(16,185,129,0.2)]', iconGlow: 'shadow-[0_0_8px_rgba(16,185,129,1)]', dayLabel: daysThai[dayOfWeek] };
+          // 1. กำหนดสีประจำวันเกิดแบบเป๊ะๆ 1,000,000%
+          const dayColors = {
+            0: 'text-rose-500 drop-shadow-[0_0_8px_rgba(244,63,94,0.8)]',    // อาทิตย์ (แดง)
+            1: 'text-yellow-400 drop-shadow-[0_0_8px_rgba(250,204,21,0.8)]', // จันทร์ (เหลือง)
+            2: 'text-pink-400 drop-shadow-[0_0_8px_rgba(244,114,182,0.8)]',  // อังคาร (ชมพู)
+            3: 'text-emerald-400 drop-shadow-[0_0_8px_rgba(52,211,153,0.8)]',// พุธ (เขียว)
+            4: 'text-orange-400 drop-shadow-[0_0_8px_rgba(251,146,60,0.8)]', // พฤหัส (ส้ม)
+            5: 'text-sky-400 drop-shadow-[0_0_8px_rgba(56,189,248,0.8)]',    // ศุกร์ (ฟ้า)
+            6: 'text-violet-400 drop-shadow-[0_0_8px_rgba(167,139,250,0.8)]' // เสาร์ (ม่วง)
+          };
 
-          if (dutyPerson?.isHoliday) {
-            wTheme = { bg: 'bg-orange-500/20', border: 'border-orange-500/80', textHead: 'text-orange-400', textName: 'text-orange-400', glow: 'shadow-[0_0_30px_rgba(249,115,22,0.3)]', iconGlow: 'shadow-[0_0_10px_rgba(249,115,22,1)]', dayLabel: `วันหยุดนักขัตฤกษ์ (${dutyPerson.holidayName})` };
-          } else if (dayOfWeek === 0) { // วันอาทิตย์ (สีแดง)
-            wTheme = { bg: 'bg-rose-500/20', border: 'border-rose-500/80', textHead: 'text-rose-400', textName: 'text-rose-400', glow: 'shadow-[0_0_30px_rgba(225,29,72,0.3)]', iconGlow: 'shadow-[0_0_10px_rgba(225,29,72,1)]', dayLabel: 'วันอาทิตย์' };
-          } else if (dayOfWeek === 6) { // วันเสาร์ (สีน้ำเงิน/ฟ้า)
-            wTheme = { bg: 'bg-blue-500/20', border: 'border-blue-500/80', textHead: 'text-blue-400', textName: 'text-blue-400', glow: 'shadow-[0_0_30px_rgba(59,130,246,0.3)]', iconGlow: 'shadow-[0_0_10px_rgba(59,130,246,1)]', dayLabel: 'วันเสาร์' };
+          // 🌟 2. ถ้ามีเวรจริงๆ (วันหยุด/วันพิเศษ) -> ใช้กรอบเรืองแสงแบบเดิม
+          if (dutyPerson?.techName) {
+            let wTheme = { bg: 'bg-purple-500/20', border: 'border-purple-500/80', textHead: 'text-purple-400', textName: 'text-purple-400', glow: 'shadow-[0_0_30px_rgba(168,85,247,0.3)]', iconGlow: 'shadow-[0_0_10px_rgba(168,85,247,1)]', iconText: 'text-purple-400', dayLabel: daysThai[dayOfWeek] };
+            
+            if (dutyPerson?.isHoliday) {
+              wTheme = { bg: 'bg-orange-500/20', border: 'border-orange-500/80', textHead: 'text-orange-400', textName: 'text-orange-400', glow: 'shadow-[0_0_30px_rgba(249,115,22,0.3)]', iconGlow: 'shadow-[0_0_10px_rgba(249,115,22,1)]', iconText: 'text-orange-400', dayLabel: `วันหยุดนักขัตฤกษ์ (${dutyPerson.holidayName})` };
+            } else if (dayOfWeek === 0) { // วันอาทิตย์ (สีแดง)
+              wTheme = { bg: 'bg-rose-500/20', border: 'border-rose-500/80', textHead: 'text-rose-400', textName: 'text-rose-400', glow: 'shadow-[0_0_30px_rgba(225,29,72,0.3)]', iconGlow: 'shadow-[0_0_10px_rgba(225,29,72,1)]', iconText: 'text-rose-400', dayLabel: 'วันอาทิตย์' };
+            } else if (dayOfWeek === 6) { // วันเสาร์ (สีฟ้า/น้ำเงิน)
+              wTheme = { bg: 'bg-sky-500/20', border: 'border-sky-500/80', textHead: 'text-sky-400', textName: 'text-sky-400', glow: 'shadow-[0_0_30px_rgba(14,165,233,0.3)]', iconGlow: 'shadow-[0_0_10px_rgba(14,165,233,1)]', iconText: 'text-sky-400', dayLabel: 'วันเสาร์' };
+            }
+
+            return (
+              <div className={`mb-2 mt-4 p-4 md:p-6 rounded-2xl border-[2px] border-solid ${wTheme.border} bg-slate-900/90 ${wTheme.glow} flex items-center justify-between transition-all hover:brightness-110`}>
+                <div className="flex items-center gap-4">
+                  <div className="relative">
+                    <div className={`w-12 h-12 md:w-16 md:h-16 rounded-xl ${wTheme.bg} flex items-center justify-center border ${wTheme.border}`}>
+                      <User className={`w-6 h-6 md:w-8 md:h-8 ${wTheme.iconText}`} />
+                    </div>
+                    <span className={`absolute -top-1 -right-1 w-3 h-3 md:w-4 md:h-4 bg-emerald-500 rounded-full animate-pulse border-2 border-slate-900 ${wTheme.iconGlow}`}></span>
+                  </div>
+                  <div>
+                    <p className={`text-[12px] md:text-[14px] font-bold uppercase tracking-widest text-slate-400`}>
+                      เจ้าหน้าที่เวร SSC | <span className={`${wTheme.textHead}`}>{wTheme.dayLabel}</span>
+                    </p>
+                    <p className={`text-[17px] md:text-[22px] font-black ${wTheme.textName} drop-shadow-md mt-0.5`}>
+                      {dutyPerson.techName}
+                    </p>
+                  </div>
+                </div>
+                {dutyPerson.techPhone && dutyPerson.techPhone !== '-' && (
+                  <a href={`tel:${dutyPerson.techPhone.replace(/\D/g, '')}`} className="bg-blue-600 hover:bg-blue-500 text-white p-3 md:p-4 rounded-xl shadow-[0_0_15px_rgba(37,99,235,0.5)] transition-all hover:scale-105 active:scale-95">
+                    <Phone className="w-6 h-6 md:w-8 md:h-8" />
+                  </a>
+                )}
+              </div>
+            );
           }
 
-          const formattedDate = `${today.getDate()} ${['ม.ค.', 'ก.พ.', 'มี.ค.', 'เม.ย.', 'พ.ค.', 'มิ.ย.', 'ก.ค.', 'ส.ค.', 'ก.ย.', 'ต.ค.', 'พ.ย.', 'ธ.ค.'][today.getMonth()]} ${today.getFullYear() + 543}`;
-
+          // 🌟 3. โหมดวันธรรมดา (ไม่มีเวร) -> ฟันธง: ออกแบบใหม่เป็นป้ายประกาศ (Info Alert) สวยงาม คลีนตา!
           return (
-            <div className={`mb-2 mt-4 p-4 md:p-6 rounded-2xl border-[2px] border-solid ${wTheme.border} bg-slate-900/90 ${wTheme.glow} flex items-center justify-between transition-all hover:brightness-110`}>
-              <div className="flex items-center gap-4">
-                <div className="relative">
-                  <div className={`w-12 h-12 md:w-16 md:h-16 rounded-xl ${wTheme.bg} flex items-center justify-center border ${wTheme.border}`}>
-                    <User className={`w-6 h-6 md:w-8 md:h-8 ${wTheme.textHead}`} />
-                  </div>
-                  <span className={`absolute -top-1 -right-1 w-3 h-3 md:w-4 md:h-4 bg-emerald-500 rounded-full animate-pulse border-2 border-slate-900 ${wTheme.iconGlow}`}></span>
-                </div>
-
-                <div>
-                 
-                  <p className="text-[12px] md:text-[14px] text-slate-400 font-bold uppercase tracking-widest">
-                    เจ้าหน้าที่เวร SSC | <span className={`${wTheme.textHead}`}>{wTheme.dayLabel}</span>
-                  </p>
-
-                  <p className={`text-[17px] md:text-[22px] font-black ${wTheme.textName} drop-shadow-md mt-0.5`}>
-                    {dutyPerson?.techName || 'ไม่มีเวร SSC วันนี้'}
-                  </p>
-                </div>
+            <div className="mb-2 mt-4 p-3.5 md:p-5 rounded-2xl border-[2px] border-dashed border-slate-600/80 bg-slate-900/50 flex items-center gap-3.5 md:gap-5 transition-all shadow-inner">
+              <div className="w-10 h-10 md:w-12 md:h-12 rounded-full bg-slate-800 flex items-center justify-center border border-slate-600 shrink-0 shadow-sm">
+                <AlertCircle className="w-5 h-5 md:w-6 md:h-6 text-slate-400" />
               </div>
-              {dutyPerson?.techName && dutyPerson?.techPhone && dutyPerson.techPhone !== '-' && (
-                <a 
-                  href={`tel:${dutyPerson.techPhone.replace(/\D/g, '')}`} 
-                  className="bg-blue-600 hover:bg-blue-500 text-white p-3 md:p-4 rounded-xl shadow-[0_0_15px_rgba(37,99,235,0.5)] transition-all hover:scale-105 active:scale-95"
-                >
-                  <Phone className="w-6 h-6 md:w-8 md:h-8" />
-                </a>
-              )}
+              <div className="flex-1">
+                <p className="text-[13px] md:text-[16px] font-bold text-slate-300 leading-tight">
+                  วันนี้ <span className={`${dayColors[dayOfWeek]} font-black tracking-wide mx-0.5`}>{daysThai[dayOfWeek]}</span> ไม่มีเจ้าหน้าที่เวร SSC
+                </p>
+                <p className="text-[11px] md:text-[14px] text-slate-400 font-bold mt-1 leading-snug">
+                  สามารถแจ้งซ่อมเพื่อให้ <span className="text-orange-400 font-black tracking-wide">ผู้รับผิดชอบหลัก</span> ดำเนินการได้เลย
+                </p>
+              </div>
             </div>
           );
         })()}
@@ -4059,118 +4087,109 @@ const renderTracking = () => (
                           )}
 
                         </div>
-
-                        {/* ==================== โซนผู้แจ้ง & ผู้รับผิดชอบ (แบบมีกรอบ Card) ==================== */}
-          <div className="bg-emerald-50/40 border-2 border-solid border-emerald-400 p-4 md:p-6 rounded-2xl md:rounded-[1.5rem] mt-4 shadow-sm w-full">
-            <div className="flex flex-col md:flex-row gap-4 md:gap-8">
+{/* ==================== โซนบุคคล (ผู้แจ้ง, ผู้รับผิดชอบหลัก) 🌟 ฟันธง: แยกกรอบชัดเจน ==================== */}
+<div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4 w-full">
+            
+            {/* 👤 การ์ด 1: ผู้แจ้งปัญหา */}
+            <div className="bg-emerald-50/40 border-2 border-solid border-emerald-400 p-4 md:p-6 rounded-2xl md:rounded-[1.5rem] shadow-sm flex flex-col w-full transition-all hover:shadow-md">
+              {/* หัวข้อ */}
+              <span className="text-[13px] md:text-[16px] font-black text-emerald-700 mb-2 md:mb-4 flex items-center gap-1.5 md:gap-2 uppercase tracking-wider">
+                <User className="w-4 h-4 md:w-5 md:h-5" /> ผู้แจ้งปัญหา
+              </span>
               
-              {/* 👤 ฝั่งซ้าย: ผู้แจ้งปัญหา */}
-              <div className="flex-1 flex flex-col border-b md:border-b-0 md:border-r border-emerald-300/50 pb-4 md:pb-0 md:pr-8">
-                <span className="text-[14px] md:text-[18px] font-black text-emerald-700 mb-2 md:mb-4">
-                  ผู้แจ้งปัญหา
+              {/* ชื่อ */}
+              <div className="flex items-center justify-between mb-3">
+                <span className="font-black text-emerald-950 flex items-center gap-2 text-[16px] md:text-[22px]">
+                  {String(t.reporter)}
                 </span>
-                <div className="flex items-center justify-between mb-3">
-                  <span className="font-black text-emerald-950 flex items-center gap-2 text-[16px] md:text-[24px]">
-                    <User className={`w-4 h-4 md:w-6 md:h-6 ${isCancelled ? 'text-slate-400' : 'text-emerald-500'}`} />
-                    {String(t.reporter)}
-                  </span>
-                </div>
-                {/* 🌟 ฟันธง: ดัน วันที่ และ เบอร์โทร ให้อยู่บรรทัดเดียวกัน (Flex between) */}
-                <div className="flex items-center justify-between mt-auto pt-1">
-                  <span className="text-[12px] md:text-[15px] font-bold text-blue-600 flex items-center gap-1.5">
-                    <Clock className="w-3 h-3 md:w-4 md:h-4" />
-                    {formatDateTimeString(t.date)}
-                  </span>
-                  <a href={`tel:${String(t.reporterContact).replace(/\D/g, '')}`} className="font-mono text-[12px] md:text-[15px] font-bold bg-emerald-100 px-2.5 py-1 md:px-3 md:py-1.5 rounded-lg text-emerald-800 border border-emerald-300 shadow-sm hover:bg-emerald-200 transition-colors flex items-center gap-1.5 active:scale-95 shrink-0">
-                    <Phone className="w-3 h-3 md:w-4 md:h-4 text-emerald-600" />
-                    {formatDisplayPhone(t.reporterContact)}
+              </div>
+
+              {/* 🌟 ฟันธง: เส้นประคั่น + มือถือแยกบรรทัด (flex-col) / PC ให้อยู่ซ้าย-ขวา (md:flex-row) */}
+              <div className="flex flex-col md:flex-row md:items-center justify-between mt-auto pt-3 border-t-[1.5px] border-dashed border-emerald-400/50 gap-3">
+                <span className="text-[12px] md:text-[15px] font-bold text-blue-600 flex items-center gap-1.5">
+                  <Clock className="w-3 h-3 md:w-4 md:h-4 text-emerald-600" />
+                  {formatDateTimeString(t.date)}
+                </span>
+                {/* 🌟 ดันเบอร์โทรชิดขวา และบนมือถือให้หดพอดีตัว (w-fit) */}
+                <a href={`tel:${String(t.reporterContact).replace(/\D/g, '')}`} className="font-mono text-[12px] md:text-[15px] font-bold bg-emerald-100 px-3 py-1.5 rounded-lg text-emerald-800 border border-emerald-300 shadow-sm hover:bg-emerald-200 transition-colors flex items-center gap-1.5 active:scale-95 w-fit md:w-auto">
+                  <Phone className="w-3 h-3 md:w-4 md:h-4 text-emerald-600" />
+                  {formatDisplayPhone(t.reporterContact)}
+                </a>
+              </div>
+            </div>
+
+            {/* 🛠️ การ์ด 2: ผู้รับผิดชอบหลัก */}
+            <div className="bg-orange-50/40 border-2 border-solid border-orange-400 p-4 md:p-6 rounded-2xl md:rounded-[1.5rem] shadow-sm flex flex-col w-full transition-all hover:shadow-md">
+              <span className="text-[13px] md:text-[16px] font-black text-orange-600 mb-2 md:mb-4 flex items-center gap-1.5 md:gap-2 uppercase tracking-wider">
+                <Wrench className="w-4 h-4 md:w-5 md:h-5" /> ผู้รับผิดชอบหลัก
+              </span>
+              
+              <div className="flex items-center justify-between mb-3">
+                <span className="font-black text-orange-950 flex items-center gap-2 text-[16px] md:text-[22px]">
+                  {t.techName ? String(t.techName) : "รอดำเนินการ"}
+                </span>
+              </div>
+
+              {/* 🌟 ฟันธง: เส้นประคั่น + ดันเบอร์โทรไปขวาสุด (justify-end) */}
+              <div className="flex flex-col md:flex-row md:items-center justify-end mt-auto pt-3 border-t-[1.5px] border-dashed border-orange-400/50 gap-3">
+                {t.techPhone && t.techPhone !== '-' && t.techPhone !== 'N/A' ? (
+                  <a href={`tel:${String(t.techPhone).replace(/\D/g, '')}`} className="font-mono text-[12px] md:text-[15px] font-bold bg-orange-100 px-3 py-1.5 rounded-lg text-orange-800 border border-orange-300 shadow-sm hover:bg-orange-200 transition-colors flex items-center gap-1.5 active:scale-95 w-fit md:w-auto self-start md:self-auto">
+                    <Phone className="w-3 h-3 md:w-4 md:h-4 text-orange-600" />
+                    {formatDisplayPhone(t.techPhone)}
                   </a>
-                </div>
-              </div>
-
-              {/* 🛠️ ฝั่งขวา: ผู้รับผิดชอบหลัก (🌟 เปลี่ยนไอคอนเป็นรูปคนแล้ว) */}
-              <div className="flex-1 flex flex-col relative">
-                <span className="text-[14px] md:text-[18px] font-black text-orange-600 mb-2 md:mb-4">
-                  ผู้รับผิดชอบหลัก
-                </span>
-                
-                <div className="flex flex-col md:flex-row md:items-center justify-between mb-3 md:mb-0">
-                  <span className="font-black text-orange-950 flex items-center gap-2 text-[16px] md:text-[24px]">
-                    {/* 🌟 ฟันธง: เปลี่ยนจาก Wrench เป็น User เรียบร้อยครับ */}
-                    <User className="w-4 h-4 md:w-6 md:h-6 text-orange-500" />
-                    {t.techName ? String(t.techName) : "รอดำเนินการ"}
+                ) : (
+                  <span className="font-mono text-[12px] md:text-[15px] text-slate-400 bg-slate-100 px-3 py-1.5 rounded-lg border border-slate-200 w-fit md:w-auto self-start md:self-auto">
+                    {String(t.techPhone || 'N/A')}
                   </span>
-                  
-                  {t.techPhone && t.techPhone !== '-' && t.techPhone !== 'N/A' ? (
-                    <a href={`tel:${String(t.techPhone).replace(/\D/g, '')}`} className="mt-2 md:mt-0 font-mono text-[12px] md:text-[15px] font-bold bg-orange-100 px-2.5 py-1 md:px-3 md:py-1.5 rounded-lg text-orange-800 border border-orange-300 shadow-sm hover:bg-orange-200 transition-colors flex items-center gap-1.5 active:scale-95 self-start md:absolute md:bottom-0 md:right-0">
-                      <Phone className="w-3 h-3 md:w-4 md:h-4 text-orange-600" />
-                      {formatDisplayPhone(t.techPhone)}
-                    </a>
-                  ) : (
-                    <span className="mt-2 md:mt-0 font-mono text-[12px] md:text-[15px] text-slate-400 bg-slate-100 px-2.5 py-1 rounded-lg border border-slate-200 self-start md:absolute md:bottom-0 md:right-0">
-                      {String(t.techPhone || 'N/A')}
-                    </span>
-                  )}
-                </div>
+                )}
               </div>
-              
             </div>
           </div>
 
-         {/* ==================== โซนเจ้าหน้าที่เวร SSC (🌟 อัปเกรดสีตามวัน และมีเส้นประคั่น) ==================== */}
-         {t.isOutOfHours && (() => {
-            // 🌟 สมองกลคำนวณหาสีประจำวันของตั๋วใบนั้น
+          {/* ==================== 🚨 การ์ด 3: โซนเจ้าหน้าที่เวร SSC ==================== */}
+          {t.isOutOfHours && (() => {
             const tDateObj = new Date(t.date);
             const dayOfWeek = tDateObj.getDay();
-            
-            // ใช้ rosterData ที่ดึงมาแล้ว (allRosters) เพื่อเช็คว่าเป็นวันหยุดพิเศษไหม
             const dateStr = tDateObj.toISOString().split('T')[0];
             const rosterInfo = allRosters.find(r => r.date === dateStr);
             const isSpecialHoliday = rosterInfo && rosterInfo.isHoliday;
 
-            // กำหนดสีและธีม
-            let theme = {
-              bg: 'bg-purple-50/80', border: 'border-purple-400', 
-              textHead: 'text-purple-700', textName: 'text-purple-950', icon: 'text-purple-500',
-              btnBg: 'bg-purple-100', btnBorder: 'border-purple-300', btnText: 'text-purple-800'
-            }; // Default สีม่วง
+            let theme = { bg: 'bg-purple-50/80', border: 'border-purple-400', textHead: 'text-purple-700', textName: 'text-purple-950', icon: 'text-purple-500', btnBg: 'bg-purple-100', btnBorder: 'border-purple-300', btnText: 'text-purple-800' };
 
             if (isSpecialHoliday) {
               theme = { bg: 'bg-orange-50/80', border: 'border-orange-400', textHead: 'text-orange-700', textName: 'text-orange-950', icon: 'text-orange-500', btnBg: 'bg-orange-100', btnBorder: 'border-orange-300', btnText: 'text-orange-800' };
-            } else if (dayOfWeek === 0) { // วันอาทิตย์ (สีแดง/ชมพู)
+            } else if (dayOfWeek === 0) { 
               theme = { bg: 'bg-rose-50/80', border: 'border-rose-400', textHead: 'text-rose-700', textName: 'text-rose-950', icon: 'text-rose-500', btnBg: 'bg-rose-100', btnBorder: 'border-rose-300', btnText: 'text-rose-800' };
-            } else if (dayOfWeek === 6) { // วันเสาร์ (สีฟ้า/น้ำเงิน)
+            } else if (dayOfWeek === 6) { 
               theme = { bg: 'bg-blue-50/80', border: 'border-blue-400', textHead: 'text-blue-700', textName: 'text-blue-950', icon: 'text-blue-500', btnBg: 'bg-blue-100', btnBorder: 'border-blue-300', btnText: 'text-blue-800' };
             }
 
             return (
-              <div className={`${theme.bg} border-2 border-solid ${theme.border} p-4 md:p-6 rounded-2xl md:rounded-[1.5rem] mt-4 shadow-sm w-full`}>
+              <div className={`${theme.bg} border-2 border-solid ${theme.border} p-4 md:p-6 rounded-2xl md:rounded-[1.5rem] mt-4 shadow-sm w-full transition-all hover:shadow-md`}>
                 <div className="flex flex-col">
-                  {/* 🌟 หัวข้อเวร SSC */}
+                  {/* หัวข้อเวร SSC */}
                   <span className={`text-[13px] md:text-[16px] font-black ${theme.textHead} mb-2 md:mb-4 flex items-center gap-1.5 md:gap-2 uppercase tracking-wider`}>
-                    <AlertTriangle size={16} className="animate-pulse md:w-5 md:h-5" /> เจ้าหน้าที่เวร SSC ประจำวันหยุด
+                    <AlertTriangle className="w-4 h-4 md:w-5 md:h-5 animate-pulse" /> เจ้าหน้าที่เวร SSC ประจำวันหยุด
                   </span>
                   
-                  {/* 🌟 ชื่อเวร SSC */}
+                  {/* ชื่อเวร SSC */}
                   <div className="flex items-center justify-between mb-3">
-                    <span className={`font-black ${theme.textName} flex items-center gap-2 text-[16px] md:text-[24px]`}>
+                    <span className={`font-black ${theme.textName} flex items-center gap-2 text-[16px] md:text-[22px]`}>
                       <User className={`w-4 h-4 md:w-5 md:h-5 ${theme.icon}`} />
                       {sscName || t.sscTechName || "ยังไม่ระบุเวร"}
                     </span>
                   </div>
 
-                  {/* 🌟 ฟันธง: เส้นประ (Dashed Line) + ดัน วันที่ & เบอร์โทร ให้อยู่บรรทัดเดียวกัน! */}
-                  <div className={`flex items-center justify-between mt-1 pt-3 border-t-[1.5px] border-dashed ${theme.border.replace('border-', 'border-').replace('400', '300')}`}>
+                  {/* 🌟 ฟันธง: เส้นประ (Dashed Line) + มือถือแยกบรรทัด / PC ซ้ายขวา! */}
+                  <div className={`flex flex-col md:flex-row md:items-center justify-between mt-auto pt-3 border-t-[1.5px] border-dashed ${theme.border.replace('border-', 'border-').replace('400', '300')} gap-3`}>
                     
-                    {/* ฝั่งซ้าย: วันที่ */}
                     <span className={`text-[12px] md:text-[15px] font-bold ${theme.btnText} flex items-center gap-1.5`}>
                       <Clock className={`w-3 h-3 md:w-4 md:h-4 ${theme.icon}`} />
                       วันที่: {new Date(t.date).toLocaleDateString('th-TH', { day: 'numeric', month: 'long', year: 'numeric' })}
                     </span>
                     
-                    {/* ฝั่งขวา: เบอร์โทรศัพท์ */}
                     {(sscPhone || t.sscTechPhone) && (sscPhone || t.sscTechPhone) !== '-' && (
-                      <a href={`tel:${String(sscPhone || t.sscTechPhone).replace(/\D/g, '')}`} className={`font-mono text-[12px] md:text-[15px] font-bold ${theme.btnBg} px-2.5 py-1 md:px-3 md:py-1.5 rounded-lg ${theme.btnText} border ${theme.btnBorder} shadow-sm transition-colors flex items-center gap-1.5 active:scale-95 shrink-0`}>
+                      <a href={`tel:${String(sscPhone || t.sscTechPhone).replace(/\D/g, '')}`} className={`font-mono text-[12px] md:text-[15px] font-bold ${theme.btnBg} px-3 py-1.5 rounded-lg ${theme.btnText} border ${theme.btnBorder} shadow-sm transition-colors flex items-center gap-1.5 active:scale-95 w-fit md:w-auto`}>
                         <Phone className={`w-3 h-3 md:w-4 md:h-4 ${theme.icon}`} />
                         {formatDisplayPhone(sscPhone || t.sscTechPhone)}
                       </a>
