@@ -888,6 +888,19 @@ const ThaiDateFormatter = (date) => {
   );
 };
 
+// 🌟 ฟันธง: ฟังก์ชันนี้คือตัวที่หายไปครับ เอากลับมาต่อชีวิตให้หน้าตั๋ว!
+const formatDateTimeString = (date) => {
+  if (!date) return '';
+  const d = new Date(date);
+  const months = [
+    'ม.ค.', 'ก.พ.', 'มี.ค.', 'เม.ย.', 'พ.ค.', 'มิ.ย.',
+    'ก.ค.', 'ส.ค.', 'ก.ย.', 'ต.ค.', 'พ.ย.', 'ธ.ค.',
+  ];
+  return `${d.getDate()} ${months[d.getMonth()]} ${
+    d.getFullYear() + 543
+  } | ${d.toLocaleTimeString('th-TH', { hour12: false })} น.`;
+};
+
 const getNextReqId = (tickets) => {
   // 1. ดึงปีและเดือนปัจจุบัน
   const now = new Date();
@@ -2731,14 +2744,14 @@ const executeRatingSubmit = async () => {
           return (
             <div className="mb-2 mt-4 p-3.5 md:p-5 rounded-2xl border-[2px] border-dashed border-slate-600/80 bg-slate-900/50 flex items-center gap-3.5 md:gap-5 transition-all shadow-inner">
               <div className="w-10 h-10 md:w-12 md:h-12 rounded-full bg-slate-800 flex items-center justify-center border border-slate-600 shrink-0 shadow-sm">
-                <AlertCircle className="w-5 h-5 md:w-6 md:h-6 text-slate-400" />
+                <AlertCircle className="w-6 h-6 md:w-10 md:h-10 text-orange-300" />
               </div>
               <div className="flex-1">
                 <p className="text-[13px] md:text-[16px] font-bold text-slate-300 leading-tight">
                   วันนี้ <span className={`${dayColors[dayOfWeek]} font-black tracking-wide mx-0.5`}>{daysThai[dayOfWeek]}</span> ไม่มีเจ้าหน้าที่เวร SSC
                 </p>
                 <p className="text-[11px] md:text-[14px] text-slate-400 font-bold mt-1 leading-snug">
-                  สามารถแจ้งซ่อมเพื่อให้ <span className="text-orange-400 font-black tracking-wide">ผู้รับผิดชอบหลัก</span> ดำเนินการได้เลย
+                  สามารถแจ้งซ่อม<span className="text-orange-400 font-black tracking-wide">ผู้รับผิดชอบหลัก</span>ตามปกติได้เลย
                 </p>
               </div>
             </div>
