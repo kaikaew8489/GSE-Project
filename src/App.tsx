@@ -4187,21 +4187,6 @@ const renderTracking = () => (
                       </a>
                     )}
                   </div>
-
-                  {/* 🌟 ฟันธง: เพิ่มข้อความเวร SSC ในกล่องนี้แหละ! สวยงาม คลีน! */}
-                  {t.sscNote && (
-                    <div className={`mt-3 pt-3 border-t-[1.5px] border-dashed ${theme.border.replace('border-', 'border-').replace('400', '300')}`}>
-                      <div className="flex flex-col w-full">
-                        <span className={`block mb-1 text-[11px] md:text-[14px] font-bold uppercase ${theme.textHead} opacity-80`}>
-                          บันทึกการแก้ไขเบื้องต้น (เวร SSC):
-                        </span>
-                        <span className={`text-[13px] md:text-[18px] font-bold ${theme.textName}`}>
-                          {String(t.sscNote)}
-                        </span>
-                      </div>
-                    </div>
-                  )}
-
                 </div>
               </div>
             );
