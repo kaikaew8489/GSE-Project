@@ -3982,18 +3982,18 @@ const renderTracking = () => (
                         
                         {/* ชื่อ */}
                         <div className="flex items-center justify-between mb-3">
-                          <span className="font-black text-emerald-950 flex items-center gap-2 text-[16px] md:text-[26px]">
+                          <span className="font-black text-emerald-950 flex items-center gap-2 text-[16px] md:text-[28px]">
                             {String(t.reporter)}
                           </span>
                         </div>
           
                         {/* รายละเอียด */}
                         <div className="flex flex-col md:flex-row md:items-center justify-between mt-auto pt-3 border-t-[1.5px] border-dashed border-emerald-400/50 gap-3">
-                          <span className="text-[15px] md:text-[20px] font-bold text-blue-600 flex items-center gap-1.5">
+                          <span className="text-[16px] md:text-[22px] font-bold text-blue-600 flex items-center gap-1.5">
                             <Clock className="w-3 h-3 md:w-4 md:h-4 text-emerald-600" />
                             {formatDateTimeString(t.date)}
                           </span>
-                          <a href={`tel:${String(t.reporterContact).replace(/\D/g, '')}`} className="font-mono text-[16px] md:text-[20px] font-bold bg-emerald-100 px-3 py-1.5 rounded-lg text-emerald-800 border border-emerald-300 shadow-sm hover:bg-emerald-200 transition-colors flex items-center gap-1.5 active:scale-95 w-fit md:w-auto">
+                          <a href={`tel:${String(t.reporterContact).replace(/\D/g, '')}`} className="font-mono text-[16px] md:text-[22px] font-bold bg-emerald-100 px-3 py-1.5 rounded-lg text-emerald-800 border border-emerald-300 shadow-sm hover:bg-emerald-200 transition-colors flex items-center gap-1.5 active:scale-95 w-fit md:w-auto">
                             <Phone className="w-5 h-5 md:w-6 md:h-6 text-emerald-600" />
                             {formatDisplayPhone(t.reporterContact)}
                           </a>
@@ -4007,12 +4007,12 @@ const renderTracking = () => (
                         </span>
                         
                         <div className="flex flex-col mb-3">
-                          <span className="font-black text-orange-950 flex items-center gap-2 text-[16px] md:text-[26px]">
+                          <span className="font-black text-orange-950 flex items-center gap-2 text-[16px] md:text-[28px]">
                             {t.techName ? String(t.techName) : "รอดำเนินการ"}
                           </span>
                           {/* 🌟 ฟันธง: เติมภารกิจที่รับผิดชอบ เพื่อไม่ให้กล่องโล่งในโหมด PC */}
                           {t.equipmentCategory && (
-                            <span className="text-[13px] md:text-[16px] font-bold text-orange-700/80 mt-1 md:mt-2">
+                            <span className="text-[14px] md:text-[18px] font-bold text-orange-700/80 mt-1 md:mt-2">
                               รับผิดชอบ: {t.equipmentCategory}
                             </span>
                           )}
@@ -4021,7 +4021,7 @@ const renderTracking = () => (
                         {/* รายละเอียด (เบอร์โทร) */}
                         <div className="flex flex-col md:flex-row md:items-center justify-end mt-auto pt-3 border-t-[1.5px] border-dashed border-orange-400/50 gap-3">
                           {t.techPhone && t.techPhone !== '-' && t.techPhone !== 'N/A' ? (
-                            <a href={`tel:${String(t.techPhone).replace(/\D/g, '')}`} className="font-mono text-[16px] md:text-[20px] font-bold bg-orange-100 px-3 py-1.5 rounded-lg text-orange-800 border border-orange-300 shadow-sm hover:bg-orange-200 transition-colors flex items-center gap-1.5 active:scale-95 w-fit md:w-auto self-start md:self-auto">
+                            <a href={`tel:${String(t.techPhone).replace(/\D/g, '')}`} className="font-mono text-[16px] md:text-[22px] font-bold bg-orange-100 px-3 py-1.5 rounded-lg text-orange-800 border border-orange-300 shadow-sm hover:bg-orange-200 transition-colors flex items-center gap-1.5 active:scale-95 w-fit md:w-auto self-start md:self-auto">
                               <Phone className="w-5 h-5 md:w-6 md:h-6 text-orange-600" />
                               {formatDisplayPhone(t.techPhone)}
                             </a>
