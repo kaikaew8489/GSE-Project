@@ -648,114 +648,53 @@ function AdminRosterSettings({ onClose }) {
 // 🌟 2. ข้อมูลระบบ (System Data)
 // ==========================================
 const employeeList = [
+  // ฝ่ายวิศวกรรมระบบปฏฺิบัติการดาวเทียม (ฝวด.)
   { name: 'นายนวัตกรณ์ ไก่แก้ว', position: 'หัวหน้าฝ่าย', department: 'ฝวด.' },
-  {
-    name: 'นายชุติพงษ์ ลาวงศ์เกิด',
-    position: 'นักเทคโนโลยีอวกาศ',
-    department: 'ฝวด.',
-  },
-  {
-    name: 'นายธนกาญจน์ ไตรปิฎก',
-    position: 'นักเทคโนโลยีอวกาศ',
-    department: 'ฝวด.',
-  },
-  { name: 'นายนรัตว์ ศรีสวัสดิ์พงษ์', position: 'วิศวกร', department: 'ฝวด.' },
-  { name: 'น.ส.จินวะรา สุรัตนกุล', position: 'วิศวกร', department: 'ฝวด.' },
+  { name: 'นายทศพล ชินนิวัฒน์', position: 'วิศวกรชำนาญการ', department: 'ฝวด.', },
   { name: 'นายประมินทร์ พิชิตการค้า', position: 'วิศวกร', department: 'ฝวด.' },
-  {
-    name: 'นายทศพล ชินนิวัฒน์',
-    position: 'วิศวกรชำนาญการ',
-    department: 'ฝวด.',
-  },
-  {
-    name: 'นายวิชญ์ภาส ดรบัณฑิต',
-    position: 'นักเทคโนโลยีอวกาศ',
-    department: 'ฝปด.',
-  },
-  { name: 'นายบุญชุบ บุ้งทอง', position: 'ผู้อำนวยการ', department: 'สปท.' },
-  {
-    name: 'ว่าที่ ร.ต. วรธันย์ วิชาคุณ',
-    position: 'หัวหน้าฝ่าย',
-    department: 'ฝปด.',
-  },
+  { name: 'นายนรัตว์ ศรีสวัสดิ์พงษ์', position: 'วิศวกร', department: 'ฝวด.' },
+  { name: 'นายธนกาญจน์ ไตรปิฎก', position: 'นักเทคโนโลยีอวกาศ', department: 'ฝวด.', },
+  { name: 'นายชุติพงษ์ ลาวงศ์เกิด', position: 'นักเทคโนโลยีอวกาศ', department: 'ฝวด.', },
+  { name: 'น.ส.จินวะรา สุรัตนกุล', position: 'วิศวกร', department: 'ฝวด.' },
+  { name: 'น.ส.ฐิตาภรณ์ ทองคำภา', position: 'เจ้าหน้าที่พัฒนาธุรกิจ', department: 'ฝวด.', },
+
+  // ฝ่ายปฏิบัติการควบคุมดาวเทียม (ฝปค.)
   { name: 'นายเสกสรร จัตุรัส', position: 'หัวหน้าฝ่าย', department: 'ฝปค.' },
-  {
-    name: 'นายอัฐราวุฒิ เดชผล',
-    position: 'วิศวกรชำนาญการ',
-    department: 'ฝปค.',
-  },
-  {
-    name: 'น.ส.จารุณี ขุนจันทร์',
-    position: 'วิศวกรชำนาญการ',
-    department: 'ฝปค.',
-  },
+  { name: 'นายอัฐราวุฒิ เดชผล', position: 'วิศวกรชำนาญการ', department: 'ฝปค.', },
+  { name: 'น.ส.จารุณี ขุนจันทร์', position: 'วิศวกรชำนาญการ', department: 'ฝปค.', },
   { name: 'น.ส.พันทิพย์ภา บุญสมพงษ์', position: 'วิศวกร', department: 'ฝปค.' },
-  {
-    name: 'นายอาทิตย์ ศิริขันธ์',
-    position: 'นักเทคโนโลยีอวกาศ',
-    department: 'ฝปค.',
-  },
+  { name: 'นายอาทิตย์ ศิริขันธ์', position: 'นักเทคโนโลยีอวกาศ', department: 'ฝปค.', },
+  { name: 'นายประกาศิต อุดมธนะธีระ', position: 'วิศวกร', department: 'สปท.' },
+  { name: 'นายโกวิทย์ พุ่มกิ่ง', position: 'วิศวกร', department: 'สปท.' },
+  { name: 'น.ส.รพิรัตน์ ฤทธิ์รณศักดิ์', position: 'วิศวกร', department: 'ฝปค.', },
+
+  // ฝา่ยปฏิบัติการข้อมูลดาวเทียม (ฝปด.)
+  { name: 'ว่าที่ ร.ต. วรธันย์ วิชาคุณ', position: 'หัวหน้าฝ่าย', department: 'ฝปด.', },
+  { name: 'นายประสิทธิ์ มากสิน', position: 'นักเทคโนโลยีอวกาศชำนาญการ', department: 'ฝปด.', },
+  { name: 'นายวิชญ์ภาส ดรบัณฑิต', position: 'นักเทคโนโลยีอวกาศ', department: 'ฝปด.', },
+  { name: 'น.ส.เข็มทราย ปีกสันเทียะ', position: 'นักเทคโนโลยีอวกาศ', department: 'ฝปด.', },
+  { name: 'น.ส.กนกวรรณ กัณหะกิติ', position: 'นักเทคโนโลยีอวกาศ', department: 'ฝปด.', },
+  { name: 'น.ส.ศิรินทรา อินทร์ถนอม', position: 'นักเทคโนโลยีอวกาศ', department: 'ฝปด.', },
+  { name: 'นายประโยชน์ ปวงจักร์ทา', position: 'นักเทคโนโลยีอวกาศชำนาญการ', department: 'ฝปด.', },
+  { name: 'น.ส.ภาวรินทร์ คูหา', position: 'นักเทคโนโลยีอวกาศ', department: 'ฝปด.', },
+  { name: 'นายประวุฒิ ดิษาภิรมย์', position: 'วิศวกร', department: 'ฝปด.' },
+ 
+  // ฝ่ายบริการทดสอบและประกอบดาวเทียม
   { name: 'น.ส.บุษยมาศ เพชรทอง', position: 'หัวหน้าฝ่าย', department: 'ฝบท.' },
   { name: 'นายจิโรจ ทองตา', position: 'วิศวกร', department: 'ฝบท.' },
   { name: 'นายศรัณย์ นันทะชมภู', position: 'วิศวกร', department: 'ฝบท.' },
   { name: 'นายปิยภัทร เขียวเจริญ', position: 'วิศวกร', department: 'ฝบท.' },
-  {
-    name: 'นายประสิทธิ์ มากสิน',
-    position: 'นักเทคโนโลยีอวกาศชำนาญการ',
-    department: 'ฝปด.',
-  },
-  {
-    name: 'น.ส.เข็มทราย ปีกสันเทียะ',
-    position: 'นักเทคโนโลยีอวกาศ',
-    department: 'ฝปด.',
-  },
-  {
-    name: 'น.ส.กนกวรรณ กัณหะกิติ',
-    position: 'นักเทคโนโลยีอวกาศ',
-    department: 'ฝปด.',
-  },
-  {
-    name: 'น.ส.ศิรินทรา อินทร์ถนอม',
-    position: 'นักเทคโนโลยีอวกาศ',
-    department: 'ฝปด.',
-  },
-  {
-    name: 'นายประโยชน์ ปวงจักร์ทา',
-    position: 'นักเทคโนโลยีอวกาศชำนาญการ',
-    department: 'ฝปด.',
-  },
-  {
-    name: 'น.ส.ภาวรินทร์ คูหา',
-    position: 'นักเทคโนโลยีอวกาศ',
-    department: 'ฝปด.',
-  },
-  { name: 'นายประกาศิต อุดมธนะธีระ', position: 'วิศวกร', department: 'สปท.' },
-  { name: 'นายโกวิทย์ พุ่มกิ่ง', position: 'วิศวกร', department: 'สปท.' },
-  {
-    name: 'น.ส.รพิรัตน์ ฤทธิ์รณศักดิ์',
-    position: 'วิศวกร',
-    department: 'ฝปค.',
-  },
-  {
-    name: 'น.ส.อโณทัย นิ่มน้อย',
-    position: 'นักพัฒนานวัตกรรม',
-    department: 'สปท.',
-  },
-  {
-    name: 'น.ส.ฐิตาภรณ์ ทองคำภา',
-    position: 'เจ้าหน้าที่พัฒนาธุรกิจ',
-    department: 'ฝวด.',
-  },
-  { name: 'นายประวุฒิ ดิษาภิรมย์', position: 'วิศวกร', department: 'ฝปด.' },
+  { name: 'น.ส.อโณทัย นิ่มน้อย', position: 'นักพัฒนานวัตกรรม', department: 'สปท.', },
 ];
 
 // 🌟 ฟันธง: ฐานข้อมูลสมองกล จับคู่อุปกรณ์ -> ช่างรับผิดชอบ
+
 const techMapping = {
   "ภารกิจด้านจานสายอากาศ": { name: "นายทศพล ชินนิวัฒน์", phone: "08-1513-7854" },
-  "ภารกิจด้านคอมพิวเตอร์แม่ข่ายและไอที": { name: "นายธนกาญจน์ ไตรปิฎก", phone: "06-2463-5544" },
+  "ภารกิจด้านคอมพิวเตอร์และไอที": { name: "นายธนกาญจน์ ไตรปิฎก", phone: "06-2463-5544" },
   "ภารกิจด้านโครงสร้างพื้นฐานไฟฟ้า": { name: "นายประมินทร์ พิชิตการค้า", phone: "08-1135-1599" },
   "ภารกิจด้านการให้บริการโครงการ SSC": { name: "นายนรัตว์ ศรีสวัสดิ์พงษ์", phone: "08-6361-4399" },
-  // ... เพิ่มรายการอื่นๆ ตามฐานข้อมูลที่ท่านหัวหน้ามีได้เลยครับ
+
 };
 
 // 🌟 ฟันธงจัดกลุ่มใหม่ ตาม KPI 3 ภารกิจหลักของ ฝวด.
@@ -798,9 +737,12 @@ const equipmentCategories = {
     'Grounding-Lightning'
   ],
   "ภารกิจด้านการให้บริการโครงการ SSC": [
-    "Antenna-7.3m System",
-    "Antenna-S3EE System (SKP)",
-    "QZSS System"
+    "Antenna-7.3m",
+    "Antenan-QZSS",
+    "S3EE-SKP Station",
+    "S3EE-CMI Station",
+    "S3EE-UBN Station",
+    "S3EE-UDN Station"
   ]
 };
 
@@ -814,6 +756,7 @@ const buildingList = [
   'ฐานจาน-Orbital',
   'ฐานจาน-CGC',
   'Shellter-7.3m',
+
 ];
 
 const technicianList = [
@@ -2740,16 +2683,16 @@ const executeRatingSubmit = async () => {
 
           // 🌟 3. โหมดวันธรรมดา (ไม่มีเวร) -> ฟันธง: ออกแบบใหม่เป็นป้ายประกาศ (Info Alert) สวยงาม คลีนตา!
           return (
-            <div className="mb-2 mt-4 p-3.5 md:p-5 rounded-2xl border-[2px] border-dashed border-slate-600/80 bg-slate-900/50 flex items-center gap-3.5 md:gap-5 transition-all shadow-inner">
+            <div className="mb-2 mt-4 p-3.5 md:p-5 rounded-2xl border-[2px] border-dashed border-cyan-400/80 bg-slate-900/50 flex items-center gap-3.5 md:gap-5 transition-all shadow-inner">
               <div className="w-10 h-10 md:w-12 md:h-12 rounded-full bg-slate-800 flex items-center justify-center border border-slate-600 shrink-0 shadow-sm">
-                <AlertCircle className="w-6 h-6 md:w-10 md:h-10 text-orange-300" />
+                <AlertCircle className="w-6 h-6 md:w-12 md:h-12 text-orange-400" />
               </div>
               <div className="flex-1">
-                <p className="text-[13px] md:text-[16px] font-bold text-slate-300 leading-tight">
+                <p className="text-[15px] md:text-[18px] font-bold text-slate-300 leading-tight">
                   วันนี้ <span className={`${dayColors[dayOfWeek]} font-black tracking-wide mx-0.5`}>{daysThai[dayOfWeek]}</span> ไม่มีเจ้าหน้าที่เวร SSC
                 </p>
-                <p className="text-[11px] md:text-[14px] text-slate-400 font-bold mt-1 leading-snug">
-                  สามารถแจ้งซ่อม<span className="text-orange-400 font-black tracking-wide">ผู้รับผิดชอบหลัก</span>ตามปกติได้เลย
+                <p className="text-[13px] md:text-[16px] text-slate-300 font-bold mt-1 leading-snug">
+                  แต่มี <span className="text-orange-400 font-black tracking-wide"> ผู้รับผิดชอบหลัก</span> พร้อมให้บริการค่ะ!
                 </p>
               </div>
             </div>
@@ -2757,7 +2700,7 @@ const executeRatingSubmit = async () => {
         })()}
 
         {/* ================= กรอบที่ 1: ข้อมูลผู้แจ้งซ่อม (ธีม Emerald 🟢) ================= */}
-        <div className="relative bg-slate-900/80 backdrop-blur-xl border-[2px] border-solid border-emerald-500/60 rounded-[1.5rem] p-5 md:p-8 shadow-[0_0_30px_rgba(16,185,129,0.15)] mt-6 overflow-hidden">
+        <div className="relative bg-slate-900/80 backdrop-blur-xl border-[2px] border-solid border-emerald-500/60 rounded-[1.5rem] p-5 md:p-8 shadow-[0_0_30px_rgba(16,185,129,0.5)] mt-6 overflow-hidden">
           
           {/* แสง Flare พื้นหลังเพิ่มความ Sci-Fi */}
           <div className="absolute -top-20 -left-20 w-40 h-40 bg-emerald-500/20 blur-[60px] rounded-full pointer-events-none z-0"></div>
@@ -2778,11 +2721,11 @@ const executeRatingSubmit = async () => {
               id="field-reporter"
               themeColor="emerald"
               label={
-                <span className="text-[14px] md:text-[18px] font-black tracking-wide text-emerald-300 flex items-center gap-1.5 md:gap-2">
+                <span className="text-[16px] md:text-[20px] font-black tracking-wide text-emerald-300 flex items-center gap-1.5 md:gap-2">
                   <User size={18} className="md:w-5 md:h-5"/> ชื่อ-นามสกุล <span className="text-rose-500">*</span>
                 </span>
               }
-              icon={<User size={16} className="text-emerald-400 md:w-5 md:h-5"/>}
+              icon={<User size={16} className="text-emerald-400 md:w-6 md:h-6"/>}
               placeholder="เลือกผู้แจ้งซ่อม"
               options={employeeList.map((e) => String(e.name))}
               value={formData.reporter}
@@ -2791,65 +2734,65 @@ const executeRatingSubmit = async () => {
             />
 
             <div className="space-y-1.5 md:space-y-2">
-              <label className="text-[14px] md:text-[18px] font-black text-emerald-300 uppercase tracking-wide ml-1 flex items-center gap-1.5 md:gap-2">
+              <label className="text-[16px] md:text-[20px] font-black text-emerald-300 uppercase tracking-wide ml-1 flex items-center gap-1.5 md:gap-2">
                 <Briefcase size={18} className="md:w-5 md:h-5" /> ตำแหน่ง
               </label>
               <input
                 value={formData.position}
                 readOnly
-                className="w-full bg-slate-950/50 border-[2px] border-solid border-emerald-500/30 rounded-2xl px-5 py-4 md:py-5 text-sm md:text-[16px] font-bold text-emerald-100 outline-none cursor-not-allowed shadow-[inset_0_0_15px_rgba(16,185,129,0.05)] transition-all placeholder:text-emerald-200/40"
+                className="w-full bg-slate-950/50 border-[2px] border-solid border-emerald-500/30 rounded-2xl px-5 py-4 md:py-5 text-sm md:text-[16px] font-bold text-emerald-100 outline-none cursor-not-allowed shadow-[inset_0_0_15px_rgba(16,185,129,0.2)] transition-all placeholder:text-emerald-200/40"
                 placeholder="-"
               />
 
             </div>
 
             <div className="space-y-1.5 md:space-y-2">
-              <label className="text-[14px] md:text-[18px] font-black text-emerald-300 uppercase tracking-wide ml-1 flex items-center gap-1.5 md:gap-2">
-                <Users size={18} className="md:w-5 md:h-5" /> ฝ่าย
+              <label className="text-[16px] md:text-[20px] font-black text-emerald-300 uppercase tracking-wide ml-1 flex items-center gap-1.5 md:gap-2">
+                <Users size={18} className="md:w-6 md:h-6" /> ฝ่าย
               </label>
               <input
                 value={formData.department}
                 readOnly
-                className="w-full bg-slate-950/50 border-[2px] border-solid border-emerald-500/30 rounded-2xl px-5 py-4 md:py-5 text-sm md:text-[16px] font-bold text-emerald-100 outline-none cursor-not-allowed shadow-[inset_0_0_15px_rgba(16,185,129,0.05)] transition-all placeholder:text-emerald-200/40"
+                className="w-full bg-slate-950/50 border-[2px] border-solid border-emerald-500/30 rounded-2xl px-5 py-4 md:py-5 text-sm md:text-[16px] font-bold text-emerald-100 outline-none cursor-not-allowed shadow-[inset_0_0_15px_rgba(16,185,129,0.2)] transition-all placeholder:text-emerald-200/40"
                 placeholder="-"
               />
             </div>
 
             <div className="space-y-1.5 md:space-y-2">
-              <label className="text-[14px] md:text-[18px] font-black text-emerald-300 uppercase tracking-wide ml-1 flex items-center gap-1.5 md:gap-2">
+              <label className="text-[16px] md:text-[20px] font-black text-emerald-300 uppercase tracking-wide ml-1 flex items-center gap-1.5 md:gap-2">
                 <Landmark size={18} className="md:w-5 md:h-5" /> สำนัก
               </label>
               <input
                 value={formData.bureau}
                 readOnly
-                className="w-full bg-slate-950/50 border-[2px] border-solid border-emerald-500/30 rounded-2xl px-5 py-4 md:py-5 text-sm md:text-[16px] font-bold text-emerald-100 outline-none cursor-not-allowed shadow-[inset_0_0_15px_rgba(16,185,129,0.05)] transition-all placeholder:text-emerald-200/40"
+                className="w-full bg-slate-950/50 border-[2px] border-solid border-emerald-500/30 rounded-2xl px-5 py-4 md:py-5 text-sm md:text-[16px] font-bold text-emerald-100 outline-none cursor-not-allowed shadow-[inset_0_0_15px_rgba(16,185,129,0.2)] transition-all placeholder:text-emerald-200/40"
                 placeholder="สำนักปฏิบัติการดาวเทียม"
               />
             </div>
 
             <div className="space-y-1.5 md:space-y-2" id="field-reporterContact">
-              <label className="text-[14px] md:text-[18px] font-black text-emerald-300 uppercase tracking-wide ml-1 flex items-center gap-1.5 md:gap-2">
+              <label className="text-[16px] md:text-[20px] font-black text-emerald-300 uppercase tracking-wide ml-1 flex items-center gap-1.5 md:gap-2">
                 <Phone size={18} className="md:w-5 md:h-5" /> เบอร์โทรศัพท์ <span className="text-rose-500">*</span>
               </label>
               <div 
                 onClick={() => setShowNumpad(true)}
                 className={`w-full bg-slate-900 border-[2px] border-solid ${
-                  formErrors.reporterContact ? 'border-rose-500 ring-1 ring-rose-500/30' : 'border-emerald-500/40 hover:border-emerald-400 shadow-[0_0_15px_rgba(16,185,129,0.1)] hover:shadow-[0_0_25px_rgba(16,185,129,0.3)]'
+                  formErrors.reporterContact ? 'border-rose-500 ring-1 ring-rose-500/30' : 'border-emerald-500/40 hover:border-emerald-400 shadow-[0_0_15px_rgba(16,185,129,0.5)] hover:shadow-[0_0_25px_rgba(16,185,129,0.8)]'
                 } rounded-2xl px-5 py-4 md:py-5 cursor-pointer transition-all duration-300`}
               >
-                <span className={`text-[15px] md:text-[18px] font-bold font-mono tracking-widest ${formData.reporterContact ? 'text-emerald-300 drop-shadow-sm' : 'text-emerald-900/50'}`}>
+                <span className={`text-[16px] md:text-[20px] font-bold font-mono tracking-widest ${formData.reporterContact ? 'text-emerald-300 drop-shadow-sm' : 'text-emerald-900/50'}`}>
                   {formData.reporterContact || '0X-XXXX-XXXX'}
                 </span>
               </div>
               {formErrors.reporterContact && (
-                <div className="text-rose-500 text-[11px] md:text-[13px] font-bold mt-1 px-1">⚠️ {formErrors.reporterContact}</div>
+                <div className="text-rose-500 text-[13px] md:text-[16px] font-bold mt-1 px-1">⚠️ {formErrors.reporterContact}</div>
               )}
             </div>
           </div>
         </div>
 
         {/* ================= กรอบที่ 2: ข้อมูลการแจ้งซ่อม (ธีม Orange 🟠) ================= */}
-        <div className="relative bg-slate-900/80 backdrop-blur-xl border-[2px] border-solid border-orange-500/60 rounded-[1.5rem] p-5 md:p-8 shadow-[0_0_30px_rgba(249,115,22,0.15)] mt-8 overflow-hidden">
+        <div className="relative bg-slate-900/80 backdrop-blur-xl border-[2px] border-solid border-orange-500/60 rounded-[1.5rem] p-5 md:p-8 shadow-[0_0_30px_rgba(249,115,22,0.2)] mt-8 overflow-hidden">
           
           {/* แสง Flare พื้นหลังเพิ่มความ Sci-Fi */}
           <div className="absolute -top-20 -right-20 w-40 h-40 bg-orange-500/20 blur-[60px] rounded-full pointer-events-none z-0"></div>
@@ -2870,12 +2813,11 @@ const executeRatingSubmit = async () => {
               id="field-equipmentCategory"
               themeColor="amber"
               label={
-                <span className="text-[14px] md:text-[18px] font-black tracking-wide text-orange-300 flex items-center gap-1.5 md:gap-2">
+                <span className="text-[16px] md:text-[20px] font-black tracking-wide text-orange-300 flex items-center gap-1.5 md:gap-2">
                   <Activity size={18} className="md:w-5 md:h-5"/> กลุ่มงาน / ภารกิจรับผิดชอบ <span className="text-rose-500">*</span>
                 </span>
               }
-              icon={<Activity size={16} className="text-amber-400 md:w-5 md:h-5" />}
-              placeholder="เลือกกลุ่มภารกิจของ ฝวด."
+              placeholder="เลือกกลุ่มงาน/ภารกิจ"
               options={Object.keys(equipmentCategories)}
               value={formData.equipmentCategory}
               onChange={(val) => {
@@ -2890,11 +2832,10 @@ const executeRatingSubmit = async () => {
               id="field-equipment"
               themeColor="cyan"
               label={
-                <span className="text-[14px] md:text-[18px] font-black tracking-wide text-orange-300 flex items-center gap-1.5 md:gap-2">
+                <span className="text-[16px] md:text-[20px] font-black tracking-wide text-orange-300 flex items-center gap-1.5 md:gap-2">
                   <Monitor size={18} className="md:w-5 md:h-5"/> รายการอุปกรณ์ / ระบบ <span className="text-rose-500">*</span>
                 </span>
               }
-              icon={<Monitor size={16} className="text-cyan-400 md:w-5 md:h-5" />}
               placeholder={formData.equipmentCategory ? "เลือกอุปกรณ์" : "กรุณาเลือกกลุ่มงานก่อน"}
               options={formData.equipmentCategory ? equipmentCategories[formData.equipmentCategory] : []}
               value={formData.equipment}
@@ -2906,7 +2847,7 @@ const executeRatingSubmit = async () => {
             />
 
 <div className="space-y-1.5 md:space-y-2" id="field-description">
-              <label className="text-[14px] md:text-[18px] font-black text-orange-300 uppercase tracking-wide ml-1 flex items-center gap-1.5 md:gap-2">
+              <label className="text-[16px] md:text-[20px] font-black text-orange-300 uppercase tracking-wide ml-1 flex items-center gap-1.5 md:gap-2">
                 <AlertCircle size={18} className="md:w-5 md:h-5" /> อาการเสีย / รายละเอียดปัญหา <span className="text-rose-500">*</span>
               </label>
               <textarea
@@ -2917,28 +2858,28 @@ const executeRatingSubmit = async () => {
                 className={`w-full bg-slate-900 border-[2px] border-solid ${
                   formErrors.description
                     ? 'border-rose-500 ring-1 ring-rose-500/30'
-                    : 'border-orange-500/40 focus:border-orange-400 shadow-[0_0_15px_rgba(249,115,22,0.1)] focus:shadow-[0_0_25px_rgba(249,115,22,0.3)]'
+                    : 'border-orange-500/40 focus:border-orange-400 shadow-[0_0_15px_rgba(249,115,22,0.1)] focus:shadow-[0_0_25px_rgba(249,115,22,0.8)]'
                 } rounded-2xl px-5 py-4 md:py-5 outline-none text-sm md:text-[16px] font-bold text-orange-100 placeholder:text-orange-200/40 resize-none transition-all duration-300`}
-                placeholder="อธิบายรายละเอียดอาการเสีย..."
+                placeholder="อธิบายรายละเอียดอาการเสีย"
                 />
 
               {formErrors.description && (
-                <div className="text-rose-500 text-[11px] md:text-[13px] font-bold mt-1.5 ml-1 animate-in fade-in">
+                <div className="text-rose-500 text-[13px] md:text-[15px] font-bold mt-1.5 ml-1 animate-in fade-in">
                   ⚠️ {formErrors.description}
                 </div>
               )}
             </div>
 
             <div className="space-y-1.5 md:space-y-2">
-              <label className="text-[14px] md:text-[18px] font-black text-orange-300 uppercase tracking-wide ml-1 flex items-center gap-1.5 md:gap-2">
+              <label className="text-[16px] md:text-[20px] font-black text-orange-300 uppercase tracking-wide ml-1 flex items-center gap-1.5 md:gap-2">
                 <Hash size={18} className="md:w-5 md:h-5" /> หมายเลขครุภัณฑ์ (หากมี)
               </label>
               <input
                 name="assetNumber"
                 value={formData.assetNumber}
                 onChange={handleInputChange}
-                className="w-full bg-slate-900 border-[2px] border-solid border-orange-500/40 focus:border-orange-400 shadow-[0_0_15px_rgba(249,115,22,0.1)] focus:shadow-[0_0_25px_rgba(249,115,22,0.3)] rounded-2xl px-5 py-4 md:py-5 text-sm md:text-[16px] font-bold text-orange-100 outline-none font-mono tracking-widest transition-all duration-300 placeholder:text-orange-200/40"
-                placeholder="ระบุหมายเลข..."
+                className="w-full bg-slate-900 border-[2px] border-solid border-orange-500/40 focus:border-orange-400 shadow-[0_0_15px_rgba(249,115,22,0.2)] focus:shadow-[0_0_25px_rgba(249,115,22,0.5)] rounded-2xl px-5 py-4 md:py-5 text-sm md:text-[16px] font-bold text-orange-100 outline-none font-mono tracking-widest transition-all duration-300 placeholder:text-orange-200/40"
+                placeholder="ระบุหมายเลขครุภัณฑ์"
               />
             </div>
 
@@ -2947,11 +2888,10 @@ const executeRatingSubmit = async () => {
               id="field-building"
               themeColor="orange"
               label={
-                <span className="text-[14px] md:text-[18px] font-black tracking-wide text-orange-300 flex items-center gap-1.5 md:gap-2">
+                <span className="text-[16px] md:text-[20px] font-black tracking-wide text-orange-300 flex items-center gap-1.5 md:gap-2">
                   <Building size={18} className="md:w-5 md:h-5"/> อาคาร / ตึก <span className="text-rose-500">*</span>
                 </span>
               }
-              icon={<Building size={16} className="text-orange-400 md:w-5 md:h-5" />}
               placeholder="เลือกอาคาร"
               options={buildingList}
               value={formData.building}
@@ -2963,7 +2903,7 @@ const executeRatingSubmit = async () => {
             />
             
             <div className="space-y-1.5 md:space-y-2" id="field-room">
-                <label className="text-[14px] md:text-[18px] font-black text-slate-200 uppercase tracking-wide ml-1 flex items-center gap-1.5 md:gap-2">
+                <label className="text-[16px] md:text-[20px] font-black text-orange-300 uppercase tracking-wide ml-1 flex items-center gap-1.5 md:gap-2">
                   <DoorOpen size={18} className="text-orange-400 md:w-5 md:h-5" /> สถานที่ / ห้อง <span className="text-rose-500">*</span>
                 </label>
                 <input
@@ -2973,8 +2913,8 @@ const executeRatingSubmit = async () => {
                   className={`w-full bg-slate-900 border-[2px] border-solid ${
                     formErrors.room
                       ? 'border-rose-500 ring-1 ring-rose-500/30'
-                      : 'border-orange-500/30 focus:border-orange-400 shadow-[0_0_15px_rgba(249,115,22,0.15)] focus:shadow-[0_0_25px_rgba(249,115,22,0.4)]'
-                  } rounded-2xl px-5 py-4 md:py-5 text-sm md:text-[16px] font-bold text-orange-100 outline-none transition-all duration-300 placeholder:text-slate-600`}
+                      : 'border-orange-500/30 focus:border-orange-400 shadow-[0_0_15px_rgba(249,115,22,0.2)] focus:shadow-[0_0_25px_rgba(249,115,22,0.8)]'
+                  } rounded-2xl px-5 py-4 md:py-5 text-sm md:text-[16px] font-bold text-orange-100 outline-none transition-all duration-300 placeholder:text-slate-500`}
                   placeholder="ระบุสถานที่หรือห้อง"
                 />
                 {formErrors.room && (
@@ -2989,11 +2929,13 @@ const executeRatingSubmit = async () => {
             {/* ================= โซนอัปโหลดภาพ (Sci-Fi เรืองแสง) ================= */}
             <div className="space-y-4 pt-6 border-t-[2px] border-dashed border-orange-500/30" id="field-images">
               <div className="flex justify-between items-center ml-1 mb-2">
-                <label className="text-[14px] md:text-[18px] font-black text-orange-300 uppercase tracking-wide flex items-center gap-1.5 md:gap-2">
+                <label className="text-[16px] md:text-[20px] font-black text-orange-300 uppercase tracking-wide flex items-center gap-1.5 md:gap-2">
                   <Camera className="md:w-5 md:h-5" /> 
                   แนบรูปภาพประกอบ <span className="text-rose-500">*</span>
                 </label>
-                <div className="bg-orange-950 border border-orange-500/80 text-orange-400 text-[12px] md:text-[14px] font-black px-3 py-1 rounded-lg shadow-[0_0_10px_rgba(249,115,22,0.4)] backdrop-blur-sm">
+
+
+                <div className="bg-orange-950 border border-orange-500/80 text-orange-400 text-[16px] md:text-[20px] font-black px-3 py-1 rounded-lg shadow-[0_0_10px_rgba(249,115,22,0.8)] backdrop-blur-sm">
                   {formData.images.length} / 6 รูป
                 </div>
               </div>
@@ -3013,22 +2955,21 @@ const executeRatingSubmit = async () => {
                   </div>
                 ))}
 
-               {/* 🎯 ปุ่มเรียกเมนูเลือกรูป (คลิกปุ๊บ เมนูเด้งปั๊บ) */}
-{/* 🎯 ปุ่มเรียกเมนูเลือกรูป (คลิกปุ๊บ เมนูเด้งปั๊บ) */}
-<div onClick={() => setShowImagePicker(true)} className={`border-2 border-dashed border-orange-500/50 bg-orange-950/20 hover:bg-orange-900/40 hover:border-orange-400 rounded-2xl md:rounded-3xl flex flex-col items-center justify-center transition-all duration-300 cursor-pointer shadow-[inset_0_0_20px_rgba(249,115,22,0.05)] hover:shadow-[0_0_25px_rgba(249,115,22,0.3)] group ${formData.images.length === 0 ? 'w-full h-36 md:h-48' : 'aspect-square'}`}>
-  <Camera size={formData.images.length === 0 ? 50 : 38} className="text-orange-500/70 group-hover:text-orange-400 mb-2 transition-all" />
-  <span className="font-black tracking-widest text-orange-200/70 group-hover:text-orange-200">
-    {formData.images.length === 0 ? 'คลิกเพื่อแนบรูปภาพ' : 'เพิ่มรูปภาพ'}
-  </span>
-</div>
+              {/* 🎯 ปุ่มเรียกเมนูเลือกรูป (คลิกปุ๊บ เมนูเด้งปั๊บ) */}
+              <div onClick={() => setShowImagePicker(true)} className={`border-2 border-dashed border-cyan-300/80 bg-cyan-950/20 hover:bg-orange-900/40 hover:border-orange-400 rounded-2xl md:rounded-3xl flex flex-col items-center justify-center transition-all duration-300 cursor-pointer shadow-[inset_0_0_20px_rgba(6,182,212,0.8)] hover:shadow-[0_0_25px_rgba(249,115,22,0.5)] group ${formData.images.length === 0 ? 'w-full h-36 md:h-48' : 'aspect-square'}`}>
+                <Camera size={formData.images.length === 0 ? 50 : 38} className="text-white-300/70 group-hover:text-orange-400 mb-2 transition-all" />
+                <span className="font-black tracking-widest text-cyan-300/80 group-hover:text-cyan-300">
+                  {formData.images.length === 0 ? 'คลิกเพื่อแนบรูปภาพ' : 'เพิ่มรูปภาพ'}
+                </span>
+              </div>
 
-{/* ======================================================= */}
-{/* 🌟 จุดเริ่มต้น: หน้าต่างป๊อบอัพเลือกรูปภาพ (Hybrid: Mobile เรืองแสง + PC วูบวาบ 1,000,000%) */}
-{/* ======================================================= */}
-{showImagePicker && typeof document !== 'undefined' ? createPortal(
-  <div 
-    className="fixed inset-0 w-screen h-screen z-[999999] flex items-center justify-center bg-slate-950/90 backdrop-blur-md overscroll-none touch-none" 
-    onClick={() => setShowImagePicker(false)}
+      {/* ======================================================= */}
+      {/* 🌟 จุดเริ่มต้น: หน้าต่างป๊อบอัพเลือกรูปภาพ (Hybrid: Mobile เรืองแสง + PC วูบวาบ 1,000,000%) */}
+      {/* ======================================================= */}
+      {showImagePicker && typeof document !== 'undefined' ? createPortal(
+        <div 
+          className="fixed inset-0 w-screen h-screen z-[999999] flex items-center justify-center bg-slate-950/90 backdrop-blur-md overscroll-none touch-none" 
+          onClick={() => setShowImagePicker(false)}
   >
     {/* 🔥 เอฟเฟกต์ดวงไฟพลาสม่า สว่างวาบอยู่ด้านหลังกล่อง */}
     <div className="absolute w-[250px] h-[250px] md:w-[350px] md:h-[350px] bg-cyan-500/50 rounded-full blur-[80px] animate-pulse pointer-events-none z-0"></div>
@@ -3089,18 +3030,18 @@ const executeRatingSubmit = async () => {
             <button
               type="submit"
               disabled={isSubmitting}
-              className="group w-full md:flex-[2] bg-gradient-to-r from-orange-500 to-amber-500 hover:from-orange-400 hover:to-yellow-400 hover:shadow-[0_0_25px_rgba(249,115,22,0.8)] hover:-translate-y-1 text-white font-black text-xl md:text-2xl py-4 md:py-5 rounded-[1rem] md:rounded-2xl shadow-xl shadow-orange-500/30 active:scale-95 transition-all duration-300 flex justify-center items-center gap-3 disabled:grayscale disabled:opacity-50 border-2 border-solid border-white/50"
+              className="group w-full md:flex-[2] bg-gradient-to-r from-orange-500 to-amber-500 hover:from-orange-400 hover:to-yellow-400 hover:shadow-[0_0_25px_rgba(249,115,22,0.8)] hover:-translate-y-1 text-white font-black text-[20px] md:text-[30px] py-4 md:py-5 rounded-[1rem] md:rounded-2xl shadow-xl shadow-orange-500/30 active:scale-95 transition-all duration-300 flex justify-center items-center gap-3 disabled:grayscale disabled:opacity-50 border-2 border-solid border-white/80"
             >
-              <Send size={24} className="md:w-7 md:h-7" />{' '}
+              <Send size={26} className="md:w-7 md:h-7" />{' '}
               <span className="tracking-wide">ยืนยันแจ้งซ่อม</span>
             </button>
 
             <button
               type="button"
               onClick={handleResetForm}
-              className="w-full md:flex-[1] bg-emerald-600 text-white hover:bg-rose-500 hover:text-white hover:shadow-[0_0_15px_rgba(244,63,94,0.6)] hover:-translate-y-1 font-bold text-[15px] md:text-[18px] py-3.5 md:py-5 rounded-2xl flex items-center justify-center gap-2 border-2 border-solid border-white/50 active:scale-95 shadow-sm transition-all"
+              className="w-full md:flex-[1] bg-emerald-600 text-white hover:bg-rose-500 hover:text-white hover:shadow-[0_0_15px_rgba(244,63,94,0.8)] hover:-translate-y-1 font-bold text-[18px] md:text-[22px] py-3.5 md:py-5 rounded-2xl flex items-center justify-center gap-2 border-2 border-solid border-white/80 active:scale-95 shadow-sm transition-all"
             >
-              <RotateCcw size={16} className="md:w-5 md:h-5" /> ล้างข้อมูล
+              <RotateCcw size={18} className="md:w-6 md:h-6" /> ล้างข้อมูล
             </button>
 
           </div>
@@ -3510,8 +3451,8 @@ const renderTracking = () => (
 
       {/* 4. ป้ายบอกวันที่ (ย่อขนาดลง ไม่กินที่) */}
       <div className="flex items-center gap-1.5 px-1 pt-0.5 animate-in fade-in">
-        <Clock size={18} className="text-orange-500" />
-        <span className="text-[14px] font-bold text-emerald-400 tracking-widest drop-shadow-sm">
+        <Clock size={20} className="text-orange-500" />
+        <span className="text-[14px] md:text-[18px] font-bold text-emerald-400 tracking-widest drop-shadow-sm">
           {trackTimeframe === 'custom_date' && trackDate 
             ? `แสดงข้อมูลวันที่: ${parseInt(trackDate.split('-')[2])} ${['ม.ค.','ก.พ.','มี.ค.','เม.ย.','พ.ค.','มิ.ย.','ก.ค.','ส.ค.','ก.ย.','ต.ค.','พ.ย.','ธ.ค.'][parseInt(trackDate.split('-')[1])-1]} ${parseInt(trackDate.split('-')[0]) + 543}` 
           : trackTimeframe === 'custom_month' && trackMonth 
@@ -3906,8 +3847,8 @@ const renderTracking = () => (
     )}
 
 
-        {/* 🌟 ฟันธง: Timeline ประวัติการซ่อม (อัปเกรดฟอนต์ PC ให้ใหญ่โตชัดเจน) */}
-        {t.historyLog && t.historyLog.length > 0 && (
+          {/* 🌟 ฟันธง: Timeline ประวัติการซ่อม (อัปเกรดฟอนต์ PC ให้ใหญ่โตชัดเจน) */}
+          {t.historyLog && t.historyLog.length > 0 && (
             <div className="flex flex-col w-full gap-4 md:gap-6 mt-6">
               {t.historyLog.map((log, index) => {
                 const isHold = log.type === 'hold';
@@ -3945,7 +3886,11 @@ const renderTracking = () => (
                        <span className={`text-[15px] md:text-[22px] font-bold opacity-90 uppercase tracking-widest ${isHold ? 'text-purple-700' : 'text-orange-700'}`}>
                           {isHold ? `ระยะเวลาที่หยุด (ครั้งที่ ${index + 1})` : `ระยะเวลาที่ซ่อม (ครั้งที่ ${index + 1})`}
                        </span>
-                       <span className="font-mono font-black text-[15px] md:text-[20px] bg-orange-600 px-4 py-1.5 md:py-2 rounded-xl border-2 border-solid border-slate-300 shadow-sm tracking-widest">
+                       
+                       {/* 🌟 ฟันธงตรงนี้: เปลียนสี bg และ text ตามกรอบ (ม่วงเป็นม่วง, ส้มเป็นส้ม) ลบ border-slate-300 ทิ้ง */}
+                       <span className={`font-mono font-black text-[15px] md:text-[20px] px-4 py-1.5 md:py-2 rounded-xl border-2 border-solid shadow-sm tracking-widest ${
+                         isHold ? 'bg-purple-600 text-white border-purple-400' : 'bg-orange-600 text-white border-orange-400'
+                       }`}>
                           {formattedTime}
                        </span>
                     </div>
@@ -3955,7 +3900,7 @@ const renderTracking = () => (
             </div>
           )}
 
-        
+
 
     {/* 📋 สรุปผลและข้อแนะนำ (ฟันธง: เติม rounded-xl md:rounded-2xl ลบเหลี่ยมแข็งโป๊ก) */}
     {t.cause && (
@@ -4028,114 +3973,121 @@ const renderTracking = () => (
 
 {/* ==================== โซนบุคคล (ผู้แจ้ง, ผู้รับผิดชอบหลัก) 🌟 ฟันธง: เรียงแนวตั้งกางเต็มจอ 100% ==================== */}
 <div className="flex flex-col gap-4 mt-4 w-full">
-            
-  {/* 👤 การ์ด 1: ผู้แจ้งปัญหา */}
-  <div className="bg-emerald-50/40 border-2 border-solid border-emerald-400 p-4 md:p-6 rounded-2xl md:rounded-[1.5rem] shadow-sm flex flex-col w-full transition-all hover:shadow-md">
-    {/* หัวข้อ */}
-    <span className="text-[16px] md:text-[20px] font-black text-emerald-700 mb-2 md:mb-4 flex items-center gap-1.5 md:gap-2 uppercase tracking-wider">
-      <User className="w-4 h-4 md:w-5 md:h-5" /> ผู้แจ้งปัญหา
-    </span>
-    
-    {/* ชื่อ */}
-    <div className="flex items-center justify-between mb-3">
-      <span className="font-black text-emerald-950 flex items-center gap-2 text-[16px] md:text-[26px]">
-        {String(t.reporter)}
-      </span>
-    </div>
-
-    {/* รายละเอียด */}
-    <div className="flex flex-col md:flex-row md:items-center justify-between mt-auto pt-3 border-t-[1.5px] border-dashed border-emerald-400/50 gap-3">
-      <span className="text-[15px] md:text-[20px] font-bold text-blue-600 flex items-center gap-1.5">
-        <Clock className="w-3 h-3 md:w-4 md:h-4 text-emerald-600" />
-        {formatDateTimeString(t.date)}
-      </span>
-      <a href={`tel:${String(t.reporterContact).replace(/\D/g, '')}`} className="font-mono text-[16px] md:text-[20px] font-bold bg-emerald-100 px-3 py-1.5 rounded-lg text-emerald-800 border border-emerald-300 shadow-sm hover:bg-emerald-200 transition-colors flex items-center gap-1.5 active:scale-95 w-fit md:w-auto">
-        <Phone className="w-5 h-5 md:w-6 md:h-6 text-emerald-600" />
-        {formatDisplayPhone(t.reporterContact)}
-      </a>
-    </div>
-  </div>
-
-  {/* 🛠️ การ์ด 2: ผู้รับผิดชอบหลัก */}
-  <div className="bg-orange-50/40 border-2 border-solid border-orange-400 p-4 md:p-6 rounded-2xl md:rounded-[1.5rem] shadow-sm flex flex-col w-full transition-all hover:shadow-md">
-    <span className="text-[16px] md:text-[20px] font-black text-orange-600 mb-2 md:mb-4 flex items-center gap-1.5 md:gap-2 uppercase tracking-wider">
-      <Wrench className="w-5 h-5 md:w-6 md:h-6" /> ผู้รับผิดชอบหลัก
-    </span>
-    
-    <div className="flex items-center justify-between mb-3">
-      <span className="font-black text-orange-950 flex items-center gap-2 text-[16px] md:text-[26px]">
-        {t.techName ? String(t.techName) : "รอดำเนินการ"}
-      </span>
-    </div>
-
-    {/* รายละเอียด */}
-    <div className="flex flex-col md:flex-row md:items-center justify-end mt-auto pt-3 border-t-[1.5px] border-dashed border-orange-400/50 gap-3">
-      {t.techPhone && t.techPhone !== '-' && t.techPhone !== 'N/A' ? (
-        <a href={`tel:${String(t.techPhone).replace(/\D/g, '')}`} className="font-mono text-[16px] md:text-[20px] font-bold bg-orange-100 px-3 py-1.5 rounded-lg text-orange-800 border border-orange-300 shadow-sm hover:bg-orange-200 transition-colors flex items-center gap-1.5 active:scale-95 w-fit md:w-auto self-start md:self-auto">
-          <Phone className="w-5 h-5 md:w-6 md:h-6 text-orange-600" />
-          {formatDisplayPhone(t.techPhone)}
-        </a>
-      ) : (
-        <span className="font-mono text-[16px] md:text-[20px] text-slate-400 bg-slate-100 px-3 py-1.5 rounded-lg border border-slate-200 w-fit md:w-auto self-start md:self-auto">
-          {String(t.techPhone || 'N/A')}
-        </span>
-      )}
-    </div>
-  </div>
-</div>
-          {/* ==================== 🚨 การ์ด 3: โซนเจ้าหน้าที่เวร SSC ==================== */}
-          {t.isOutOfHours && (() => {
-            const tDateObj = new Date(t.date);
-            const dayOfWeek = tDateObj.getDay();
-            const dateStr = tDateObj.toISOString().split('T')[0];
-            const rosterInfo = allRosters.find(r => r.date === dateStr);
-            const isSpecialHoliday = rosterInfo && rosterInfo.isHoliday;
-
-            let theme = { bg: 'bg-purple-50/80', border: 'border-purple-400', textHead: 'text-purple-700', textName: 'text-purple-950', icon: 'text-purple-500', btnBg: 'bg-purple-100', btnBorder: 'border-purple-300', btnText: 'text-purple-800' };
-
-            if (isSpecialHoliday) {
-              theme = { bg: 'bg-orange-50/80', border: 'border-orange-400', textHead: 'text-orange-700', textName: 'text-orange-950', icon: 'text-orange-500', btnBg: 'bg-orange-100', btnBorder: 'border-orange-300', btnText: 'text-orange-800' };
-            } else if (dayOfWeek === 0) { 
-              theme = { bg: 'bg-rose-50/80', border: 'border-rose-400', textHead: 'text-rose-700', textName: 'text-rose-950', icon: 'text-rose-500', btnBg: 'bg-rose-100', btnBorder: 'border-rose-300', btnText: 'text-rose-800' };
-            } else if (dayOfWeek === 6) { 
-              theme = { bg: 'bg-blue-50/80', border: 'border-blue-400', textHead: 'text-blue-700', textName: 'text-blue-950', icon: 'text-blue-500', btnBg: 'bg-blue-100', btnBorder: 'border-blue-300', btnText: 'text-blue-800' };
-            }
-
-            return (
-              <div className={`${theme.bg} border-2 border-solid ${theme.border} p-4 md:p-6 rounded-2xl md:rounded-[1.5rem] mt-4 shadow-sm w-full transition-all hover:shadow-md`}>
-                <div className="flex flex-col">
-                  {/* หัวข้อเวร SSC */}
-                  <span className={`text-[15px] md:text-[20px] font-black ${theme.textHead} mb-2 md:mb-4 flex items-center gap-1.5 md:gap-2 uppercase tracking-wider`}>
-                    <AlertTriangle className="w-4 h-4 md:w-5 md:h-5 animate-pulse" /> เจ้าหน้าที่เวร SSC ประจำวันหยุด
-                  </span>
-                  
-                  {/* ชื่อเวร SSC */}
-                  <div className="flex items-center justify-between mb-3">
-                    <span className={`font-black ${theme.textName} flex items-center gap-2 text-[16px] md:text-[26px]`}>
-                      <User className={`w-5 h-5 md:w-6 md:h-6 ${theme.icon}`} />
-                      {sscName || t.sscTechName || "ยังไม่ระบุเวร"}
-                    </span>
-                  </div>
-
-                  {/* 🌟 ฟันธง: เส้นประ (Dashed Line) + มือถือแยกบรรทัด / PC ซ้ายขวา! */}
-                  <div className={`flex flex-col md:flex-row md:items-center justify-between mt-auto pt-3 border-t-[1.5px] border-dashed ${theme.border.replace('border-', 'border-').replace('400', '300')} gap-3`}>
-                    
-                    <span className={`text-[15px] md:text-[20px] font-bold ${theme.btnText} flex items-center gap-1.5`}>
-                      <Clock className={`w-5 h-5 md:w-6 md:h-6 ${theme.icon}`} />
-                      วันที่: {new Date(t.date).toLocaleDateString('th-TH', { day: 'numeric', month: 'long', year: 'numeric' })}
-                    </span>
-                    
-                    {(sscPhone || t.sscTechPhone) && (sscPhone || t.sscTechPhone) !== '-' && (
-                      <a href={`tel:${String(sscPhone || t.sscTechPhone).replace(/\D/g, '')}`} className={`font-mono text-[15px] md:text-[20px] font-bold ${theme.btnBg} px-3 py-1.5 rounded-lg ${theme.btnText} border ${theme.btnBorder} shadow-sm transition-colors flex items-center gap-1.5 active:scale-95 w-fit md:w-auto`}>
-                        <Phone className={`w-5 h-5 md:w-6 md:h-6 ${theme.icon}`} />
-                        {formatDisplayPhone(sscPhone || t.sscTechPhone)}
-                      </a>
-                    )}
-                  </div>
-                </div>
-              </div>
-            );
-          })()}
+                      
+                      {/* 👤 การ์ด 1: ผู้แจ้งปัญหา */}
+                      <div className="bg-emerald-50/40 border-2 border-solid border-emerald-400 p-4 md:p-6 rounded-2xl md:rounded-[1.5rem] shadow-sm flex flex-col w-full transition-all hover:shadow-md">
+                        {/* หัวข้อ */}
+                        <span className="text-[16px] md:text-[20px] font-black text-emerald-700 mb-2 md:mb-4 flex items-center gap-1.5 md:gap-2 uppercase tracking-wider">
+                          <User className="w-4 h-4 md:w-5 md:h-5" /> ผู้แจ้งปัญหา
+                        </span>
+                        
+                        {/* ชื่อ */}
+                        <div className="flex items-center justify-between mb-3">
+                          <span className="font-black text-emerald-950 flex items-center gap-2 text-[16px] md:text-[26px]">
+                            {String(t.reporter)}
+                          </span>
+                        </div>
+          
+                        {/* รายละเอียด */}
+                        <div className="flex flex-col md:flex-row md:items-center justify-between mt-auto pt-3 border-t-[1.5px] border-dashed border-emerald-400/50 gap-3">
+                          <span className="text-[15px] md:text-[20px] font-bold text-blue-600 flex items-center gap-1.5">
+                            <Clock className="w-3 h-3 md:w-4 md:h-4 text-emerald-600" />
+                            {formatDateTimeString(t.date)}
+                          </span>
+                          <a href={`tel:${String(t.reporterContact).replace(/\D/g, '')}`} className="font-mono text-[16px] md:text-[20px] font-bold bg-emerald-100 px-3 py-1.5 rounded-lg text-emerald-800 border border-emerald-300 shadow-sm hover:bg-emerald-200 transition-colors flex items-center gap-1.5 active:scale-95 w-fit md:w-auto">
+                            <Phone className="w-5 h-5 md:w-6 md:h-6 text-emerald-600" />
+                            {formatDisplayPhone(t.reporterContact)}
+                          </a>
+                        </div>
+                      </div>
+          
+                      {/* 🛠️ การ์ด 2: ผู้รับผิดชอบหลัก */}
+                      <div className="bg-orange-50/40 border-2 border-solid border-orange-400 p-4 md:p-6 rounded-2xl md:rounded-[1.5rem] shadow-sm flex flex-col w-full transition-all hover:shadow-md">
+                        <span className="text-[16px] md:text-[20px] font-black text-orange-600 mb-2 md:mb-4 flex items-center gap-1.5 md:gap-2 uppercase tracking-wider">
+                          <Wrench className="w-5 h-5 md:w-6 md:h-6" /> ผู้รับผิดชอบหลัก
+                        </span>
+                        
+                        <div className="flex flex-col mb-3">
+                          <span className="font-black text-orange-950 flex items-center gap-2 text-[16px] md:text-[26px]">
+                            {t.techName ? String(t.techName) : "รอดำเนินการ"}
+                          </span>
+                          {/* 🌟 ฟันธง: เติมภารกิจที่รับผิดชอบ เพื่อไม่ให้กล่องโล่งในโหมด PC */}
+                          {t.equipmentCategory && (
+                            <span className="text-[13px] md:text-[16px] font-bold text-orange-700/80 mt-1 md:mt-2">
+                              รับผิดชอบ: {t.equipmentCategory}
+                            </span>
+                          )}
+                        </div>
+          
+                        {/* รายละเอียด (เบอร์โทร) */}
+                        <div className="flex flex-col md:flex-row md:items-center justify-end mt-auto pt-3 border-t-[1.5px] border-dashed border-orange-400/50 gap-3">
+                          {t.techPhone && t.techPhone !== '-' && t.techPhone !== 'N/A' ? (
+                            <a href={`tel:${String(t.techPhone).replace(/\D/g, '')}`} className="font-mono text-[16px] md:text-[20px] font-bold bg-orange-100 px-3 py-1.5 rounded-lg text-orange-800 border border-orange-300 shadow-sm hover:bg-orange-200 transition-colors flex items-center gap-1.5 active:scale-95 w-fit md:w-auto self-start md:self-auto">
+                              <Phone className="w-5 h-5 md:w-6 md:h-6 text-orange-600" />
+                              {formatDisplayPhone(t.techPhone)}
+                            </a>
+                          ) : (
+                            <span className="font-mono text-[16px] md:text-[20px] text-slate-400 bg-slate-100 px-3 py-1.5 rounded-lg border border-slate-200 w-fit md:w-auto self-start md:self-auto">
+                              {String(t.techPhone || 'N/A')}
+                            </span>
+                          )}
+                        </div>
+                      </div>
+                      
+                      {/* ==================== 🚨 การ์ด 3: โซนเจ้าหน้าที่เวร SSC ==================== */}
+                      {t.isOutOfHours && (() => {
+                        const tDateObj = new Date(t.date);
+                        const dayOfWeek = tDateObj.getDay();
+                        const dateStr = tDateObj.toISOString().split('T')[0];
+                        const rosterInfo = allRosters.find(r => r.date === dateStr);
+                        const isSpecialHoliday = rosterInfo && rosterInfo.isHoliday;
+          
+                        let theme = { bg: 'bg-purple-50/80', border: 'border-purple-400', textHead: 'text-purple-700', textName: 'text-purple-950', icon: 'text-purple-500', btnBg: 'bg-purple-100', btnBorder: 'border-purple-300', btnText: 'text-purple-800' };
+          
+                        if (isSpecialHoliday) {
+                          theme = { bg: 'bg-orange-50/80', border: 'border-orange-400', textHead: 'text-orange-700', textName: 'text-orange-950', icon: 'text-orange-500', btnBg: 'bg-orange-100', btnBorder: 'border-orange-300', btnText: 'text-orange-800' };
+                        } else if (dayOfWeek === 0) { 
+                          theme = { bg: 'bg-rose-50/80', border: 'border-rose-400', textHead: 'text-rose-700', textName: 'text-rose-950', icon: 'text-rose-500', btnBg: 'bg-rose-100', btnBorder: 'border-rose-300', btnText: 'text-rose-800' };
+                        } else if (dayOfWeek === 6) { 
+                          theme = { bg: 'bg-blue-50/80', border: 'border-blue-400', textHead: 'text-blue-700', textName: 'text-blue-950', icon: 'text-blue-500', btnBg: 'bg-blue-100', btnBorder: 'border-blue-300', btnText: 'text-blue-800' };
+                        }
+          
+                        return (
+                          <div className={`${theme.bg} border-2 border-solid ${theme.border} p-4 md:p-6 rounded-2xl md:rounded-[1.5rem] shadow-sm w-full transition-all hover:shadow-md`}>
+                            <div className="flex flex-col">
+                              {/* หัวข้อเวร SSC */}
+                              <span className={`text-[15px] md:text-[20px] font-black ${theme.textHead} mb-2 md:mb-4 flex items-center gap-1.5 md:gap-2 uppercase tracking-wider`}>
+                                <AlertTriangle className="w-4 h-4 md:w-5 md:h-5 animate-pulse" /> เจ้าหน้าที่เวร SSC ประจำวันหยุด
+                              </span>
+                              
+                              {/* ชื่อเวร SSC */}
+                              <div className="flex items-center justify-between mb-3">
+                                <span className={`font-black ${theme.textName} flex items-center gap-2 text-[16px] md:text-[26px]`}>
+                                  <User className={`w-5 h-5 md:w-6 md:h-6 ${theme.icon}`} />
+                                  {sscName || t.sscTechName || "ยังไม่ระบุเวร"}
+                                </span>
+                              </div>
+          
+                              {/* 🌟 ฟันธง: เส้นประ (Dashed Line) + มือถือแยกบรรทัด / PC ซ้ายขวา! */}
+                              <div className={`flex flex-col md:flex-row md:items-center justify-between mt-auto pt-3 border-t-[1.5px] border-dashed ${theme.border.replace('border-', 'border-').replace('400', '300')} gap-3`}>
+                                
+                                <span className={`text-[15px] md:text-[20px] font-bold ${theme.btnText} flex items-center gap-1.5`}>
+                                  <Clock className={`w-5 h-5 md:w-6 md:h-6 ${theme.icon}`} />
+                                  วันที่: {new Date(t.date).toLocaleDateString('th-TH', { day: 'numeric', month: 'long', year: 'numeric' })}
+                                </span>
+                                
+                                {(sscPhone || t.sscTechPhone) && (sscPhone || t.sscTechPhone) !== '-' && (
+                                  <a href={`tel:${String(sscPhone || t.sscTechPhone).replace(/\D/g, '')}`} className={`font-mono text-[15px] md:text-[20px] font-bold ${theme.btnBg} px-3 py-1.5 rounded-lg ${theme.btnText} border ${theme.btnBorder} shadow-sm transition-colors flex items-center gap-1.5 active:scale-95 w-fit md:w-auto`}>
+                                    <Phone className={`w-5 h-5 md:w-6 md:h-6 ${theme.icon}`} />
+                                    {formatDisplayPhone(sscPhone || t.sscTechPhone)}
+                                  </a>
+                                )}
+                              </div>
+                            </div>
+                          </div>
+                        );
+                      })()}
+                    </div>
           
         {/* ============================================ */}
                       </div>
@@ -4330,6 +4282,7 @@ const renderTracking = () => (
             })
             )}
           </div>
+          
           {/* ================= สิ้นสุดการวางทับ ================= */}
 
       {/* 🛠️ Action Modals (ฟันธง: เพิ่มรูปแบบที่ 6 ดำเนินการซ่อมต่อ 'resume' สีส้มหล่อเท่ ไม่เอ๋อเป็น SSC แน่นอน 1,000,000%) */}
