@@ -4024,65 +4024,65 @@ const renderTracking = () => (
                           )}
 
                         </div>
-{/* ==================== โซนบุคคล (ผู้แจ้ง, ผู้รับผิดชอบหลัก) 🌟 ฟันธง: แยกกรอบชัดเจน ==================== */}
-<div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4 w-full">
+
+
+{/* ==================== โซนบุคคล (ผู้แจ้ง, ผู้รับผิดชอบหลัก) 🌟 ฟันธง: เรียงแนวตั้งกางเต็มจอ 100% ==================== */}
+<div className="flex flex-col gap-4 mt-4 w-full">
             
-            {/* 👤 การ์ด 1: ผู้แจ้งปัญหา */}
-            <div className="bg-emerald-50/40 border-2 border-solid border-emerald-400 p-4 md:p-6 rounded-2xl md:rounded-[1.5rem] shadow-sm flex flex-col w-full transition-all hover:shadow-md">
-              {/* หัวข้อ */}
-              <span className="text-[16px] md:text-[20px] font-black text-emerald-700 mb-2 md:mb-4 flex items-center gap-1.5 md:gap-2 uppercase tracking-wider">
-                <User className="w-4 h-4 md:w-5 md:h-5" /> ผู้แจ้งปัญหา
-              </span>
-              
-              {/* ชื่อ */}
-              <div className="flex items-center justify-between mb-3">
-                <span className="font-black text-emerald-950 flex items-center gap-2 text-[16px] md:text-[26px]">
-                  {String(t.reporter)}
-                </span>
-              </div>
+  {/* 👤 การ์ด 1: ผู้แจ้งปัญหา */}
+  <div className="bg-emerald-50/40 border-2 border-solid border-emerald-400 p-4 md:p-6 rounded-2xl md:rounded-[1.5rem] shadow-sm flex flex-col w-full transition-all hover:shadow-md">
+    {/* หัวข้อ */}
+    <span className="text-[16px] md:text-[20px] font-black text-emerald-700 mb-2 md:mb-4 flex items-center gap-1.5 md:gap-2 uppercase tracking-wider">
+      <User className="w-4 h-4 md:w-5 md:h-5" /> ผู้แจ้งปัญหา
+    </span>
+    
+    {/* ชื่อ */}
+    <div className="flex items-center justify-between mb-3">
+      <span className="font-black text-emerald-950 flex items-center gap-2 text-[16px] md:text-[26px]">
+        {String(t.reporter)}
+      </span>
+    </div>
 
-              {/* 🌟 ฟันธง: เส้นประคั่น + มือถือแยกบรรทัด (flex-col) / PC ให้อยู่ซ้าย-ขวา (md:flex-row) */}
-              <div className="flex flex-col md:flex-row md:items-center justify-between mt-auto pt-3 border-t-[1.5px] border-dashed border-emerald-400/50 gap-3">
-                <span className="text-[15px] md:text-[20px] font-bold text-blue-600 flex items-center gap-1.5">
-                  <Clock className="w-3 h-3 md:w-4 md:h-4 text-emerald-600" />
-                  {formatDateTimeString(t.date)}
-                </span>
-                {/* 🌟 ดันเบอร์โทรชิดขวา และบนมือถือให้หดพอดีตัว (w-fit) */}
-                <a href={`tel:${String(t.reporterContact).replace(/\D/g, '')}`} className="font-mono text-[16px] md:text-[20px] font-bold bg-emerald-100 px-3 py-1.5 rounded-lg text-emerald-800 border border-emerald-300 shadow-sm hover:bg-emerald-200 transition-colors flex items-center gap-1.5 active:scale-95 w-fit md:w-auto">
-                  <Phone className="w-5 h-5 md:w-6 md:h-6 text-emerald-600" />
-                  {formatDisplayPhone(t.reporterContact)}
-                </a>
-              </div>
-            </div>
+    {/* รายละเอียด */}
+    <div className="flex flex-col md:flex-row md:items-center justify-between mt-auto pt-3 border-t-[1.5px] border-dashed border-emerald-400/50 gap-3">
+      <span className="text-[15px] md:text-[20px] font-bold text-blue-600 flex items-center gap-1.5">
+        <Clock className="w-3 h-3 md:w-4 md:h-4 text-emerald-600" />
+        {formatDateTimeString(t.date)}
+      </span>
+      <a href={`tel:${String(t.reporterContact).replace(/\D/g, '')}`} className="font-mono text-[16px] md:text-[20px] font-bold bg-emerald-100 px-3 py-1.5 rounded-lg text-emerald-800 border border-emerald-300 shadow-sm hover:bg-emerald-200 transition-colors flex items-center gap-1.5 active:scale-95 w-fit md:w-auto">
+        <Phone className="w-5 h-5 md:w-6 md:h-6 text-emerald-600" />
+        {formatDisplayPhone(t.reporterContact)}
+      </a>
+    </div>
+  </div>
 
-            {/* 🛠️ การ์ด 2: ผู้รับผิดชอบหลัก */}
-            <div className="bg-orange-50/40 border-2 border-solid border-orange-400 p-4 md:p-6 rounded-2xl md:rounded-[1.5rem] shadow-sm flex flex-col w-full transition-all hover:shadow-md">
-              <span className="text-[16px] md:text-[20px] font-black text-orange-600 mb-2 md:mb-4 flex items-center gap-1.5 md:gap-2 uppercase tracking-wider">
-                <Wrench className="w-5 h-5 md:w-6 md:h-6" /> ผู้รับผิดชอบหลัก
-              </span>
-              
-              <div className="flex items-center justify-between mb-3">
-                <span className="font-black text-orange-950 flex items-center gap-2 text-[16px] md:text-[26px]">
-                  {t.techName ? String(t.techName) : "รอดำเนินการ"}
-                </span>
-              </div>
+  {/* 🛠️ การ์ด 2: ผู้รับผิดชอบหลัก */}
+  <div className="bg-orange-50/40 border-2 border-solid border-orange-400 p-4 md:p-6 rounded-2xl md:rounded-[1.5rem] shadow-sm flex flex-col w-full transition-all hover:shadow-md">
+    <span className="text-[16px] md:text-[20px] font-black text-orange-600 mb-2 md:mb-4 flex items-center gap-1.5 md:gap-2 uppercase tracking-wider">
+      <Wrench className="w-5 h-5 md:w-6 md:h-6" /> ผู้รับผิดชอบหลัก
+    </span>
+    
+    <div className="flex items-center justify-between mb-3">
+      <span className="font-black text-orange-950 flex items-center gap-2 text-[16px] md:text-[26px]">
+        {t.techName ? String(t.techName) : "รอดำเนินการ"}
+      </span>
+    </div>
 
-              {/* 🌟 ฟันธง: เส้นประคั่น + ดันเบอร์โทรไปขวาสุด (justify-end) */}
-              <div className="flex flex-col md:flex-row md:items-center justify-end mt-auto pt-3 border-t-[1.5px] border-dashed border-orange-400/50 gap-3">
-                {t.techPhone && t.techPhone !== '-' && t.techPhone !== 'N/A' ? (
-                  <a href={`tel:${String(t.techPhone).replace(/\D/g, '')}`} className="font-mono text-[16px] md:text-20px] font-bold bg-orange-100 px-3 py-1.5 rounded-lg text-orange-800 border border-orange-300 shadow-sm hover:bg-orange-200 transition-colors flex items-center gap-1.5 active:scale-95 w-fit md:w-auto self-start md:self-auto">
-                    <Phone className="w-5 h-5 md:w-6 md:h-6 text-orange-600" />
-                    {formatDisplayPhone(t.techPhone)}
-                  </a>
-                ) : (
-                  <span className="font-mono text-[16px] md:text-[20px] text-slate-400 bg-slate-100 px-3 py-1.5 rounded-lg border border-slate-200 w-fit md:w-auto self-start md:self-auto">
-                    {String(t.techPhone || 'N/A')}
-                  </span>
-                )}
-              </div>
-            </div>
-          </div>
-
+    {/* รายละเอียด */}
+    <div className="flex flex-col md:flex-row md:items-center justify-end mt-auto pt-3 border-t-[1.5px] border-dashed border-orange-400/50 gap-3">
+      {t.techPhone && t.techPhone !== '-' && t.techPhone !== 'N/A' ? (
+        <a href={`tel:${String(t.techPhone).replace(/\D/g, '')}`} className="font-mono text-[16px] md:text-[20px] font-bold bg-orange-100 px-3 py-1.5 rounded-lg text-orange-800 border border-orange-300 shadow-sm hover:bg-orange-200 transition-colors flex items-center gap-1.5 active:scale-95 w-fit md:w-auto self-start md:self-auto">
+          <Phone className="w-5 h-5 md:w-6 md:h-6 text-orange-600" />
+          {formatDisplayPhone(t.techPhone)}
+        </a>
+      ) : (
+        <span className="font-mono text-[16px] md:text-[20px] text-slate-400 bg-slate-100 px-3 py-1.5 rounded-lg border border-slate-200 w-fit md:w-auto self-start md:self-auto">
+          {String(t.techPhone || 'N/A')}
+        </span>
+      )}
+    </div>
+  </div>
+</div>
           {/* ==================== 🚨 การ์ด 3: โซนเจ้าหน้าที่เวร SSC ==================== */}
           {t.isOutOfHours && (() => {
             const tDateObj = new Date(t.date);
