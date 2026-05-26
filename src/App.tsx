@@ -3905,51 +3905,57 @@ const renderTracking = () => (
       </div>
     )}
 
-        {/* 🌟 ฟันธง: Timeline ประวัติการซ่อม (สไตล์ Card สีสันสดใสเหมือนรูปที่ 1 & 2*/}
-    {t.historyLog && t.historyLog.length > 0 && (
-      <div className="flex flex-col w-full gap-4 mt-4">
-        {t.historyLog.map((log, index) => {
-          const isHold = log.type === 'hold';
-          // 🎯 Logic คำนวณเวลา (เอาของท่านมาใส่ให้สมบูรณ์)
-          const currentTime = index < t.historyLog.length - 1 
-            ? new Date(t.historyLog[index + 1].timestamp).getTime() 
-            : new Date().getTime();
-          const startTime = new Date(log.timestamp).getTime();
-          const durationMs = Math.max(0, currentTime - startTime);
-          const pad = (num) => String(num).padStart(2, '0');
-          const hours = Math.floor(durationMs / 3600000);
-          const minutes = Math.floor((durationMs % 3600000) / 60000);
-          const seconds = Math.floor((durationMs % 60000) / 1000);
-          const formattedTime = `${pad(hours)}:${pad(minutes)}:${pad(seconds)}`;
+        {/* 🌟 ฟันธง: Timeline ประวัติการซ่อม (อัปเกรดฟอนต์ PC ให้ใหญ่โตชัดเจน) */}
+        {t.historyLog && t.historyLog.length > 0 && (
+            <div className="flex flex-col w-full gap-4 md:gap-6 mt-6">
+              {t.historyLog.map((log, index) => {
+                const isHold = log.type === 'hold';
+                
+                // คำนวณเวลา
+                const currentTime = index < t.historyLog.length - 1 
+                  ? new Date(t.historyLog[index + 1].timestamp).getTime() 
+                  : new Date().getTime();
+                const startTime = new Date(log.timestamp).getTime();
+                const durationMs = Math.max(0, currentTime - startTime);
+                
+                const pad = (num) => String(num).padStart(2, '0');
+                const hours = Math.floor(durationMs / 3600000);
+                const minutes = Math.floor((durationMs % 3600000) / 60000);
+                const seconds = Math.floor((durationMs % 60000) / 1000);
+                const formattedTime = `${pad(hours)}:${pad(minutes)}:${pad(seconds)}`;
 
-          return (
-            <div key={index} className={`w-full rounded-2xl border-[2px] border-solid overflow-hidden ${isHold ? 'bg-purple-50 border-purple-400' : 'bg-orange-50 border-orange-400'}`}>
-              {/* ส่วนหัวเหตุการณ์ */}
-              <div className="p-4 flex items-center gap-3">
-                {isHold ? <PauseCircle className="text-purple-600" /> : <Wrench className="text-orange-600" />}
-                <span className={`font-black text-[16px] uppercase ${isHold ? 'text-purple-800' : 'text-orange-800'}`}>
-                  {isHold ? 'แจ้งเหตุขัดข้อง' : 'ดำเนินการต่อ'}
-                </span>
-              </div>
-              {/* ส่วนรายละเอียด */}
-              <div className="px-4 pb-4">
-                <p className="font-bold text-[16px] text-slate-900 leading-snug">{String(log.reason)}</p>
-              </div>
-              {/* ส่วนท้าย: เส้นประ + เวลา */}
-              <div className={`px-4 py-3 border-t-[1.5px] border-dashed ${isHold ? 'border-purple-300' : 'border-orange-300'} flex justify-between items-center bg-orange/50`}>
-
-                 <span className={`text-[14px] font-bold opacity-80 uppercase ${isHold ? 'text-purple-700' : 'text-orange-700'}`}>
-                    {isHold ? `ระยะเวลาที่หยุด (ครั้งที่ ${index + 1})` : `ระยะเวลาที่ซ่อม (ครั้งที่ ${index + 1})`}
-                 </span>
-                 <span className="font-mono font-black text-[14px] bg-orange-400 px-3 py-1 rounded-lg border-2 border-solid border-white-500 shadow-sm">
-                    {formattedTime}
-                 </span>
-              </div>
+                return (
+                  <div key={index} className={`w-full rounded-2xl md:rounded-[2rem] border-[2px] border-solid overflow-hidden ${isHold ? 'bg-purple-50 border-purple-400' : 'bg-orange-50 border-orange-400'}`}>
+                    {/* ส่วนหัวเหตุการณ์ */}
+                    <div className="p-4 md:p-6 flex items-center gap-3">
+                      {isHold ? <PauseCircle className="w-6 h-6 md:w-8 md:h-8 text-purple-600" /> : <Wrench className="w-6 h-6 md:w-8 md:h-8 text-orange-600" />}
+                      <span className={`font-black text-[15px] md:text-[22px] uppercase tracking-wider ${isHold ? 'text-purple-800' : 'text-orange-800'}`}>
+                        {isHold ? 'แจ้งเหตุขัดข้อง' : 'ดำเนินการต่อ'}
+                      </span>
+                    </div>
+                    {/* ส่วนเนื้อหา */}
+                    <div className="px-4 md:px-6 pb-4 md:pb-6">
+                      <p className="font-bold text-[16px] md:text-[24px] text-slate-900 leading-snug">
+                        {String(log.reason)}
+                      </p>
+                    </div>
+                    {/* ส่วนท้าย: เส้นประ + เวลา (จัดให้ขวาล่างสวยๆ) */}
+                    <div className={`px-4 md:px-6 py-3 md:py-4 border-t-[1.5px] border-dashed ${isHold ? 'border-purple-300' : 'border-orange-300'} flex justify-between items-center bg-white/50`}>
+                       <span className={`text-[12px] md:text-[16px] font-bold opacity-80 uppercase tracking-widest ${isHold ? 'text-purple-700' : 'text-orange-700'}`}>
+                          {isHold ? `ระยะเวลาที่หยุด (ครั้งที่ ${index + 1})` : `ระยะเวลาที่ซ่อม (ครั้งที่ ${index + 1})`}
+                       </span>
+                       <span className="font-mono font-black text-[14px] md:text-[20px] bg-white px-4 py-1.5 md:py-2 rounded-xl border border-slate-300 shadow-sm tracking-widest">
+                          {formattedTime}
+                       </span>
+                    </div>
+                  </div>
+                );
+              })}
             </div>
-          );
-        })}
-      </div>
-    )}
+          )}
+
+
+
 
         
     {/* 📋 สรุปผลและข้อแนะนำ (ฟันธง: เติม rounded-xl md:rounded-2xl ลบเหลี่ยมแข็งโป๊ก) */}
