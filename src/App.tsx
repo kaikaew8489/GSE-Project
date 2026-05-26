@@ -3935,16 +3935,16 @@ const renderTracking = () => (
                     </div>
                     {/* ส่วนเนื้อหา */}
                     <div className="px-4 md:px-6 pb-4 md:pb-6">
-                      <p className="font-bold text-[16px] md:text-[24px] text-slate-900 leading-snug">
+                      <p className="font-bold text-[16px] md:text-[24px] text-emerald-600 leading-snug">
                         {String(log.reason)}
                       </p>
                     </div>
                     {/* ส่วนท้าย: เส้นประ + เวลา (จัดให้ขวาล่างสวยๆ) */}
-                    <div className={`px-4 md:px-6 py-3 md:py-4 border-t-[1.5px] border-dashed ${isHold ? 'border-purple-300' : 'border-orange-300'} flex justify-between items-center bg-white/50`}>
-                       <span className={`text-[12px] md:text-[16px] font-bold opacity-80 uppercase tracking-widest ${isHold ? 'text-purple-700' : 'text-orange-700'}`}>
+                    <div className={`px-4 md:px-6 py-3 md:py-4 border-t-[1.5px] border-dashed ${isHold ? 'border-purple-400' : 'border-orange-400'} flex justify-between items-center bg-white/50`}>
+                       <span className={`text-[15px] md:text-[18px] font-bold opacity-80 uppercase tracking-widest ${isHold ? 'text-purple-700' : 'text-orange-700'}`}>
                           {isHold ? `ระยะเวลาที่หยุด (ครั้งที่ ${index + 1})` : `ระยะเวลาที่ซ่อม (ครั้งที่ ${index + 1})`}
                        </span>
-                       <span className="font-mono font-black text-[14px] md:text-[20px] bg-white px-4 py-1.5 md:py-2 rounded-xl border border-slate-300 shadow-sm tracking-widest">
+                       <span className="font-mono font-black text-[15px] md:text-[20px] bg-orange-600 px-4 py-1.5 md:py-2 rounded-xl border-2 border-solid border-slate-300 shadow-sm tracking-widest">
                           {formattedTime}
                        </span>
                     </div>
@@ -3953,9 +3953,6 @@ const renderTracking = () => (
               })}
             </div>
           )}
-
-
-
 
         
     {/* 📋 สรุปผลและข้อแนะนำ (ฟันธง: เติม rounded-xl md:rounded-2xl ลบเหลี่ยมแข็งโป๊ก) */}
