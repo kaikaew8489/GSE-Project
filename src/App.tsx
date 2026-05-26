@@ -3829,15 +3829,14 @@ const renderTracking = () => (
                           </div>
                         ) : null}
 
-                 {/* 🌟 โซนรายละเอียดข้อความและการติดต่อ (คืนค่าขอบซ้ายขวา) */}
-{/* 🌟 โซนรายละเอียดข้อความและการติดต่อ (ปลดล็อกความกว้าง 100%) */}
-<div className="px-5 md:px-10 pb-5 md:pb-10 pt-2 flex flex-col w-full gap-4 md:gap-6 relative z-10">
-{/* 🌟 ฟันธงสเต็ป 1: เปิดระบบ Flex Gap ให้ทุกกล่องห่างเท่ากันเป๊ะ 1,000,000% */}
-<div className="flex flex-col w-full relative z-10 gap-4 md:gap-6">
+                {/* 🌟 โซนรายละเอียดข้อความและการติดต่อ (ปลดล็อกความกว้าง 100%) */}
+          <div className="px-5 md:px-10 pb-5 md:pb-10 pt-2 flex flex-col w-full relative z-10">
+          {/* 🌟 ฟันธงสเต็ป 1: จัดการช่องไฟภายในด้วย Margin แทน Gap */}
+          <div className="flex flex-col w-full relative z-10">
     
     {/* 🚨 เหตุผลยกเลิกงาน */}
     {t.status === 'cancelled' && t.cancelReason && (
-          <div className="bg-rose-100/70 border-l-[4px] border-2 border-solid border-rose-600 rounded-xl md:rounded-2xl p-3 md:p-5 flex gap-3 md:gap-4 w-full mb-4 mt-2">
+          <div className="bg-rose-100/70 border-l-[4px] border-2 border-solid border-rose-600 rounded-xl md:rounded-2xl p-3 md:p-5 flex gap-3 md:gap-4 w-full mt-4 md:mt-6">
         <XCircle className="w-5 h-5 md:w-8 md:h-8 shrink-0 mt-0.5 text-rose-600" />
         <div className="w-full">
           <span className="block mb-1 text-rose-600/80 text-[16px] md:text-[22px] font-bold uppercase">เหตุผลที่ยกเลิก:</span>
@@ -3904,7 +3903,7 @@ const renderTracking = () => (
 
     {/* 📋 สรุปผลและข้อแนะนำ (ฟันธง: เติม rounded-xl md:rounded-2xl ลบเหลี่ยมแข็งโป๊ก) */}
     {t.cause && (
-      <div className="bg-emerald-100/70 border-l-[4px] border-2 border-solid border-emerald-600 rounded-xl md:rounded-2xl p-3 md:p-5 flex gap-3 md:gap-4 w-full">
+      <div className="bg-emerald-100/70 border-l-[4px] border-2 border-solid border-emerald-600 rounded-xl md:rounded-2xl p-3 md:p-5 flex gap-3 md:gap-4 w-full mt-4 md:mt-6">
 
         <CheckSquare className="w-5 h-5 md:w-8 md:h-8 shrink-0 mt-0.5 text-emerald-600" />
         <div className="w-full">
@@ -3918,7 +3917,7 @@ const renderTracking = () => (
     
         {/* ==================== โซนภาพประกอบ (แบบมีกรอบ Card แยกชัดเจน) ==================== */}
         {t.images && t.images.length > 0 && (
-          <div className="bg-slate-100 border-2 border-solid border-emerald-500 p-4 md:p-6 rounded-2xl md:rounded-[1.5rem] mt-2 shadow-sm w-full">
+          <div className="bg-slate-100 border-2 border-solid border-emerald-500 p-4 md:p-6 rounded-2xl md:rounded-[1.5rem] shadow-sm w-full mt-4 md:mt-6">
             <span className="text-[14px] md:text-[22px] font-black text-rose-700 mb-3 md:mb-4 flex items-center gap-2">
                📸 ภาพประกอบการแจ้งซ่อม:
             </span>
@@ -3939,7 +3938,7 @@ const renderTracking = () => (
         {/* ============================================================================== */}
                         
                        {/* 🌟 ฟันธง: สร้างกล่องแม่ครอบโซนอาการเสียและ Asset No ทั้งหมด พร้อมหดความกว้างให้เท่ากรอบส้มด้านบน */}
-                       <div className="bg-orange-100/70 border-l-[4px] border-2 border-solid border-indigo-600 rounded-xl md:rounded-2xl p-3 md:p-5 flex gap-3 md:gap-4 w-full mb-4">
+                       <div className="bg-orange-100/70 border-l-[4px] border-2 border-solid border-indigo-600 rounded-xl md:rounded-2xl p-3 md:p-5 flex gap-3 md:gap-4 w-full mt-4 md:mt-6">
                           
                           {/* บรรทัดหัวเรื่อง */}
                           <div className="mb-2 md:mb-4">
@@ -3971,8 +3970,8 @@ const renderTracking = () => (
                         </div>
 
 
-{/* ==================== โซนบุคคล (ผู้แจ้ง, ผู้รับผิดชอบหลัก) 🌟 ฟันธง: เรียงแนวตั้งกางเต็มจอ 100% ==================== */}
-<div className="flex flex-col gap-4 mt-4 w-full">
+{/* ==================== โซนบุคคล & SSC (จัดระเบียบระยะห่างใหม่) ==================== */}
+<div className="flex flex-col gap-4 md:gap-6 mt-6 w-full">
                       
                       {/* 👤 การ์ด 1: ผู้แจ้งปัญหา */}
                       <div className="bg-emerald-50/40 border-2 border-solid border-emerald-400 p-4 md:p-6 rounded-2xl md:rounded-[1.5rem] shadow-sm flex flex-col w-full transition-all hover:shadow-md">
@@ -4083,6 +4082,21 @@ const renderTracking = () => (
                                   </a>
                                 )}
                               </div>
+          
+                              {/* 🌟 บันทึกของเวร SSC */}
+                              {t.sscNote && (
+                                <div className={`mt-3 pt-3 border-t-[1.5px] border-dashed ${theme.border.replace('border-', 'border-').replace('400', '300')}`}>
+                                  <div className="flex flex-col w-full">
+                                    <span className={`block mb-1 text-[11px] md:text-[14px] font-bold uppercase ${theme.textHead} opacity-80`}>
+                                      บันทึกการแก้ไขเบื้องต้น (เวร SSC):
+                                    </span>
+                                    <span className={`text-[13px] md:text-[18px] font-bold ${theme.textName}`}>
+                                      {String(t.sscNote)}
+                                    </span>
+                                  </div>
+                                </div>
+                              )}
+          
                             </div>
                           </div>
                         );
