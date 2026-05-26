@@ -3905,115 +3905,53 @@ const renderTracking = () => (
       </div>
     )}
 
-        {/* 🌟 ฟันธง: Timeline รักษาสีของท่านหัวหน้า + อัปเกรดเป็นการ์ดโค้งมน (Card UI) */}
-        {t.historyLog && t.historyLog.length > 0 ? (
-          
-          // 🎯 ฟันธง: เอากล่องนี้กลับมาครับ! แต่ลบ mt, mb และ -mx ออกหมดแล้ว จะทำให้มันกว้างเท่าเพื่อน และช่องไฟสวยเป๊ะ!
-          <div className="flex flex-col w-full gap-3 md:gap-4 mt-2">
-            
-            {(() => {
-              let holdCounter = 0;
-              let resumeCounter = 0;
+        {/* 🌟 ฟันธง: Timeline ประวัติการซ่อม (สไตล์ Card สีสันสดใสเหมือนรูปที่ 1 & 2*/}
+    {t.historyLog && t.historyLog.length > 0 && (
+      <div className="flex flex-col w-full gap-4 mt-4">
+        {t.historyLog.map((log, index) => {
+          const isHold = log.type === 'hold';
+          // 🎯 Logic คำนวณเวลา (เอาของท่านมาใส่ให้สมบูรณ์)
+          const currentTime = index < t.historyLog.length - 1 
+            ? new Date(t.historyLog[index + 1].timestamp).getTime() 
+            : new Date().getTime();
+          const startTime = new Date(log.timestamp).getTime();
+          const durationMs = Math.max(0, currentTime - startTime);
+          const pad = (num) => String(num).padStart(2, '0');
+          const hours = Math.floor(durationMs / 3600000);
+          const minutes = Math.floor((durationMs % 3600000) / 60000);
+          const seconds = Math.floor((durationMs % 60000) / 1000);
+          const formattedTime = `${pad(hours)}:${pad(minutes)}:${pad(seconds)}`;
 
-              return t.historyLog.map((log, index) => {
-                const isLast = index === t.historyLog.length - 1;
-                const isHold = log.type === 'hold';
-                
-                // นับครั้งที่อัตโนมัติ
-                if (isHold) holdCounter++;
-                else resumeCounter++;
-
-                // 🌟 สมองกลคำนวณระยะเวลา (ระดับ Milliseconds)
-                let durationMs = 0;
-                let isOngoing = false;
-
-                if (isHold) {
-                  const nextLog = t.historyLog[index + 1];
-                  if (nextLog) {
-                    durationMs = new Date(nextLog.timestamp).getTime() - new Date(log.timestamp).getTime();
-                  } else {
-                    isOngoing = true;
-                  }
-                } else {
-                  const nextLog = t.historyLog[index + 1];
-                  if (nextLog) {
-                    durationMs = new Date(nextLog.timestamp).getTime() - new Date(log.timestamp).getTime();
-                  } else if (t.status === 'completed' || t.status === 'verified') {
-                    durationMs = t.completedAt ? new Date(t.completedAt).getTime() - new Date(log.timestamp).getTime() : 0;
-                  } else {
-                    isOngoing = true;
-                  }
-                }
-
-                // 🌟 ฟังก์ชันแปลงเวลาเป็น HH:MM:SS
-                const pad = (num) => String(num).padStart(2, '0');
-                const hours = Math.floor(durationMs / 3600000);
-                const minutes = Math.floor((durationMs % 3600000) / 60000);
-                const seconds = Math.floor((durationMs % 60000) / 1000);
-                const formattedTime = `${pad(hours)}:${pad(minutes)}:${pad(seconds)}`;
-
-                return (
-                  // 🌟 ฟันธงจุดที่ 1 (กล่องแม่): เปลี่ยนเป็น flex-col md:flex-row เพื่อให้มือถือเรียงบนล่าง แต่คอมยังเรียงซ้ายขวา
-                  <div key={index} className={"flex flex-col md:flex-row md:items-center justify-between gap-3 md:gap-0 p-4 md:px-6 w-full rounded-2xl md:rounded-[1rem] shadow-sm hover:shadow-md transition-shadow border-2 border-solid border-slate-800 " + (isHold ? "bg-purple-100 border-l-[6px] border-l-purple-500" : "bg-orange-100 border-l-[6px] border-l-orange-500")}>
-                    
-                    {/* 🎯 ด้านซ้าย: ชื่อเหตุการณ์ */}
-                    <div className="flex gap-3 md:gap-4 w-full">
-                      {isHold ? <PauseCircle className="w-5 h-5 md:w-6 md:h-6 shrink-0 text-purple-600 drop-shadow-sm" /> : <Wrench className="w-5 h-5 md:w-6 md:h-6 shrink-0 text-orange-600 drop-shadow-sm" />}
-                      <div>
-                        <p className="font-black text-[12px] md:text-[16px] text-slate-800">{isHold ? 'แจ้งเหตุขัดข้อง' : 'ดำเนินการต่อ'}</p>
-                        <p className="text-[13px] md:text-[18px] text-slate-600 font-bold mt-0.5">{String(log.reason)}</p>
-                      </div>
-                    </div>
-                    
-                    {/* 🌟 ฟันธงจุดที่ 2 (กล่องเวลาด้านขวา): เติม self-end เพื่อให้มันผลักตัวเองไปชิดขวาเสมอเวลากลายเป็นจอมือถือ */}
-                    <div className="flex flex-col items-end self-end md:self-auto shrink-0 ml-0 md:ml-2 mt-1 md:mt-0">
-                       {isLast && isOngoing ? (
-                         <>
-                           <span className="text-[11px] md:text-[16px] font-bold mb-0.5 md:mb-1 text-slate-500 md:text-slate-800">สถานะปัจจุบัน</span>
-                           <span className={`px-2 md:px-3 py-0.5 md:py-1 rounded-md text-[12px] md:text-[16px] font-bold animate-pulse whitespace-nowrap shadow-sm border md:border-2 border-solid ${isHold ? 'bg-purple-100 text-purple-700 border-purple-500' : 'bg-orange-100 text-orange-700 border-orange-500'}`}>
-                             {isHold ? 'รออะไหล่' : 'กำลังซ่อม'}
-                           </span>
-                         </>
-                       ) : (
-                         <>
-                           <span className={`text-[11px] md:text-[16px] font-bold mb-0.5 md:mb-1 opacity-80 md:opacity-100 ${isHold ? 'text-purple-600' : 'text-orange-600'}`}>
-                             {isHold ? `ระยะเวลาที่หยุด (ครั้งที่ ${holdCounter})` : `ระยะเวลาที่ซ่อม (ครั้งที่ ${resumeCounter})`}
-                           </span>
-                           <span className="text-[12px] md:text-[16px] font-mono font-black text-slate-700 bg-white px-2 md:px-3 py-0.5 rounded border md:border-2 border-solid border-indigo-800 whitespace-nowrap shadow-sm tracking-wider">
-                             {formattedTime}
-                           </span>
-                         </>
-                       )}
-                    </div>
-                  </div> // <-- 🌟 ฟันธง: อย่าลืมปิด div ที่ครอบ return ข้างบน!
-                );
-              });
-            })()}
-          </div> // <-- 🌟 ฟันธง: อันนี้คือตัวปิดกล่องแม่ที่เราเพิ่งคืนชีพให้มัน
-        ) : (
-          
-          /* โค้ดสำรองกรณีข้อมูลยังเป็นแบบเก่า (เพื่อไม่ให้ Error) */
-          <>
-            {t.holdReason && (
-              <div className="bg-purple-50/70 border-l-[4px] border-solid border-purple-500 p-3 md:p-5 flex gap-3 md:gap-4 w-full mb-4">
-                <PauseCircle className="w-4 h-4 md:w-6 md:h-6 shrink-0 mt-0.5 text-purple-600" />
-                <div className="w-full">
-                  <span className="block mb-0.5 text-purple-600/80 text-[10px] md:text-[14px] font-bold">แจ้งเหตุขัดข้อง:</span>
-                  <span className="text-[13px] md:text-[18px] text-purple-900 font-bold">{String(t.holdReason)}</span>
-                </div>
+          return (
+            <div key={index} className={`w-full rounded-2xl border-[2px] border-solid overflow-hidden ${isHold ? 'bg-purple-50 border-purple-400' : 'bg-orange-50 border-orange-400'}`}>
+              {/* ส่วนหัวเหตุการณ์ */}
+              <div className="p-4 flex items-center gap-3">
+                {isHold ? <PauseCircle className="text-purple-600" /> : <Wrench className="text-orange-600" />}
+                <span className={`font-black text-[16px] uppercase ${isHold ? 'text-purple-800' : 'text-orange-800'}`}>
+                  {isHold ? 'แจ้งเหตุขัดข้อง' : 'ดำเนินการต่อ'}
+                </span>
               </div>
-            )}
-            {t.resumeReason && (
-              <div className="bg-orange-50/70 border-l-[4px] border-solid border-orange-500 p-3 md:p-5 flex gap-3 md:gap-4 w-full mb-4">
-                <Wrench className="w-4 h-4 md:w-6 md:h-6 shrink-0 mt-0.5 text-orange-600" />
-                <div className="w-full">
-                  <span className="block mb-0.5 text-orange-600/80 text-[10px] md:text-[14px] font-bold">ดำเนินการต่อ:</span>
-                  <span className="text-[13px] md:text-[18px] text-orange-900 font-bold">{String(t.resumeReason)}</span>
-                </div>
+              {/* ส่วนรายละเอียด */}
+              <div className="px-4 pb-4">
+                <p className="font-bold text-[16px] text-slate-900 leading-snug">{String(log.reason)}</p>
               </div>
-            )}
-          </>
-        )}
+              {/* ส่วนท้าย: เส้นประ + เวลา */}
+              <div className={`px-4 py-3 border-t-[1.5px] border-dashed ${isHold ? 'border-purple-300' : 'border-orange-300'} flex justify-between items-center bg-orange/50`}>
+
+                 <span className={`text-[14px] font-bold opacity-80 uppercase ${isHold ? 'text-purple-700' : 'text-orange-700'}`}>
+                    {isHold ? `ระยะเวลาที่หยุด (ครั้งที่ ${index + 1})` : `ระยะเวลาที่ซ่อม (ครั้งที่ ${index + 1})`}
+                 </span>
+                 <span className="font-mono font-black text-[14px] bg-orange-400 px-3 py-1 rounded-lg border-2 border-solid border-white-500 shadow-sm">
+                    {formattedTime}
+                 </span>
+              </div>
+            </div>
+          );
+        })}
+      </div>
+    )}
+
+        
     {/* 📋 สรุปผลและข้อแนะนำ (ฟันธง: เติม rounded-xl md:rounded-2xl ลบเหลี่ยมแข็งโป๊ก) */}
     {t.cause && (
       <div className="bg-emerald-100/70 border-l-[4px] border-2 border-solid border-emerald-600 rounded-xl md:rounded-2xl p-3 md:p-5 flex gap-3 md:gap-4 w-full">
@@ -4082,12 +4020,12 @@ const renderTracking = () => (
 
                         </div>
 {/* ==================== โซนบุคคล (ผู้แจ้ง, ผู้รับผิดชอบหลัก) 🌟 ฟันธง: แยกกรอบชัดเจน ==================== */}
-<div className="grid grid-cols-1 md:grid-cols-2 gap-4 w-full">
+<div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4 w-full">
             
             {/* 👤 การ์ด 1: ผู้แจ้งปัญหา */}
             <div className="bg-emerald-50/40 border-2 border-solid border-emerald-400 p-4 md:p-6 rounded-2xl md:rounded-[1.5rem] shadow-sm flex flex-col w-full transition-all hover:shadow-md">
               {/* หัวข้อ */}
-              <span className="text-[15px] md:text-[18px] font-black text-emerald-700 mb-2 md:mb-4 flex items-center gap-1.5 md:gap-2 uppercase tracking-wider">
+              <span className="text-[13px] md:text-[16px] font-black text-emerald-700 mb-2 md:mb-4 flex items-center gap-1.5 md:gap-2 uppercase tracking-wider">
                 <User className="w-4 h-4 md:w-5 md:h-5" /> ผู้แจ้งปัญหา
               </span>
               
@@ -4105,7 +4043,7 @@ const renderTracking = () => (
                   {formatDateTimeString(t.date)}
                 </span>
                 {/* 🌟 ดันเบอร์โทรชิดขวา และบนมือถือให้หดพอดีตัว (w-fit) */}
-                <a href={`tel:${String(t.reporterContact).replace(/\D/g, '')}`} className="font-mono text-[15px] md:text-[18px] font-bold bg-emerald-100 px-3 py-1.5 rounded-lg text-emerald-800 border border-emerald-300 shadow-sm hover:bg-emerald-200 transition-colors flex items-center gap-1.5 active:scale-95 w-fit md:w-auto">
+                <a href={`tel:${String(t.reporterContact).replace(/\D/g, '')}`} className="font-mono text-[12px] md:text-[15px] font-bold bg-emerald-100 px-3 py-1.5 rounded-lg text-emerald-800 border border-emerald-300 shadow-sm hover:bg-emerald-200 transition-colors flex items-center gap-1.5 active:scale-95 w-fit md:w-auto">
                   <Phone className="w-3 h-3 md:w-4 md:h-4 text-emerald-600" />
                   {formatDisplayPhone(t.reporterContact)}
                 </a>
@@ -4114,7 +4052,7 @@ const renderTracking = () => (
 
             {/* 🛠️ การ์ด 2: ผู้รับผิดชอบหลัก */}
             <div className="bg-orange-50/40 border-2 border-solid border-orange-400 p-4 md:p-6 rounded-2xl md:rounded-[1.5rem] shadow-sm flex flex-col w-full transition-all hover:shadow-md">
-              <span className="text-[15px] md:text-[18px] font-black text-orange-600 mb-2 md:mb-4 flex items-center gap-1.5 md:gap-2 uppercase tracking-wider">
+              <span className="text-[13px] md:text-[16px] font-black text-orange-600 mb-2 md:mb-4 flex items-center gap-1.5 md:gap-2 uppercase tracking-wider">
                 <Wrench className="w-4 h-4 md:w-5 md:h-5" /> ผู้รับผิดชอบหลัก
               </span>
               
@@ -4127,7 +4065,7 @@ const renderTracking = () => (
               {/* 🌟 ฟันธง: เส้นประคั่น + ดันเบอร์โทรไปขวาสุด (justify-end) */}
               <div className="flex flex-col md:flex-row md:items-center justify-end mt-auto pt-3 border-t-[1.5px] border-dashed border-orange-400/50 gap-3">
                 {t.techPhone && t.techPhone !== '-' && t.techPhone !== 'N/A' ? (
-                  <a href={`tel:${String(t.techPhone).replace(/\D/g, '')}`} className="font-mono text-[15px] md:text-[18px] font-bold bg-orange-100 px-3 py-1.5 rounded-lg text-orange-800 border border-orange-300 shadow-sm hover:bg-orange-200 transition-colors flex items-center gap-1.5 active:scale-95 w-fit md:w-auto self-start md:self-auto">
+                  <a href={`tel:${String(t.techPhone).replace(/\D/g, '')}`} className="font-mono text-[12px] md:text-[15px] font-bold bg-orange-100 px-3 py-1.5 rounded-lg text-orange-800 border border-orange-300 shadow-sm hover:bg-orange-200 transition-colors flex items-center gap-1.5 active:scale-95 w-fit md:w-auto self-start md:self-auto">
                     <Phone className="w-3 h-3 md:w-4 md:h-4 text-orange-600" />
                     {formatDisplayPhone(t.techPhone)}
                   </a>
@@ -4155,12 +4093,11 @@ const renderTracking = () => (
             } else if (dayOfWeek === 0) { 
               theme = { bg: 'bg-rose-50/80', border: 'border-rose-400', textHead: 'text-rose-700', textName: 'text-rose-950', icon: 'text-rose-500', btnBg: 'bg-rose-100', btnBorder: 'border-rose-300', btnText: 'text-rose-800' };
             } else if (dayOfWeek === 6) { 
-              theme = { bg: 'bg-sky-50/80', border: 'border-sky-400', textHead: 'text-sky-700', textName: 'text-sky-950', icon: 'text-sky-500', btnBg: 'bg-sky-100', btnBorder: 'border-sky-300', btnText: 'text-sky-800' };
+              theme = { bg: 'bg-blue-50/80', border: 'border-blue-400', textHead: 'text-blue-700', textName: 'text-blue-950', icon: 'text-blue-500', btnBg: 'bg-blue-100', btnBorder: 'border-blue-300', btnText: 'text-blue-800' };
             }
 
             return (
-              <div className={`${theme.bg} border-2 border-solid ${theme.border} p-4 md:p-6 rounded-2xl md:rounded-[1.5rem] shadow-sm w-full transition-all hover:shadow-md`}>
-
+              <div className={`${theme.bg} border-2 border-solid ${theme.border} p-4 md:p-6 rounded-2xl md:rounded-[1.5rem] mt-4 shadow-sm w-full transition-all hover:shadow-md`}>
                 <div className="flex flex-col">
                   {/* หัวข้อเวร SSC */}
                   <span className={`text-[13px] md:text-[16px] font-black ${theme.textHead} mb-2 md:mb-4 flex items-center gap-1.5 md:gap-2 uppercase tracking-wider`}>
@@ -4175,14 +4112,16 @@ const renderTracking = () => (
                     </span>
                   </div>
 
-                  {/* วันที่ และ เบอร์โทร */}
+                  {/* 🌟 ฟันธง: เส้นประ (Dashed Line) + มือถือแยกบรรทัด / PC ซ้ายขวา! */}
                   <div className={`flex flex-col md:flex-row md:items-center justify-between mt-auto pt-3 border-t-[1.5px] border-dashed ${theme.border.replace('border-', 'border-').replace('400', '300')} gap-3`}>
-                    <span className={`text-[15px] md:text-[18px] font-bold ${theme.btnText} flex items-center gap-1.5`}>
+                    
+                    <span className={`text-[12px] md:text-[15px] font-bold ${theme.btnText} flex items-center gap-1.5`}>
                       <Clock className={`w-3 h-3 md:w-4 md:h-4 ${theme.icon}`} />
                       วันที่: {new Date(t.date).toLocaleDateString('th-TH', { day: 'numeric', month: 'long', year: 'numeric' })}
                     </span>
+                    
                     {(sscPhone || t.sscTechPhone) && (sscPhone || t.sscTechPhone) !== '-' && (
-                      <a href={`tel:${String(sscPhone || t.sscTechPhone).replace(/\D/g, '')}`} className={`font-mono text-[15px] md:text-[18px] font-bold ${theme.btnBg} px-3 py-1.5 rounded-lg ${theme.btnText} border ${theme.btnBorder} shadow-sm transition-colors flex items-center gap-1.5 active:scale-95 w-fit md:w-auto`}>
+                      <a href={`tel:${String(sscPhone || t.sscTechPhone).replace(/\D/g, '')}`} className={`font-mono text-[12px] md:text-[15px] font-bold ${theme.btnBg} px-3 py-1.5 rounded-lg ${theme.btnText} border ${theme.btnBorder} shadow-sm transition-colors flex items-center gap-1.5 active:scale-95 w-fit md:w-auto`}>
                         <Phone className={`w-3 h-3 md:w-4 md:h-4 ${theme.icon}`} />
                         {formatDisplayPhone(sscPhone || t.sscTechPhone)}
                       </a>
@@ -4192,7 +4131,7 @@ const renderTracking = () => (
               </div>
             );
           })()}
-
+          
         {/* ============================================ */}
                       </div>
 
