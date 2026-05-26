@@ -3538,11 +3538,11 @@ const renderTracking = () => (
                   <div className="p-5 md:p-8 md:px-10 border-b border-slate-100 bg-slate-50/50">
                     <div className="flex justify-between items-start mb-4 md:mb-6">
                       <div className="flex items-center">
-                        <span className="text-[13px] md:text-[24px] font-mono text-emerald-600 bg-emerald-100 px-3 py-1 md:px-5 md:py-2 rounded-lg md:rounded-xl font-black tracking-widest border border-emerald-200 shadow-sm">
+                        <span className="text-[12px] md:text-[24px] font-mono text-emerald-600 bg-emerald-100 px-3 py-1 md:px-5 md:py-2 rounded-lg md:rounded-xl font-black tracking-widest border border-emerald-200 shadow-sm">
                           {String(t.id)}
                         </span>
                         {t.isOutOfHours && (
-                          <span className="ml-2 md:ml-4 text-[11px] md:text-[24px] font-black text-rose-600 bg-rose-100 border border-rose-200 px-2 py-0.5 md:px-4 md:py-1.5 rounded-md md:rounded-xl animate-pulse">
+                          <span className="ml-2 md:ml-4 text-[10px] md:text-[24px] font-black text-rose-600 bg-rose-100 border border-rose-200 px-2 py-0.5 md:px-4 md:py-1.5 rounded-md md:rounded-xl animate-pulse">
                             วันหยุด
                           </span>
                         )}
@@ -3882,7 +3882,7 @@ const renderTracking = () => (
                     </div>
                     {/* ส่วนท้าย: เส้นประ + เวลา (จัดให้ขวาล่างสวยๆ) */}
                     <div className={`px-4 md:px-6 py-3 md:py-4 border-t-[1.5px] border-dashed ${isHold ? 'border-purple-400' : 'border-orange-400'} flex justify-between items-center bg-white/50`}>
-                       <span className={`text-[15px] md:text-[22px] font-bold opacity-90 uppercase tracking-widest ${isHold ? 'text-purple-700' : 'text-orange-700'}`}>
+                       <span className={`text-[14px] md:text-[22px] font-bold opacity-90 uppercase tracking-widest ${isHold ? 'text-purple-700' : 'text-orange-700'}`}>
                           {isHold ? `ระยะเวลาที่หยุด (ครั้งที่ ${index + 1})` : `ระยะเวลาที่ซ่อม (ครั้งที่ ${index + 1})`}
                        </span>
                        
@@ -4012,7 +4012,7 @@ const renderTracking = () => (
                           </span>
                           {/* 🌟 ฟันธง: เติมภารกิจที่รับผิดชอบ เพื่อไม่ให้กล่องโล่งในโหมด PC */}
                           {t.equipmentCategory && (
-                            <span className="text-[14px] md:text-[18px] font-bold text-orange-700/80 mt-1 md:mt-2">
+                            <span className="text-[12px] md:text-[18px] font-bold text-orange-700/80 mt-1 md:mt-2">
                               รับผิดชอบ: {t.equipmentCategory}
                             </span>
                           )}
@@ -4283,7 +4283,7 @@ const renderTracking = () => (
                           )}
                           
                           {t.status === 'verified' && (
-                            <div className="w-full bg-emerald-100 border-2 border-solid border-emerald-400 py-3.5 md:py-6 rounded-xl md:rounded-3xl flex justify-center items-center gap-2 md:gap-4 text-emerald-600 font-bold text-xs md:text-[30px] shadow-inner">
+                            <div className="w-full bg-emerald-100 border-2 border-solid border-emerald-400 py-3.5 md:py-6 rounded-xl md:rounded-3xl flex justify-center items-center gap-2 md:gap-4 text-emerald-600 font-bold text-[16px] md:text-[30px] shadow-inner">
                               <CheckCircle className="w-6 h-6 md:w-10 md:h-10" /> เสร็จสิ้นสมบูรณ์
                             </div>
                           )}
