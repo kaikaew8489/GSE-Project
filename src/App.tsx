@@ -3014,6 +3014,7 @@ const executeRatingSubmit = async () => {
                 ))}
 
                {/* 🎯 ปุ่มเรียกเมนูเลือกรูป (คลิกปุ๊บ เมนูเด้งปั๊บ) */}
+{/* 🎯 ปุ่มเรียกเมนูเลือกรูป (คลิกปุ๊บ เมนูเด้งปั๊บ) */}
 <div onClick={() => setShowImagePicker(true)} className={`border-2 border-dashed border-orange-500/50 bg-orange-950/20 hover:bg-orange-900/40 hover:border-orange-400 rounded-2xl md:rounded-3xl flex flex-col items-center justify-center transition-all duration-300 cursor-pointer shadow-[inset_0_0_20px_rgba(249,115,22,0.05)] hover:shadow-[0_0_25px_rgba(249,115,22,0.3)] group ${formData.images.length === 0 ? 'w-full h-36 md:h-48' : 'aspect-square'}`}>
   <Camera size={formData.images.length === 0 ? 50 : 38} className="text-orange-500/70 group-hover:text-orange-400 mb-2 transition-all" />
   <span className="font-black tracking-widest text-orange-200/70 group-hover:text-orange-200">
@@ -3021,7 +3022,6 @@ const executeRatingSubmit = async () => {
   </span>
 </div>
 
-{/* ======================================================= */}
 {/* ======================================================= */}
 {/* 🌟 จุดเริ่มต้น: หน้าต่างป๊อบอัพเลือกรูปภาพ (Hybrid: Mobile เรืองแสง + PC วูบวาบ 1,000,000%) */}
 {/* ======================================================= */}
@@ -3157,7 +3157,7 @@ const executeRatingSubmit = async () => {
       {/* 🌟 ฟันธง: เพิ่ม relative เข้าไปใน div นี้ เพื่อให้ปุ่มปิดไปอยู่ที่มุมขวาได้เป๊ะๆ */}
       <div className="text-center mb-1 pb-3 md:pb-5 border-b border-white/20 relative">
          <h3 className="font-black tracking-widest text-[16px] sm:text-[18px] md:text-[24px] flex items-center justify-center gap-2 text-orange-400 drop-shadow-[0_0_10px_rgba(249,115,22,0.8)]">
-           <Phone size={18} className="text-emerald-400 drop-shadow-sm md:w-6 md:h-6" />
+           <Phone size={28} className="text-emerald-400 drop-shadow-sm md:w-6 md:h-6" />
            ระบุเบอร์โทรศัพท์
          </h3>
 
@@ -3684,7 +3684,7 @@ const renderTracking = () => (
                       {String(t.equipment)}
                     </h3>
                     
-                    <div className="flex flex-col gap-1 md:gap-3 mt-1.5 md:mt-4 mb-3 md:mb-6 bg-indigo-50/50 p-2 md:p-6 rounded-lg md:rounded-2xl border-2 border-solid border-indigo-500">
+                    <div className="flex flex-col gap-1 md:gap-3 mt-4 bg-indigo-50/50 p-3 px-4 md:p-6 md:px-8 rounded-xl md:rounded-2xl border-2 border-solid border-indigo-500">
                       <div className="flex items-start gap-1.5 md:gap-3 text-orange-600/90">
                         <Building className="w-[18px] h-[18px] md:w-8 md:h-8 shrink-0 mt-0.5 md:mt-0" />
                         <span className="text-[18px] md:text-[28px] font-bold leading-snug">
@@ -3699,7 +3699,7 @@ const renderTracking = () => (
                       </div>
                     </div>
 
-                    {/* 🌟 โซนนาฬิกาจับเวลา (ฟันธง: โฉมใหม่กรอบโค้งมน + ไอคอนนาฬิกาด้านใน) */}
+                    {/* 🌟 โซนรอเวลาดำเนินการ-เวลาปฏิบัติงาน เวลาเหตุขัดข้อง เวลารวมทั้หมด และโซนนาฬิกาจับเวลา (ฟันธง: โฉมใหม่กรอบโค้งมน + ไอคอนนาฬิกาด้านใน) */}
                   {!isCancelled && (
                     <div className="w-full mt-2 md:mt-4 border-[1.5px] border-2 border-solid border-orange-600 rounded-2xl md:rounded-[1rem] p-5 md:p-8 bg-orange-200/30 shadow-sm flex flex-col gap-4 md:gap-6 relative">
                       
@@ -3888,10 +3888,11 @@ const renderTracking = () => (
                           </div>
                         ) : null}
 
-                  {/* 🌟 โซนรายละเอียดข้อความและการติดต่อ (ปลดล็อกความกว้าง 100%) */}
-          <div className="px-5 md:px-10 pb-5 md:pb-10 pt-4 md:pt-6 flex flex-col w-full">
-          {/* 🌟 ฟันธงสเต็ป 1: ทุบกรอบสีน้ำเงินและพื้นหลังทิ้ง! ปล่อยให้เนื้อหากว้างเท่ากรอบด้านบน 1,000,000% */}
-          <div className="flex flex-col w-full relative z-10 mb-2 md:mb-4">
+                 {/* 🌟 โซนรายละเอียดข้อความและการติดต่อ (คืนค่าขอบซ้ายขวา) */}
+{/* 🌟 โซนรายละเอียดข้อความและการติดต่อ (ปลดล็อกความกว้าง 100%) */}
+<div className="px-5 md:px-10 pb-5 md:pb-10 pt-2 flex flex-col w-full gap-4 md:gap-6 relative z-10">
+{/* 🌟 ฟันธงสเต็ป 1: เปิดระบบ Flex Gap ให้ทุกกล่องห่างเท่ากันเป๊ะ 1,000,000% */}
+<div className="flex flex-col w-full relative z-10 gap-4 md:gap-6">
     
     {/* 🚨 เหตุผลยกเลิกงาน */}
     {t.status === 'cancelled' && t.cancelReason && (
@@ -3904,121 +3905,119 @@ const renderTracking = () => (
       </div>
     )}
 
-  {/* 🌟 ฟันธง: Timeline รักษาสีของท่านหัวหน้า + อัปเกรดเป็นการ์ดโค้งมน (Card UI) */}
-    {t.historyLog && t.historyLog.length > 0 ? (
-      // 🎯 เพิ่ม gap-3 และ mt-2 เพื่อให้การ์ดแต่ละใบมีระยะห่างกัน จะได้เห็นขอบโค้งชัดเจน
-      <div className="flex flex-col w-full mb-2 gap-3 md:gap-4 mt-2">
-        {(() => {
-          let holdCounter = 0;
-          let resumeCounter = 0;
-
-          return t.historyLog.map((log, index) => {
-            const isLast = index === t.historyLog.length - 1;
-            const isHold = log.type === 'hold';
+        {/* 🌟 ฟันธง: Timeline รักษาสีของท่านหัวหน้า + อัปเกรดเป็นการ์ดโค้งมน (Card UI) */}
+        {t.historyLog && t.historyLog.length > 0 ? (
+          
+          // 🎯 ฟันธง: เอากล่องนี้กลับมาครับ! แต่ลบ mt, mb และ -mx ออกหมดแล้ว จะทำให้มันกว้างเท่าเพื่อน และช่องไฟสวยเป๊ะ!
+          <div className="flex flex-col w-full gap-3 md:gap-4 mt-2">
             
-            // นับครั้งที่อัตโนมัติ
-            if (isHold) holdCounter++;
-            else resumeCounter++;
+            {(() => {
+              let holdCounter = 0;
+              let resumeCounter = 0;
 
-            // 🌟 สมองกลคำนวณระยะเวลา (ระดับ Milliseconds)
-            let durationMs = 0;
-            let isOngoing = false;
-
-            if (isHold) {
-              const nextLog = t.historyLog[index + 1];
-              if (nextLog) {
-                durationMs = new Date(nextLog.timestamp).getTime() - new Date(log.timestamp).getTime();
-              } else {
-                isOngoing = true;
-              }
-            } else {
-              const nextLog = t.historyLog[index + 1];
-              if (nextLog) {
-                durationMs = new Date(nextLog.timestamp).getTime() - new Date(log.timestamp).getTime();
-              } else if (t.status === 'completed' || t.status === 'verified') {
-                durationMs = t.completedAt ? new Date(t.completedAt).getTime() - new Date(log.timestamp).getTime() : 0;
-              } else {
-                isOngoing = true;
-              }
-            }
-
-            // 🌟 ฟังก์ชันแปลงเวลาเป็น HH:MM:SS
-            const pad = (num) => String(num).padStart(2, '0');
-            const hours = Math.floor(durationMs / 3600000);
-            const minutes = Math.floor((durationMs % 3600000) / 60000);
-            const seconds = Math.floor((durationMs % 60000) / 1000);
-            const formattedTime = `${pad(hours)}:${pad(minutes)}:${pad(seconds)}`;
-
-            return (
-              // 🌟 ฟันธงจุดที่ 1 (กล่องแม่): เปลี่ยนเป็น flex-col md:flex-row เพื่อให้มือถือเรียงบนล่าง แต่คอมยังเรียงซ้ายขวา
-              <div key={index} className={`flex flex-col md:flex-row md:items-center justify-between gap-3 md:gap-0 p-4 md:px-6 -mx-2 md:-mx-4 rounded-2xl md:rounded-[1rem] shadow-sm hover:shadow-md transition-shadow border-2 border-solid border-slate-800 ${isHold ? 'bg-purple-100 border-l-[6px] border-l-purple-500' : 'bg-orange-100 border-l-[6px] border-l-orange-500'}`}>
+              return t.historyLog.map((log, index) => {
+                const isLast = index === t.historyLog.length - 1;
+                const isHold = log.type === 'hold';
                 
-                {/* 🎯 ด้านซ้าย: ชื่อเหตุการณ์ */}
-                <div className="flex gap-3 md:gap-4 w-full">
-                  {isHold ? <PauseCircle className="w-5 h-5 md:w-6 md:h-6 shrink-0 text-purple-600 drop-shadow-sm" /> : <Wrench className="w-5 h-5 md:w-6 md:h-6 shrink-0 text-orange-600 drop-shadow-sm" />}
-                  <div>
-                    <p className="font-black text-[12px] md:text-[16px] text-slate-800">{isHold ? 'แจ้งเหตุขัดข้อง' : 'ดำเนินการต่อ'}</p>
-                    <p className="text-[13px] md:text-[18px] text-slate-600 font-bold mt-0.5">{String(log.reason)}</p>
-                  </div>
-                </div>
-                
-                {/* 🌟 ฟันธงจุดที่ 2 (กล่องเวลาด้านขวา): เติม self-end เพื่อให้มันผลักตัวเองไปชิดขวาเสมอเวลากลายเป็นจอมือถือ */}
-                {/* 🌟 ฟันธงจุดเสริมความเนียน (กล่องเวลาด้านขวา) */}
-                <div className="flex flex-col items-end self-end md:self-auto shrink-0 ml-0 md:ml-2 mt-1 md:mt-0">
-                   {isLast && isOngoing ? (
-                     <>
-                       {/* 🎯 ปรับ text-[13px] เป็น text-[11px] เฉพาะจอมือถือ และหรี่สีเป็น slate-500 */}
-                       <span className="text-[11px] md:text-[16px] font-bold mb-0.5 md:mb-1 text-slate-500 md:text-slate-800">สถานะปัจจุบัน</span>
-                       <span className={`px-2 md:px-3 py-0.5 md:py-1 rounded-md text-[12px] md:text-[16px] font-bold animate-pulse whitespace-nowrap shadow-sm border md:border-2 border-solid ${isHold ? 'bg-purple-100 text-purple-700 border-purple-500' : 'bg-orange-100 text-orange-700 border-orange-500'}`}>
-                         {isHold ? 'รออะไหล่' : 'กำลังซ่อม'}
-                       </span>
-                     </>
-                   ) : (
-                     <>
-                       {/* 🎯 ปรับ text-[13px] เป็น text-[11px] เฉพาะจอมือถือ */}
-                       <span className={`text-[11px] md:text-[16px] font-bold mb-0.5 md:mb-1 opacity-80 md:opacity-100 ${isHold ? 'text-purple-600' : 'text-orange-600'}`}>
-                         {isHold ? `ระยะเวลาที่หยุด (ครั้งที่ ${holdCounter})` : `ระยะเวลาที่ซ่อม (ครั้งที่ ${resumeCounter})`}
-                       </span>
-                       <span className="text-[12px] md:text-[16px] font-mono font-black text-slate-700 bg-white px-2 md:px-3 py-0.5 rounded border md:border-2 border-solid border-indigo-800 whitespace-nowrap shadow-sm tracking-wider">
-                         {formattedTime}
-                       </span>
-                     </>
-                   )}
-                </div>
+                // นับครั้งที่อัตโนมัติ
+                if (isHold) holdCounter++;
+                else resumeCounter++;
 
+                // 🌟 สมองกลคำนวณระยะเวลา (ระดับ Milliseconds)
+                let durationMs = 0;
+                let isOngoing = false;
+
+                if (isHold) {
+                  const nextLog = t.historyLog[index + 1];
+                  if (nextLog) {
+                    durationMs = new Date(nextLog.timestamp).getTime() - new Date(log.timestamp).getTime();
+                  } else {
+                    isOngoing = true;
+                  }
+                } else {
+                  const nextLog = t.historyLog[index + 1];
+                  if (nextLog) {
+                    durationMs = new Date(nextLog.timestamp).getTime() - new Date(log.timestamp).getTime();
+                  } else if (t.status === 'completed' || t.status === 'verified') {
+                    durationMs = t.completedAt ? new Date(t.completedAt).getTime() - new Date(log.timestamp).getTime() : 0;
+                  } else {
+                    isOngoing = true;
+                  }
+                }
+
+                // 🌟 ฟังก์ชันแปลงเวลาเป็น HH:MM:SS
+                const pad = (num) => String(num).padStart(2, '0');
+                const hours = Math.floor(durationMs / 3600000);
+                const minutes = Math.floor((durationMs % 3600000) / 60000);
+                const seconds = Math.floor((durationMs % 60000) / 1000);
+                const formattedTime = `${pad(hours)}:${pad(minutes)}:${pad(seconds)}`;
+
+                return (
+                  // 🌟 ฟันธงจุดที่ 1 (กล่องแม่): เปลี่ยนเป็น flex-col md:flex-row เพื่อให้มือถือเรียงบนล่าง แต่คอมยังเรียงซ้ายขวา
+                  <div key={index} className={"flex flex-col md:flex-row md:items-center justify-between gap-3 md:gap-0 p-4 md:px-6 w-full rounded-2xl md:rounded-[1rem] shadow-sm hover:shadow-md transition-shadow border-2 border-solid border-slate-800 " + (isHold ? "bg-purple-100 border-l-[6px] border-l-purple-500" : "bg-orange-100 border-l-[6px] border-l-orange-500")}>
+                    
+                    {/* 🎯 ด้านซ้าย: ชื่อเหตุการณ์ */}
+                    <div className="flex gap-3 md:gap-4 w-full">
+                      {isHold ? <PauseCircle className="w-5 h-5 md:w-6 md:h-6 shrink-0 text-purple-600 drop-shadow-sm" /> : <Wrench className="w-5 h-5 md:w-6 md:h-6 shrink-0 text-orange-600 drop-shadow-sm" />}
+                      <div>
+                        <p className="font-black text-[12px] md:text-[16px] text-slate-800">{isHold ? 'แจ้งเหตุขัดข้อง' : 'ดำเนินการต่อ'}</p>
+                        <p className="text-[13px] md:text-[18px] text-slate-600 font-bold mt-0.5">{String(log.reason)}</p>
+                      </div>
+                    </div>
+                    
+                    {/* 🌟 ฟันธงจุดที่ 2 (กล่องเวลาด้านขวา): เติม self-end เพื่อให้มันผลักตัวเองไปชิดขวาเสมอเวลากลายเป็นจอมือถือ */}
+                    <div className="flex flex-col items-end self-end md:self-auto shrink-0 ml-0 md:ml-2 mt-1 md:mt-0">
+                       {isLast && isOngoing ? (
+                         <>
+                           <span className="text-[11px] md:text-[16px] font-bold mb-0.5 md:mb-1 text-slate-500 md:text-slate-800">สถานะปัจจุบัน</span>
+                           <span className={`px-2 md:px-3 py-0.5 md:py-1 rounded-md text-[12px] md:text-[16px] font-bold animate-pulse whitespace-nowrap shadow-sm border md:border-2 border-solid ${isHold ? 'bg-purple-100 text-purple-700 border-purple-500' : 'bg-orange-100 text-orange-700 border-orange-500'}`}>
+                             {isHold ? 'รออะไหล่' : 'กำลังซ่อม'}
+                           </span>
+                         </>
+                       ) : (
+                         <>
+                           <span className={`text-[11px] md:text-[16px] font-bold mb-0.5 md:mb-1 opacity-80 md:opacity-100 ${isHold ? 'text-purple-600' : 'text-orange-600'}`}>
+                             {isHold ? `ระยะเวลาที่หยุด (ครั้งที่ ${holdCounter})` : `ระยะเวลาที่ซ่อม (ครั้งที่ ${resumeCounter})`}
+                           </span>
+                           <span className="text-[12px] md:text-[16px] font-mono font-black text-slate-700 bg-white px-2 md:px-3 py-0.5 rounded border md:border-2 border-solid border-indigo-800 whitespace-nowrap shadow-sm tracking-wider">
+                             {formattedTime}
+                           </span>
+                         </>
+                       )}
+                    </div>
+                  </div> // <-- 🌟 ฟันธง: อย่าลืมปิด div ที่ครอบ return ข้างบน!
+                );
+              });
+            })()}
+          </div> // <-- 🌟 ฟันธง: อันนี้คือตัวปิดกล่องแม่ที่เราเพิ่งคืนชีพให้มัน
+        ) : (
+          
+          /* โค้ดสำรองกรณีข้อมูลยังเป็นแบบเก่า (เพื่อไม่ให้ Error) */
+          <>
+            {t.holdReason && (
+              <div className="bg-purple-50/70 border-l-[4px] border-solid border-purple-500 p-3 md:p-5 flex gap-3 md:gap-4 w-full mb-4">
+                <PauseCircle className="w-4 h-4 md:w-6 md:h-6 shrink-0 mt-0.5 text-purple-600" />
+                <div className="w-full">
+                  <span className="block mb-0.5 text-purple-600/80 text-[10px] md:text-[14px] font-bold">แจ้งเหตุขัดข้อง:</span>
+                  <span className="text-[13px] md:text-[18px] text-purple-900 font-bold">{String(t.holdReason)}</span>
+                </div>
               </div>
-            );
-          });
-        })()}
-      </div>
-    ) : (
-      
-      /* โค้ดสำรองกรณีข้อมูลยังเป็นแบบเก่า (เพื่อไม่ให้ Error) */
-      <>
-        {t.holdReason && (
-          <div className="bg-purple-50/70 border-l-[4px] border-solid border-purple-500 p-3 md:p-5 flex gap-3 md:gap-4 w-full mb-4">
-            <PauseCircle className="w-4 h-4 md:w-6 md:h-6 shrink-0 mt-0.5 text-purple-600" />
-            <div className="w-full">
-              <span className="block mb-0.5 text-purple-600/80 text-[10px] md:text-[14px] font-bold">แจ้งเหตุขัดข้อง:</span>
-              <span className="text-[13px] md:text-[18px] text-purple-900 font-bold">{String(t.holdReason)}</span>
-            </div>
-          </div>
+            )}
+            {t.resumeReason && (
+              <div className="bg-orange-50/70 border-l-[4px] border-solid border-orange-500 p-3 md:p-5 flex gap-3 md:gap-4 w-full mb-4">
+                <Wrench className="w-4 h-4 md:w-6 md:h-6 shrink-0 mt-0.5 text-orange-600" />
+                <div className="w-full">
+                  <span className="block mb-0.5 text-orange-600/80 text-[10px] md:text-[14px] font-bold">ดำเนินการต่อ:</span>
+                  <span className="text-[13px] md:text-[18px] text-orange-900 font-bold">{String(t.resumeReason)}</span>
+                </div>
+              </div>
+            )}
+          </>
         )}
-        {t.resumeReason && (
-          <div className="bg-orange-50/70 border-l-[4px] border-solid border-orange-500 p-3 md:p-5 flex gap-3 md:gap-4 w-full mb-4">
-            <Wrench className="w-4 h-4 md:w-6 md:h-6 shrink-0 mt-0.5 text-orange-600" />
-            <div className="w-full">
-              <span className="block mb-0.5 text-orange-600/80 text-[10px] md:text-[14px] font-bold">ดำเนินการต่อ:</span>
-              <span className="text-[13px] md:text-[18px] text-orange-900 font-bold">{String(t.resumeReason)}</span>
-            </div>
-          </div>
-        )}
-      </>
-    )}
-
     {/* 📋 สรุปผลและข้อแนะนำ (ฟันธง: เติม rounded-xl md:rounded-2xl ลบเหลี่ยมแข็งโป๊ก) */}
     {t.cause && (
-      <div className="bg-emerald-100/70 border-l-[4px] border-2 border-solid border-emerald-600 rounded-xl md:rounded-2xl p-3 md:p-5 flex gap-3 md:gap-4 w-full mb-4 mt-2">
+      <div className="bg-emerald-100/70 border-l-[4px] border-2 border-solid border-emerald-600 rounded-xl md:rounded-2xl p-3 md:p-5 flex gap-3 md:gap-4 w-full">
+
         <CheckSquare className="w-5 h-5 md:w-8 md:h-8 shrink-0 mt-0.5 text-emerald-600" />
         <div className="w-full">
           <span className="block mb-1 text-emerald-800/80 text-[16px] md:text-[20px] font-bold">สรุปผลและข้อแนะนำ:</span>
@@ -4042,6 +4041,7 @@ const renderTracking = () => (
                   src={img} 
                   alt={`ภาพประกอบ ${i+1}`} 
                   className="rounded-lg w-full aspect-square object-cover border border-slate-200 shadow-sm hover:scale-105 transition-transform cursor-pointer" 
+                  onClick={() => setLightboxImg(img)} /* 🌟 ฟันธง: เติมคำสั่งนี้ให้กดแล้วซูมได้! */
                 />
               ))}
             </div>
@@ -4051,7 +4051,7 @@ const renderTracking = () => (
         {/* ============================================================================== */}
                         
                        {/* 🌟 ฟันธง: สร้างกล่องแม่ครอบโซนอาการเสียและ Asset No ทั้งหมด พร้อมหดความกว้างให้เท่ากรอบส้มด้านบน */}
-                       <div className="bg-orange-100/70 border-l-[4px] border-2 border-solid border-indigo-600 rounded-xl md:rounded-2xl p-3 md:p-5 flex gap-3 md:gap-4 w-full mb-4 mt-4">
+                       <div className="bg-orange-100/70 border-l-[4px] border-2 border-solid border-indigo-600 rounded-xl md:rounded-2xl p-3 md:p-5 flex gap-3 md:gap-4 w-full mb-4">
                           
                           {/* บรรทัดหัวเรื่อง */}
                           <div className="mb-2 md:mb-4">
@@ -4082,7 +4082,7 @@ const renderTracking = () => (
 
                         </div>
 {/* ==================== โซนบุคคล (ผู้แจ้ง, ผู้รับผิดชอบหลัก) 🌟 ฟันธง: แยกกรอบชัดเจน ==================== */}
-<div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4 w-full">
+<div className="grid grid-cols-1 md:grid-cols-2 gap-4 w-full">
             
             {/* 👤 การ์ด 1: ผู้แจ้งปัญหา */}
             <div className="bg-emerald-50/40 border-2 border-solid border-emerald-400 p-4 md:p-6 rounded-2xl md:rounded-[1.5rem] shadow-sm flex flex-col w-full transition-all hover:shadow-md">
@@ -4159,7 +4159,8 @@ const renderTracking = () => (
             }
 
             return (
-              <div className={`${theme.bg} border-2 border-solid ${theme.border} p-4 md:p-6 rounded-2xl md:rounded-[1.5rem] mt-4 shadow-sm w-full transition-all hover:shadow-md`}>
+              <div className={`${theme.bg} border-2 border-solid ${theme.border} p-4 md:p-6 rounded-2xl md:rounded-[1.5rem] shadow-sm w-full transition-all hover:shadow-md`}>
+
                 <div className="flex flex-col">
                   {/* หัวข้อเวร SSC */}
                   <span className={`text-[13px] md:text-[16px] font-black ${theme.textHead} mb-2 md:mb-4 flex items-center gap-1.5 md:gap-2 uppercase tracking-wider`}>
@@ -5030,14 +5031,10 @@ function LandingPage({ onStart }) {
         </div>
       </div>
 
-
-    {/* 🌟 หน้าต่าง Popup คู่มือ (อัปเกรดขยายกรอบบน-ล่างให้เต็มจอมือถือ) */}
       {/* 🌟 หน้าต่าง Popup คู่มือ (อัปเกรดขยายกรอบบน-ล่างให้เต็มจอมือถือ + ซูมได้ 100%) */}
       {showManual && (
-        <div className="fixed inset-0 z-[200] bg-slate-950/90 flex flex-col items-center justify-center p-2 md:p-4 backdrop-blur-md animate-in fade-in" onClick={() => setShowManual(false)}>
-          
+        <div className="fixed inset-0 z-[200] bg-slate-950/90 flex flex-col items-center justify-center p-2 md:p-4 backdrop-blur-md animate-in fade-in" onClick={() => setShowManual(false)}> 
           <div className="absolute w-[300px] h-[300px] bg-orange-500/40 rounded-full blur-[100px] animate-pulse pointer-events-none z-0"></div>
-
           <div className="w-full max-w-lg md:max-w-4xl bg-slate-900 border-[3px] md:border-[4px] border-solid border-orange-500 rounded-2xl md:rounded-[2rem] overflow-hidden shadow-[0_0_50px_rgba(249,115,22,0.6)] flex flex-col max-h-[96vh] md:max-h-[90vh] relative z-10 transition-all" onClick={(e) => e.stopPropagation()}>
             
             {/* 🌟 1. ส่วนหัว (Header) แยก ซ้าย-กลาง-ขวา ชัดเจน */}
