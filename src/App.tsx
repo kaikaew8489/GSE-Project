@@ -3905,6 +3905,7 @@ const renderTracking = () => (
       </div>
     )}
 
+
         {/* 🌟 ฟันธง: Timeline ประวัติการซ่อม (อัปเกรดฟอนต์ PC ให้ใหญ่โตชัดเจน) */}
         {t.historyLog && t.historyLog.length > 0 && (
             <div className="flex flex-col w-full gap-4 md:gap-6 mt-6">
@@ -3941,7 +3942,7 @@ const renderTracking = () => (
                     </div>
                     {/* ส่วนท้าย: เส้นประ + เวลา (จัดให้ขวาล่างสวยๆ) */}
                     <div className={`px-4 md:px-6 py-3 md:py-4 border-t-[1.5px] border-dashed ${isHold ? 'border-purple-400' : 'border-orange-400'} flex justify-between items-center bg-white/50`}>
-                       <span className={`text-[15px] md:text-[18px] font-bold opacity-80 uppercase tracking-widest ${isHold ? 'text-purple-700' : 'text-orange-700'}`}>
+                       <span className={`text-[15px] md:text-[22px] font-bold opacity-90 uppercase tracking-widest ${isHold ? 'text-purple-700' : 'text-orange-700'}`}>
                           {isHold ? `ระยะเวลาที่หยุด (ครั้งที่ ${index + 1})` : `ระยะเวลาที่ซ่อม (ครั้งที่ ${index + 1})`}
                        </span>
                        <span className="font-mono font-black text-[15px] md:text-[20px] bg-orange-600 px-4 py-1.5 md:py-2 rounded-xl border-2 border-solid border-slate-300 shadow-sm tracking-widest">
@@ -3955,6 +3956,7 @@ const renderTracking = () => (
           )}
 
         
+
     {/* 📋 สรุปผลและข้อแนะนำ (ฟันธง: เติม rounded-xl md:rounded-2xl ลบเหลี่ยมแข็งโป๊ก) */}
     {t.cause && (
       <div className="bg-emerald-100/70 border-l-[4px] border-2 border-solid border-emerald-600 rounded-xl md:rounded-2xl p-3 md:p-5 flex gap-3 md:gap-4 w-full">
@@ -4028,26 +4030,26 @@ const renderTracking = () => (
             {/* 👤 การ์ด 1: ผู้แจ้งปัญหา */}
             <div className="bg-emerald-50/40 border-2 border-solid border-emerald-400 p-4 md:p-6 rounded-2xl md:rounded-[1.5rem] shadow-sm flex flex-col w-full transition-all hover:shadow-md">
               {/* หัวข้อ */}
-              <span className="text-[13px] md:text-[16px] font-black text-emerald-700 mb-2 md:mb-4 flex items-center gap-1.5 md:gap-2 uppercase tracking-wider">
+              <span className="text-[16px] md:text-[20px] font-black text-emerald-700 mb-2 md:mb-4 flex items-center gap-1.5 md:gap-2 uppercase tracking-wider">
                 <User className="w-4 h-4 md:w-5 md:h-5" /> ผู้แจ้งปัญหา
               </span>
               
               {/* ชื่อ */}
               <div className="flex items-center justify-between mb-3">
-                <span className="font-black text-emerald-950 flex items-center gap-2 text-[16px] md:text-[22px]">
+                <span className="font-black text-emerald-950 flex items-center gap-2 text-[16px] md:text-[26px]">
                   {String(t.reporter)}
                 </span>
               </div>
 
               {/* 🌟 ฟันธง: เส้นประคั่น + มือถือแยกบรรทัด (flex-col) / PC ให้อยู่ซ้าย-ขวา (md:flex-row) */}
               <div className="flex flex-col md:flex-row md:items-center justify-between mt-auto pt-3 border-t-[1.5px] border-dashed border-emerald-400/50 gap-3">
-                <span className="text-[12px] md:text-[15px] font-bold text-blue-600 flex items-center gap-1.5">
+                <span className="text-[15px] md:text-[20px] font-bold text-blue-600 flex items-center gap-1.5">
                   <Clock className="w-3 h-3 md:w-4 md:h-4 text-emerald-600" />
                   {formatDateTimeString(t.date)}
                 </span>
                 {/* 🌟 ดันเบอร์โทรชิดขวา และบนมือถือให้หดพอดีตัว (w-fit) */}
-                <a href={`tel:${String(t.reporterContact).replace(/\D/g, '')}`} className="font-mono text-[12px] md:text-[15px] font-bold bg-emerald-100 px-3 py-1.5 rounded-lg text-emerald-800 border border-emerald-300 shadow-sm hover:bg-emerald-200 transition-colors flex items-center gap-1.5 active:scale-95 w-fit md:w-auto">
-                  <Phone className="w-3 h-3 md:w-4 md:h-4 text-emerald-600" />
+                <a href={`tel:${String(t.reporterContact).replace(/\D/g, '')}`} className="font-mono text-[16px] md:text-[20px] font-bold bg-emerald-100 px-3 py-1.5 rounded-lg text-emerald-800 border border-emerald-300 shadow-sm hover:bg-emerald-200 transition-colors flex items-center gap-1.5 active:scale-95 w-fit md:w-auto">
+                  <Phone className="w-5 h-5 md:w-6 md:h-6 text-emerald-600" />
                   {formatDisplayPhone(t.reporterContact)}
                 </a>
               </div>
@@ -4055,12 +4057,12 @@ const renderTracking = () => (
 
             {/* 🛠️ การ์ด 2: ผู้รับผิดชอบหลัก */}
             <div className="bg-orange-50/40 border-2 border-solid border-orange-400 p-4 md:p-6 rounded-2xl md:rounded-[1.5rem] shadow-sm flex flex-col w-full transition-all hover:shadow-md">
-              <span className="text-[13px] md:text-[16px] font-black text-orange-600 mb-2 md:mb-4 flex items-center gap-1.5 md:gap-2 uppercase tracking-wider">
-                <Wrench className="w-4 h-4 md:w-5 md:h-5" /> ผู้รับผิดชอบหลัก
+              <span className="text-[16px] md:text-[20px] font-black text-orange-600 mb-2 md:mb-4 flex items-center gap-1.5 md:gap-2 uppercase tracking-wider">
+                <Wrench className="w-5 h-5 md:w-6 md:h-6" /> ผู้รับผิดชอบหลัก
               </span>
               
               <div className="flex items-center justify-between mb-3">
-                <span className="font-black text-orange-950 flex items-center gap-2 text-[16px] md:text-[22px]">
+                <span className="font-black text-orange-950 flex items-center gap-2 text-[16px] md:text-[26px]">
                   {t.techName ? String(t.techName) : "รอดำเนินการ"}
                 </span>
               </div>
@@ -4068,12 +4070,12 @@ const renderTracking = () => (
               {/* 🌟 ฟันธง: เส้นประคั่น + ดันเบอร์โทรไปขวาสุด (justify-end) */}
               <div className="flex flex-col md:flex-row md:items-center justify-end mt-auto pt-3 border-t-[1.5px] border-dashed border-orange-400/50 gap-3">
                 {t.techPhone && t.techPhone !== '-' && t.techPhone !== 'N/A' ? (
-                  <a href={`tel:${String(t.techPhone).replace(/\D/g, '')}`} className="font-mono text-[12px] md:text-[15px] font-bold bg-orange-100 px-3 py-1.5 rounded-lg text-orange-800 border border-orange-300 shadow-sm hover:bg-orange-200 transition-colors flex items-center gap-1.5 active:scale-95 w-fit md:w-auto self-start md:self-auto">
-                    <Phone className="w-3 h-3 md:w-4 md:h-4 text-orange-600" />
+                  <a href={`tel:${String(t.techPhone).replace(/\D/g, '')}`} className="font-mono text-[16px] md:text-20px] font-bold bg-orange-100 px-3 py-1.5 rounded-lg text-orange-800 border border-orange-300 shadow-sm hover:bg-orange-200 transition-colors flex items-center gap-1.5 active:scale-95 w-fit md:w-auto self-start md:self-auto">
+                    <Phone className="w-5 h-5 md:w-6 md:h-6 text-orange-600" />
                     {formatDisplayPhone(t.techPhone)}
                   </a>
                 ) : (
-                  <span className="font-mono text-[12px] md:text-[15px] text-slate-400 bg-slate-100 px-3 py-1.5 rounded-lg border border-slate-200 w-fit md:w-auto self-start md:self-auto">
+                  <span className="font-mono text-[16px] md:text-[20px] text-slate-400 bg-slate-100 px-3 py-1.5 rounded-lg border border-slate-200 w-fit md:w-auto self-start md:self-auto">
                     {String(t.techPhone || 'N/A')}
                   </span>
                 )}
@@ -4103,14 +4105,14 @@ const renderTracking = () => (
               <div className={`${theme.bg} border-2 border-solid ${theme.border} p-4 md:p-6 rounded-2xl md:rounded-[1.5rem] mt-4 shadow-sm w-full transition-all hover:shadow-md`}>
                 <div className="flex flex-col">
                   {/* หัวข้อเวร SSC */}
-                  <span className={`text-[13px] md:text-[16px] font-black ${theme.textHead} mb-2 md:mb-4 flex items-center gap-1.5 md:gap-2 uppercase tracking-wider`}>
+                  <span className={`text-[15px] md:text-[20px] font-black ${theme.textHead} mb-2 md:mb-4 flex items-center gap-1.5 md:gap-2 uppercase tracking-wider`}>
                     <AlertTriangle className="w-4 h-4 md:w-5 md:h-5 animate-pulse" /> เจ้าหน้าที่เวร SSC ประจำวันหยุด
                   </span>
                   
                   {/* ชื่อเวร SSC */}
                   <div className="flex items-center justify-between mb-3">
-                    <span className={`font-black ${theme.textName} flex items-center gap-2 text-[16px] md:text-[22px]`}>
-                      <User className={`w-4 h-4 md:w-5 md:h-5 ${theme.icon}`} />
+                    <span className={`font-black ${theme.textName} flex items-center gap-2 text-[16px] md:text-[26px]`}>
+                      <User className={`w-5 h-5 md:w-6 md:h-6 ${theme.icon}`} />
                       {sscName || t.sscTechName || "ยังไม่ระบุเวร"}
                     </span>
                   </div>
@@ -4118,14 +4120,14 @@ const renderTracking = () => (
                   {/* 🌟 ฟันธง: เส้นประ (Dashed Line) + มือถือแยกบรรทัด / PC ซ้ายขวา! */}
                   <div className={`flex flex-col md:flex-row md:items-center justify-between mt-auto pt-3 border-t-[1.5px] border-dashed ${theme.border.replace('border-', 'border-').replace('400', '300')} gap-3`}>
                     
-                    <span className={`text-[12px] md:text-[15px] font-bold ${theme.btnText} flex items-center gap-1.5`}>
-                      <Clock className={`w-3 h-3 md:w-4 md:h-4 ${theme.icon}`} />
+                    <span className={`text-[15px] md:text-[20px] font-bold ${theme.btnText} flex items-center gap-1.5`}>
+                      <Clock className={`w-5 h-5 md:w-6 md:h-6 ${theme.icon}`} />
                       วันที่: {new Date(t.date).toLocaleDateString('th-TH', { day: 'numeric', month: 'long', year: 'numeric' })}
                     </span>
                     
                     {(sscPhone || t.sscTechPhone) && (sscPhone || t.sscTechPhone) !== '-' && (
-                      <a href={`tel:${String(sscPhone || t.sscTechPhone).replace(/\D/g, '')}`} className={`font-mono text-[12px] md:text-[15px] font-bold ${theme.btnBg} px-3 py-1.5 rounded-lg ${theme.btnText} border ${theme.btnBorder} shadow-sm transition-colors flex items-center gap-1.5 active:scale-95 w-fit md:w-auto`}>
-                        <Phone className={`w-3 h-3 md:w-4 md:h-4 ${theme.icon}`} />
+                      <a href={`tel:${String(sscPhone || t.sscTechPhone).replace(/\D/g, '')}`} className={`font-mono text-[15px] md:text-[20px] font-bold ${theme.btnBg} px-3 py-1.5 rounded-lg ${theme.btnText} border ${theme.btnBorder} shadow-sm transition-colors flex items-center gap-1.5 active:scale-95 w-fit md:w-auto`}>
+                        <Phone className={`w-5 h-5 md:w-6 md:h-6 ${theme.icon}`} />
                         {formatDisplayPhone(sscPhone || t.sscTechPhone)}
                       </a>
                     )}
