@@ -1069,8 +1069,6 @@ const calculateDuration = (start, end, holdMs = 0) => {
 };
 
 
-// 🌟 ฟันธง: Component ใหม่ Sci-Fi Modal Dropdown (อัปเกรด ใช้ Portal วาร์ปทะลุกรอบ 1,000,000% โดยไม่กระทบสีและขนาดเดิม)
-// ==========================================
 // ==========================================
 // 🌟 ฟันธง: Component ใหม่ Sci-Fi Modal Dropdown (อัปเกรด เพิ่มแสงเรืองรองแยกจากช่องกรอกปกติ 1,000,000%)
 // ==========================================
@@ -1180,7 +1178,6 @@ function SciFiSelectModal({
 // 🌟 5. Main App Logic
 // ==========================================
 
-// 👇 🌟🌟 ฟันธง: บรรทัดนี้ของท่านหายไปครับ! เติมกลับเข้าไปด่วน ไม่งั้นแอปพังทั้งระบบ!
 function MainApp({ onGoHome, initialRole }) {
 
   // =========================================================================
@@ -2068,7 +2065,7 @@ const executeRatingSubmit = async () => {
           <div className="relative flex-1 min-w-[95px] shrink-0 flex justify-center snap-center">
              <button 
                onClick={() => setShowDatePicker(true)}
-               className={`w-full relative z-10 text-[13px] md:text-[16px] font-black py-2.5 md:py-3.5 rounded-xl transition-all duration-300 flex items-center justify-center gap-1.5 whitespace-nowrap ${
+               className={`w-full relative z-10 text-[14px] md:text-[20px] font-black py-2.5 md:py-3.5 rounded-xl transition-all duration-300 flex items-center justify-center gap-1.5 whitespace-nowrap ${
                  dashTimeframe === 'custom_date' 
                    ? 'bg-gradient-to-r from-orange-500 to-amber-500 text-white border-[2px] border-solid border-orange-300 shadow-[0_0_15px_rgba(249,115,22,0.8)] scale-[1.02] z-10' 
                    : 'bg-slate-950 text-cyan-300 border-[2px] border-solid border-cyan-400/30 shadow-[0_0_8px_rgba(34,211,238,0.3)] hover:bg-slate-900 hover:text-cyan-200 hover:border-cyan-300 hover:shadow-[0_0_15px_rgba(34,211,238,0.6)] hover:-translate-y-0.5' 
@@ -2140,7 +2137,7 @@ const executeRatingSubmit = async () => {
           <div className="relative flex-1 min-w-[95px] shrink-0 flex justify-center snap-center">
             <button onClick={() =>
              setShowMonthPicker(true)}
-              className={`w-full relative z-10 text-[13px] md:text-[16px] font-black py-2.5 md:py-3.5 rounded-xl transition-all duration-300 flex items-center justify-center gap-1.5 whitespace-nowrap ${
+              className={`w-full relative z-10 text-[14px] md:text-[20px] font-black py-2.5 md:py-3.5 rounded-xl transition-all duration-300 flex items-center justify-center gap-1.5 whitespace-nowrap ${
                 dashTimeframe === 'custom' 
                   ? 'bg-gradient-to-r from-orange-500 to-amber-500 text-white border-[2px] border-solid border-orange-300 shadow-[0_0_15px_rgba(249,115,22,0.8)] scale-[1.02] z-10' 
                   : 'bg-slate-950 text-cyan-300 border-[2px] border-solid border-cyan-400/30 shadow-[0_0_8px_rgba(34,211,238,0.3)] hover:bg-slate-900 hover:text-cyan-200 hover:border-cyan-300 hover:shadow-[0_0_15px_rgba(34,211,238,0.6)] hover:-translate-y-0.5'
@@ -2293,7 +2290,7 @@ const executeRatingSubmit = async () => {
             <div className="text-4xl md:text-[4rem] md:mb-2 font-black text-slate-300 font-mono tracking-tighter leading-none">
               {stats.cancelled}
             </div>
-            <div className="text-[13px] md:text-[18px] font-bold text-slate-300 uppercase mt-2 tracking-widest">
+            <div className="text-[14px] md:text-[16px] font-bold text-slate-300 uppercase mt-2 tracking-widest">
               ยกเลิก
             </div>
           </div>
@@ -2312,12 +2309,10 @@ const executeRatingSubmit = async () => {
             <div className="text-4xl md:text-[4rem] md:mb-2 font-black text-emerald-400 font-mono tracking-tighter leading-none">
               {stats.done}
             </div>
-            <div className="text-[13px] md:text-[18px] font-bold text-emerald-500 uppercase mt-2 tracking-widest">
+            <div className="text-[14px] md:text-[20px] font-bold text-emerald-500 uppercase mt-2 tracking-widest">
               เสร็จสิ้น
             </div>
-          </div> {/* <--- อันนี้คือบรรทัดปิดของกล่องเสร็จสิ้นเดิม */}
-          
-          {/* 🌟 ฟันธง: ให้พิมพ์เติม </div> ตัวนี้เข้าไป 1 ตัวครับ! (นี่คือตัวที่เผลอโดนทับหายไป) */}
+          </div> 
         </div>
         
 {/* 🌟 ฟันธง: กล่องสรุปคะแนนประเมิน SLA (CSAT KPI) จะโชว์ก็ต่อเมื่อมีงานที่ซ่อมเสร็จแล้ว */}
@@ -3287,7 +3282,7 @@ const renderTracking = () => (
             />
           </div>
 
-     {/* 2. สวิตช์กรองสถานะงาน (ฟันธง: เอากรอบนอกออก ปล่อยปุ่มลอย และยืดขยายเต็มหน้าจออัตโนมัติ) */}
+     {/* 2. สวิตช์กรองสถานะงาน (เพิ่มขนาด เปลี่ยนสี ตัวอักษร ปุ่ม ทั้งหมด รอดำเนินการ กำลังซ่อม) */}
      <div className="flex gap-2 md:gap-4 overflow-x-auto py-1 md:py-2 snap-x w-full [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]">
         {[
             { id: 'all', label: 'ทั้งหมด' },
@@ -3304,7 +3299,7 @@ const renderTracking = () => (
                 setFilterStatus(f.id);
                 setSearchTerm('');
               }}
-             className={`flex-none md:flex-1 px-4 md:px-0 py-2 md:py-3.5 text-[12px] md:text-[16px] font-black rounded-lg md:rounded-xl transition-all duration-300 snap-center whitespace-nowrap flex items-center justify-center ${
+             className={`flex-none md:flex-1 px-4 md:px-0 py-2 md:py-3.5 text-[14px] md:text-[20px] font-black rounded-lg md:rounded-xl transition-all duration-300 snap-center whitespace-nowrap flex items-center justify-center ${
                 filterStatus === f.id
                   ? 'bg-gradient-to-r from-orange-500 to-amber-500 text-white border-[2px] border-solid border-orange-300 shadow-[0_0_15px_rgba(249,115,22,0.8)] scale-[1.05] z-10' 
                   : 'bg-slate-900 text-cyan-300 border-[2px] border-solid border-cyan-400/30 shadow-[0_0_8px_rgba(34,211,238,0.4)] hover:bg-cyan-900/60 hover:text-white hover:border-cyan-300 hover:shadow-[0_0_20px_rgba(34,211,238,1)] hover:-translate-y-1' 
@@ -3318,7 +3313,7 @@ const renderTracking = () => (
       {/* 3. ปุ่มกรองเวลา (ฟันธง: จัดเรียงให้ขอบซ้าย-ขวา ตรงเป๊ะกับปุ่มสถานะด้านบน 100%) */}
       <div className="flex gap-2 md:gap-4 md:mt-2 w-full">
           
-          <button onClick={() => setTrackTimeframe('all')} className={`flex-1 py-2 md:py-3.5 rounded-lg md:rounded-xl font-black text-[12px] md:text-[18px] transition-all duration-300 whitespace-nowrap flex items-center justify-center ${
+          <button onClick={() => setTrackTimeframe('all')} className={`flex-1 py-2 md:py-3.5 rounded-lg md:rounded-xl font-black text-[14px] md:text-[18px] transition-all duration-300 whitespace-nowrap flex items-center justify-center ${
             trackTimeframe === 'all' 
               ? 'bg-gradient-to-r from-cyan-600 to-blue-600 text-white shadow-[0_0_15px_rgba(6,182,212,0.8)] border-[2px] border-solid border-cyan-300 scale-[1.02] z-10' 
               : 'bg-slate-950 text-cyan-300 border-[2px] border-solid border-cyan-400/30 shadow-[0_0_8px_rgba(34,211,238,0.4)] hover:bg-cyan-900/60 hover:text-white hover:border-cyan-300 hover:shadow-[0_0_20px_rgba(34,211,238,1)] hover:-translate-y-1'
@@ -3327,7 +3322,7 @@ const renderTracking = () => (
           {/* ระบุวัน */}
           <div className="relative flex-1">
             <button onClick={() => 
-            setShowTrackDatePicker(true)} className={`w-full h-full py-2 md:py-3.5 rounded-lg md:rounded-xl font-black text-[12px] md:text-[18px] flex items-center justify-center gap-1.5 md:gap-2 transition-all duration-300 whitespace-nowrap ${
+            setShowTrackDatePicker(true)} className={`w-full h-full py-2 md:py-3.5 rounded-lg md:rounded-xl font-black text-[14px] md:text-[18px] flex items-center justify-center gap-1.5 md:gap-2 transition-all duration-300 whitespace-nowrap ${
               trackTimeframe === 'custom_date' 
                 ? 'bg-gradient-to-r from-cyan-600 to-blue-600 text-white shadow-[0_0_15px_rgba(6,182,212,0.8)] border-[2px] border-solid border-cyan-300 scale-[1.02] z-10' 
                 : 'bg-slate-950 text-cyan-300 border-[2px] border-solid border-cyan-400/30 shadow-[0_0_8px_rgba(34,211,238,0.4)] hover:bg-cyan-900/60 hover:text-white hover:border-cyan-300 hover:shadow-[0_0_20px_rgba(34,211,238,1)] hover:-translate-y-1'
@@ -3346,7 +3341,7 @@ const renderTracking = () => (
                     <div className="relative z-10 flex justify-between items-center mb-6 md:mb-8 pb-5 md:pb-6 border-b border-white/20">
                       <button onClick={() => { if (trackCalMonth === 0) { setTrackCalMonth(11); setTrackCalYear(y => y - 1); } else setTrackCalMonth(m => m - 1); }} className="p-2.5 md:p-4 bg-slate-800 text-white rounded-xl md:rounded-2xl hover:bg-cyan-500 transition-colors border border-slate-600 active:scale-95 shadow-inner"><ChevronDown className="w-5 h-5 md:w-8 md:h-8 rotate-90" /></button>
                       <div className="flex flex-col items-center">
-                        <span className="text-[12px] md:text-[18px] font-black text-white tracking-widest uppercase mb-0.5 md:mb-2 drop-shadow-[0_0_8px_rgba(255,255,255,0.8)]">เลือกวันที่</span>
+                        <span className="text-[14px] md:text-[18px] font-black text-white tracking-widest uppercase mb-0.5 md:mb-2 drop-shadow-[0_0_8px_rgba(255,255,255,0.8)]">เลือกวันที่</span>
                         <span className="text-xl md:text-3xl font-black text-cyan-400 tracking-widest drop-shadow-[0_0_15px_rgba(6,182,212,0.9)]">{['มกราคม', 'กุมภาพันธ์', 'มีนาคม', 'เมษายน', 'พฤษภาคม', 'มิถุนายน', 'กรกฎาคม', 'สิงหาคม', 'กันยายน', 'ตุลาคม', 'พฤศจิกายน', 'ธันวาคม'][trackCalMonth]} {trackCalYear + 543}</span>
                       </div>
                       <button onClick={() => { if (trackCalMonth === 11) { setTrackCalMonth(0); setTrackCalYear(y => y + 1); } else setTrackCalMonth(m => m + 1); }} className="p-2.5 md:p-4 bg-slate-800 text-white rounded-xl md:rounded-2xl hover:bg-cyan-500 transition-colors border border-slate-600 active:scale-95 shadow-inner"><ChevronDown className="w-5 h-5 md:w-8 md:h-8 -rotate-90" /></button>
@@ -3393,7 +3388,7 @@ const renderTracking = () => (
 
           {/* ระบุเดือน */}
           <div className="relative flex-1">
-            <button onClick={() => setShowTrackMonthPicker(true)} className={`w-full h-full py-2 md:py-3.5 rounded-lg md:rounded-xl font-black text-[12px] md:text-[18px] flex items-center justify-center gap-1.5 md:gap-2 transition-all duration-300 whitespace-nowrap ${
+            <button onClick={() => setShowTrackMonthPicker(true)} className={`w-full h-full py-2 md:py-3.5 rounded-lg md:rounded-xl font-black text-[14px] md:text-[18px] flex items-center justify-center gap-1.5 md:gap-2 transition-all duration-300 whitespace-nowrap ${
               trackTimeframe === 'custom_month' 
                 ? 'bg-gradient-to-r from-cyan-600 to-blue-600 text-white shadow-[0_0_15px_rgba(6,182,212,0.8)] border-[2px] border-solid border-cyan-300 scale-[1.02] z-10' 
                 : 'bg-slate-950 text-cyan-300 border-[2px] border-solid border-cyan-400/30 shadow-[0_0_8px_rgba(34,211,238,0.4)] hover:bg-cyan-900/60 hover:text-white hover:border-cyan-300 hover:shadow-[0_0_20px_rgba(34,211,238,1)] hover:-translate-y-1'
@@ -3412,7 +3407,7 @@ const renderTracking = () => (
                     <div className="relative z-10 flex justify-between items-center mb-6 md:mb-8 pb-5 md:pb-6 border-b border-white/20">
                       <button onClick={() => setTrackCalYear(y => y - 1)} className="p-2.5 md:p-4 bg-slate-800 text-white rounded-xl md:rounded-2xl hover:bg-cyan-500 transition-colors active:scale-95 shadow-inner border border-slate-600"><ChevronDown className="w-5 h-5 md:w-8 md:h-8 rotate-90" /></button>
                       <div className="flex flex-col items-center">
-                        <span className="text-[12px] md:text-[18px] font-black text-white tracking-widest uppercase mb-0.5 md:mb-2 drop-shadow-[0_0_8px_rgba(255,255,255,0.8)]">เลือกเดือน</span>
+                        <span className="text-[14px] md:text-[18px] font-black text-white tracking-widest uppercase mb-0.5 md:mb-2 drop-shadow-[0_0_8px_rgba(255,255,255,0.8)]">เลือกเดือน</span>
                         <span className="text-2xl md:text-4xl font-black text-cyan-400 tracking-widest drop-shadow-[0_0_15px_rgba(6,182,212,0.9)]">{trackCalYear + 543}</span>
                       </div>
                       <button onClick={() => setTrackCalYear(y => y + 1)} className="p-2.5 md:p-4 bg-slate-800 text-white rounded-xl md:rounded-2xl hover:bg-cyan-500 transition-colors active:scale-95 shadow-inner border border-slate-600"><ChevronDown className="w-5 h-5 md:w-8 md:h-8 -rotate-90" /></button>
@@ -3737,6 +3732,8 @@ const renderTracking = () => (
                   )}
                   </div>
 
+
+
                   {/* 🌟 โซนกล่องสรุป SLA */}
                   {/* 🌟 ฟันธง: เพิ่มเงื่อนไข currentUserRole !== 'reporter' พ่วงเข้าไปข้างหน้าสุด */}
                   {currentUserRole !== 'reporter' && (t.status === 'completed' || t.status === 'verified') ? (
@@ -3829,6 +3826,8 @@ const renderTracking = () => (
                           </div>
                         ) : null}
 
+
+
                 {/* 🌟 โซนรายละเอียดข้อความและการติดต่อ (ปลดล็อกความกว้าง 100%) */}
           <div className="px-5 md:px-10 pb-5 md:pb-10 pt-2 flex flex-col w-full relative z-10">
           {/* 🌟 ฟันธงสเต็ป 1: จัดการช่องไฟภายในด้วย Margin แทน Gap */}
@@ -3844,6 +3843,7 @@ const renderTracking = () => (
         </div>
       </div>
     )}
+
 
 
           {/* 🌟 ฟันธง: Timeline ประวัติการซ่อม (อัปเกรดฟอนต์ PC ให้ใหญ่โตชัดเจน) */}
@@ -3914,6 +3914,8 @@ const renderTracking = () => (
         </div>
       </div>
     )}
+
+
     
         {/* ==================== โซนภาพประกอบ (แบบมีกรอบ Card แยกชัดเจน) ==================== */}
         {t.images && t.images.length > 0 && (
@@ -3970,8 +3972,8 @@ const renderTracking = () => (
                         </div>
 
 
-{/* ==================== โซนบุคคล & SSC (จัดระเบียบระยะห่างใหม่) ==================== */}
-<div className="flex flex-col gap-4 md:gap-6 mt-6 w-full">
+          {/* ==================== โซนบุคคล & SSC (จัดระเบียบระยะห่างใหม่) ==================== */}
+                  <div className="flex flex-col gap-4 md:gap-6 mt-6 w-full">
                       
                       {/* 👤 การ์ด 1: ผู้แจ้งปัญหา */}
                       <div className="bg-emerald-50/40 border-2 border-solid border-emerald-400 p-4 md:p-6 rounded-2xl md:rounded-[1.5rem] shadow-sm flex flex-col w-full transition-all hover:shadow-md">
@@ -4297,7 +4299,6 @@ const renderTracking = () => (
             )}
           </div>
           
-          {/* ================= สิ้นสุดการวางทับ ================= */}
 
       {/* 🛠️ Action Modals (ฟันธง: เพิ่มรูปแบบที่ 6 ดำเนินการซ่อมต่อ 'resume' สีส้มหล่อเท่ ไม่เอ๋อเป็น SSC แน่นอน 1,000,000%) */}
       {actionModal.isOpen && (
@@ -4316,7 +4317,6 @@ const renderTracking = () => (
               {actionModal.type === 'finish' && <ClipboardCheck size={44} className="animate-pulse" />}
               {actionModal.type === 'cancel' && <XCircle size={44} className="animate-pulse" />}
               {actionModal.type === 'ssc' && <AlertTriangle size={44} className="animate-pulse" />}
-              {/* 🛠️ เพิ่มไอคอนสำหรับโหมดดำเนินการซ่อมต่อ */}
               {actionModal.type === 'resume' && <Wrench size={44} className="animate-pulse" />}
             </div>
 
