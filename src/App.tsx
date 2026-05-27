@@ -2049,7 +2049,7 @@ const executeRatingSubmit = async () => {
             <button
               key={tf.id}
               onClick={() => setDashTimeframe(tf.id)}
-              className={`flex-1 min-w-[75px] shrink-0 text-[13px] md:text-[16px] font-black py-2.5 md:py-3.5 rounded-xl transition-all duration-300 snap-center whitespace-nowrap ${
+              className={`flex-1 min-w-[75px] shrink-0 text-[16px] md:text-[20px] font-black py-2.5 md:py-3.5 rounded-xl transition-all duration-300 snap-center whitespace-nowrap ${
                 dashTimeframe === tf.id
                   // 🟠 Active: สีส้มทอง GSE (ขยายตัวนิดๆ)
                   ? 'bg-gradient-to-r from-orange-500 to-amber-500 text-white border-[2px] border-solid border-orange-300 shadow-[0_0_15px_rgba(249,115,22,0.8)] scale-[1.02] z-10' 
@@ -2065,7 +2065,7 @@ const executeRatingSubmit = async () => {
           <div className="relative flex-1 min-w-[95px] shrink-0 flex justify-center snap-center">
              <button 
                onClick={() => setShowDatePicker(true)}
-               className={`w-full relative z-10 text-[14px] md:text-[20px] font-black py-2.5 md:py-3.5 rounded-xl transition-all duration-300 flex items-center justify-center gap-1.5 whitespace-nowrap ${
+               className={`w-full relative z-10 text-[16px] md:text-[20px] font-black py-2.5 md:py-3.5 rounded-xl transition-all duration-300 flex items-center justify-center gap-1.5 whitespace-nowrap ${
                  dashTimeframe === 'custom_date' 
                    ? 'bg-gradient-to-r from-orange-500 to-amber-500 text-white border-[2px] border-solid border-orange-300 shadow-[0_0_15px_rgba(249,115,22,0.8)] scale-[1.02] z-10' 
                    : 'bg-slate-950 text-cyan-300 border-[2px] border-solid border-cyan-400/30 shadow-[0_0_8px_rgba(34,211,238,0.3)] hover:bg-slate-900 hover:text-cyan-200 hover:border-cyan-300 hover:shadow-[0_0_15px_rgba(34,211,238,0.6)] hover:-translate-y-0.5' 
@@ -2137,7 +2137,7 @@ const executeRatingSubmit = async () => {
           <div className="relative flex-1 min-w-[95px] shrink-0 flex justify-center snap-center">
             <button onClick={() =>
              setShowMonthPicker(true)}
-              className={`w-full relative z-10 text-[14px] md:text-[20px] font-black py-2.5 md:py-3.5 rounded-xl transition-all duration-300 flex items-center justify-center gap-1.5 whitespace-nowrap ${
+              className={`w-full relative z-10 text-[16px] md:text-[20px] font-black py-2.5 md:py-3.5 rounded-xl transition-all duration-300 flex items-center justify-center gap-1.5 whitespace-nowrap ${
                 dashTimeframe === 'custom' 
                   ? 'bg-gradient-to-r from-orange-500 to-amber-500 text-white border-[2px] border-solid border-orange-300 shadow-[0_0_15px_rgba(249,115,22,0.8)] scale-[1.02] z-10' 
                   : 'bg-slate-950 text-cyan-300 border-[2px] border-solid border-cyan-400/30 shadow-[0_0_8px_rgba(34,211,238,0.3)] hover:bg-slate-900 hover:text-cyan-200 hover:border-cyan-300 hover:shadow-[0_0_15px_rgba(34,211,238,0.6)] hover:-translate-y-0.5'
@@ -4747,8 +4747,6 @@ const renderTracking = () => (
    {/* 🌟 ฟันธง: เรียกใช้ฟอนต์ Sarabun เรียบร้อย สะอาดตา */}
    <SarabunFontEmbed />
 
-{/* 🧭 Navigation Bar (ฟันธงข้อ 3 สเต็ปที่ 2: ฝังเอฟเฟกต์สไลด์หลบลงใต้จออัตโนมัติเมื่อไถจอลง) */}
-{/* 🧭 Navigation Bar (ฟันธง: ขยายร่างเป็นจอ PC เต็มรูปแบบ) */}
 {/* 🧭 Navigation Bar (ฟันธง: คืนค่าความกว้างเดิมให้ขนานกับกรอบบนสุด 100%) */}
 <div className={`fixed left-1/2 -translate-x-1/2 w-[calc(100%-2rem)] md:w-[calc(100%-3rem)] max-w-md md:max-w-[calc(72rem-3rem)] py-2 md:py-4 bg-slate-900/95 backdrop-blur-xl border-2 md:border-[3px] border-solid border-orange-500 rounded-2xl md:rounded-[2rem] z-[9999] shadow-[0_10px_30px_rgba(249,115,22,0.4)] md:shadow-[0_15px_40px_rgba(249,115,22,0.6)] transform-gpu transition-all duration-500 ease-in-out ${
   isNavVisible ? 'bottom-4 md:bottom-8 opacity-100 translate-y-0' : '-bottom-32 opacity-0 translate-y-full pointer-events-none'
@@ -4761,10 +4759,10 @@ const renderTracking = () => (
         <div className="p-2.5 md:p-4 rounded-full bg-transparent text-slate-400 group-hover:text-white transition-colors">
           <Home className="w-6 h-6 md:w-12 md:h-12" />
         </div>
-        <span className="block text-[11px] md:text-[20px] font-black text-slate-400 group-hover:text-white tracking-widest whitespace-nowrap shrink-0 transition-colors">หน้าแรก</span>
+        <span className="block text-[14px] md:text-[22px] font-black text-slate-400 group-hover:text-white tracking-widest whitespace-nowrap shrink-0 transition-colors">หน้าแรก</span>
       </button>
 
-      {/* ================= โหมดผู้แจ้ง (Reporter) ================= */}
+      {/* ================= โหมดแผงแจ้งซ่อม ติดตามสถานะ หน้าผู้แจ้ง (Reporter) ================= */}
       {currentUserRole === 'reporter' && (
         <>
           {/* 🟠 ปุ่มแจ้งซ่อม */}
@@ -4772,7 +4770,7 @@ const renderTracking = () => (
             <div className={`p-2.5 md:p-4 rounded-full transition-all ${activeTab === 'report' ? 'bg-gradient-to-b from-orange-400 to-orange-600 text-white shadow-[0_0_15px_rgba(249,115,22,0.8)] border-[2px] border-white scale-110' : 'bg-transparent text-slate-400 group-hover:text-orange-300'}`}>
               <PlusCircle className={`w-6 h-6 md:w-12 md:h-12 ${activeTab === 'report' ? 'stroke-[3px]' : ''}`} />
             </div>
-            <span className={`block text-[11px] md:text-[20px] font-black tracking-widest whitespace-nowrap shrink-0 transition-all ${activeTab === 'report' ? 'text-orange-400 drop-shadow-md md:mt-1' : 'text-slate-400 group-hover:text-orange-300'}`}>แจ้งซ่อม</span>
+            <span className={`block text-[14px] md:text-[22px] font-black tracking-widest whitespace-nowrap shrink-0 transition-all ${activeTab === 'report' ? 'text-orange-400 drop-shadow-md md:mt-1' : 'text-slate-400 group-hover:text-orange-300'}`}>แจ้งซ่อม</span>
           </button>
 
           {/* 🟠 ปุ่มติดตามสถานะ */}
@@ -4780,12 +4778,14 @@ const renderTracking = () => (
             <div className={`p-2.5 md:p-4 rounded-full transition-all ${activeTab === 'tracking' ? 'bg-gradient-to-b from-orange-400 to-orange-600 text-white shadow-[0_0_15px_rgba(249,115,22,0.8)] border-[2px] border-white scale-110' : 'bg-transparent text-slate-400 group-hover:text-orange-300'}`}>
               <ClipboardCheck className={`w-6 h-6 md:w-12 md:h-12 ${activeTab === 'tracking' ? 'stroke-[3px]' : ''}`} />
             </div>
-            <span className={`block text-[11px] md:text-[20px] font-black tracking-widest whitespace-nowrap shrink-0 transition-all ${activeTab === 'tracking' ? 'text-orange-400 drop-shadow-md md:mt-1' : 'text-slate-400 group-hover:text-orange-300'}`}>ติดตามสถานะ</span>
+            <span className={`block text-[14px] md:text-[22px] font-black tracking-widest whitespace-nowrap shrink-0 transition-all ${activeTab === 'tracking' ? 'text-orange-400 drop-shadow-md md:mt-1' : 'text-slate-400 group-hover:text-orange-300'}`}>ติดตามสถานะ</span>
           </button>
         </>
       )}
 
-      {/* ================= โหมดช่าง (Technician) ================= */}
+
+
+      {/* ======= โหมดแผงควบคุมด้านล่างช่าง (Technician) ======*/}
       {currentUserRole === 'technician' && (
         <>
           {/* 🟠 ปุ่มแผงควบคุม */}
@@ -4793,7 +4793,7 @@ const renderTracking = () => (
             <div className={`p-2.5 md:p-4 rounded-full transition-all ${activeTab === 'dashboard' ? 'bg-gradient-to-b from-orange-400 to-orange-600 text-white shadow-[0_0_15px_rgba(249,115,22,0.8)] border-[2px] border-white scale-110' : 'bg-transparent text-slate-400 group-hover:text-orange-300'}`}>
               <LayoutDashboard className={`w-6 h-6 md:w-12 md:h-12 ${activeTab === 'dashboard' ? 'stroke-[3px]' : ''}`} />
             </div>
-            <span className={`block text-[11px] md:text-[20px] font-black tracking-widest whitespace-nowrap shrink-0 transition-all ${activeTab === 'dashboard' ? 'text-orange-400 drop-shadow-md md:mt-1' : 'text-slate-400 group-hover:text-orange-300'}`}>แผงควบคุม</span>
+            <span className={`block text-[14px] md:text-[22px] font-black tracking-widest whitespace-nowrap shrink-0 transition-all ${activeTab === 'dashboard' ? 'text-orange-400 drop-shadow-md md:mt-1' : 'text-slate-400 group-hover:text-orange-300'}`}>แผงควบคุม</span>
           </button>
 
            {/* 🟠 ปุ่มจัดการงานซ่อม */}
@@ -4801,16 +4801,16 @@ const renderTracking = () => (
             <div className={`p-2.5 md:p-4 rounded-full transition-all ${activeTab === 'tracking' ? 'bg-gradient-to-b from-orange-400 to-orange-600 text-white shadow-[0_0_15px_rgba(249,115,22,0.8)] border-[2px] border-white scale-110' : 'bg-transparent text-slate-400 group-hover:text-orange-300'}`}>
               <Wrench className={`w-6 h-6 md:w-12 md:h-12 ${activeTab === 'tracking' ? 'stroke-[3px]' : ''}`} />
             </div>
-            <span className={`block text-[11px] md:text-[20px] font-black tracking-widest whitespace-nowrap shrink-0 transition-all ${activeTab === 'tracking' ? 'text-orange-400 drop-shadow-md md:mt-1' : 'text-slate-400 group-hover:text-orange-300'}`}>จัดการงาน</span>
+            <span className={`block text-[14px] md:text-[22px] font-black tracking-widest whitespace-nowrap shrink-0 transition-all ${activeTab === 'tracking' ? 'text-orange-400 drop-shadow-md md:mt-1' : 'text-slate-400 group-hover:text-orange-300'}`}>จัดการงาน</span>
           </button>
         </>
       )}
     </div>
   </div>
-
-      </div>
+</div>
   );
 }
+
 
 // ==========================================
 // 🌟 Landing Page - ฉบับสมบูรณ์ ไร้ Error 100%
