@@ -804,9 +804,9 @@ const ThaiDateFormatter = (date) => {
   };
 
   return (
-    <div className="flex items-center justify-center gap-3 sm:gap-5 md:gap-8 text-[15px] sm:text-[17px] md:text-[22px] whitespace-nowrap font-sans py-1 px-2">
+    <div className="flex items-center justify-center gap-3 sm:gap-5 md:gap-20 text-[15px] sm:text-[17px] md:text-[30px] whitespace-nowrap font-sans py-1 px-2">
       
-      {/* 📅 โซนวันที่ (ฟันธง: เปลี่ยนสีตามวัน + มีแสงเฟลอร์เบาๆ ด้านหลัง) */}
+      {/* 📅 โซนวันที่ หน้าแจ้งซ่อม และ แผงควบคุม (ฟันธง: เปลี่ยนสีตามวัน + มีแสงเฟลอร์เบาๆ ด้านหลัง) */}
       <div className="relative flex items-center gap-2 md:gap-3 shrink-0">
         <div className={`absolute inset-0 ${flareColors[dayOfWeek]} blur-[15px] rounded-full pointer-events-none`}></div>
         <Calendar className={`w-[22px] h-[22px] md:w-[28px] md:h-[28px] relative z-10 ${dayColors[dayOfWeek]}`} />
@@ -816,13 +816,13 @@ const ThaiDateFormatter = (date) => {
       </div>
 
       {/* ⏐ เส้นแบ่งคั่นกลาง */}
-      <div className="w-[2px] h-6 md:h-8 bg-slate-500/50 rounded-full shrink-0"></div>
+      <div className="w-[2px] h-8 md:h-10 bg-cyan-200/80 rounded-full shrink-0"></div>
 
-      {/* ⏱️ โซนเวลา (ฟันธง: ล็อกสีส้มไว้ตามสั่ง ไม่ให้เปลี่ยนตามวัน พร้อมเฟลอร์สีส้ม) */}
+      {/* ⏱️ โซนเวลา หน้าแจ้งซ่อม และ แผงควบคุม (ฟันธง: ล็อกสีส้มไว้ตามสั่ง ไม่ให้เปลี่ยนตามวัน พร้อมเฟลอร์สีส้ม) */}
       <div className="relative flex items-center gap-2 md:gap-3 shrink-0">
          <div className="absolute inset-0 bg-orange-500/10 blur-[15px] rounded-full pointer-events-none"></div>
         <Clock className="w-[22px] h-[22px] md:w-[28px] md:h-[28px] text-orange-500 animate-pulse relative z-10 drop-shadow-[0_0_5px_rgba(249,115,22,0.8)]" />
-        <span className="font-mono font-black text-orange-300 tracking-[0.1em] drop-shadow-[0_0_5px_rgba(249,115,22,0.6)] relative z-10">
+        <span className="font-mono font-black text-orange-300 tracking-[0.1em] drop-shadow-[0_0_5px_rgba(249,115,22,0.8)] relative z-10">
           {d.toLocaleTimeString('th-TH', { hour12: false })} น.
         </span>
       </div>
@@ -2317,13 +2317,13 @@ const executeRatingSubmit = async () => {
         
 {/* 🌟 ฟันธง: กล่องสรุปคะแนนประเมิน SLA (CSAT KPI) จะโชว์ก็ต่อเมื่อมีงานที่ซ่อมเสร็จแล้ว */}
 {stats.done > 0 && (
-          <div className="bg-slate-800/60 backdrop-blur-xl p-5 md:p-8 rounded-[1.5rem] border-[2px] border-solid border-yellow-500/80 shadow-[0_0_20px_rgba(250,204,21,0.2)] mt-4 md:mt-8 relative overflow-hidden flex items-center justify-between hover:shadow-[0_0_30px_rgba(250,204,21,0.4)] transition-all">
+          <div className="bg-slate-800/60 backdrop-blur-xl p-5 md:p-8 rounded-[1.5rem] border-[2px] border-solid border-yellow-500/80 shadow-[0_0_20px_rgba(250,204,21,0.8)] mt-4 md:mt-8 relative overflow-hidden flex items-center justify-between hover:shadow-[0_0_30px_rgba(250,204,21,0.8)] transition-all">
             
             {/* แสงเฟลอร์หลังกล่อง สีทองอร่าม */}
             <div className="absolute -left-10 -top-10 w-32 h-32 md:w-48 md:h-48 bg-yellow-500/30 blur-[30px] rounded-full pointer-events-none animate-pulse"></div>
             
             <div className="relative z-10 flex flex-col">
-              <span className="text-[13px] md:text-[16px] font-black text-yellow-400 uppercase tracking-widest drop-shadow-sm mb-1 md:mb-2">
+              <span className="text-[14px] md:text-[20px] font-black text-yellow-400 uppercase tracking-widest drop-shadow-sm mb-1 md:mb-2">
                 คะแนนความพึงพอใจเฉลี่ย
               </span>
               <div className="flex items-center gap-3 md:gap-5 mt-1">
@@ -2333,10 +2333,10 @@ const executeRatingSubmit = async () => {
                 <div className="flex flex-col md:mt-2">
                   <div className="flex gap-0.5 md:gap-1">
                     {[1, 2, 3, 4, 5].map(s => (
-                      <Star key={s} className={`w-4 h-4 md:w-6 md:h-6 ${Math.round(stats.avgRating) >= s ? "drop-shadow-[0_0_8px_rgba(250,204,21,0.8)]" : ""}`} fill={Math.round(stats.avgRating) >= s ? "#facc15" : "none"} stroke={Math.round(stats.avgRating) >= s ? "#facc15" : "#475569"} strokeWidth={2} />
+                      <Star key={s} className={`w-6 h-6 md:w-8 md:h-8 ${Math.round(stats.avgRating) >= s ? "drop-shadow-[0_0_8px_rgba(250,204,21,0.8)]" : ""}`} fill={Math.round(stats.avgRating) >= s ? "#facc15" : "none"} stroke={Math.round(stats.avgRating) >= s ? "#facc15" : "#475569"} strokeWidth={2} />
                     ))}
                   </div>
-                  <span className="text-[11px] md:text-[14px] font-bold text-slate-400 mt-1 md:mt-2">
+                  <span className="text-[14px] md:text-[18px] font-bold text-slate-400 mt-1 md:mt-2">
                     จากผู้แจ้ง <span className="text-yellow-400 font-black">{stats.ratedCount}</span> รายการ
                   </span>
                 </div>
@@ -2352,44 +2352,52 @@ const executeRatingSubmit = async () => {
         )}
         {/* ================= เริ่มกล่อง: งานที่รอเกินกำหนด ================= */}
         {(longestPendingTicket || longestFixingTicket) && (
-          <div className="bg-slate-800/60 backdrop-blur-xl p-5 md:p-8 rounded-[1rem] md:rounded-[1.5rem] border-2 border-solid border-orange-500/80 shadow-[0_0_20px_rgba(249,115,22,0.15)] mt-6 md:mt-8 overflow-hidden">
+          <div className="bg-slate-800/60 backdrop-blur-xl p-5 md:p-8 rounded-[1rem] md:rounded-[1.5rem] border-2 border-solid border-orange-500/80 shadow-[0_0_20px_rgba(249,115,22,0.8)] mt-6 md:mt-8 overflow-hidden">
             <div className="absolute -top-10 -right-10 w-32 h-32 md:w-56 md:h-56 bg-rose-500/10 rounded-full blur-2xl"></div>
-            <h3 className="text-[15px] md:text-[20px] font-black text-white uppercase tracking-widest mb-4 md:mb-6 flex items-center gap-2 md:gap-3 relative z-10">
+            <h3 className="text-[18px] md:text-[22px] font-black text-white uppercase tracking-widest mb-4 md:mb-6 flex items-center gap-2 md:gap-3 relative z-10">
               <Flame className="w-5 h-5 md:w-7 md:h-7 text-white-500 animate-pulse" />{' '}
               งานที่รอเกินระยะเวลากำหนด
             </h3>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-3 md:gap-5 relative z-10">
+            <div className="flex flex-col gap-3 md:gap-5 relative z-10 w-full">
               
+             {/* ================= กล่องที่ 1: รอนานที่สุด ================= */}
               {longestPendingTicket && (
                 <div
                   onClick={() => {
                     setActiveTab('tracking');
                     setSearchTerm(longestPendingTicket.id);
                     setFilterStatus('all');
-                    setTrackTimeframe('all'); // 🌟 ฟันธง: ล้างตัวกรองเวลาเป็น 'ทุกวัน' เสมอ!
+                    setTrackTimeframe('all'); 
                   }}
-                  className="bg-white p-4 md:p-6 rounded-2xl border-2 border-solid border-orange-800 shadow-[0_4px_10px_rgba(225,29,72,0.1)] cursor-pointer hover:border-rose-500 hover:bg-rose-100 hover:shadow-[0_0_20px_rgba(249,115,22,0.3)] transition-all active:scale-[0.98]"
+                  className="bg-white p-4 md:p-6 rounded-2xl border-2 border-solid border-orange-800 shadow-[0_4px_10px_rgba(225,29,72,0.1)] cursor-pointer hover:border-rose-500 hover:bg-rose-100 hover:shadow-[0_0_20px_rgba(249,115,22,0.5)] transition-all active:scale-[0.98]"
                 >
-                  <div className="flex justify-between items-start mb-2 md:mb-4">
-                    <div className="flex items-center gap-2 md:gap-3">
-                      <span className="text-[12px] md:text-[14px] font-black text-rose-600 border-2 border-solid bg-rose-100 px-2 md:px-3 py-0.5 md:py-1 rounded-md md:rounded-lg border border-rose-200 shadow-sm">
-                        รอนานที่สุด
-                      </span>
-                      <span className="text-[12px] md:text-[16px] font-mono font-bold text-slate-500">
+                  {/* 🌟 ฟันธง: ส่วนหัว (แยก 2 บรรทัด ป้องกันจอเล็กตกขอบ) */}
+                  <div className="flex flex-col gap-2.5 md:gap-3 mb-3 md:mb-5">
+                    {/* 🔴 บรรทัด 1: เลขที่แจ้งซ่อม (สไตล์กรอบขาวขอบส้ม เหมือนรายการล่าสุด) */}
+                    <div className="flex items-center">
+                      <span className="text-[15px] md:text-[20px] font-mono font-bold text-slate-600 bg-white px-2 md:px-3 py-0.5 md:py-1 rounded-md md:rounded-lg border-2 border-solid border-orange-400/70 tracking-widest shadow-sm">
                         {longestPendingTicket.id}
                       </span>
                     </div>
-                    <span className="text-xs md:text-[15px] font-mono font-black text-rose-600 bg-rose-50 px-2 md:px-3 py-0.5 md:py-1 rounded-md md:rounded-lg border border-rose-100">
-                    {formatMinutesToText(getMinutesDiff(longestPendingTicket.date, sysTime))}
-                    </span>
+                    {/* 🔴 บรรทัด 2: ป้ายกำกับ (ซ้ายสุด) + เวลา (ขวาสุด) */}
+                    <div className="flex justify-between items-center w-full">
+                      <span className="text-[15px] md:text-[20px] font-black text-rose-600 bg-rose-100 px-2 md:px-3 py-1 rounded-lg">
+                        รอนานที่สุด
+                      </span>
+                      <span className="text-[15px] md:text-[20px] font-mono font-black text-rose-600">
+                        {formatMinutesToText(getMinutesDiff(longestPendingTicket.date, sysTime))}
+                      </span>
+                    </div>
                   </div>
-                  <h4 className="text-sm md:text-[18px] font-black text-rose-800 truncate mb-1 md:mb-3">
+
+                  <h4 className="text-[15px] md:text-[20px] font-black text-rose-800 truncate mb-1 md:mb-3">
                     {longestPendingTicket.equipment}
                   </h4>
+
                   {/* 🌟 ป้ายกำกับ ผู้แจ้งปัญหา */}
                   <div className="flex flex-col gap-0.5 md:gap-1 mt-2 md:mt-3">
-                    <span className="text-[10px] md:text-[13px] font-bold text-slate-400 tracking-widest">ผู้แจ้งปัญหา:</span>
-                    <p className="text-[12px] md:text-[16px] font-bold text-orange-600 flex items-center gap-1.5 md:gap-2">
+                    <span className="text-[13px] md:text-[16px] font-bold text-slate-600 tracking-widest">ผู้แจ้งปัญหา:</span>
+                    <p className="text-[13px] md:text-[16px] font-bold text-orange-600 flex items-center gap-1.5 md:gap-2">
                       <User className="w-3.5 h-3.5 md:w-5 md:h-5 text-orange-500" />
                       {longestPendingTicket.reporter}
                     </p>
@@ -2397,36 +2405,43 @@ const executeRatingSubmit = async () => {
                 </div>
               )}
               
+              {/* ================= กล่องที่ 2: ซ่อมมาราธอน ================= */}
               {longestFixingTicket && (
                 <div
                   onClick={() => {
                     setActiveTab('tracking');
                     setSearchTerm(longestFixingTicket.id);
                     setFilterStatus('all');
-                    setTrackTimeframe('all'); // 🌟 ฟันธง: ล้างตัวกรองเวลาเป็น 'ดูทุกวัน' เสมอ!
+                    setTrackTimeframe('all'); 
                   }}
                   className="bg-white p-4 md:p-6 rounded-2xl border-2 border-solid border-orange-400 shadow-[0_4px_10px_rgba(249,115,22,0.1)] cursor-pointer hover:border-orange-500 hover:bg-orange-50 hover:shadow-md transition-all active:scale-[0.98]"
                 >
-                  <div className="flex justify-between items-start mb-2 md:mb-4">
-                    <div className="flex items-center gap-2 md:gap-3">
-                      <span className="text-[12px] md:text-[14px] font-black text-orange-600 bg-orange-100 px-2 md:px-3 py-0.5 md:py-1 rounded-md md:rounded-lg border border-orange-200 shadow-sm">
-                        ซ่อมมาราธอน
-                      </span>
-                      <span className="text-[12px] md:text-[16px] font-mono font-bold text-slate-500">
+                  {/* 🌟 ฟันธง: ส่วนหัว (แยก 2 บรรทัด ป้องกันจอเล็กตกขอบ) */}
+                  <div className="flex flex-col gap-2.5 md:gap-3 mb-3 md:mb-5">
+                    {/* 🔴 บรรทัด 1: เลขที่แจ้งซ่อม (สไตล์กรอบขาวขอบส้ม เหมือนรายการล่าสุด) */}
+                    <div className="flex items-center">
+                      <span className="text-[15px] md:text-[20px] font-mono font-bold text-slate-600 bg-white px-2 md:px-3 py-0.5 md:py-1 rounded-md md:rounded-lg border-2 border-solid border-orange-400/70 tracking-widest shadow-sm">
                         {longestFixingTicket.id}
                       </span>
                     </div>
-                    <span className="text-xs md:text-[15px] font-mono font-black text-orange-600 bg-orange-50 px-2 md:px-3 py-0.5 md:py-1 rounded-md md:rounded-lg border border-orange-100">
-                    {formatMinutesToText(getMinutesDiff(longestFixingTicket.startedAt || longestFixingTicket.date, sysTime))}
-                    </span>
+                    {/* 🔴 บรรทัด 2: ป้ายกำกับ (ซ้ายสุด) + เวลา (ขวาสุด) */}
+                    <div className="flex justify-between items-center w-full">
+                      <span className="text-[16px] md:text-[20px] font-black text-orange-600 bg-orange-100 px-2 md:px-3 py-1 rounded-lg">
+                        ซ่อมมาราธอน
+                      </span>
+                      <span className="text-[16px] md:text-[20px] font-mono font-black text-orange-600">
+                        {formatMinutesToText(getMinutesDiff(longestFixingTicket.startedAt || longestFixingTicket.date, sysTime))}
+                      </span>
+                    </div>
                   </div>
-                  <h4 className="text-sm md:text-[18px] font-black text-rose-800 truncate mb-1 md:mb-3">
+
+                  <h4 className="text-[18px] md:text-[20px] font-black text-rose-800 truncate mb-1 md:mb-3">
                     {longestFixingTicket.equipment}
                   </h4>
                   {/* 🌟 ป้ายกำกับ ผู้รับผิดชอบ (ช่าง) */}
                   <div className="flex flex-col gap-0.5 md:gap-1 mt-2 md:mt-3">
-                    <span className="text-[10px] md:text-[13px] font-bold text-slate-400 tracking-widest">ผู้รับผิดชอบ:</span>
-                    <p className="text-[12px] md:text-[16px] font-bold text-emerald-600 flex items-center gap-1.5 md:gap-2">
+                    <span className="text-[13px] md:text-[16px] font-bold text-slate-400 tracking-widest">ผู้รับผิดชอบ:</span>
+                    <p className="text-[15px] md:text-[18px] font-bold text-emerald-600 flex items-center gap-1.5 md:gap-2">
                       <Wrench className="w-3.5 h-3.5 md:w-5 md:h-5 text-emerald-500" />
                       {longestFixingTicket.techName || 'กำลังดำเนินการ'}
                     </p>
@@ -2435,14 +2450,13 @@ const executeRatingSubmit = async () => {
               )}
             </div>
           </div>
-
-
-
         )}
+
+
         {/* ================= จบกล่อง: งานที่รอเกินระยะเวลากำหนด ================= */}
 
-        <div className="bg-slate-800/60 backdrop-blur-xl p-5 md:p-8 rounded-[1rem] md:rounded-[1.5rem] border-2 border-solid border-orange-500/80 shadow-[0_0_20px_rgba(249,115,22,0.15)] mt-6 md:mt-8 hover:shadow-[0_0_20px_rgba(249,115,22,0.3)]">
-          <h3 className="text-[15px] md:text-[20px] font-black text-white uppercase  tracking-widest mb-4 md:mb-6 flex items-center gap-2 md:gap-3">
+        <div className="bg-slate-800/60 backdrop-blur-xl p-5 md:p-8 rounded-[1rem] md:rounded-[1.5rem] border-2 border-solid border-orange-500/80 shadow-[0_0_20px_rgba(249,115,22,0.15)] mt-6 md:mt-8 hover:shadow-[0_0_20px_rgba(249,115,22,0.8)]">
+          <h3 className="text-[18px] md:text-[22px] font-black text-white uppercase  tracking-widest mb-4 md:mb-6 flex items-center gap-2 md:gap-3">
             <FileText className="w-5 h-5 md:w-7 md:h-7 text-white-800" />{' '}
             รายการล่าสุด
           </h3>
@@ -2464,55 +2478,66 @@ const executeRatingSubmit = async () => {
                     : 'border-emerald-400 hover:bg-emerald-100 hover:border-emerald-500'
                 } relative`}
               >
-                <div className="flex items-center justify-between mb-2 md:mb-4">
-                  <div className="flex items-center gap-2 md:gap-3">
-                    <span className="text-[13px] md:text-[16px] font-mono font-bold text-slate-600 bg-white px-2 md:px-3 py-0.5 md:py-1 rounded-md md:rounded-lg border border-2 border-solid border-orange-400/70 tracking-widest shadow-sm">
+                {/* 🌟 ฟันธง: ส่วนหัวของกล่องรายการล่าสุด (จัดกลางด้วยเทคนิคตาชั่ง Flex-1) */}
+                <div className="flex items-center justify-between mb-2 md:mb-4 w-full gap-1 md:gap-2">
+                  
+                  {/* ซ้ายสุด: เลขที่แจ้งซ่อม (ถ่วงน้ำหนัก 1 ส่วนด้วย flex-1) */}
+                  <div className="flex-1 flex justify-start items-center overflow-hidden">
+                    <span className="text-[15px] md:text-[20px] font-mono font-bold text-slate-600 bg-white px-2 md:px-3 py-0.5 md:py-1 rounded-md md:rounded-lg border border-2 border-solid border-orange-400/70 tracking-widest shadow-sm truncate">
                       {t.id}
                     </span>
+                  </div>
+
+                  {/* ตรงกลางเป๊ะ: ป้ายเวร SSC */}
+                  <div className="flex-shrink-0 flex justify-center items-center">
                     {t.isOutOfHours && (
-                      <span className="text-[13px] md:text-[15px] font-black text-rose-600 bg-rose-100 border border-solid border-rose-200 px-1.5 md:px-2 py-0.5 md:py-1 rounded-md md:rounded-lg animate-pulse">
-                        SSC
+                      <span className="text-[15px] md:text-[20px] font-black text-rose-600 bg-rose-100 border border-solid border-rose-200 px-1.5 md:px-2 py-0.5 md:py-1 rounded-md md:rounded-lg animate-pulse whitespace-nowrap">
+                        เวร SSC
                       </span>
                     )}
                   </div>
-                  <span
-                    className={`text-[13px] md:text-[15px] font-black uppercase px-2 md:px-3 py-0.5 md:py-1 rounded-md md:rounded-lg ${
-                      t.status === 'pending'
-                        ? 'bg-rose-100 text-rose-600'
-                        : t.status === 'in_progress' || t.status === 'on_hold'
-                        ? 'bg-orange-100 text-orange-600'
+
+                  {/* ขวาสุด: ป้ายสถานะ (ถ่วงน้ำหนัก 1 ส่วนด้วย flex-1 เพื่อให้ตรงกลางสมดุล) */}
+                  <div className="flex-1 flex justify-end items-center">
+                    <span
+                      className={`text-[15px] md:text-[20px] font-black uppercase px-2 md:px-3 py-0.5 md:py-1 rounded-md md:rounded-lg whitespace-nowrap ${
+                        t.status === 'pending'
+                          ? 'bg-rose-100 text-rose-600'
+                          : t.status === 'in_progress' || t.status === 'on_hold'
+                          ? 'bg-orange-100 text-orange-600'
+                          : t.status === 'verified'
+                          ? 'bg-emerald-500 text-white shadow-sm' 
+                          : 'bg-emerald-100 text-emerald-600'
+                      }`}
+                    >
+                      {t.status === 'pending'
+                        ? 'รอดำเนินการ'
                         : t.status === 'verified'
-                        ? 'bg-emerald-500 text-white shadow-sm' 
-                        : 'bg-emerald-100 text-emerald-600'
-                    }`}
-                  >
-                    {t.status === 'pending'
-                      ? 'รอดำเนินการ'
-                      : t.status === 'verified'
-                      ? 'เสร็จสิ้นสมบูรณ์'
-                      : t.status === 'completed'
-                      ? 'รอผู้แจ้งยืนยัน'
-                      : 'กำลังซ่อม'}
-                  </span>
+                        ? 'เสร็จสิ้นสมบูรณ์'
+                        : t.status === 'completed'
+                        ? 'รอผู้แจ้งยืนยัน'
+                        : 'กำลังซ่อม'}
+                    </span>
+                  </div>
                 </div>
 
                 <div className="flex justify-between items-center pr-1 md:pr-2">
                   <div className="min-w-0 flex-1">
-                    <h4 className="text-[13px] md:text-[18px] font-bold text-blue-800 truncate mb-4 md:mb-6">
+                    <h4 className="text-[16px] md:text-[20px] font-bold text-blue-800 truncate mb-4 md:mb-6">
                       {t.equipment}
                     </h4>
-                    <p className="text-[13px] md:text-[16px] text-orange-500 truncate flex items-center gap-1.5 md:gap-2">
-                      <AlertCircle className="w-[15px] h-[15px] md:w-5 md:h-5 text-orange-500 shrink-0" />{' '}
+                    <p className="text-[15px] md:text-[20px] text-orange-500 truncate flex items-center gap-1.5 md:gap-2">
+                      <AlertCircle className="w-[17px] h-[17px] md:w-7 md:h-7 text-orange-600 shrink-0" />{' '}
                       {t.description}
                     </p>
 
                     {/* 🌟 ฟันธง: แทรกชื่อเจ้าหน้าที่เวร SSC ตรงนี้! */}
                     {t.sscTechName && (
                       <div className="bg-purple-50 border border-purple-200 p-3 rounded-lg mt-3">
-                        <p className="text-purple-700 font-bold text-[12px] flex items-center gap-2">
-                          <AlertTriangle size={14} /> เจ้าหน้าที่เวร SSC:
+                        <p className="text-rose-700 font-bold text-[14px] md:text-[20px] flex items-center gap-2">
+                          <AlertTriangle size={18} /> เจ้าหน้าที่เวร SSC:
                         </p>
-                        <p className="text-purple-900 font-bold text-[14px] mt-0.5">
+                        <p className="text-purple-900 font-bold text-[15px] md:text-[20px] mt-0.5">
                           {t.sscTechName}
                         </p>
                       </div>
@@ -2528,9 +2553,9 @@ const executeRatingSubmit = async () => {
                     
                     {/* 👤 ข้อมูลผู้แจ้ง (มีเสมอ) */}
                     <div className="flex flex-col gap-0.5 md:gap-1">
-                      <span className="text-[10px] md:text-[13px] font-bold text-slate-400 tracking-widest">ผู้แจ้งปัญหา:</span>
-                      <span className="text-[11px] md:text-[15px] font-bold text-emerald-600 flex items-center gap-1.5 md:gap-2">
-                        <User className="w-[13px] h-[13px] md:w-[18px] md:h-[18px] text-emerald-500 shrink-0" />
+                      <span className="text-[13px] md:text-[20px] font-bold text-slate-600 tracking-widest">ผู้แจ้งปัญหา:</span>
+                      <span className="text-[15px] md:text-[20px] font-bold text-emerald-600 flex items-center gap-1.5 md:gap-2">
+                        <User className="w-[14px] h-[14px] md:w-[20px] md:h-[20px] text-emerald-500 shrink-0" />
                         <span className="truncate max-w-[140px] md:max-w-[250px]">{t.reporter}</span>
                       </span>
                     </div>
@@ -2538,9 +2563,9 @@ const executeRatingSubmit = async () => {
                     {/* 🔧 ข้อมูลช่าง (โชว์เฉพาะเมื่องานถูกรับไปแล้ว) */}
                     {t.techName && (
                       <div className="flex flex-col gap-0.5 md:gap-1">
-                        <span className="text-[10px] md:text-[13px] font-bold text-slate-400 tracking-widest">ผู้รับผิดชอบ:</span>
-                        <span className="text-[11px] md:text-[15px] font-bold text-orange-600 flex items-center gap-1.5 md:gap-2">
-                          <Wrench className="w-[13px] h-[13px] md:w-[18px] md:h-[18px] text-orange-500 shrink-0" />
+                        <span className="text-[13px] md:text-[20px] font-bold text-slate-600 tracking-widest">ผู้รับผิดชอบ:</span>
+                        <span className="text-[15px] md:text-[20px] font-bold text-orange-600 flex items-center gap-1.5 md:gap-2">
+                          <Wrench className="w-[14px] h-[14px] md:w-[20px] md:h-[20px] text-orange-500 shrink-0" />
                           <span className="truncate max-w-[140px] md:max-w-[250px]">{t.techName}</span>
                         </span>
                       </div>
@@ -2549,8 +2574,8 @@ const executeRatingSubmit = async () => {
                   </div>
                   
                   {/* เวลาที่แจ้ง */}
-                  <span className="text-[11px] md:text-[15px] font-bold font-mono text-blue-500 flex items-center gap-1 md:gap-2 shrink-0 mb-0.5 md:mb-1">
-                    <Clock className="w-3 h-3 md:w-4 md:h-4 text-blue-500" /> 
+                  <span className="text-[16px] md:text-[20px] font-bold font-mono text-orange-500 flex items-center gap-1 md:gap-2 shrink-0 mb-0.5 md:mb-1">
+                    <Clock className="w-4 h-4 md:w-5 md:h-5 text-orange-500" /> 
                     {new Date(t.date).toLocaleTimeString('th-TH', { hour: '2-digit', minute: '2-digit' })} น.
                   </span>
                 </div>
@@ -4782,7 +4807,6 @@ const renderTracking = () => (
           </button>
         </>
       )}
-
 
 
       {/* ======= โหมดแผงควบคุมด้านล่างช่าง (Technician) ======*/}
