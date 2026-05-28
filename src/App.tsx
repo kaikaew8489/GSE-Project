@@ -86,6 +86,30 @@ const appInstance =
 const auth = getAuth(appInstance);
 const db = getFirestore(appInstance);
 
+// ==========================================
+// 🌟 คลังข้อมูลวันหยุด GISTDA (สมองกลอัตโนมัติ)
+// ==========================================
+const fixedHolidays = {
+  "01-01": "วันขึ้นปีใหม่", "04-06": "วันจักรี", "04-13": "วันสงกรานต์", "04-14": "วันสงกรานต์",
+  "04-15": "วันสงกรานต์", "05-04": "วันฉัตรมงคล", "06-03": "วันเฉลิมฯ พระบรมราชินี",
+  "07-28": "วันเฉลิมฯ ร.10", "08-12": "วันแม่แห่งชาติ", "10-13": "วันนวมินทรมหาราช",
+  "10-23": "วันปิยมหาราช", "12-05": "วันพ่อแห่งชาติ", "12-10": "วันรัฐธรรมนูญ", "12-31": "วันสิ้นปี"
+};
+
+const dynamicHolidays = {
+  "2026": { 
+    "01-02": "วันหยุดพิเศษ", "03-03": "วันมาฆบูชา", "05-13": "วันพืชมงคล",
+    "06-01": "ชดเชยวันวิสาขบูชา", "07-29": "วันอาสาฬหบูชา", "07-30": "วันเข้าพรรษา", "12-07": "ชดเชยวันพ่อ"
+  }
+};
+
+const getHolidayName = (year, month, day) => {
+  const mmdd = `${String(month).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
+  if (fixedHolidays[mmdd]) return fixedHolidays[mmdd];
+  if (dynamicHolidays[year] && dynamicHolidays[year][mmdd]) return dynamicHolidays[year][mmdd];
+  return ""; 
+};
+
 function AdminRosterSettings({ onClose }) {
   const [selectedYear, setSelectedYear] = useState(2026);
   const [selectedMonth, setSelectedMonth] = useState(5); 
@@ -117,7 +141,12 @@ function AdminRosterSettings({ onClose }) {
       const dateStr = `${selectedYear}-${month}-${day}`;
       const dayOfWeek = new Date(selectedYear, selectedMonth - 1, i).getDay();
       const isWeekend = dayOfWeek === 0 || dayOfWeek === 6;
-      daysArray.push({ dateStr, dayNum: i, dayOfWeek, isWeekend });
+      // 🌟 ฟันธง: เรียกใช้สมองกลเช็ควันหยุด
+      const autoHolidayName = getHolidayName(selectedYear, selectedMonth, i);
+      const isHoliday = autoHolidayName !== "";
+
+      // 🌟 นำค่าวันหยุดที่ได้มายัดใส่ Array
+      daysArray.push({ dateStr, dayNum: i, dayOfWeek, isWeekend, isHoliday, holidayName: autoHolidayName });
     }
     setDaysInMonth(daysArray);
   };
@@ -136,76 +165,99 @@ function AdminRosterSettings({ onClose }) {
     setLoading(false);
   };
 
+  // =========================================================
+  // 🌟 ฟันธง: อัปเกรดระบบจัดเก็บข้อมูล (แพ็คชื่อช่าง + วันหยุด คู่กันเสมอ!)
+  // =========================================================
+  // =========================================================
+  // 🌟 ฟันธง: อัปเกรดระบบจัดเก็บข้อมูล (เพิ่ม dateStr ป้องกันข้อมูลหาย)
+  // =========================================================
   const handleTechChange = (dateStr, techName) => {
-    const matchedTech = technicianList.find(t => t.name === techName);
+    const [yyyy, mm, dd] = dateStr.split('-');
+    const autoHol = getHolidayName(yyyy, mm, dd);
+    
     setRosterData(prev => ({
       ...prev,
       [dateStr]: {
-        ...prev[dateStr],
-        techName,
-        techPhone: matchedTech ? matchedTech.phone : '-',
+        ...(prev[dateStr] || {}),
+        dateStr: dateStr, // 🌟 ฟันธง: เติมกุญแจสำคัญตรงนี้!
+        techName: techName,
+        holidayName: prev[dateStr]?.holidayName || autoHol,
+        isHoliday: prev[dateStr]?.isHoliday || (autoHol !== "")
       }
     }));
   };
 
-  const handleHolidayNameChange = (dateStr, name) => {
+  const handleHolidayNameChange = (dateStr, val) => {
     setRosterData(prev => ({
       ...prev,
       [dateStr]: {
-        ...prev[dateStr],
-        holidayName: name,
-        isHoliday: name.trim().length > 0 
+        ...(prev[dateStr] || {}),
+        dateStr: dateStr, // 🌟 ฟันธง: เติมกุญแจสำคัญตรงนี้!
+        holidayName: val,
+        isHoliday: val.trim() !== ""
       }
     }));
-  };
-
-  const executeClear = () => {
-    setRosterData({});
-    setModalConfig({ isOpen: false, type: null });
   };
 
   const executeSave = async () => {
     setLoading(true);
     try {
       const batch = writeBatch(db);
-      Object.keys(rosterData).forEach((dateKey) => {
-        const docRef = doc(db, 'rosters', dateKey);
-        if (rosterData[dateKey].techName || rosterData[dateKey].isHoliday) {
-          batch.set(docRef, rosterData[dateKey], { merge: true });
+      
+      daysInMonth.forEach(d => {
+        const info = rosterData[d.dateStr] || {};
+        const autoHol = getHolidayName(selectedYear, selectedMonth, d.dayNum);
+        const docRef = doc(db, 'rosters', d.dateStr); // อ้างอิงเอกสารในฐานข้อมูล
+        
+        // 1. ถ้ามีข้อมูล (ช่าง หรือ วันหยุด) ให้เซฟทับตามปกติ
+        if ((info.techName && info.techName.trim() !== '') || info.isHoliday || autoHol !== '') {
+          batch.set(docRef, {
+            dateStr: d.dateStr,
+            techName: info.techName || "",
+            holidayName: info.holidayName || autoHol, 
+            isHoliday: info.isHoliday || (autoHol !== ""),
+            updatedAt: new Date().toISOString()
+          }, { merge: true });
+        } 
+        // 2. 🌟 ฟันธง: ถ้าช่องว่างเปล่าทั้งหมด ให้ "ลบทิ้ง (Delete)" จาก Firebase ถาวร! (ปราบผี)
+        else {
+          batch.delete(docRef); 
         }
       });
-      await batch.commit();
+
+      await batch.commit(); 
       setModalConfig({ isOpen: false, type: null });
-      if(onClose) onClose(); 
+      
+      // ดึงข้อมูลใหม่มาโชว์ทันทีหลังเซฟเสร็จ
+      fetchCurrentMonthRoster(); 
+      
     } catch (err) {
       alert("เกิดข้อผิดพลาด: " + err.message);
     }
     setLoading(false);
   };
+  
 
-  // 🌟 ฟันธง: อัปเกรดแสงปุ่มวันที่ให้สว่างวูบวาบ พุ่งทะลุจอ
-
-  // 🌟 ฟันธง: ปุ่มวันที่
-  // 🌟 ฟันธง 1: ฟังก์ชันคุมสี "ปุ่มวันที่" (เปลี่ยนบรรทัดสุดท้ายจาก เขียว เป็น ส้มเรืองแสง!)
-  const getDateBadgeClass = (dayOfWeek, isHoliday, hasTech) => {
-    if (!hasTech) return 'border-cyan-400 text-cyan-300 bg-cyan-900/40 shadow-[0_0_20px_rgba(6,182,212,0.8),inset_0_0_10px_rgba(6,182,212,0.4)] animate-pulse'; 
-    if (isHoliday) return 'bg-orange-500/30 text-orange-300 border-orange-400 shadow-[0_0_25px_rgba(249,115,22,0.8),inset_0_0_15px_rgba(249,115,22,0.5)] font-black'; 
-    if (dayOfWeek === 0) return 'bg-rose-500/30 text-rose-300 border-rose-400 shadow-[0_0_25px_rgba(225,29,72,0.8),inset_0_0_15px_rgba(225,29,72,0.5)] font-black'; 
-    if (dayOfWeek === 6) return 'bg-blue-500/30 text-blue-300 border-blue-400 shadow-[0_0_25px_rgba(59,130,246,0.8),inset_0_0_15px_rgba(59,130,246,0.5)] font-black'; 
-    
-    // 👇 แก้ตรงนี้ครับ: วันธรรมดาทั่วไป เปลี่ยนเป็นส้มเรืองแสงทั้งหมด
-    return 'bg-orange-500/30 text-orange-300 border-orange-400 shadow-[0_0_25px_rgba(249,115,22,0.8),inset_0_0_15px_rgba(249,115,22,0.5)] font-black'; 
+  // 🌟 1. ฟันธง: สมองกลระบายสีตัวเลขวันที่ (ความสำคัญ: วันหยุด > อาทิตย์ > เสาร์)
+  const getDateBadgeClass = (dayOfWeek, isHoliday, techName) => {
+    if (isHoliday) return 'border-orange-500 text-orange-500 shadow-[0_0_15px_rgba(249,115,22,0.8)] bg-orange-500/20';
+    if (dayOfWeek === 0) return 'border-rose-500 text-rose-500 shadow-[0_0_15px_rgba(244,63,94,0.8)] bg-rose-500/20'; // วันอาทิตย์ (แดง)
+    if (dayOfWeek === 6) return 'border-sky-500 text-sky-500 shadow-[0_0_15px_rgba(14,165,233,0.8)] bg-sky-500/20'; // วันเสาร์ (ฟ้า)
+    return 'border-cyan-500/50 text-cyan-400 bg-slate-900/50'; // วันธรรมดา
   };
 
-  // 🌟 ฟันธง 2: ฟังก์ชันคุมสี "กรอบชื่อช่าง" (เปลี่ยนบรรทัดสุดท้ายจาก เขียว เป็น ส้มเรืองแสง!)
-  const getSelectColorClass = (dayOfWeek, isHoliday, hasTech) => {
-    if (!hasTech) return 'text-cyan-300 border-cyan-500/50 hover:border-cyan-400 hover:shadow-[0_0_15px_rgba(6,182,212,0.4)] bg-slate-900/80';
-    if (isHoliday) return 'text-orange-400 border-orange-500/80 shadow-[0_0_15px_rgba(249,115,22,0.4)] bg-slate-900/80'; 
-    if (dayOfWeek === 0) return 'text-rose-400 border-rose-500/80 shadow-[0_0_15px_rgba(225,29,72,0.4)] bg-slate-900/80'; 
-    if (dayOfWeek === 6) return 'text-blue-400 border-blue-500/80 shadow-[0_0_15px_rgba(59,130,246,0.4)] bg-slate-900/80'; 
-    
-    // 👇 แก้ตรงนี้ครับ: วันธรรมดาทั่วไป เปลี่ยนเป็นส้มเรืองแสงทั้งหมด
-    return 'text-orange-400 border-orange-500/80 shadow-[0_0_15px_rgba(249,115,22,0.4)] bg-slate-900/80'; 
+  // 🌟 2. ฟันธง: สมองกลระบายสีกรอบใส่ชื่อช่าง
+  const getSelectColorClass = (dayOfWeek, isHoliday, techName) => {
+    // ถ้ามีการเลือกชื่อช่างแล้ว ให้สว่างวาบ!
+    if (techName && techName.trim() !== '') {
+      if (isHoliday) return 'text-orange-400 border-orange-500 shadow-[0_0_15px_rgba(249,115,22,0.5)] bg-orange-900/40';
+      return 'text-emerald-400 border-emerald-500 shadow-[0_0_15px_rgba(16,185,129,0.4)] bg-emerald-900/30';
+    }
+    // ถ้ายังไม่เลือกชื่อช่าง ให้แสดงสีจางๆ ตามวัน
+    if (isHoliday) return 'text-orange-300/50 border-orange-500/40 bg-orange-950/20 hover:border-orange-400';
+    if (dayOfWeek === 0) return 'text-rose-300/50 border-rose-500/40 bg-rose-950/20 hover:border-rose-400';
+    if (dayOfWeek === 6) return 'text-sky-300/50 border-sky-500/40 bg-sky-950/20 hover:border-sky-400';
+    return 'text-cyan-300/50 border-cyan-500/30 bg-slate-900/80 hover:border-cyan-400';
   };
 
   const activeRecordsCount = Object.values(rosterData).filter(info => (info.techName && info.techName.trim() !== '') || info.isHoliday).length;
@@ -271,8 +323,13 @@ function AdminRosterSettings({ onClose }) {
               <tbody className="divide-y divide-solid divide-cyan-900/40 text-[14px]">
                 {daysInMonth.map((d) => {
                   const currentInfo = rosterData[d.dateStr] || {};
-                  const dateBadgeClass = getDateBadgeClass(d.dayOfWeek, currentInfo.isHoliday, currentInfo.techName);
-                  const selectColorClass = getSelectColorClass(d.dayOfWeek, currentInfo.isHoliday, currentInfo.techName);
+                  
+                  // 🌟 ฟันธง: สร้างตัวแปรผสมผสาน ถ้าพิมพ์เองเอาอันนั้น ถ้าว่างให้ดึงจากสมองกล
+                  const displayHolidayName = currentInfo.holidayName || d.holidayName || '';
+                  const isHol = currentInfo.isHoliday || d.isHoliday;
+                  
+                  const dateBadgeClass = getDateBadgeClass(d.dayOfWeek, isHol, currentInfo.techName);
+                  const selectColorClass = getSelectColorClass(d.dayOfWeek, isHol, currentInfo.techName);
 
                   return (
                     <tr key={d.dateStr} className="transition-all duration-300 hover:bg-cyan-950/30">
@@ -297,7 +354,7 @@ function AdminRosterSettings({ onClose }) {
                         {!d.isWeekend && (
                           <input 
                             type="text"
-                            value={currentInfo.holidayName || ''}
+                            value={displayHolidayName}
                             onChange={(e) => handleHolidayNameChange(d.dateStr, e.target.value)}
                             placeholder="ระบุวันหยุด (เช่น วันสงกรานต์)"
                             className="md:hidden w-full bg-slate-900/80 text-cyan-100 px-3 py-2.5 rounded-xl border border-solid border-cyan-500/30 focus:border-cyan-400 focus:shadow-[0_0_15px_rgba(6,182,212,0.3)] text-[12px] font-bold outline-none transition-all mt-2"
@@ -310,7 +367,7 @@ function AdminRosterSettings({ onClose }) {
                         <input 
                           type="text"
                           disabled={d.isWeekend}
-                          value={d.isWeekend ? (d.dayOfWeek === 0 ? 'วันอาทิตย์' : 'วันเสาร์') : currentInfo.holidayName || ''}
+                          value={d.isWeekend ? (d.dayOfWeek === 0 ? 'วันอาทิตย์' : 'วันเสาร์') : displayHolidayName}
                           onChange={(e) => handleHolidayNameChange(d.dateStr, e.target.value)}
                           placeholder="เช่น วันสงกรานต์, มติ ครม."
                           className={`w-full px-4 py-3 rounded-xl border border-solid border-cyan-500/30 focus:border-cyan-400 focus:shadow-[0_0_20px_rgba(6,182,212,0.3)] text-[14px] font-bold outline-none transition-all 
@@ -559,7 +616,7 @@ function AdminRosterSettings({ onClose }) {
               </button>
             </div>
 
-            {/* รายชื่อ (แก้ไขพื้นที่ให้แสงไม่แหว่งแล้ว) */}
+            {/* รายชื่อ */}
             <div className="overflow-y-auto px-4 -mx-4 space-y-4 pb-4 pt-2 [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden">
               {(() => {
                 const activeRosters = Object.values(rosterData)
@@ -628,7 +685,7 @@ function AdminRosterSettings({ onClose }) {
                       </div>
                     </div>
                   );
-                });
+                }); 
               })()}
             </div>
 
@@ -639,10 +696,6 @@ function AdminRosterSettings({ onClose }) {
     </div>
   );
 }
-// ==========================================
-// 🌟 ฟันธง: สิ้นสุดโค้ดส่วนหน้าจอจัดตารางเวร SSC 
-// (โค้ดของท่านหัวหน้าเช่น export default function App() หรือ MainApp จะอยู่ต่อจากบรรทัดนี้ไปครับ)
-// ==========================================
 
 // ==========================================
 // 🌟 2. ข้อมูลระบบ (System Data)
