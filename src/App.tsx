@@ -269,25 +269,25 @@ function AdminRosterSettings({ onClose }) {
         /* ======================================================= */
         /* 📱 โหมดที่ 1: หน้าจอ "ดูสรุปเวร" (หน้าแรกที่เด้งขึ้นมา) */
         /* ======================================================= */
-        <div className="max-w-md md:max-w-xl mx-auto bg-slate-900/90 backdrop-blur-xl rounded-3xl md:rounded-[2.5rem] border-[3px] border-solid border-orange-500 p-5 md:p-8 shadow-[0_0_90px_rgba(249,115,22,0.6),inset_0_0_20px_rgba(249,115,22,0.2)] relative w-full mt-10 md:mt-0 mb-10 md:mb-0 my-auto flex flex-col max-h-[85vh]">
+        <div className="max-w-md md:max-w-xl mx-auto bg-slate-900/90 backdrop-blur-xl rounded-3xl md:rounded-[2.5rem] border-[3px] border-solid border-orange-500 p-5 md:p-8 shadow-[0_0_90px_rgba(249,115,22,0.6),inset_0_0_20px_rgba(249,115,22,0.5)] relative w-full mt-10 md:mt-0 mb-10 md:mb-0 my-auto flex flex-col max-h-[85vh]">
           
           <button onClick={() => { if(onClose) onClose(); }} className="absolute top-4 right-4 md:top-6 md:right-6 text-rose-500 hover:text-white animate-pulse bg-slate-900 hover:bg-rose-600 p-1.5 md:p-2 rounded-full transition-all duration-300 border-[2px] border-rose-500 shadow-[0_0_20px_rgba(225,29,72,0.8)] hover:shadow-[0_0_35px_rgba(225,29,72,1)] z-20 cursor-pointer">
             <XCircle className="w-6 h-6 md:w-8 md:h-8" />
           </button>
 
           <div className="flex justify-between items-center mb-5 border-b-[2px] border-orange-500/40 pb-4 pr-10">
-            <h3 className="text-[18px] md:text-2xl font-black text-orange-400 flex items-center gap-2 drop-shadow-[0_0_15px_rgba(249,115,22,0.9)]">
+            <h3 className="text-[18px] md:text-2xl font-black text-orange-400 flex items-center gap-2 drop-shadow-[0_0_15px_rgba(249,115,22,1)]">
               <ClipboardList className="w-6 h-6 md:w-8 md:h-8" /> 
-              สรุปเวร: {monthsThai[selectedMonth - 1]} พ.ศ. {selectedYear + 543}
+              ตารางเวร: {monthsThai[selectedMonth - 1]} พ.ศ. {selectedYear + 543}
             </h3>
           </div>
 
           <div className="grid grid-cols-2 md:flex md:justify-center gap-2 w-full md:w-auto mt-2 mb-4 md:mt-0">
-            <button onClick={() => setIsMonthModalOpen(true)} className="w-full md:w-44 bg-slate-800 text-orange-400 font-black px-3 py-3 md:py-3.5 rounded-xl border-[2px] border-solid border-orange-500/50 text-[16px] md:text-[18px] flex justify-between items-center hover:bg-slate-700 hover:border-orange-400 transition-all shadow-[0_0_15px_rgba(249,115,22,0.2)] outline-none">
+            <button onClick={() => setIsMonthModalOpen(true)} className="w-full md:w-44 bg-slate-800 text-orange-400 font-black px-3 py-3 md:py-3.5 rounded-xl border-[2px] border-solid border-orange-500/50 text-[16px] md:text-[18px] flex justify-between items-center hover:bg-slate-700 hover:border-orange-400 transition-all shadow-[0_0_15px_rgba(249,115,22,0.5)] outline-none">
               <span className="flex-1 text-center">{monthsThai[selectedMonth - 1]}</span>
               <svg className="w-5 h-5 opacity-70" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="3" d="M19 9l-7 7-7-7"></path></svg>
             </button>
-            <button onClick={() => setIsYearModalOpen(true)} className="w-full md:w-36 bg-slate-800 text-orange-400 font-black px-3 py-3 md:py-3.5 rounded-xl border-[2px] border-solid border-orange-500/50 text-[16px] md:text-[18px] flex justify-between items-center hover:bg-slate-700 hover:border-orange-400 transition-all shadow-[0_0_15px_rgba(249,115,22,0.2)] outline-none">
+            <button onClick={() => setIsYearModalOpen(true)} className="w-full md:w-36 bg-slate-800 text-orange-400 font-black px-3 py-3 md:py-3.5 rounded-xl border-[2px] border-solid border-orange-500/50 text-[16px] md:text-[18px] flex justify-between items-center hover:bg-slate-700 hover:border-orange-400 transition-all shadow-[0_0_15px_rgba(249,115,22,0.5)] outline-none">
               <span className="flex-1 text-center">พ.ศ. {selectedYear + 543}</span>
               <svg className="w-5 h-5 opacity-70" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="3" d="M19 9l-7 7-7-7"></path></svg>
             </button>
@@ -383,12 +383,12 @@ function AdminRosterSettings({ onClose }) {
           
           <div className="flex flex-col md:flex-row justify-between items-center gap-4 pr-10 md:pr-14 md:items-center mb-3">
             <div className="flex items-center gap-3 w-full md:w-auto justify-center md:justify-start">
-              <div className="bg-gradient-to-br from-orange-500 to-red-600 p-2.5 md:p-3 rounded-xl md:rounded-2xl shadow-[0_0_20px_rgba(249,115,22,0.4)]">
+              <div className="bg-gradient-to-br from-orange-500 to-red-600 p-2.5 md:p-3 rounded-xl md:rounded-2xl shadow-[0_0_20px_rgba(249,115,22,0.5)]">
                 <Wrench className="w-5 h-5 md:w-6 md:h-6 text-white" />
               </div>
               <div>
-                <h1 className="text-lg md:text-3xl font-black text-transparent bg-clip-text bg-gradient-to-r from-orange-400 to-amber-400 drop-shadow-sm">จัดการข้อมูลเวร</h1>
-                <p className="text-[11px] md:text-sm font-bold text-slate-400 mt-0.5 hidden md:block">ระบบจัดการและบันทึกเวรวันหยุดประจำ ฝวด.</p>
+                <h1 className="text-lg md:text-3xl font-black text-transparent bg-clip-text bg-gradient-to-r from-orange-400 to-amber-400 drop-shadow-sm">จัดการตารางเวร</h1>
+                <p className="text-[14px] md:text-[16px] font-bold text-slate-400 mt-0.5 hidden md:block">ระบบบริหารจัดการวันหยุดประจำเดือน</p>
               </div>
             </div>
             
