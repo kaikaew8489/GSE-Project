@@ -48,6 +48,7 @@ import {
   CheckCircle2,   // 🌟 ฟันธง: พิมพ์เพิ่มคำนี้!
   ClipboardList,
   Moon,
+  ShieldCheck,
 } from 'lucide-react';
 
 
@@ -3594,63 +3595,95 @@ const renderTracking = () => (
                       </div>
                     </div>
 
-                    {/* 🌟 โซนดาวประเมิน (อัปเกรด: บรรทัดเดียว ชิดขวา ขนาดใหญ่ขึ้น) */}
+
+                    {/* 🌟 โซนดาวประเมิน (อัปเกรด: บรรทัดเดียว ชิดขวา ขนาดใหญ่ขึ้น + ตราประทับ ฝวด.) */}
+                    {/* 🌟 โซนดาวประเมิน (อัปเกรด: Responsive Glow จัดเต็ม 1,000,000%) */}
+                    {/* 🌟 โซนดาวประเมิน (อัปเกรด: เรียงบน-ล่าง เสมอกันทั้ง PC และ Mobile + ปรับแต่งแสงสีได้ 100%) */}
+                   {/* 🌟 โซนดาวประเมิน (อัปเกรด: ยืดกรอบเต็ม 100% เสมอกับข้อมูลด้านล่างเป๊ะ!) */}
+                  {/* 🌟 โซนดาวประเมิน (🌟 ฟันธง: อัปเกรดระบบแสงสีธีมตามคะแนนดาว 100%) */}
+                 {/* 🌟 โซนดาวประเมิน (🌟 ฟันธง: อัปเกรดระบบแสงสีธีมตามคะแนนดาว 100%) */}
+                    {/* 🌟 โซนดาวประเมิน (🌟 ฟันธง: โคลนนิ่ง UI ธีมสี/แสง มาจาก Pop-up ให้คะแนนดาว 100%) */}
                     {t.status === 'verified' && t.rating && (() => {
-                      const rColor = t.rating === 5 ? { text: 'text-emerald-400', fill: '#34d399', drop: 'drop-shadow-[0_0_10px_rgba(52,211,153,0.8)]', border: 'border-emerald-500', glow: 'shadow-[0_0_15px_rgba(52,211,153,0.3)]', flare: 'bg-emerald-500/20' } :
-                                    t.rating === 4 ? { text: 'text-teal-400', fill: '#2dd4bf', drop: 'drop-shadow-[0_0_10px_rgba(45,212,191,0.8)]', border: 'border-teal-500', glow: 'shadow-[0_0_15px_rgba(45,212,191,0.3)]', flare: 'bg-teal-500/20' } :
-                                    t.rating === 3 ? { text: 'text-amber-400', fill: '#fbbf24', drop: 'drop-shadow-[0_0_10px_rgba(251,191,36,0.8)]', border: 'border-amber-500', glow: 'shadow-[0_0_15px_rgba(251,191,36,0.3)]', flare: 'bg-amber-500/20' } :
-                                    t.rating === 2 ? { text: 'text-orange-400', fill: '#fb923c', drop: 'drop-shadow-[0_0_10px_rgba(251,146,60,0.8)]', border: 'border-orange-500', glow: 'shadow-[0_0_15px_rgba(251,146,60,0.3)]', flare: 'bg-orange-500/20' } :
-                                                      { text: 'text-rose-400', fill: '#fb7185', drop: 'drop-shadow-[0_0_10px_rgba(251,113,133,0.8)]', border: 'border-rose-500', glow: 'shadow-[0_0_15px_rgba(225,29,72,0.3)]', flare: 'bg-rose-500/20' };
+                      // 🎨 ถอดแบบธีมสีมาจากตัวแปรของหน้าต่างประเมิน (Modal) เป๊ะๆ
+                      const rColor = t.rating === 5 ? { 
+                          text: 'text-emerald-400', 
+                          border: 'border-emerald-500', 
+                          glow: 'shadow-[0_0_25px_rgba(16,185,129,0.4)]', 
+                          flare: 'bg-emerald-500', 
+                          starFill: '#34d399' 
+                        } : t.rating === 4 ? { 
+                          text: 'text-cyan-400', 
+                          border: 'border-cyan-500',
+                          glow: 'shadow-[0_0_25px_rgba(34,211,238,0.4)]',
+                          flare: 'bg-cyan-500',
+                          starFill: '#22d3ee' 
+                        } : t.rating === 3 ? { 
+                          text: 'text-yellow-400', 
+                          border: 'border-yellow-500',
+                          glow: 'shadow-[0_0_25px_rgba(250,204,21,0.4)]',
+                          flare: 'bg-yellow-500',
+                          starFill: '#facc15' 
+                        } : t.rating === 2 ? { 
+                          text: 'text-orange-400', 
+                          border: 'border-orange-500',
+                          glow: 'shadow-[0_0_25px_rgba(249,115,22,0.4)]',
+                          flare: 'bg-orange-500',
+                          starFill: '#fb923c' 
+                        } : { 
+                          text: 'text-rose-400', 
+                          border: 'border-rose-500',
+                          glow: 'shadow-[0_0_25px_rgba(225,29,72,0.4)]',
+                          flare: 'bg-rose-500',
+                          starFill: '#fb7185' 
+                        };
 
                       return (
-                        <div className="mt-3 mb-5 md:mt-6 md:mb-10 animate-in slide-in-from-top-2 duration-500">
-                          {currentUserRole === 'technician' ? (
-                            <div className={`bg-slate-900 border-[2px] border-solid ${rColor.border} rounded-xl md:rounded-[2rem] p-4 md:p-8 ${rColor.glow} relative overflow-hidden`}>
-                              <div className={`absolute -right-10 -top-10 w-32 h-32 md:w-64 md:h-64 ${rColor.flare} blur-[25px] md:blur-[50px] rounded-full pointer-events-none`}></div>
-                              <div className="relative z-10">
-                                <div className="flex justify-between items-center mb-3 md:mb-6 border-b border-slate-700/50 pb-3 md:pb-6">
-                                  <span className={`text-[13px] md:text-[24px] font-black ${rColor.text} uppercase tracking-widest flex items-center gap-1.5 md:gap-3 drop-shadow-sm`}>
-                                    <Star className={`w-4 h-4 md:w-8 md:h-8 ${rColor.text}`} fill="currentColor"/> ผลการประเมิน
-                                  </span>
-                                  <div className="flex gap-1 md:gap-3">
-                                      {[1, 2, 3, 4, 5].map((s) => (
-                                        <Star key={s} className={`w-[18px] h-[18px] md:w-[32px] md:h-[32px] ${t.rating >= s ? rColor.drop : ""}`} fill={t.rating >= s ? rColor.fill : "none"} stroke={t.rating >= s ? rColor.fill : "#475569"} strokeWidth={2} />
-                                      ))}
-                                  </div>
-                                </div>
-                                
-                                {t.ratingComment ? (
-                                  <div className={`bg-slate-950 p-4 md:p-8 rounded-xl md:rounded-3xl border border-solid ${rColor.border} shadow-inner relative overflow-hidden`}>
-                                    <div className={`absolute top-0 left-0 w-1.5 md:w-3 h-full ${rColor.text.replace('text-', 'bg-')}`}></div>
-                                    <p className={`text-[13px] sm:text-[14px] md:text-[22px] font-bold ${rColor.text} leading-relaxed italic pl-1 md:pl-4`}>
-                                      <span className="text-xl md:text-4xl leading-none opacity-50 mr-1 md:mr-3">"</span>
-                                      {t.ratingComment}
-                                      <span className="text-xl md:text-4xl leading-none opacity-50 ml-1 md:ml-3">"</span>
-                                    </p>
-                                  </div>
-                                ) : (
-                                  <div className="bg-slate-950/50 p-3 md:p-6 rounded-xl md:rounded-2xl border border-slate-800 flex justify-center">
-                                    <p className="text-[12px] md:text-[20px] font-bold text-slate-500 italic">- ไม่มีข้อเสนอแนะเพิ่มเติม -</p>
-                                  </div>
-                                )}
-                              </div>
+                        <div className="mt-3 mb-5 md:mt-6 md:mb-8 animate-in slide-in-from-top-2 duration-500 relative z-10 w-full flex flex-col items-center gap-4 md:gap-5">
+                          
+                          {/* 1. กล่องโชว์ดาว (bg-slate-900 พื้นหลังดำแบบ Pop-up + กรอบแสง + รัศมี rounded-xl md:rounded-[1rem]) */}
+                          <div className={`relative bg-slate-900 border-[3px] border-solid ${rColor.border} rounded-xl md:rounded-[1rem] p-4 md:p-6 ${rColor.glow} overflow-hidden flex flex-row items-center justify-between w-full`}>
+                            
+                            {/* แสง Flare ฟุ้งๆ ด้านใน (เลียนแบบฉากหลัง Pop-up) */}
+                            <div className={`absolute inset-0 m-auto w-[150%] h-[150%] rounded-full blur-[50px] md:blur-[70px] opacity-20 pointer-events-none z-0 ${rColor.flare}`}></div>
+                            
+                            <span className={`text-[15px] sm:text-[16px] md:text-[22px] font-black ${rColor.text} uppercase tracking-widest ml-1 relative z-10 drop-shadow-md shrink-0`}>
+                              คุณให้คะแนนงานนี้:
+                            </span>
+                            <div className="flex gap-1.5 md:gap-3 relative z-10 shrink-0">
+                              {[1, 2, 3, 4, 5].map((s) => (
+                                <Star 
+                                  key={s} 
+                                  className={`w-[18px] h-[18px] sm:w-5 sm:h-5 md:w-8 md:h-8 transition-all duration-300 ${t.rating >= s ? `${rColor.text} drop-shadow-[0_0_8px_rgba(255,255,255,0.4)] scale-110` : 'text-slate-700/50'}`} 
+                                  fill={t.rating >= s ? rColor.starFill : "none"} 
+                                  stroke={t.rating >= s ? "none" : "#475569"} 
+                                  strokeWidth={t.rating >= s ? 0 : 2} 
+                                />
+                              ))}
                             </div>
-                          ) : (
-                            <div className={`flex flex-row items-center justify-between bg-slate-900/80 p-3.5 md:p-6 rounded-xl md:rounded-2xl border-[2px] border-solid ${rColor.border} ${rColor.glow} relative overflow-hidden`}>
-                              <div className={`absolute -left-10 -bottom-10 w-24 h-24 md:w-48 md:h-48 ${rColor.flare} blur-[20px] md:blur-[40px] rounded-full pointer-events-none`}></div>
-                              <span className={`text-[14px] sm:text-[14px] md:text-[25px] font-black ${rColor.text} uppercase tracking-widest ml-1 relative z-10 drop-shadow-sm shrink-0`}>
-                                คุณให้คะแนนงานนี้:
-                              </span>
-                              <div className="flex gap-1 md:gap-3 relative z-10 shrink-0">
-                                {[1, 2, 3, 4, 5].map((s) => (
-                                  <Star key={s} className={`w-[14px] h-[14px] sm:w-4 sm:h-4 md:w-8 md:h-8 ${t.rating >= s ? rColor.drop : ""}`} fill={t.rating >= s ? rColor.fill : "none"} stroke={t.rating >= s ? rColor.fill : "#475569"} strokeWidth={2} />
-                                ))}
-                              </div>
+                          </div>
+
+                          {/* 2. ตราประทับขอบคุณจาก ฝวด. (ใช้ธีมเดียวกับกล่องดาวเป๊ะๆ) */}
+                          <div className={`relative bg-slate-900 border-[3px] border-solid ${rColor.border} rounded-xl md:rounded-[1rem] p-5 md:p-6 ${rColor.glow} overflow-hidden flex flex-col items-center justify-center text-center w-full`}>
+                            
+                            {/* แสง Flare ฟุ้งๆ ด้านใน */}
+                            <div className={`absolute inset-0 m-auto w-[150%] h-[150%] rounded-full blur-[60px] md:blur-[80px] opacity-20 pointer-events-none z-0 ${rColor.flare}`}></div>
+                            
+                            <ShieldCheck className={`w-10 h-10 md:w-14 md:h-14 ${rColor.text} shrink-0 drop-shadow-[0_0_12px_rgba(255,255,255,0.3)] mb-3 relative z-10`} />
+                            
+                            <div className="space-y-1 md:space-y-2 relative z-10">
+                              <h4 className={`${rColor.text} font-black text-[16px] md:text-[20px] drop-shadow-sm`}>
+                                ฝ่ายวิศวกรรมระบบปฏิบัติการดาวเทียม (ฝวด.)
+                              </h4>
+                              <p className="text-white text-[12px] md:text-[15px] font-bold leading-relaxed px-2 md:px-6">
+                                ขอบพระคุณสำหรับทุกคะแนนประเมินและเสียงสะท้อน เราจะนำไปพัฒนาและยกระดับมาตรฐานการบริการให้ดียิ่งขึ้นต่อไป
+                               </p>
                             </div>
-                          )}
+                          </div>
+
                         </div>
                       );
                     })()}
+
 
                     <h3
                       className={`text-lg md:text-[34px] font-black mb-1.5 md:mb-4 leading-tight ${
@@ -3661,7 +3694,7 @@ const renderTracking = () => (
                     >
                       {String(t.equipment)}
                     </h3>
-                    
+
                     <div className="flex flex-col gap-1 md:gap-3 mt-4 bg-indigo-50/50 p-3 px-4 md:p-6 md:px-8 rounded-xl md:rounded-2xl border-2 border-solid border-indigo-500">
                       <div className="flex items-start gap-1.5 md:gap-3 text-orange-600/90">
                         <Building className="w-[18px] h-[18px] md:w-8 md:h-8 shrink-0 mt-0.5 md:mt-0" />
@@ -4681,6 +4714,7 @@ const renderTracking = () => (
                                     })()}
 
 {/* 🌟 หน้าต่าง Popup กราบขอบพระคุณ (Thank You Modal) - คงไว้สมบูรณ์แบบปลอดภัย 100% */}
+{/* 🌟 หน้าต่าง Popup กราบขอบพระคุณ (Thank You Modal) - คงไว้สมบูรณ์แบบปลอดภัย 100% */}
 {showThanksModal && (() => {
         const rating = ratingModal.rating;
         const tColor = rating === 5 ? { 
@@ -4715,7 +4749,7 @@ const renderTracking = () => (
               
               <div className={`absolute w-[400px] h-[400px] rounded-full blur-[100px] opacity-60 pointer-events-none z-0 transition-colors duration-700 ${tColor.flare}`}></div>
 
-              <div className={`relative m-auto z-10 bg-slate-900 border-[3px] border-solid ${tColor.border} rounded-[2.5rem] w-[95%] max-w-[320px] sm:max-w-sm h-auto max-h-[calc(100dvh-130px)] overflow-y-auto overscroll-contain [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none] p-5 sm:p-8 text-center space-y-3 sm:space-y-4 animate-in zoom-in-95 duration-300 ${tColor.glow}`} onClick={(e) => e.stopPropagation()}>
+              <div className={`relative m-auto z-10 bg-slate-900 border-[3px] border-solid ${tColor.border} rounded-[2.5rem] w-[95%] max-w-[350px] sm:max-w-sm h-auto max-h-[calc(100dvh-130px)] overflow-y-auto overscroll-contain [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none] p-5 sm:p-8 text-center space-y-3 sm:space-y-4 animate-in zoom-in-95 duration-300 ${tColor.glow}`} onClick={(e) => e.stopPropagation()}>
               
               <div className="relative mx-auto w-24 h-24 mt-2 mb-2">
                 <div className={`absolute -inset-2 blur-[20px] rounded-full opacity-70 animate-pulse ${tColor.flare}`}></div>
@@ -4750,7 +4784,7 @@ const renderTracking = () => (
               </div>
 
               <div className="w-full flex justify-center py-1 relative z-10">
-              <img src="/mascot.webp" alt="GSE Mascot" className="h-20 sm:h-28 object-contain drop-shadow-[0_10px_10px_rgba(0,0,0,0.5)] hover:scale-105 transition-transform" />
+                <img src="/mascot.webp" alt="GSE Mascot" className="h-20 sm:h-28 object-contain drop-shadow-[0_10px_10px_rgba(0,0,0,0.5)] hover:scale-105 transition-transform" />
               </div>
 
               <div className={`p-4 rounded-2xl border-[2px] border-solid ${tColor.border} ${tColor.boxBg} ${tColor.boxGlow} relative z-10 transition-all duration-300`}>
@@ -4759,6 +4793,19 @@ const renderTracking = () => (
                    rating === 3 ? 'ขอบพระคุณสำหรับผลการประเมินครับ ผมจะนำข้อเสนอแนะของท่านไปพัฒนาการทำงานให้ดียิ่งขึ้นครับ' :
                    'กราบขออภัยอย่างสูงครับ ผมน้อมรับทุกคำติชมและจะรีบนำไปปรับปรุงงานบริการให้ดีขึ้นอย่างเร่งด่วนครับ'}
                 </p>
+              </div>
+
+              {/* 🌟 ฟันธง: แบนเนอร์ขอบคุณจากฝ่าย ฝวด. (แทรกตรงนี้ สวยงาม ลงตัวที่สุด) */}
+              <div className="mt-4 p-4 rounded-xl bg-slate-900/60 border border-cyan-500/30 flex items-start gap-3 text-left shadow-[inset_0_0_15px_rgba(6,182,212,0.1)] relative z-10">
+                <ShieldCheck className="w-8 h-8 text-cyan-400 shrink-0 drop-shadow-[0_0_10px_rgba(6,182,212,0.8)]" />
+                <div>
+                  <h4 className="text-cyan-300 font-black text-[14px] md:text-[16px]">
+                    ฝ่ายวิศวกรรมระบบปฏิบัติการดาวเทียม (ฝวด.)
+                  </h4>
+                  <p className="text-slate-300 text-[12px] md:text-[14px] font-bold mt-1 leading-relaxed">
+                    ขอบพระคุณสำหรับทุกคะแนนประเมินและเสียงสะท้อน เราจะนำไปพัฒนาและยกระดับมาตรฐานการบริการให้ดียิ่งขึ้นต่อไป
+                  </p>
+                </div>
               </div>
 
               <button 
