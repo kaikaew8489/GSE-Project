@@ -47,6 +47,7 @@ import {
   ShieldAlert,    // 🌟 ฟันธง: พิมพ์เพิ่มคำนี้!
   CheckCircle2,   // 🌟 ฟันธง: พิมพ์เพิ่มคำนี้!
   ClipboardList,
+  Moon,
 } from 'lucide-react';
 
 
@@ -3236,73 +3237,74 @@ const executeRatingSubmit = async () => {
       )}
 
      {/* 🌟 หน้าต่าง Popup ยืนยันข้อมูล (เวอร์ชันแก้ Error หน้าจอแดงถาวร - ผูกคีย์บอร์ด PC คลีน 100% ตามกฎ React) */}
+{/* 🌟 หน้าต่าง Popup ยืนยันข้อมูล (อัปเกรด: กลางวัน/กลางคืน แบบโค้ดเซฟ 100%) */}
 {confirmSubmitModal && (
-  <div 
-    className="fixed inset-0 z-[150] flex items-center justify-center bg-slate-900/80 backdrop-blur-md p-6 animate-in fade-in outline-none"
-    onClick={() => setConfirmSubmitModal(false)}
-    // ⌨️ วิชามารดักจับคีย์บอร์ด: ดักฟังผ่านแอตทริบิวต์ HTML โดยตรง ไม่ใช้ useState หรือ useEffect ในนี้ ปลอดภัยจากอาการ Hook แกว่ง 1,000,000%
-    tabIndex={0}
-    ref={(el) => el && el.focus()}
-    onKeyDown={(e) => {
-      // ข้อที่ 2: กดปุ่ม Esc เพื่อยกเลิกและปิดหน้าต่างทันที
-      if (e.key === 'Escape') {
-        e.preventDefault();
-        setConfirmSubmitModal(false);
-      }
-      
-      // ข้อที่ 1: กดปุ่ม Enter บน PC ปุ๊บ สั่งยิงข้อมูลส่งซ่อมเข้ากลุ่มไลน์ ฝวด. ทันที (เพราะเป็นปุ่ม Default หลัก)
-      if (e.key === 'Enter') {
-        e.preventDefault();
-        executeSubmit();
-      }
-    }}
-  >
-    
-    <div className="absolute w-[300px] h-[300px] bg-orange-500/40 rounded-full blur-[80px] animate-pulse pointer-events-none z-0"></div>
-
-    <div className="relative z-10 bg-slate-800 border-[2px] border-solid border-orange-500 rounded-[2rem] w-full max-w-sm overflow-hidden shadow-[0_0_40px_rgba(249,115,22,1)] p-8 text-center space-y-6" onClick={(e) => e.stopPropagation()}>
-      
-      <div className="w-24 h-24 bg-slate-900 text-orange-500 rounded-full flex items-center justify-center mx-auto border-2 border-orange-400/50 shadow-[0_0_20px_rgba(249,115,22,0.8)] relative">
-        <div className="absolute inset-0 border-4 border-orange-500 rounded-full border-t-transparent animate-spin opacity-50"></div>
-        <CheckSquare size={50} className="animate-pulse" />
-      </div>
-
-      <div>
-        <h3 className="text-3xl font-black text-white tracking-tight drop-shadow-md mb-2">
-          ยืนยันข้อมูล?
-        </h3>
-        <p className="text-[18px] text-slate-300 font-bold leading-relaxed">
-          โปรดตรวจสอบข้อมูลให้ถูกต้อง<br />
-          ก่อนส่งเข้าระบบ
-        </p>
-      </div>
-
-      <div className="flex gap-4 pt-2">
-        {/* ปุ่มยกเลิก */}
-        <button
-          type="button"
+        <div 
+          className="fixed inset-0 z-[150] flex items-center justify-center bg-slate-900/80 backdrop-blur-md p-6 animate-in fade-in outline-none"
           onClick={() => setConfirmSubmitModal(false)}
-          className="flex-1 py-3.5 rounded-xl font-bold text-white bg-emerald-700 border-2 border-solid border-emerald-500 shadow-lg active:scale-95 transition-all duration-300 hover:bg-emerald-500 hover:shadow-[0_0_25px_rgba(16,185,129,0.8)] hover:-translate-y-1"
+          tabIndex={0}
+          ref={(el) => el && el.focus()}
+          onKeyDown={(e) => {
+            if (e.key === 'Escape') { e.preventDefault(); setConfirmSubmitModal(false); }
+            if (e.key === 'Enter') { e.preventDefault(); executeSubmit(); }
+          }}
         >
-          ยกเลิก
-        </button>
+          {/* แสง Flare พื้นหลัง */}
+          <div className={`absolute w-[300px] h-[300px] rounded-full blur-[80px] animate-pulse pointer-events-none z-0 ${(sysTime.getHours() >= 21 || sysTime.getHours() < 8 || (sysTime.getHours() === 8 && sysTime.getMinutes() < 30)) ? 'bg-indigo-500/40' : 'bg-orange-500/40'}`}></div>
 
-        {/* ปุ่มยืนยันส่งข้อมูล (ตั้งค่าให้เรืองแสงพร้อมรับแรงกระแทกจากปุ่ม Enter บนคีย์บอร์ด PC ทันที) */}
-        <button
-          type="button"
-          onClick={executeSubmit}
-          className="flex-[1.5] py-3.5 rounded-xl font-black text-white bg-gradient-to-r from-orange-400 to-amber-400 border-2 border-solid border-white scale-105 ring-4 ring-orange-400/50 shadow-[0_0_30px_rgba(249,115,22,0.9)] active:scale-95 transition-all duration-300 hover:from-orange-400 hover:to-amber-400"
-        >
-          ยืนยันส่งข้อมูล
-        </button>
-      </div>
-    </div>
-  </div>
-)}
+          <div className={`relative z-10 bg-slate-800 border-[2px] border-solid rounded-[2rem] w-full max-w-sm overflow-hidden p-8 text-center space-y-6 transition-all duration-500 ${(sysTime.getHours() >= 21 || sysTime.getHours() < 8 || (sysTime.getHours() === 8 && sysTime.getMinutes() < 30)) ? 'border-indigo-500 shadow-[0_0_40px_rgba(99,102,241,1)]' : 'border-orange-500 shadow-[0_0_40px_rgba(249,115,22,1)]'}`} onClick={(e) => e.stopPropagation()}>
+            
+            {/* วงแหวนไอคอน */}
+            <div className={`w-24 h-24 bg-slate-900 rounded-full flex items-center justify-center mx-auto border-2 relative ${(sysTime.getHours() >= 21 || sysTime.getHours() < 8 || (sysTime.getHours() === 8 && sysTime.getMinutes() < 30)) ? 'text-indigo-400 border-indigo-400/50 shadow-[0_0_20px_rgba(99,102,241,0.8)]' : 'text-orange-500 border-orange-400/50 shadow-[0_0_20px_rgba(249,115,22,0.8)]'}`}>
+              <div className={`absolute inset-0 border-4 rounded-full border-t-transparent animate-spin opacity-50 ${(sysTime.getHours() >= 21 || sysTime.getHours() < 8 || (sysTime.getHours() === 8 && sysTime.getMinutes() < 30)) ? 'border-indigo-500' : 'border-orange-500'}`}></div>
+              {(sysTime.getHours() >= 21 || sysTime.getHours() < 8 || (sysTime.getHours() === 8 && sysTime.getMinutes() < 30)) ? <Moon size={45} className="animate-pulse" /> : <CheckSquare size={50} className="animate-pulse" />}
+            </div>
+
+            {/* ข้อความ */}
+            <div>
+              <h3 className="text-2xl md:text-3xl font-black text-white tracking-tight drop-shadow-md mb-2">
+                {(sysTime.getHours() >= 21 || sysTime.getHours() < 8 || (sysTime.getHours() === 8 && sysTime.getMinutes() < 30)) ? 'เวลานอกทำการ 🌙' : 'ยืนยันข้อมูล?'}
+              </h3>
+              
+              {(sysTime.getHours() >= 21 || sysTime.getHours() < 8 || (sysTime.getHours() === 8 && sysTime.getMinutes() < 30)) ? (
+                <div className="text-[13px] md:text-[15px] text-indigo-200 font-bold leading-relaxed bg-indigo-950/50 p-4 rounded-xl border border-indigo-500/30 shadow-inner">
+                  ขณะนี้ไม่มีเจ้าหน้าที่ ฝวด. และเวร SSC ประจำการ <br/>
+                  <span className="text-rose-400">ระบบจะทำการบันทึกข้อมูลของท่านไว้</span> <br/>
+                  และทีมช่างจะเร่งดำเนินการตรวจสอบให้<br/>
+                  <span className="text-emerald-400 font-black text-[16px]">ทันทีในเวลาทำการถัดไป</span>
+                  <div className="mt-4 pt-3 border-t border-indigo-500/30 text-white font-black">ยืนยันฝากเรื่องแจ้งซ่อมหรือไม่?</div>
+                </div>
+              ) : (
+                <p className="text-[18px] text-slate-300 font-bold leading-relaxed">
+                  โปรดตรวจสอบข้อมูลให้ถูกต้อง<br />ก่อนส่งเข้าระบบ
+                </p>
+              )}
+            </div>
+
+            {/* ปุ่มกด */}
+            <div className="flex gap-4 pt-2">
+              <button
+                type="button"
+                onClick={() => setConfirmSubmitModal(false)}
+                className="flex-1 py-3.5 rounded-xl font-bold text-white bg-slate-700 border-2 border-solid border-slate-500 shadow-lg active:scale-95 transition-all duration-300 hover:bg-rose-600 hover:border-rose-400 hover:shadow-[0_0_25px_rgba(225,29,72,0.8)] hover:-translate-y-1"
+              >
+                ยกเลิก
+              </button>
+
+              <button
+                type="button"
+                onClick={executeSubmit}
+                className={`flex-[1.5] py-3.5 rounded-xl font-black text-white border-2 border-solid border-white scale-105 active:scale-95 transition-all duration-300 bg-gradient-to-r ring-4 ${(sysTime.getHours() >= 21 || sysTime.getHours() < 8 || (sysTime.getHours() === 8 && sysTime.getMinutes() < 30)) ? 'from-indigo-500 to-purple-600 ring-indigo-400/50 shadow-[0_0_30px_rgba(99,102,241,0.9)]' : 'from-orange-400 to-amber-400 ring-orange-400/50 shadow-[0_0_30px_rgba(249,115,22,0.9)]'} hover:brightness-110`}
+              >
+                {(sysTime.getHours() >= 21 || sysTime.getHours() < 8 || (sysTime.getHours() === 8 && sysTime.getMinutes() < 30)) ? 'ยืนยันฝากเรื่อง' : 'ยืนยันส่งข้อมูล'}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 
-  
 //เพิ่มปุ่ม แจ้งเหตุขัดข้อง รอยืนยัน
 const renderTracking = () => (
   <div className="p-4 md:p-8 space-y-6 md:space-y-10 pb-32 md:pb-40 animate-in slide-in-from-left-4 duration-500 text-left">
