@@ -49,6 +49,8 @@ import {
   ClipboardList,
   Moon,
   ShieldCheck,
+  Lock,
+  LogOut,
 } from 'lucide-react';
 
 
@@ -56,35 +58,25 @@ import {
 // 🔥 1. เชื่อมต่อ Firebase
 // ==========================================
 import { initializeApp, getApps, getApp } from 'firebase/app';
-import { getAuth, signInAnonymously, onAuthStateChanged } from 'firebase/auth';
-import {
-  getFirestore,
-  collection,
-  addDoc,
-  onSnapshot,
-  doc,
-  updateDoc,
-  query,   // <--- เพิ่มตัวนี้
-  orderBy, // <--- เพิ่มตัวนี้
-  limit,    // <--- เพิ่มตัวนี้
-  writeBatch, // 🌟 เพิ่มตัวนี้
-  getDocs,    // 🌟 เพิ่มตัวนี้
-  where,       // 🌟 เพิ่มตัวนี้
-  getDoc      // 🌟 ฟันธง: พิมพ์เพิ่มคำนี้เข้าไปครับ!
-} from 'firebase/firestore';
 
+// 🌟 ฟันธง: บรรทัดนี้อัปเกรดเพื่อเฟส 2 (เพิ่มคำสั่งล็อคอินและล็อคเอาท์)
+import { getAuth, signInAnonymously, onAuthStateChanged, signInWithEmailAndPassword, signOut } from 'firebase/auth';
+
+// 🌟 ฟันธง: คำสั่งฐานข้อมูลครบทุกตัวเหมือนเดิม 100% แค่รวบให้อยู่ในบรรทัดเดียวกันเฉยๆ ครับ
+import { getFirestore, collection, addDoc, onSnapshot, doc, updateDoc, query, orderBy, limit, writeBatch, getDocs, where, getDoc } from 'firebase/firestore';
+
+// ✅ เปลี่ยนมาใช้ฐานข้อมูลตัวทดสอบ (UAT Phase 2)
 const firebaseConfig = {
-  apiKey: 'AIzaSyAwhkNwz3GB83Sr1hlCrm6t4N7CTbrBTlw',
-  authDomain: 'gistda-gse-maintenance-3f83a.firebaseapp.com',
-  projectId: 'gistda-gse-maintenance-3f83a',
-  storageBucket: 'gistda-gse-maintenance-3f83a.firebasestorage.app',
-  messagingSenderId: '234467850316',
-  appId: '1:234467850316:web:9509ab93ccb150477e9ce9',
-  measurementId: 'G-8RN127D4KD',
+  apiKey: "AIzaSyD3440oEO-8MvilWbHd5DUHVnlHSjiH1rk",
+  authDomain: "gse-project-phase-2.firebaseapp.com",
+  projectId: "gse-project-phase-2",
+  storageBucket: "gse-project-phase-2.firebasestorage.app",
+  messagingSenderId: "729534573275",
+  appId: "1:729534573275:web:ff7c87bce93afc9852bafe",
+  measurementId: "G-7XWJ5SHYWC"
 };
 
-const appInstance =
-  getApps().length === 0 ? initializeApp(firebaseConfig) : getApp();
+const appInstance = getApps().length === 0 ? initializeApp(firebaseConfig) : getApp();
 const auth = getAuth(appInstance);
 const db = getFirestore(appInstance);
 
@@ -1277,25 +1269,25 @@ function MainApp({ onGoHome, initialRole }) {
   // 🌟 ตัวควบคุมเปิด/ปิดหน้าจอ Admin Roster
   const [showAdminRoster, setShowAdminRoster] = useState(false);
 
-  // --- Auth Setup ---
-  useEffect(() => {
-    const initAuth = async () => {
-      try {
-        await signInAnonymously(auth);
-      } catch (error) {
-        console.warn('Auth error, using bypass user...', error);
-        setUser({ uid: 'public-bypass-user' });
-      }
-    };
-    initAuth();
+  
+ // --- Auth Setup (อัปเกรดเฟส 2) ---
+ useEffect(() => {
+  const initAuth = async () => {
+    // ฟันธง: ให้ User ทั่วไปเข้าแบบไม่ระบุตัวตน ส่วนช่างไม่ต้อง เพราะล็อคอินมาจากหน้าแรกแล้ว
+    if (initialRole === 'reporter' && !auth.currentUser) {
+      try { await signInAnonymously(auth); } catch (error) { setUser({ uid: 'public-bypass-user' }); }
+    }
+  };
+  initAuth();
 
-    const unsubscribeAuth = onAuthStateChanged(auth, (u) => {
-      if (u) setUser(u);
-      else setUser({ uid: 'public-bypass-user' });
-    });
+  const unsubscribeAuth = onAuthStateChanged(auth, (u) => {
+    if (u) setUser(u);
+    else if (initialRole === 'reporter') setUser({ uid: 'public-bypass-user' });
+  });
 
-    return () => unsubscribeAuth();
-  }, []);
+  return () => unsubscribeAuth();
+}, [initialRole]);
+
 
   // --- Data Fetching ---
   useEffect(() => {
@@ -1310,7 +1302,7 @@ function MainApp({ onGoHome, initialRole }) {
 
     const unsubscribeData = onSnapshot(
       ticketsRef,
-// ...
+
       (snapshot) => {
         try {
           const ticketsData = [];
@@ -4523,33 +4515,42 @@ const renderTracking = () => (
         </div>
       )}
 
+
       {/* 🚀 Dynamic Header (ฟันธง: รีดไขมันแนวตั้ง ปรับ md:py-4 ลดเหลือ md:py-2.5 คืนพื้นที่จอ) */}
       <div className="bg-slate-900/50 backdrop-blur-xl pl-5 md:pl-8 pr-4 py-3 md:py-2.5 flex items-center justify-between sticky top-4 z-50 border-2 border-solid border-orange-500 rounded-2xl md:rounded-xl mt-4 md:mt-3 transition-all duration-500 shadow-[0_0_15px_rgba(249,115,22,0.4)] mx-4 md:mx-6">
         <div className="flex items-center gap-3.5 md:gap-4 z-10">
           
-          {/* กล่องไอคอนซ้าย ปรับให้กระชับขึ้นบน PC จาก w-16 h-16 เป็น w-12 h-12 */}
           <div className="bg-white w-14 h-14 md:w-12 md:h-12 rounded-2xl md:rounded-xl shadow-md text-orange-500 border-2 border-solid border-orange-300 flex items-center justify-center shrink-0">
             {activeTab === 'dashboard' ? <LayoutDashboard className="w-8 h-8 md:w-6 md:h-6" strokeWidth={2.5} /> : activeTab === 'report' ? <PlusCircle className="w-8 h-8 md:w-6 md:h-6" strokeWidth={2.5} /> : currentUserRole === 'technician' ? <Wrench className="w-8 h-8 md:w-6 md:h-6" strokeWidth={2.5} /> : <ClipboardCheck className="w-8 h-8 md:w-6 md:h-6" strokeWidth={2.5} />}
           </div>
           
           <div>
-            {/* ปรับขนาดตัวหนังสือหัวข้อบน PC จาก 4xl เป็น 2xl (md:text-2xl) ให้ดูเรียบหรู ไม่หนาเทอะทะ */}
-          {/* จากเดิมที่ท่านใช้อยู่ ให้แก้เป็นก้อนนี้ครับ */}
             <h1 className="font-black text-white text-3xl md:text-5xl tracking-widest leading-none drop-shadow-[0_4px_4px_rgba(0,0,0,0.5)] py-2 whitespace-nowrap">
               {activeTab === 'dashboard' ? 'แผงควบคุม' : activeTab === 'report' ? 'แจ้งซ่อม' : currentUserRole === 'technician' ? 'จัดการงานซ่อม' : 'ติดตามสถานะ'}
-          </h1>
+            </h1>
           </div>
         </div>
 
-       {/* 🌟 ฟันธงแก้ไขมาสคอต: คืนค่าพิกดและความกว้างฉบับสมบูรณ์ หัวไม่แหว่ง ตัวใหญ่สวยงามบน PC 1,000,000% */}
-       <div className="relative w-12 md:w-28 h-14 md:h-16 shrink-0 z-50 pointer-events-none overflow-visible">
-           <img 
-             src={activeTab === 'dashboard' ? "/mascot-dashboard.webp" : activeTab === 'report' ? "/mascot-report.webp" : (activeTab === 'tracking' && currentUserRole === 'technician') ? "/mascot-tech.webp" : "/mascot-track.webp"}
-             key={activeTab + currentUserRole}
-             alt="GSE Mascot" 
-             /* 💡 ทริคท่านหัวหน้า: ปรับความกว้างที่ md:w-[92px] และดึงน้องลงมาที่ md:bottom-[-35px] เพื่อไม่ให้หัวแหว่งครับ */
-             className="absolute bottom-[-10px] right-[-10px] md:bottom-[-35px] md:right-[-5px] w-[65px] md:w-[85px] max-w-none h-auto object-contain drop-shadow-[0_5px_5px_rgba(0,0,0,0.4)] animate-in slide-in-from-right-4 fade-in duration-500 overflow-visible"
-           />
+       {/* 🌟 ฟันธง: โซนขวามือ (เพิ่มปุ่ม Logout + น้องมาสคอต) */}
+       <div className="flex items-center gap-4 z-50">
+          {currentUserRole === 'technician' && (
+            <button
+              onClick={onGoHome}
+              className="flex items-center justify-center gap-1.5 md:gap-2 bg-rose-600/20 hover:bg-rose-600 text-rose-500 hover:text-white border border-rose-500/50 hover:border-rose-400 px-3 py-1.5 md:py-2 rounded-xl transition-all shadow-sm active:scale-95"
+              title="ออกจากระบบ"
+            >
+              <LogOut size={18} className="md:w-5 md:h-5" />
+              <span className="hidden md:block font-bold text-[15px]">ออกจากระบบ</span>
+            </button>
+          )}
+          <div className="relative w-12 md:w-28 h-14 md:h-16 shrink-0 pointer-events-none overflow-visible">
+            <img 
+              src={activeTab === 'dashboard' ? "/mascot-dashboard.webp" : activeTab === 'report' ? "/mascot-report.webp" : (activeTab === 'tracking' && currentUserRole === 'technician') ? "/mascot-tech.webp" : "/mascot-track.webp"}
+              key={activeTab + currentUserRole}
+              alt="GSE Mascot" 
+              className="absolute bottom-[-10px] right-[-10px] md:bottom-[-35px] md:right-[-5px] w-[65px] md:w-[85px] max-w-none h-auto object-contain drop-shadow-[0_5px_5px_rgba(0,0,0,0.4)] animate-in slide-in-from-right-4 fade-in duration-500 overflow-visible"
+            />
+          </div>
         </div>
       </div>
 
@@ -4901,10 +4902,34 @@ const renderTracking = () => (
 
 
 // ==========================================
-// 🌟 Landing Page - ฉบับสมบูรณ์ ไร้ Error 100%
+// 🌟 Landing Page - ฉบับสมบูรณ์ ไร้ Error 100% (อัปเกรด Login)
 // ==========================================
 function LandingPage({ onStart }) {
   const [showManual, setShowManual] = useState(false); 
+  // 🌟 ฟันธง: เพิ่ม State สำหรับระบบ Login ของช่าง
+  const [showLogin, setShowLogin] = useState(false);
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  const [loginError, setLoginError] = useState('');
+  const [isLoggingIn, setIsLoggingIn] = useState(false);
+
+  // 🌟 ฟันธง: ฟังก์ชันยิง Firebase Auth ส่งอีเมล/รหัสผ่านไปตรวจ
+  const handleLoginSubmit = async (e) => {
+    e.preventDefault();
+    setLoginError('');
+    setIsLoggingIn(true);
+    try {
+      await signInWithEmailAndPassword(auth, email, password);
+      setShowLogin(false);
+      onStart('technician'); // ผ่านแล้ววาร์ปเข้าหน้าเจ้าหน้าที่ทันที
+    } catch (error) {
+      console.error("Login Failed:", error);
+      setLoginError('อีเมลหรือรหัสผ่านไม่ถูกต้อง! โปรดลองอีกครั้ง');
+    } finally {
+      setIsLoggingIn(false);
+    }
+  };
+
   return (
     <div className="relative min-h-screen flex flex-col items-center justify-center p-6 md:p-12 overflow-hidden bg-slate-900 font-sans">
       {/* 1. ภาพพื้นหลังลูกโลก */}
@@ -4931,11 +4956,6 @@ function LandingPage({ onStart }) {
             />
           </div>
 
-          {/* ชื่อระบบ 
-          <h1 className="text-2xl md:text-5xl font-black text-white -mb-4 md:mb-4 drop-shadow-md transition-all duration-500">
-            ระบบแจ้งซ่อม
-          </h1> */}
-
           {/* 🌟 3. โซนน้องมาสคอต + กล่องคำพูด */}
           <div className="relative w-full -mt-6 md:mt-4 flex flex-col items-center min-h-[220px] md:min-h-[300px] transition-all duration-500">            
             
@@ -4955,7 +4975,7 @@ function LandingPage({ onStart }) {
               </p>
             </div>
 
-            {/* 👩‍🔧 น้องมาสคอต (ฟันธงวิชามาร: ล็อกกุญแจมือด้วย style= ยัดลง HTML ตรงๆ Chrome แหกไม่ได้ 100%) */}
+            {/* 👩‍🔧 น้องมาสคอต */}
             <div 
               className="relative z-30 mx-auto mb-2 md:mb-4 pointer-events-none drop-shadow-[0_20px_20px_rgba(0,0,0,0.8)] transition-all duration-500"
               style={{ width: '50%', maxWidth: '280px', minHeight: '150px' }} 
@@ -4968,10 +4988,10 @@ function LandingPage({ onStart }) {
             </div>
           </div>
 
-         {/* 4. กลุ่มปุ่มกด (ฟันธง: ลด gap-4 เหลือ gap-2.5 สำหรับมือถือ และลด md:gap-6 เหลือ md:gap-3.5 สำหรับ PC เพื่อดึงปุ่มให้กระชับเข้าหากันตามหลัก Law of Proximity) */}
+         {/* 4. กลุ่มปุ่มกด */}
          <div className="w-full flex flex-col gap-2.5 md:gap-3.5 relative z-10 transition-all duration-500">
             
-            {/* ปุ่ม 1: ส้ม-ทอง (Primary Action) */}
+            {/* ปุ่ม 1: ส้ม-ทอง (Primary Action) - ผู้แจ้งเข้าได้เลย ไม่ต้อง Login */}
             <button
               onClick={() => onStart('reporter')}
               className="w-full pt-4 md:py-6 pb-5 bg-gradient-to-r from-orange-500 to-amber-500 text-white font-black text-[19px] md:text-[28px] rounded-2xl md:rounded-[1.5rem] flex items-center justify-center gap-5 md:gap-3 border-[2px] border-solid border-white/80 shadow-[0_15px_30px_rgba(249,115,22,0.5)] hover:shadow-[0_15px_35px_rgba(249,115,22,0.8)] active:scale-95 transition-all"
@@ -4980,9 +5000,9 @@ function LandingPage({ onStart }) {
               แจ้งซ่อมระบบ/อุปกรณ์
             </button>
 
-            {/* ปุ่ม 2: เขียวมรกต (Admin Action) */}
+            {/* 🌟 ฟันธง: ปุ่ม 2 (ช่าง) เปลี่ยนเป็นเปิด Popup Login แทน onStart ตรงๆ */}
             <button
-              onClick={() => onStart('technician')}
+              onClick={() => setShowLogin(true)}
               className="w-full bg-gradient-to-r from-emerald-600 to-teal-700 text-white font-black text-lg md:text-[22px] py-3 md:py-6 rounded-2xl md:rounded-[1.5rem] border-[2px] border-solid border-white/50 flex items-center justify-center gap-5 md:gap-3 shadow-[0_10px_20px_rgba(16,185,129,0.5)] hover:shadow-[0_15px_25px_rgba(16,185,129,0.8)] active:scale-95 transition-all"
             >
               <Settings size={25} className="md:w-8 md:h-8 drop-shadow-sm" />{' '}
@@ -4998,17 +5018,14 @@ function LandingPage({ onStart }) {
             </button>
           </div>
 
-          {/* 🌟 1. ฟันธง: เปลี่ยนเป็นสีฟ้าสว่าง (Cyan) พร้อมเอฟเฟกต์เรืองแสงทะลุอวกาศ */}
           <h2 className="text-[16px] md:text-[28px] font-black text-cyan-400 drop-shadow-[0_0_12px_rgba(34,211,238,0.8)] uppercase mt-4 md:mt-8 mb-1.5 md:mb-2 transition-all duration-500 tracking-wide">
             ฝ่ายวิศวกรรมระบบปฏิบัติการดาวเทียม
           </h2>
 
-          {/* 🌟 ฟันธง: เปลี่ยนเป็นสีขาวมุกเรืองแสง (Pearl White Glow) หรูหรา เป็นจุดพักสายตา */}
           <h3 className="text-[14px] md:text-[18px] font-bold text-white tracking-widest mt-1 transition-all duration-500 drop-shadow-[0_0_10px_rgba(255,255,255,0.8)]">
             สำนักปฏิบัติการดาวเทียม
           </h3>
 
-          {/* 🌟 2. ฟันธง: ลูกเล่นตัวนำ G S E D ใหญ่พิเศษสีส้มทอง ตัดกับสีฟ้าด้านบน */}
           <h3 className="font-mono text-slate-300 tracking-widest font-bold mt-5 md:mt-10 opacity-95 flex items-baseline justify-center flex-wrap gap-x-1.5 gap-y-1">
             <span className="text-[10px] md:text-[14px]">©2026</span>
             <span>
@@ -5030,13 +5047,12 @@ function LandingPage({ onStart }) {
         </div>
       </div>
 
-      {/* 🌟 หน้าต่าง Popup คู่มือ (อัปเกรดขยายกรอบบน-ล่างให้เต็มจอมือถือ + ซูมได้ 100%) */}
+      {/* 🌟 หน้าต่าง Popup คู่มือ */}
       {showManual && (
         <div className="fixed inset-0 z-[200] bg-slate-950/90 flex flex-col items-center justify-center p-2 md:p-4 backdrop-blur-md animate-in fade-in" onClick={() => setShowManual(false)}> 
           <div className="absolute w-[300px] h-[300px] bg-orange-500/40 rounded-full blur-[100px] animate-pulse pointer-events-none z-0"></div>
           <div className="w-full max-w-lg md:max-w-4xl bg-slate-900 border-[3px] md:border-[4px] border-solid border-orange-500 rounded-2xl md:rounded-[2rem] overflow-hidden shadow-[0_0_50px_rgba(249,115,22,0.6)] flex flex-col max-h-[96vh] md:max-h-[90vh] relative z-10 transition-all" onClick={(e) => e.stopPropagation()}>
             
-            {/* 🌟 1. ส่วนหัว (Header) แยก ซ้าย-กลาง-ขวา ชัดเจน */}
             <div className="relative py-4 px-4 md:px-8 bg-slate-950 flex items-center justify-between border-b-4 border-orange-500 shrink-0 min-h-[70px] md:min-h-[90px]">
               <div className="absolute inset-0 bg-orange-500/20 blur-[40px] pointer-events-none animate-pulse z-0"></div>
 
@@ -5060,10 +5076,8 @@ function LandingPage({ onStart }) {
               </button>
             </div>
 
-            {/* 🌟 2. โซนแสดงรูปภาพคู่มือ (อัปเกรด: กดรูปเพื่อซูมขยาย) */}
             <div className="p-4 md:p-8 overflow-y-auto space-y-6 md:space-y-10 bg-slate-800 flex-1">
               
-           {/* อาเรย์รูปภาพคู่มือ (ลูปเพื่อสร้างปุ่มขยายทีละรูปอัตโนมัติ) */}
            {[
                 { src: '/manual-1-1.png', alt: 'คู่มือเข้าโปรแกรมหน้าแรก' },
                 { src: '/manual-2-1.png', alt: 'คู่มือผู้แจ้งซ่อม-1' },
@@ -5075,21 +5089,15 @@ function LandingPage({ onStart }) {
                 { src: '/manual-PC.png', alt: 'คู่มือตั้งค่าการแสดงผลบน-PC' }
               ].map((manual, index) => (
                 <div key={index} className="flex flex-col items-center gap-3 md:gap-4">
-                  
-                  {/* 🖼️ รูปภาพคู่มือ (ไม่มีปุ่มไปบังทับแล้ว) */}
                   <img src={manual.src} alt={manual.alt} className="w-full rounded-xl md:rounded-2xl shadow-[0_10px_30px_rgba(0,0,0,0.6)] border-[2px] border-solid border-slate-600 transition-opacity" />
-                  
-                  {/* 🌟 ปุ่ม "คลิกเพื่อถ่างซูม" (อัปเกรด: ย้ายมาจัดเรียงใต้รูปภาพ ทรงแคปซูลสวยหรู) */}
                   <a href={manual.src} target="_blank" rel="noopener noreferrer" 
                      className="w-[85%] sm:w-[60%] md:w-[40%] bg-slate-900 border-[2px] border-solid border-orange-500/80 text-orange-400 p-3 md:p-4 rounded-full shadow-[0_0_15px_rgba(249,115,22,0.4)] backdrop-blur-sm transition-all active:scale-95 flex items-center justify-center gap-2 z-20 hover:bg-orange-500 hover:text-white hover:border-white hover:scale-105 group">
                     <Maximize2 size={18} className="md:w-6 md:h-6 drop-shadow-md group-hover:scale-125 transition-transform" strokeWidth={2.5}/>
                     <span className="text-[13px] md:text-[16px] font-black tracking-widest uppercase drop-shadow-md">แตะเพื่อขยายซูมเต็มจอ</span>
                   </a>
-                  
                 </div>
               ))}
               
-              {/* ติ่งข้อความปิดท้ายคู่มือ */}
               <div className="text-center pt-6 pb-4 mt-8 border-t-2 border-dashed border-orange-500/30">
                 <p className="text-slate-200 font-black text-[12px] md:text-[24px] tracking-widest flex items-center justify-center gap-2 md:gap-3 drop-shadow-[0_0_10px_rgba(249,115,22,1)]">
                   <CheckCircle className="w-6 h-7 md:w-7 md:h-7 text-emerald-600 drop-shadow-[0_0_8px_rgba(16,185,129,1)]" /> 
@@ -5097,6 +5105,70 @@ function LandingPage({ onStart }) {
                 </p>
               </div>
             </div>
+
+          </div>
+        </div>
+      )}
+
+      {/* ========================================================= */}
+      {/* 🌟 ฟันธง: หน้าต่าง Popup Login (Sci-Fi Theme) สำหรับช่าง ฝวด. */}
+      {/* ========================================================= */}
+      {showLogin && (
+        <div className="fixed inset-0 z-[300] bg-slate-950/90 backdrop-blur-md flex items-center justify-center p-4 animate-in fade-in duration-300" onClick={() => setShowLogin(false)}>
+          {/* Flare Background */}
+          <div className="absolute w-[300px] h-[300px] bg-cyan-500/30 rounded-full blur-[100px] animate-pulse pointer-events-none z-0"></div>
+          
+          {/* Login Box */}
+          <div className="relative z-10 w-full max-w-sm bg-slate-900 border-[3px] border-solid border-cyan-500 rounded-[2.5rem] p-8 shadow-[0_0_50px_rgba(34,211,238,0.5)] flex flex-col gap-6 transform transition-all" onClick={e => e.stopPropagation()}>
+            
+            <div className="text-center">
+              <div className="w-20 h-20 bg-slate-950 border-[2px] border-cyan-400 rounded-full mx-auto flex items-center justify-center shadow-[0_0_20px_rgba(34,211,238,0.6)] mb-4">
+                 {/* 🌟 ใช้ไอคอน Lock ตรงนี้ (แทนตัวเก่าที่เรา import ไม่ติด) */}
+                 <svg xmlns="http://www.w3.org/2000/svg" width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-cyan-400 animate-pulse drop-shadow-[0_0_8px_rgba(34,211,238,0.8)]"><rect width="18" height="11" x="3" y="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+              </div>
+              <h2 className="text-2xl md:text-3xl font-black text-white tracking-widest uppercase drop-shadow-md">Admin Login</h2>
+              <p className="text-cyan-300 font-bold text-sm md:text-base mt-2">สำหรับเจ้าหน้าที่ ฝวด. เท่านั้น</p>
+            </div>
+
+            <form onSubmit={handleLoginSubmit} className="flex flex-col gap-5 mt-2">
+              <div className="space-y-2 text-left">
+                <label className="text-[14px] font-black text-slate-300 tracking-wider flex items-center gap-2">
+                  <Mail size={16}/> อีเมล
+                </label>
+                <input 
+                  type="email" required 
+                  value={email} onChange={e => setEmail(e.target.value)} 
+                  className="w-full bg-slate-800 border-[2px] border-solid border-slate-600 focus:border-cyan-400 rounded-2xl px-5 py-3.5 text-white font-bold outline-none transition-all shadow-inner focus:shadow-[0_0_15px_rgba(34,211,238,0.4)]" 
+                  placeholder="admin@gistda.or.th" 
+                />
+              </div>
+              <div className="space-y-2 text-left">
+                <label className="text-[14px] font-black text-slate-300 tracking-wider flex items-center gap-2">
+                  <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect width="18" height="11" x="3" y="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg> รหัสผ่าน
+                </label>
+                <input 
+                  type="password" required 
+                  value={password} onChange={e => setPassword(e.target.value)} 
+                  className="w-full bg-slate-800 border-[2px] border-solid border-slate-600 focus:border-cyan-400 rounded-2xl px-5 py-3.5 text-white font-bold outline-none transition-all shadow-inner focus:shadow-[0_0_15px_rgba(34,211,238,0.4)] tracking-widest" 
+                  placeholder="••••••••" 
+                />
+              </div>
+
+              {loginError && (
+                <div className="text-rose-500 text-sm font-bold text-center bg-rose-500/10 p-3 rounded-xl border-[2px] border-rose-500/50 animate-in shake drop-shadow-sm">
+                  ⚠️ {loginError}
+                </div>
+              )}
+
+              <div className="flex gap-3 mt-4">
+                <button type="button" onClick={() => setShowLogin(false)} className="flex-1 py-4 rounded-xl font-bold text-white bg-slate-800 hover:bg-rose-600 border-[2px] border-solid border-slate-600 hover:border-rose-400 transition-all shadow-sm active:scale-95">
+                  ยกเลิก
+                </button>
+                <button type="submit" disabled={isLoggingIn} className="flex-[1.5] py-4 rounded-xl font-black text-white bg-gradient-to-r from-cyan-600 to-blue-600 border-[2px] border-solid border-cyan-400 shadow-[0_0_15px_rgba(34,211,238,0.5)] hover:shadow-[0_0_25px_rgba(34,211,238,0.8)] active:scale-95 transition-all disabled:opacity-50 disabled:grayscale">
+                  {isLoggingIn ? 'กำลังตรวจสอบ...' : 'เข้าสู่ระบบ'}
+                </button>
+              </div>
+            </form>
 
           </div>
         </div>
@@ -5114,7 +5186,7 @@ const SarabunFontEmbed = () => (
     /* บังคับใช้ฟอนต์ Sarabun กับทุกตัวอักษรในแอป */
     body, html, *, h1, h2, h3, p, button, input {
       font-family: 'Sarabun', sans-serif !important;
-      letter-spacing: 0.02em !important; /* จัดช่องไฟของ Sarabun ให้ละมุนสายตา */
+      letter-spacing: 0.02em !important; 
       line-height: 1.5 !important;
     }
     
@@ -5146,10 +5218,17 @@ export default function App() {
     sessionStorage.setItem('hasStarted', 'true');
   };
 
-  const handleGoHome = () => {
+  const handleGoHome = async () => {
+    // 🌟 ฟันธง: สั่ง SignOut เคลียร์คราบ Login ก่อนกลับหน้าแรก เพื่อความปลอดภัยของระบบ 1,000,000%
+    try {
+      await signOut(auth);
+    } catch (error) {
+      console.error("SignOut Error", error);
+    }
     setHasStarted(false);
     sessionStorage.removeItem('hasStarted');
     sessionStorage.removeItem('activeTab');
+    sessionStorage.removeItem('role'); 
   };
 
   return (
