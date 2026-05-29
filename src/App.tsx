@@ -51,6 +51,8 @@ import {
   ShieldCheck,
   Lock,
   LogOut,
+  Eye,
+  EyeOff,
 } from 'lucide-react';
 
 
@@ -59,8 +61,7 @@ import {
 // ==========================================
 import { initializeApp, getApps, getApp } from 'firebase/app';
 
-// 🌟 ฟันธง: บรรทัดนี้อัปเกรดเพื่อเฟส 2 (เพิ่มคำสั่งล็อคอินและล็อคเอาท์)
-import { getAuth, signInAnonymously, onAuthStateChanged, signInWithEmailAndPassword, signOut } from 'firebase/auth';
+import { getAuth, signInAnonymously, onAuthStateChanged, signInWithEmailAndPassword, signOut, createUserWithEmailAndPassword, sendPasswordResetEmail } from 'firebase/auth';
 
 // 🌟 ฟันธง: คำสั่งฐานข้อมูลครบทุกตัวเหมือนเดิม 100% แค่รวบให้อยู่ในบรรทัดเดียวกันเฉยๆ ครับ
 import { getFirestore, collection, addDoc, onSnapshot, doc, updateDoc, query, orderBy, limit, writeBatch, getDocs, where, getDoc } from 'firebase/firestore';
@@ -3075,16 +3076,14 @@ const executeRatingSubmit = async () => {
 
           </div>
 
-{/* 🌟 หน้าต่าง Numpad ไซไฟอวกาศ (เวอร์ชันทุบสกรอลล์บาร์ทิ้ง + ผูกคีย์บอร์ด PC ถูกต้องตามกฎ React 1,000,000%) */}
+{/* 🌟 หน้าต่าง Numpad ไซไฟอวกาศ (เวอร์ชันอัปเกรด UI แสงเฟลอร์ 1,000,000%) */}
 {showNumpad && (
   <div 
-    className="fixed inset-0 z-[9999] flex items-center justify-center bg-slate-900/80 backdrop-blur-md p-4 animate-in fade-in duration-300" 
+    className="fixed inset-0 z-[9999] flex items-center justify-center bg-slate-900/80 backdrop-blur-md p-4 animate-in fade-in duration-300 outline-none" 
     onClick={() => setShowNumpad(false)}
-    // ⌨️ วิชามารขั้นสูง: ดักจับคีย์บอร์ดผ่าน Event ของตัว Container โดยตรง ไม่ใช้ Hook เพื่อป้องกันหน้าจอขาวระเบิด 100%
     tabIndex={0}
     ref={(el) => el && el.focus()}
     onKeyDown={(e) => {
-      // 1. กดเลข 0-9 บนคีย์บอร์ดปกติ หรือ แป้น Numpad ขวามือ
       if (/^[0-9]$/.test(e.key)) {
         let current = formData.reporterContact ? formData.reporterContact.replace(/\D/g, '') : '';
         if (current.length < 10) current += e.key;
@@ -3095,7 +3094,6 @@ const executeRatingSubmit = async () => {
         if (formErrors.reporterContact) setFormErrors(prev => ({ ...prev, reporterContact: null }));
       }
       
-      // 2. กดปุ่ม Backspace หรือ Delete เพื่อลบตัวเลขทีละหลัก
       if (e.key === 'Backspace' || e.key === 'Delete') {
         let current = formData.reporterContact ? formData.reporterContact.replace(/\D/g, '') : '';
         current = current.slice(0, -1);
@@ -3105,7 +3103,10 @@ const executeRatingSubmit = async () => {
         setFormData(prev => ({ ...prev, reporterContact: formatted }));
       }
 
-      // 3. กดปุ่ม Enter เพื่อตรวจสอบและยืนยันปิดหน้าต่าง
+      if (e.key.toLowerCase() === 'c' || e.key === 'Escape') {
+        setFormData(prev => ({ ...prev, reporterContact: '' }));
+      }
+
       if (e.key === 'Enter') {
         e.preventDefault();
         const digits = formData.reporterContact ? formData.reporterContact.replace(/\D/g, '') : '';
@@ -3119,35 +3120,42 @@ const executeRatingSubmit = async () => {
     }}
   >
     
-    <div className="absolute w-[350px] md:w-[500px] h-[350px] md:h-[500px] bg-cyan-500/40 rounded-full blur-[100px] md:blur-[150px] pointer-events-none z-0 animate-pulse"></div>
+    {/* แสง Flare พื้นหลัง */}
+    <div className="absolute w-[350px] md:w-[500px] h-[350px] md:h-[500px] bg-emerald-500/30 rounded-full blur-[100px] md:blur-[150px] pointer-events-none z-0 animate-pulse"></div>
 
-    {/* 🌟 ฟันธง: รักษารูปทรงเดิม p-4 md:p-10 แต่ทุบสกรอลล์บาร์ทิ้งถาวรด้วยการเอา max-h-[80dvh] และ overflow-y-auto ออก แล้วแทนที่ด้วย overflow-hidden */}
-    <div className="relative m-auto z-10 w-[90%] max-w-[320px] sm:max-w-[340px] md:max-w-[450px] bg-slate-900 border-[2px] border-solid border-white rounded-[2rem] md:rounded-[2.5rem] p-4 sm:p-6 md:p-10 shadow-[0_0_60px_rgba(6,182,212,0.6)] flex flex-col gap-4 sm:gap-5 md:gap-8 transition-all duration-300 overflow-hidden outline-none" onClick={(e) => e.stopPropagation()}>
+    {/* 🌟 ปรับขนาดกล่องให้กว้างเท่า Login Popup (max-w-sm) และขอบเรืองแสงสีฟ้า */}
+    <div className="relative m-auto z-10 w-full max-w-sm bg-slate-900 border-[3px] border-solid border-cyan-500/80 rounded-[2.5rem] p-6 shadow-[0_0_40px_rgba(34,211,238,0.3)] flex flex-col gap-4 sm:gap-5 transition-all duration-300 overflow-hidden outline-none" onClick={(e) => e.stopPropagation()}>
        
-      {/* 🌟 ฟันธง: เพิ่ม relative เข้าไปใน div นี้ เพื่อให้ปุ่มปิดไปอยู่ที่มุมขวาได้เป๊ะๆ */}
-      <div className="text-center mb-1 pb-3 md:pb-5 border-b border-white/20 relative">
-         <h3 className="font-black tracking-widest text-[16px] sm:text-[18px] md:text-[24px] flex items-center justify-center gap-2 text-orange-400 drop-shadow-[0_0_10px_rgba(249,115,22,0.8)]">
-           <Phone size={28} className="text-emerald-400 drop-shadow-sm md:w-6 md:h-6" />
-           ระบุเบอร์โทรศัพท์
-         </h3>
+       {/* ปุ่มปิด X มุมขวาบน */}
+       <button 
+         type="button"
+         onClick={() => setShowNumpad(false)} 
+         className="absolute right-5 top-5 text-slate-400 hover:text-rose-400 transition-colors z-20"
+       >
+         <X size={28} className="stroke-[2.5px]" />
+       </button>
 
-         {/* 🌟 ปุ่มกากบาท Sci-Fi เรืองแสง (ตรงจุดนี้เลยครับ) */}
-         <button 
-           type="button"
-           onClick={() => setShowNumpad(false)} 
-           className="absolute right-0 top-1/2 -translate-y-1/2 text-rose-500 hover:text-white bg-slate-900 hover:bg-rose-600 p-1.5 md:p-2 rounded-full transition-all border-2 border-rose-500 shadow-[0_0_15px_rgba(225,29,72,0.6)] animate-pulse hover:shadow-[0_0_25px_rgba(225,29,72,1)] cursor-pointer"
-         >
-           <X size={18} className="md:w-6 md:h-6 stroke-[3px]" />
-         </button>
+       {/* 🌟 ไอคอนโทรศัพท์สีเขียวเรืองแสง */}
+       <div className="relative mt-2 mx-auto">
+          <div className="absolute inset-0 bg-emerald-500 blur-[20px] opacity-40 rounded-full"></div>
+          <div className="relative w-16 h-16 bg-slate-950 border-[2px] border-emerald-400 rounded-full flex items-center justify-center shadow-[0_0_20px_rgba(16,185,129,0.6)] mx-auto">
+            <Phone className="w-8 h-8 text-emerald-400 drop-shadow-[0_0_8px_rgba(16,185,129,0.8)]" />
+          </div>
        </div>
+
+       <h3 className="font-black tracking-widest text-[18px] md:text-[20px] text-center text-orange-400 drop-shadow-[0_0_10px_rgba(249,115,22,0.8)]">
+         ระบุเบอร์โทรศัพท์
+       </h3>
        
-       <div className="bg-slate-950 border-[2px] border-solid border-cyan-400 rounded-2xl md:rounded-3xl py-4 px-4 md:py-6 text-center shadow-[0_0_15px_rgba(34,211,238,0.4)] flex items-center justify-center min-h-[70px] md:min-h-[100px] shrink-0">
-         <span className={`text-[24px] sm:text-[28px] md:text-[36px] font-mono font-black tracking-widest ${formData.reporterContact ? 'text-cyan-400 drop-shadow-[0_0_12px_rgba(34,211,238,0.9)]' : 'text-slate-500'}`}>
+       {/* 🌟 กล่องแสดงเบอร์โทร เรืองแสงสีฟ้า */}
+       <div className="bg-slate-950 border-[2px] border-solid border-cyan-400 rounded-2xl py-4 px-4 text-center shadow-[0_0_15px_rgba(34,211,238,0.4),inset_0_0_10px_rgba(34,211,238,0.2)] flex items-center justify-center min-h-[70px] shrink-0 transition-all">
+         <span className={`text-[24px] sm:text-[28px] md:text-[32px] font-mono font-black tracking-widest ${formData.reporterContact ? 'text-cyan-300 drop-shadow-[0_0_12px_rgba(34,211,238,0.9)]' : 'text-slate-500'}`}>
            {formData.reporterContact || '0X-XXXX-XXXX'}
          </span>
        </div>
 
-       <div className="grid grid-cols-3 gap-2.5 sm:gap-3 md:gap-4 shrink-0">
+       {/* 🌟 แป้นพิมพ์ 3 มิติ โฮเวอร์เรืองแสง */}
+       <div className="grid grid-cols-3 gap-3 shrink-0 px-1">
          {[1, 2, 3, 4, 5, 6, 7, 8, 9].map(num => (
            <button 
              key={num} type="button" 
@@ -3160,16 +3168,17 @@ const executeRatingSubmit = async () => {
                setFormData(prev => ({ ...prev, reporterContact: formatted }));
                if (formErrors.reporterContact) setFormErrors(prev => ({ ...prev, reporterContact: null }));
              }} 
-             className="bg-slate-800 border-[2px] border-solid border-white/80 text-slate-200 text-2xl md:text-3xl font-black py-3 sm:py-3.5 md:py-5 rounded-xl md:rounded-2xl active:scale-95 transition-all shadow-[0_0_10px_rgba(255,255,255,0.3)] hover:bg-cyan-600/90 hover:border-cyan-400 hover:text-white hover:shadow-[0_0_20px_rgba(34,211,238,0.7)]"
+             className="h-14 bg-slate-800 border-[2px] border-b-[4px] border-slate-600 hover:border-cyan-400 hover:text-cyan-300 hover:shadow-[0_0_15px_rgba(34,211,238,0.5)] active:border-b-[2px] active:translate-y-[2px] rounded-2xl text-2xl font-black text-white transition-all"
            >
              {num}
            </button>
          ))}
          
+         {/* ปุ่ม C สีส้ม/เหลืองเรืองแสง */}
          <button 
            type="button" 
            onClick={() => setFormData(prev => ({ ...prev, reporterContact: '' }))} 
-           className="bg-slate-800 border-[2px] border-solid border-white/80 text-orange-400 text-2xl md:text-3xl font-black py-3 sm:py-3.5 md:py-5 rounded-xl md:rounded-2xl active:scale-95 transition-all shadow-[0_0_10px_rgba(255,255,255,0.3)] hover:bg-orange-600 hover:border-orange-400 hover:text-white hover:shadow-[0_0_20px_rgba(249,115,22,0.7)] flex items-center justify-center"
+           className="h-14 bg-slate-800 border-[2px] border-b-[4px] border-amber-600/70 text-amber-500 hover:border-amber-400 hover:text-amber-300 hover:shadow-[0_0_15px_rgba(251,191,36,0.5)] active:border-b-[2px] active:translate-y-[2px] rounded-2xl text-2xl font-black transition-all flex items-center justify-center"
          >
            C
          </button>
@@ -3185,11 +3194,12 @@ const executeRatingSubmit = async () => {
              setFormData(prev => ({ ...prev, reporterContact: formatted }));
              if (formErrors.reporterContact) setFormErrors(prev => ({ ...prev, reporterContact: null }));
            }} 
-           className="bg-slate-800 border-[2px] border-solid border-white/80 text-slate-200 text-2xl md:text-3xl font-black py-3 sm:py-3.5 md:py-5 rounded-xl md:rounded-2xl active:scale-95 transition-all shadow-[0_0_10px_rgba(255,255,255,0.3)] hover:bg-cyan-600/90 hover:border-cyan-400 hover:text-white hover:shadow-[0_0_20px_rgba(34,211,238,0.7)]"
+           className="h-14 bg-slate-800 border-[2px] border-b-[4px] border-slate-600 hover:border-cyan-400 hover:text-cyan-300 hover:shadow-[0_0_15px_rgba(34,211,238,0.5)] active:border-b-[2px] active:translate-y-[2px] rounded-2xl text-2xl font-black text-white transition-all"
          >
            0
          </button>
          
+         {/* ปุ่ม X สีแดงเรืองแสง */}
          <button 
            type="button" 
            onClick={() => {
@@ -3200,12 +3210,13 @@ const executeRatingSubmit = async () => {
              else if (current.length > 2) formatted = `${current.substring(0, 2)}-${current.substring(2)}`;
              setFormData(prev => ({ ...prev, reporterContact: formatted }));
            }} 
-           className="bg-slate-800 border-[2px] border-solid border-white/80 text-rose-500 flex items-center justify-center py-3 sm:py-3.5 md:py-5 rounded-xl md:rounded-2xl active:scale-95 transition-all shadow-[0_0_10px_rgba(255,255,255,0.3)] hover:bg-rose-600 hover:border-rose-400 hover:text-white hover:shadow-[0_0_20px_rgba(225,29,72,0.7)]"
+           className="h-14 bg-slate-800 border-[2px] border-b-[4px] border-rose-700/70 text-rose-500 hover:border-rose-400 hover:text-rose-300 hover:shadow-[0_0_15px_rgba(244,63,94,0.5)] active:border-b-[2px] active:translate-y-[2px] rounded-2xl flex items-center justify-center transition-all"
          >
-           <X size={28} strokeWidth={3.5} className="md:w-8 md:h-8"/>
+           <X size={28} className="drop-shadow-md stroke-[3px]" />
          </button>
        </div>
 
+       {/* 🌟 ปุ่มยืนยัน (ส้ม โฮเวอร์เป็น ฟ้า-เขียว) */}
        <button 
          type="button" 
          onClick={() => {
@@ -3217,7 +3228,7 @@ const executeRatingSubmit = async () => {
            }
            setShowNumpad(false);
          }} 
-         className="w-full mt-2 md:mt-4 bg-gradient-to-r from-orange-500 to-amber-500 text-white font-black py-3.5 sm:py-4 md:py-6 rounded-xl md:rounded-2xl border-[2px] border-solid border-orange-300 shadow-[0_0_15px_rgba(249,115,22,0.5)] active:scale-95 transition-all duration-300 text-[15px] sm:text-[16px] md:text-[22px] tracking-widest uppercase hover:from-emerald-500 hover:to-emerald-600 hover:border-emerald-300 hover:shadow-[0_0_25px_rgba(16,185,129,0.8)] shrink-0"
+         className="w-full mt-2 h-14 bg-gradient-to-r from-orange-500 to-amber-500 text-white font-black text-lg rounded-2xl border-[2px] border-solid border-orange-400 shadow-[0_0_20px_rgba(249,115,22,0.5)] hover:from-cyan-500 hover:to-emerald-500 hover:border-cyan-300 hover:shadow-[0_0_25px_rgba(34,211,238,0.7)] active:scale-95 transition-all duration-300 tracking-widest shrink-0"
        >
          ยืนยัน
        </button>
@@ -4844,13 +4855,23 @@ const renderTracking = () => (
   
   <div className="w-full flex justify-evenly items-center px-1 md:px-8">
           
-      {/* 🏠 ปุ่ม HOME */}
-      <button onClick={onGoHome} className="flex flex-col items-center justify-center gap-1.5 md:gap-3 active:scale-95 transition-all shrink-0 group">
-        <div className="p-2.5 md:p-4 rounded-full bg-transparent text-slate-400 group-hover:text-white transition-colors">
-          <Home className="w-6 h-6 md:w-12 md:h-12" />
-        </div>
-        <span className="block text-[14px] md:text-[22px] font-black text-slate-400 group-hover:text-white tracking-widest whitespace-nowrap shrink-0 transition-colors">หน้าแรก</span>
-      </button>
+      {/* 🚪 ปุ่มออกจากระบบ (แทนปุ่มหน้าแรก) */}
+      <button 
+            onClick={async () => {
+              try {
+                await signOut(auth); // สั่งเตะบัญชีออกจาก Firebase
+                onGoHome(); // วาร์ปกลับหน้า Landing Page
+              } catch (error) {
+                console.error("Logout Error:", error);
+              }
+            }} 
+            className="flex flex-col items-center justify-center gap-1.5 md:gap-3 active:scale-95 transition-all shrink-0 group"
+          >
+            <div className="p-2.5 md:p-4 rounded-full bg-transparent text-slate-400 group-hover:text-rose-400 transition-colors">
+              <LogOut className="w-6 h-6 md:w-12 md:h-12" />
+            </div>
+            <span className="block text-[14px] md:text-[22px] font-black text-slate-400 group-hover:text-rose-400 tracking-widest whitespace-nowrap shrink-0 transition-colors">ออกจากระบบ</span>
+          </button>
 
       {/* ================= โหมดแผงแจ้งซ่อม ติดตามสถานะ หน้าผู้แจ้ง (Reporter) ================= */}
       {currentUserRole === 'reporter' && (
@@ -4902,12 +4923,327 @@ const renderTracking = () => (
 
 
 // ==========================================
+// 📱 ฟังก์ชัน: หน้าต่าง Login สำหรับผู้แจ้งซ่อม (เวอร์ชันกู้รหัสผ่านผ่านอีเมลจริงฟรี 100%)
+// ==========================================
+function ReporterLoginPopup({ onClose, onLoginSuccess }) {
+  const [step, setStep] = useState(1); // 1=เบอร์, 2=PIN, 3=ลงทะเบียนข้อมูล, 4=โดนล็อก, 5=ส่งเมลสำเร็จ
+  const [phone, setPhone] = useState('');
+  const [pin, setPin] = useState('');
+  const [confirmPin, setConfirmPin] = useState(''); 
+  const [isConfirmingPin, setIsConfirmingPin] = useState(false); 
+  const [showPin, setShowPin] = useState(false); 
+  
+  const [fullName, setFullName] = useState('');
+  const [email, setEmail] = useState('');
+  const [userRealEmail, setUserRealEmail] = useState(''); // 🌟 ฟันธง: เก็บอีเมลจริงจากระบบมาใช้ล็อกอินหลังบ้าน
+  const [isNewUser, setIsNewUser] = useState(false);
+  const [errorMsg, setErrorMsg] = useState('');
+  const [isLoading, setIsLoading] = useState(false);
+
+  const [failedAttempts, setFailedAttempts] = useState(0);
+  const maxAttempts = 5; 
+
+  // ตรวจสอบชิปความจำเครื่องตอนเปิดหน้าจอ
+  useEffect(() => {
+    const savedPhone = localStorage.getItem('gse_remembered_phone');
+    if (savedPhone && savedPhone.length === 10) {
+      setPhone(savedPhone);
+      setIsLoading(true);
+      getDocs(query(collection(db, 'users'), where('phone', '==', savedPhone)))
+        .then((snapshot) => {
+          if (!snapshot.empty) {
+            const userData = snapshot.docs[0].data();
+            setUserRealEmail(userData.email); // ดึงเมลจริงมาแสตนด์บาย
+            setIsNewUser(false);
+          } else {
+            setIsNewUser(true);
+          }
+          setStep(2); 
+        })
+        .catch((err) => console.error("Auto-check error:", err))
+        .finally(() => setIsLoading(false));
+    }
+  }, []);
+
+  const handleForgotDevice = () => {
+    localStorage.removeItem('gse_remembered_phone'); 
+    setPhone(''); setPin(''); setConfirmPin(''); setIsConfirmingPin(false);
+    setFailedAttempts(0); setErrorMsg(''); setUserRealEmail('');
+    setStep(1); 
+  };
+
+  const handleNumpad = (num) => {
+    if (failedAttempts >= maxAttempts) return; 
+    setErrorMsg('');
+    if (step === 1 && phone.length < 10) setPhone(prev => prev + num);
+    if (step === 2) {
+      if (isConfirmingPin && confirmPin.length < 6) setConfirmPin(prev => prev + num);
+      else if (!isConfirmingPin && pin.length < 6) setPin(prev => prev + num);
+    }
+  };
+  
+  const handleDelete = () => {
+    if (failedAttempts >= maxAttempts) return;
+    if (step === 1) setPhone(prev => prev.slice(0, -1));
+    if (step === 2) {
+      if (isConfirmingPin) setConfirmPin(prev => prev.slice(0, -1));
+      else setPin(prev => prev.slice(0, -1));
+    }
+  };
+  
+  const handleClear = () => {
+    if (failedAttempts >= maxAttempts) return;
+    if (step === 1) setPhone('');
+    if (step === 2) {
+      if (isConfirmingPin) setConfirmPin('');
+      else setPin('');
+    }
+  };
+
+  const formatPhone = (p) => {
+    const padded = p.padEnd(10, '-');
+    return `${padded.slice(0,2)}-${padded.slice(2,6)}-${padded.slice(6,10)}`;
+  };
+  
+  const formatPinDisplay = (p) => {
+    const padded = p.padEnd(6, '-');
+    if (showPin) return padded.split('').join(' '); 
+    return padded.split('').map(c => c === '-' ? '-' : '•').join(' ');
+  };
+
+  useEffect(() => {
+    const handleKeyDown = (e) => {
+      if (step >= 3 || failedAttempts >= maxAttempts) return; 
+      if (/^[0-9]$/.test(e.key)) handleNumpad(e.key);
+      else if (e.key === 'Backspace') handleDelete();
+      else if (e.key.toLowerCase() === 'c' || e.key === 'Escape') handleClear();
+      else if (e.key === 'Enter') {
+        if (step === 1 && phone.length === 10) handleNextStep();
+        else if (step === 2) {
+          if (isConfirmingPin && confirmPin.length === 6) handleSubmit();
+          else if (!isConfirmingPin && pin.length === 6) handleSubmit();
+        }
+      }
+    };
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [step, phone, pin, isNewUser, isConfirmingPin, confirmPin, failedAttempts, userRealEmail]);
+
+  const handleNextStep = async () => {
+    if (phone.length !== 10) { setErrorMsg('กรุณากรอกเบอร์โทรศัพท์ให้ครบ 10 หลักค่ะ'); return; }
+    setIsLoading(true); setErrorMsg(''); setFailedAttempts(0); 
+    try {
+      const q = query(collection(db, 'users'), where('phone', '==', phone));
+      const querySnapshot = await getDocs(q);
+      if (!querySnapshot.empty) {
+        const userData = querySnapshot.docs[0].data();
+        setUserRealEmail(userData.email); // 🌟 บันทึกอีเมลจริงไว้ใช้ล็อกอินหลังบ้าน
+        setIsNewUser(false);
+      } else {
+        setIsNewUser(true);
+      }
+      setStep(2);
+    } catch (error) { setErrorMsg('ระบบตรวจสอบขัดข้อง: ' + error.message); } 
+    finally { setIsLoading(false); }
+  };
+
+  const handleSubmit = async () => {
+    if (isConfirmingPin) {
+      if (confirmPin.length !== 6) { setErrorMsg('กรุณายืนยันรหัส PIN ให้ครบ 6 หลักค่ะ'); return; }
+      if (pin !== confirmPin) { setErrorMsg('รหัส PIN ไม่ตรงกัน กรุณาลองใหม่อีกครั้งค่ะ'); setConfirmPin(''); return; }
+      setErrorMsg(''); setStep(3); 
+    } else {
+      if (pin.length !== 6) { setErrorMsg('กรุณากรอกรหัส PIN ให้ครบ 6 หลักค่ะ'); return; }
+      setErrorMsg('');
+      
+      if (isNewUser) {
+        setIsConfirmingPin(true); setShowPin(false);
+      } else {
+        setIsLoading(true);
+        try {
+          // 🌟 ฟันธง: ล็อกอินผ่านหลังบ้านด้วย "อีเมลจริงองค์กร" ที่ดึงมาจากเบอร์โทรคู่หูของเขา
+          await signInWithEmailAndPassword(auth, userRealEmail, pin);
+          localStorage.setItem('gse_remembered_phone', phone);
+          setFailedAttempts(0); onLoginSuccess('reporter');
+        } catch (error) { 
+          const newAttempts = failedAttempts + 1;
+          setFailedAttempts(newAttempts);
+          if (newAttempts >= maxAttempts) {
+            setStep(4); // ส่งไปหน้าล็อกถาวรทันที
+          } else {
+            setErrorMsg(`รหัส PIN ไม่ถูกต้องค่ะ กรุณาลองอีกครั้ง (${newAttempts}/${maxAttempts})`);
+          }
+          setPin(''); 
+        } 
+        finally { setIsLoading(false); }
+      }
+    }
+  };
+
+  const handleFinalRegister = async (e) => {
+    e.preventDefault();
+    if (!fullName || !email) { setErrorMsg('กรุณากรอกข้อมูลให้ครบถ้วนค่ะ'); return; }
+    setIsLoading(true); setErrorMsg('');
+    try {
+      // 🌟 ฟันธง: บันทึกเข้า Firebase Auth ด้วยอีเมลจริงองค์กรที่เขากรอก
+      await createUserWithEmailAndPassword(auth, email, pin);
+      await addDoc(collection(db, 'users'), { phone, fullName, email, role: 'reporter', createdAt: new Date().toISOString() });
+      localStorage.setItem('gse_remembered_phone', phone);
+      onLoginSuccess('reporter');
+    } catch (error) { setErrorMsg('อีเมลนี้อาจถูกใช้งานแล้ว หรือรูปแบบไม่ถูกต้องค่ะ'); } 
+    finally { setIsLoading(false); }
+  };
+
+  // 🌟 ฟันธง: ฟังก์ชันยิงอีเมลรีเซ็ตรหัสผ่าน Self-Service ฟรีจากกูเกิล!
+  const handleForgotPin = async () => {
+    if (!userRealEmail) { setErrorMsg('ไม่พบข้อมูลอีเมลสำหรับรีเซ็ตรหัสผ่านค่ะ'); return; }
+    setIsLoading(true); setErrorMsg('');
+    try {
+      await sendPasswordResetEmail(auth, userRealEmail);
+      setStep(5); // วาร์ปไปหน้าจอส่งสำเร็จ!
+    } catch (error) {
+      setErrorMsg('เกิดข้อผิดพลาดในการส่งลิงก์: ' + error.message);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  return (
+    <div className="fixed inset-0 z-[400] bg-slate-950/95 backdrop-blur-md flex items-center justify-center p-4 animate-in fade-in" onClick={onClose}>
+      <div className="relative w-full max-w-sm bg-slate-900 border-[3px] border-solid border-cyan-500/80 rounded-[2.5rem] p-6 shadow-[0_0_40px_rgba(34,211,238,0.3)] flex flex-col items-center gap-4 transition-all" onClick={e => e.stopPropagation()}>
+        
+        <button onClick={onClose} className="absolute top-5 right-5 text-slate-400 hover:text-rose-400 transition-colors z-20">
+          <X size={28} />
+        </button>
+
+        <div className="relative mt-2">
+          <div className="absolute inset-0 bg-orange-500 blur-[20px] opacity-40 rounded-full"></div>
+          <div className="relative w-16 h-16 bg-slate-950 border-[2px] border-orange-400 rounded-full flex items-center justify-center shadow-[0_0_20px_rgba(249,115,22,0.6)]">
+            <Phone className="w-8 h-8 text-orange-400 drop-shadow-[0_0_8px_rgba(249,115,22,0.8)]" />
+          </div>
+        </div>
+        
+        {step < 4 && (
+          <h2 className="text-xl font-black text-white tracking-wide text-center">
+            {step === 1 && 'เบอร์โทรศัพท์ผู้แจ้ง'}
+            {step === 2 && (isNewUser ? (isConfirmingPin ? '✅ ยืนยันรหัส PIN อีกครั้ง' : '✨ ตั้งรหัส PIN 6 หลัก') : '🔒 ใส่รหัส PIN เพื่อเข้าสู่ระบบ')}
+            {step === 3 && '📝 ข้อมูลแจ้งเตือน'}
+          </h2>
+        )}
+
+        {errorMsg && step < 4 && <p className={`text-sm font-bold text-center p-2 rounded-lg w-full border animate-in shake bg-rose-500/10 text-rose-400 border-rose-500/30 shadow-[0_0_10px_rgba(244,63,94,0.2)]`}>{errorMsg}</p>}
+
+        {/* --- ส่วนของ STEP 1 และ 2 (กรอกเบอร์ / PIN) --- */}
+        {step < 3 && (
+          <>
+            <div className="relative w-full mb-2">
+              <div className="w-full bg-slate-950 border-[2px] border-cyan-400 rounded-2xl h-16 flex items-center justify-center text-3xl font-black text-cyan-300 tracking-[0.1em] shadow-[0_0_15px_rgba(34,211,238,0.4),inset_0_0_10px_rgba(34,211,238,0.2)] transition-all">
+                {step === 1 ? formatPhone(phone) : formatPinDisplay(isConfirmingPin ? confirmPin : pin)}
+              </div>
+              {step === 2 && (
+                <button type="button" onClick={() => setShowPin(!showPin)} className="absolute right-4 top-1/2 -translate-y-1/2 text-cyan-600 hover:text-cyan-300 transition-colors drop-shadow-md">
+                  {showPin ? <EyeOff size={24} /> : <Eye size={24} />}
+                </button>
+              )}
+            </div>
+
+            {step === 2 && (
+              <div className="w-full flex justify-between items-center px-1 -mt-1 mb-1">
+                {failedAttempts >= 3 && !isNewUser ? (
+                  <button type="button" onClick={handleForgotPin} disabled={isLoading} className="text-xs font-bold text-rose-400 hover:text-rose-300 underline transition-colors animate-pulse z-10">
+                    {isLoading ? 'กำลังส่งข้อมูล...' : 'ลืมรหัส PIN ใช่หรือไม่?'}
+                  </button>
+                ) : (
+                  <div></div>
+                )}
+                <button type="button" onClick={handleForgotDevice} className="text-xs font-bold text-slate-400 hover:text-orange-400 underline transition-colors ml-auto z-10">ไม่ใช่คุณใช่ไหม?</button>
+              </div>
+            )}
+
+            <div className="grid grid-cols-3 gap-3 w-full px-1">
+              {[1, 2, 3, 4, 5, 6, 7, 8, 9].map((num) => (
+                <button key={num} onClick={() => handleNumpad(num.toString())} className="h-14 bg-slate-800 border-[2px] border-b-[4px] border-slate-600 hover:border-cyan-400 hover:text-cyan-300 hover:shadow-[0_0_15px_rgba(34,211,238,0.5)] active:border-b-[2px] active:translate-y-[2px] rounded-2xl text-2xl font-black text-white transition-all">{num}</button>
+              ))}
+              <button onClick={handleClear} className="h-14 bg-slate-800 border-[2px] border-b-[4px] border-amber-600/70 text-amber-500 hover:border-amber-400 hover:text-amber-300 hover:shadow-[0_0_15px_rgba(251,191,36,0.5)] active:border-b-[2px] active:translate-y-[2px] rounded-2xl text-2xl font-black transition-all">C</button>
+              <button onClick={() => handleNumpad('0')} className="h-14 bg-slate-800 border-[2px] border-b-[4px] border-slate-600 hover:border-cyan-400 hover:text-cyan-300 hover:shadow-[0_0_15px_rgba(34,211,238,0.5)] active:border-b-[2px] active:translate-y-[2px] rounded-2xl text-2xl font-black text-white transition-all">0</button>
+              <button onClick={handleDelete} className="h-14 bg-slate-800 border-[2px] border-b-[4px] border-rose-700/70 text-rose-500 hover:border-rose-400 hover:text-rose-300 hover:shadow-[0_0_15px_rgba(244,63,94,0.5)] active:border-b-[2px] active:translate-y-[2px] rounded-2xl flex items-center justify-center transition-all">
+                <X className="w-8 h-8 drop-shadow-md" />
+              </button>
+            </div>
+
+            <button onClick={step === 1 ? handleNextStep : handleSubmit} disabled={isLoading} className="w-full mt-3 h-14 rounded-2xl font-black text-white text-xl bg-gradient-to-r from-orange-500 to-amber-500 border-[2px] border-orange-400 shadow-[0_0_20px_rgba(249,115,22,0.5)] hover:from-cyan-500 hover:to-emerald-500 hover:border-cyan-300 hover:shadow-[0_0_25px_rgba(34,211,238,0.7)] active:scale-95 transition-all duration-300">
+              {isLoading ? 'กำลังตรวจสอบ...' : (step === 1 ? 'ถัดไป' : (isNewUser && !isConfirmingPin ? 'ถัดไป' : (isNewUser ? 'ยืนยันรหัสผ่าน' : 'เข้าสู่ระบบ')))}
+            </button>
+          </>
+        )}
+
+        {/* --- ส่วนของ STEP 3 (กรอกข้อมูลจริงเพื่อทำผังจำอีเมล) --- */}
+        {step === 3 && (
+          <form onSubmit={handleFinalRegister} className="w-full flex flex-col gap-4">
+            <p className="text-amber-400 text-xs font-bold text-center bg-amber-500/10 p-2 rounded-lg">ยินดีต้อนรับ! กรอกอีเมลจริงหน่วยงานเพื่อเปิดระบบกู้คืนรหัสผ่านอัตโนมัติ</p>
+            <div className="space-y-1.5 w-full text-left">
+              <label className="text-xs font-black text-slate-300">ชื่อ - นามสกุล</label>
+              <input type="text" required value={fullName} onChange={e => setFullName(e.target.value)} className="w-full bg-slate-950 border-2 border-slate-600 focus:border-cyan-400 shadow-inner rounded-xl px-4 py-3 text-white font-bold outline-none text-sm transition-all" />
+            </div>
+            <div className="space-y-1.5 w-full text-left">
+              <label className="text-xs font-black text-slate-300">อีเมลจริง (สำหรับรับลิงก์รีเซ็ตรหัสผ่าน)</label>
+              <input type="email" required value={email} onChange={e => setEmail(e.target.value)} className="w-full bg-slate-950 border-2 border-slate-600 focus:border-cyan-400 shadow-inner rounded-xl px-4 py-3 text-white font-bold outline-none text-sm transition-all" placeholder="username@gistda.or.th" />
+            </div>
+            <div className="flex gap-3 mt-2">
+              <button type="button" onClick={() => { setStep(2); setIsConfirmingPin(false); setPin(''); setConfirmPin(''); setShowPin(false); }} className="flex-1 py-3.5 rounded-xl font-bold text-white bg-slate-800 border-2 border-slate-600 hover:bg-slate-700 transition-all active:scale-95 text-sm">ย้อนกลับ</button>
+              <button type="submit" disabled={isLoading} className="flex-[1.5] py-3.5 rounded-xl font-black text-white bg-gradient-to-r from-orange-500 to-amber-500 border-2 border-orange-400 hover:from-cyan-500 hover:to-emerald-500 hover:border-cyan-300 shadow-[0_0_15px_rgba(249,115,22,0.4)] transition-all duration-300 active:scale-95 text-sm">{isLoading ? 'กำลังบันทึก...' : 'เสร็จสิ้นการสมัคร'}</button>
+            </div>
+          </form>
+        )}
+
+        {/* 🌟 ฟันธง: ส่วนของ STEP 4 (หน้าจอโดนบล็อกเพราะกดผิด 5 ครั้ง เสนอทางเลือกรีเซ็ตทันที) */}
+        {step === 4 && (
+          <div className="w-full flex flex-col items-center gap-4 text-center py-2 animate-in fade-in">
+            <div className="text-5xl drop-shadow-[0_0_15px_rgba(225,29,72,0.6)] mb-2">🔒</div>
+            <h3 className="text-xl font-black text-rose-400 tracking-wide">ระงับการใช้งานชั่วคราว</h3>
+            <p className="text-[14px] text-slate-300 font-bold leading-relaxed bg-rose-500/10 p-4 rounded-xl border border-rose-500/30">
+              ท่านระบุรหัส PIN ผิดพลาดเกิน 5 ครั้ง <br/>
+              เพื่อความปลอดภัย กรุณากดปุ่มด้านล่างเพื่อส่ง <br/>
+              <span className="text-emerald-400 font-black">ลิงก์กู้คืนรหัสผ่าน</span> ไปที่อีเมลจริงของท่านค่ะ
+            </p>
+            <button type="button" onClick={handleForgotPin} disabled={isLoading} className="w-full h-14 rounded-2xl font-black text-white bg-gradient-to-r from-emerald-500 to-teal-600 border-2 border-emerald-400 shadow-[0_0_15px_rgba(16,185,129,0.4)] transition-all active:scale-95">
+              {isLoading ? 'กำลังส่งลิงก์...' : '🚀 ส่งลิงก์กู้คืนรหัสเข้าอีเมล'}
+            </button>
+            <button type="button" onClick={handleForgotDevice} className="text-xs font-bold text-slate-400 hover:text-white underline">เปลี่ยนเบอร์โทรศัพท์</button>
+          </div>
+        )}
+
+        {/* 🌟 ฟันธง: ส่วนของ STEP 5 (หน้าจอส่งลิงก์รีเซ็ตสำเร็จ!) */}
+        {step === 5 && (
+          <div className="w-full flex flex-col items-center gap-4 text-center py-2 animate-in scale-in">
+            <div className="text-5xl drop-shadow-[0_0_15px_rgba(16,185,129,0.6)] mb-2">📩</div>
+            <h3 className="text-xl font-black text-emerald-400 tracking-wide">ส่งลิงก์กู้คืนสำเร็จ!</h3>
+            <div className="text-[13px] text-slate-300 font-bold leading-relaxed bg-slate-950 p-4 rounded-xl border border-cyan-500/30 shadow-inner">
+              ระบบได้ยิงอีเมลความปลอดภัยส่งตรงไปที่<br/>
+              <span className="text-cyan-400 font-black break-all">{userRealEmail}</span> เรียบร้อยแล้วค่ะ!<br/><br/>
+              <span className="text-amber-400">วิธีใช้งาน:</span> เปิดกล่องข้อความอีเมลองค์กร {"->"} <br/>
+            คลิกปุ่มลิงก์จาก Firebase {"->"} ตั้งรหัสตัวเลข 6 ตัวใหม่ {"->"} กลับมาล็อกอินได้ทันทีค่ะ
+            </div>
+            <button type="button" onClick={() => { setStep(2); setFailedAttempts(0); }} className="w-full h-14 rounded-2xl font-black text-white bg-slate-800 border-2 border-slate-600 hover:border-cyan-400 transition-all active:scale-95">
+              กลับหน้าต่างใส่รหัส PIN
+            </button>
+          </div>
+        )}
+
+      </div>
+    </div>
+  );
+}
+
+
+// ==========================================
 // 🌟 Landing Page - ฉบับสมบูรณ์ ไร้ Error 100% (อัปเกรด Login)
 // ==========================================
 function LandingPage({ onStart }) {
   const [showManual, setShowManual] = useState(false); 
   // 🌟 ฟันธง: เพิ่ม State สำหรับระบบ Login ของช่าง
   const [showLogin, setShowLogin] = useState(false);
+  const [showReporterLogin, setShowReporterLogin] = useState(false);
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [loginError, setLoginError] = useState('');
@@ -4992,8 +5328,9 @@ function LandingPage({ onStart }) {
          <div className="w-full flex flex-col gap-2.5 md:gap-3.5 relative z-10 transition-all duration-500">
             
             {/* ปุ่ม 1: ส้ม-ทอง (Primary Action) - ผู้แจ้งเข้าได้เลย ไม่ต้อง Login */}
-            <button
-              onClick={() => onStart('reporter')}
+           {/* ปุ่ม 1: ส้ม-ทอง (Primary Action) - 🌟 ฟันธง: เปลี่ยนให้เรียก Popup แทน */}
+           <button
+              onClick={() => setShowReporterLogin(true)}
               className="w-full pt-4 md:py-6 pb-5 bg-gradient-to-r from-orange-500 to-amber-500 text-white font-black text-[19px] md:text-[28px] rounded-2xl md:rounded-[1.5rem] flex items-center justify-center gap-5 md:gap-3 border-[2px] border-solid border-white/80 shadow-[0_15px_30px_rgba(249,115,22,0.5)] hover:shadow-[0_15px_35px_rgba(249,115,22,0.8)] active:scale-95 transition-all"
             >
               <Wrench size={28} className="drop-shadow-md md:w-9 md:h-9" />{' '}
@@ -5160,7 +5497,7 @@ function LandingPage({ onStart }) {
                 </div>
               )}
 
-              <div className="flex gap-3 mt-4">
+<div className="flex gap-3 mt-4">
                 <button type="button" onClick={() => setShowLogin(false)} className="flex-1 py-4 rounded-xl font-bold text-white bg-slate-800 hover:bg-rose-600 border-[2px] border-solid border-slate-600 hover:border-rose-400 transition-all shadow-sm active:scale-95">
                   ยกเลิก
                 </button>
@@ -5174,9 +5511,20 @@ function LandingPage({ onStart }) {
         </div>
       )}
 
+
+      {/* 👇👇👇 ฟันธง: แทรกโค้ดข้อ 3 ตรงนี้เลยครับ 👇👇👇 */}
+      {showReporterLogin && (
+        <ReporterLoginPopup 
+          onClose={() => setShowReporterLogin(false)} 
+          onLoginSuccess={onStart} 
+        />
+      )}
+      {/* 👆👆👆 จบส่วนที่แทรกเพิ่ม 👆👆👆 */}
+
+
     </div>
   );
-} 
+}
 
 /* 🌟 ฟันธง: นำเข้าฟอนต์ Sarabun และจัดระเบียบความเพรียวบางให้อ่านง่ายที่สุด */
 const SarabunFontEmbed = () => (
