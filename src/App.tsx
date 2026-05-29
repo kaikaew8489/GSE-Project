@@ -5213,22 +5213,30 @@ function ReporterLoginPopup({ onClose, onLoginSuccess }) {
           </div>
         )}
 
-        {/* 🌟 ฟันธง: ส่วนของ STEP 5 (หน้าจอส่งลิงก์รีเซ็ตสำเร็จ!) */}
-        {step === 5 && (
+
+       {/* 🌟 ฟันธง: ส่วนของ STEP 5 (หน้าจอส่งลิงก์รีเซ็ตสำเร็จ + แจ้งเตือน Spam) */}
+       {step === 5 && (
           <div className="w-full flex flex-col items-center gap-4 text-center py-2 animate-in scale-in">
             <div className="text-5xl drop-shadow-[0_0_15px_rgba(16,185,129,0.6)] mb-2">📩</div>
             <h3 className="text-xl font-black text-emerald-400 tracking-wide">ส่งลิงก์กู้คืนสำเร็จ!</h3>
             <div className="text-[13px] text-slate-300 font-bold leading-relaxed bg-slate-950 p-4 rounded-xl border border-cyan-500/30 shadow-inner">
               ระบบได้ยิงอีเมลความปลอดภัยส่งตรงไปที่<br/>
-              <span className="text-cyan-400 font-black break-all">{userRealEmail}</span> เรียบร้อยแล้วค่ะ!<br/><br/>
-              <span className="text-amber-400">วิธีใช้งาน:</span> เปิดกล่องข้อความอีเมลองค์กร {"->"} <br/>
-            คลิกปุ่มลิงก์จาก Firebase {"->"} ตั้งรหัสตัวเลข 6 ตัวใหม่ {"->"} กลับมาล็อกอินได้ทันทีค่ะ
+              <span className="text-cyan-400 font-black break-all">{userRealEmail}</span> เรียบร้อยแล้วค่ะ!<br/>
+              
+              {/* 🌟 กรอบแจ้งเตือนเช็คจดหมายขยะ */}
+              <div className="mt-3 mb-3 p-3 bg-amber-500/10 border border-amber-500/50 rounded-lg text-amber-400 animate-pulse">
+                ⚠️ <b>ข้อควรระวัง:</b> หากไม่พบอีเมลในกล่องจดหมายเข้า กรุณาตรวจสอบที่ <b>"จดหมายขยะ (Spam / Junk)"</b> นะคะ
+              </div>
+
+              <span className="text-amber-400">วิธีใช้งาน:</span> เปิดกล่องข้อความอีเมลองค์กร {"->"} คลิกปุ่มลิงก์จาก Firebase {"->"} ตั้งรหัสตัวเลข 6 ตัวใหม่ {"->"} กลับมาล็อกอินได้ทันทีค่ะ
             </div>
             <button type="button" onClick={() => { setStep(2); setFailedAttempts(0); }} className="w-full h-14 rounded-2xl font-black text-white bg-slate-800 border-2 border-slate-600 hover:border-cyan-400 transition-all active:scale-95">
               กลับหน้าต่างใส่รหัส PIN
             </button>
           </div>
         )}
+
+
 
       </div>
     </div>
