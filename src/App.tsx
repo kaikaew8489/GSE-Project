@@ -1263,7 +1263,22 @@ function MainApp({ onGoHome, initialRole }) {
   );
 
   const [user, setUser] = useState(null);
-  const [currentUserName, setCurrentUserName] = useState('');
+
+  // 🌟 ฟันธงจุดที่ 1: ให้ระบบดึงชื่อล่าสุดที่จำไว้ในเครื่องมาเป็นค่าเริ่มต้นทันที!
+const [currentUserName, setCurrentUserName] = useState(() => localStorage.getItem('gse_remembered_name') || '');
+  
+  // =====================================================================
+  // 🌟 ฟันธงจุดที่ 1: เพิ่มสมองกลตรวจจับ "การเข้าสู่ระบบครั้งแรก"
+  // =====================================================================
+  const [showWelcomePopup, setShowWelcomePopup] = useState(() => sessionStorage.getItem('gse_show_welcome') === 'true');
+  
+  useEffect(() => {
+    // โชว์เสร็จปุ๊บ ลบทิ้งปั๊บ จะได้ไม่เด้งซ้ำเวลา Refresh หน้าจอ
+    if (showWelcomePopup) sessionStorage.removeItem('gse_show_welcome');
+  }, [showWelcomePopup]);
+
+
+  // =====================================================================
   const [tickets, setTickets] = useState([]);
   const [isDataLoading, setIsDataLoading] = useState(true);
   const [authErrorMsg, setAuthErrorMsg] = useState('');
@@ -1474,6 +1489,7 @@ const toggleTag = (tag) => {
     return days > 0 ? `${days} วัน ${timeStr}` : timeStr;
   };
 
+
   const handleReporterChange = (name) => {
     const emp = employeeList.find((x) => x.name === name);
     const tech = technicianList.find((x) => x.name === name);
@@ -1491,9 +1507,17 @@ const toggleTag = (tag) => {
       bureau: 'สำนักปฏิบัติการดาวเทียม',
       reporterContact: autofillPhone,
     }));
+    
+    // ====================================================================
+    // 🌟 ฟันธง: ฝังชิปความจำให้แถบ Header ด้านบน เปลี่ยนชื่อตามทันทีแบบ Real-time!
+    // ====================================================================
+    localStorage.setItem('gse_remembered_name', name);
+    setCurrentUserName(name);
+
     if (formErrors.reporter)
       setFormErrors((prev) => ({ ...prev, reporter: null }));
   };
+
 
   const handlePhoneChange = (e) => {
     let val = e.target.value.replace(/\D/g, '');
@@ -1582,24 +1606,60 @@ const toggleTag = (tag) => {
     return errors;
   };
 
-  const handleResetForm = () => {
-    setFormData({
-      reporter: '',
-      reporterContact: '',
-      position: '',
-      department: '',
-      bureau: 'สำนักปฏิบัติการดาวเทียม',
-      equipment: '',
-      description: '',
-      assetNumber: '',
-      building: '',
-      room: '',
-      equipmentCategory: '',
-      images: [],
-      isSsc: false,
-    });
-    setFormErrors({});
-  };
+
+// 🌟 ฟันธง: อัปเกรดระบบล้างฟอร์ม ให้ดึงข้อมูลผู้ใช้มาเติมอัตโนมัติเสมอ!
+const handleResetForm = () => {
+  let savedName = localStorage.getItem('gse_remembered_name') || currentUserName || '';
+  const savedPhone = localStorage.getItem('gse_remembered_phone') || '';
+  
+  // จัดฟอร์แมตเบอร์โทรให้สวยงาม
+  let formattedPhone = savedPhone;
+  if (savedPhone.length === 10) {
+    formattedPhone = `${savedPhone.substring(0, 2)}-${savedPhone.substring(2, 6)}-${savedPhone.substring(6)}`;
+  }
+
+  // ================================================================
+  // 🌟 ฟันธงเกราะกู้ชีพ: ถ้าชื่อแหว่งหายไป ให้งัดชื่อจากฐานข้อมูลช่าง/พนักงานมาใส่แทนทันที!
+  // ================================================================
+  if (!savedName || savedName.trim() === '') {
+    const rawPhone = savedPhone.replace(/\D/g, '');
+    const matchedTech = technicianList.find(t => t.phone && t.phone.replace(/\D/g, '') === rawPhone);
+    if (matchedTech) {
+      savedName = matchedTech.name; // เจอเบอร์ตรงกัน ดึงชื่อมาใส่เลย!
+      localStorage.setItem('gse_remembered_name', savedName);
+    } else {
+      savedName = 'ผู้ใช้งานระบบ'; // กันเหนียวสุดๆ ไม่ให้หน้าจอค้าง
+    }
+  }
+
+  const emp = employeeList.find((x) => x.name === savedName) || technicianList.find((x) => x.name === savedName);
+
+  setFormData({
+    reporter: savedName,
+    reporterContact: formattedPhone,
+    position: emp?.position || '',
+    department: emp?.department || '',
+    bureau: 'สำนักปฏิบัติการดาวเทียม',
+    equipment: '',
+    description: '',
+    assetNumber: '',
+    building: '',
+    room: '',
+    equipmentCategory: '',
+    images: [],
+    isSsc: false,
+  });
+  setFormErrors({});
+};
+
+// 🌟 ฟันธง: สมองกลดึงข้อมูลใส่ฟอร์ม "ทันที" ที่เข้าหน้าแจ้งซ่อม (เกราะ 2 ชั้น)
+useEffect(() => {
+  if (activeTab === 'report') {
+    handleResetForm();
+  }
+}, [activeTab]);
+
+  
 
   const handleSubmit = (e) => {
     e.preventDefault();
@@ -1672,8 +1732,14 @@ const toggleTag = (tag) => {
     try {
       // 🌟 ยิงข้อมูลขึ้น Database
       await addDoc(collection(db, 'tickets'), newTicket);
-      setShowSuccess(true); // สั่งเปิดหน้าต่างเขียวๆ!
 
+      // 🌟 ฟันธง 1: บันทึกเบอร์โทรลงเครื่องทันที! (แก้ปัญหาแจ้งซ่อมเสร็จแล้วงานหาย)
+      if (newTicket.reporterContact) {
+        localStorage.setItem('gse_remembered_phone', String(newTicket.reporterContact).replace(/\D/g, ''));
+        localStorage.setItem('gse_remembered_name', newTicket.reporter);
+      }
+
+      setShowSuccess(true); // สั่งเปิดหน้าต่างเขียวๆ!
       // 🌟 ยิง LINE แจ้งเตือน
       const gasUrl = "https://script.google.com/macros/s/AKfycbxBoB_e637WkWMeSuX9NP3BSKcSiE8J3dSXmlzNV9aeiq6DRUvn81bSp6w-B0nzCVA5/exec"; 
       let primaryTech = "ทีมช่าง ฝวด."; 
@@ -1940,31 +2006,66 @@ const executeRatingSubmit = async () => {
 
 
 
-  // 🌟 ลิสต์รายการงานสำหรับหน้า "ติดตามสถานะ/จัดการงาน" (แยกสมองอิสระ ไม่เกี่ยวกับเวลาในแผงควบคุม)
+  // 🌟 ลิสต์รายการงานสำหรับหน้า "ติดตามสถานะ/จัดการงาน" (ฉบับยืดหยุ่นสูงสุด งานไม่หาย จอไม่ดำ)
   const filteredTickets = useMemo(() => {
-    
     return tickets.filter((t) => {
-      // 🌟 1. ด่านจำกัดสิทธิ์หน้าจอจัดการงาน (ย้ายเข้ามาอยู่ข้างในนี้แล้วครับ!)
-      if (currentUserRole !== 'Commander' && currentUserRole !== 'reporter') {
-        const isMyJob = t.techName === currentUserName || t.sscTechName === currentUserName;
-        const isUnassigned = !t.techName || t.techName === 'รอเจ้าหน้าที่รับงาน';
-        if (!isMyJob && !isUnassigned) return false; // ซ่อนงานของช่างคนอื่นไม่ให้เห็น
-      }
+      
+     // =========================================================
+          // 🌟 1. ด่านจำกัดสิทธิ์ (ยืดหยุ่นขึ้น ตรวจจับตัวตนได้แม่นยำ)
+          // =========================================================
+          if (currentUserRole !== 'Commander') {
+            if (currentUserRole === 'reporter') {
 
-      // 🌟 2. กรองวันที่เฉพาะหน้า "ติดตามสถานะ"
+              // ดึงข้อมูลชื่อ/เบอร์ จากทุกกระเป๋า กันเหนียวค่าว่าง
+              const myName = String(currentUserName || sessionStorage.getItem('userName') || localStorage.getItem('gse_remembered_name') || '').trim();
+              
+              // 🌟 ฟันธง 2: สกัดเอาเฉพาะ "ตัวเลขล้วนๆ" ลบขีด (-) ทิ้งไปให้หมด!
+              const rawMyPhone = String(sessionStorage.getItem('userPhone') || localStorage.getItem('gse_remembered_phone') || '').trim();
+              const myPhone = rawMyPhone.replace(/\D/g, ''); 
+
+              const tName = String(t.reporter || '').trim();
+              
+              // 🌟 ฟันธง 2: ลบขีด (-) ออกจากฐานข้อมูลด้วย เพื่อให้เทียบกันตรงเป๊ะ 1,000,000%
+              const rawTPhone = String(t.reporterContact || t.contact || '').trim();
+              const tPhone = rawTPhone.replace(/\D/g, ''); 
+
+              // เทียบชื่อ หรือ เบอร์โทร (ขอแค่อย่างใดอย่างหนึ่งตรงกัน หรือคล้ายกัน ก็ให้ผ่าน!)
+              const matchName = (myName !== '' && tName !== '') && (tName.includes(myName) || myName.includes(tName));
+              const matchPhone = (myPhone !== '' && tPhone !== '') && (tPhone === myPhone);
+
+              if (myName === '' && myPhone === '') {
+                 // ถ้าระบบไม่มีข้อมูลล็อกอินเลย ให้ใช้ช่องค้นหา (Search) เท่านั้นถึงจะเห็นงาน
+                 if (!searchTerm) return false;
+              } else {
+                 // ถ้าล็อกอินแล้ว แต่ชื่อและเบอร์ไม่ตรงกับตั๋วเลย ถึงจะซ่อน
+                 if (!matchName && !matchPhone) return false;
+              }
+
+            } else {
+              // 👨‍🔧 สำหรับช่าง
+              const isMyJob = t.techName === currentUserName || t.sscTechName === currentUserName;
+              const isUnassigned = !t.techName || t.techName === 'รอเจ้าหน้าที่รับงาน';
+              if (!isMyJob && !isUnassigned) return false;
+            }
+          }
+
+      // =========================================================
+      // 🌟 2. ด่านกรองวันที่
+      // =========================================================
       let timeMatch = true;
       if (t.date) {
         const tDate = new Date(t.date);
         if (trackTimeframe === 'custom_month' && trackMonth) {
-          const [year, month] = trackMonth.split('-');
-          timeMatch = tDate.getFullYear() === parseInt(year) && (tDate.getMonth() + 1) === parseInt(month);
+          const parts = trackMonth.split('-');
+          if (parts.length === 2) {
+            timeMatch = tDate.getFullYear() === parseInt(parts[0]) && (tDate.getMonth() + 1) === parseInt(parts[1]);
+          }
         } else if (trackTimeframe === 'custom_date' && trackDate) {
           const selectedD = new Date(trackDate);
           timeMatch = tDate.getFullYear() === selectedD.getFullYear() && 
                       tDate.getMonth() === selectedD.getMonth() && 
                       tDate.getDate() === selectedD.getDate();
         } else if (trackTimeframe === 'week') {
-          // รองรับการกดมาจาก "สัปดาห์นี้" ในแผงควบคุม
           const now = new Date();
           const firstDayOfWeek = new Date(now);
           const currentDay = now.getDay();
@@ -1972,23 +2073,27 @@ const executeRatingSubmit = async () => {
           firstDayOfWeek.setDate(now.getDate() + diffToMonday);
           firstDayOfWeek.setHours(0, 0, 0, 0);
           timeMatch = tDate >= firstDayOfWeek;
-        } else if (trackTimeframe === 'all') {
-          timeMatch = true;
         }
       }
-      if (!timeMatch) return false; // 🚫 ถ้าวันที่ไม่ตรง เตะออกเลย!
+      if (!timeMatch) return false;
 
-      // 🌟 3. กรองตาม "คำค้นหา (Search)"
-      const searchStr = searchTerm.toLowerCase();
-      const matchSearch =
-        !searchTerm ||
-        String(t.equipment).toLowerCase().includes(searchStr) ||
-        String(t.id).toLowerCase().includes(searchStr) ||
-        String(t.reporter).toLowerCase().includes(searchStr) ||
-        (t.techName && String(t.techName).toLowerCase().includes(searchStr));
-      if (!matchSearch) return false;
+      // =========================================================
+      // 🌟 3. ด่านกรองค้นหา (Search) - ใส่ String() ครอบกันจอดำ 100%
+      // =========================================================
+      const searchStr = String(searchTerm || '').toLowerCase();
+      if (searchStr) {
+        const matchSearch =
+          String(t.equipment || '').toLowerCase().includes(searchStr) ||
+          String(t.id || '').toLowerCase().includes(searchStr) ||
+          String(t.reporter || '').toLowerCase().includes(searchStr) ||
+          String(t.techName || '').toLowerCase().includes(searchStr);
+          
+        if (!matchSearch) return false;
+      }
       
-      // 🌟 4. กรองตาม "สถานะ (Tab)"
+      // =========================================================
+      // 🌟 4. ด่านกรองสถานะ (Tab)
+      // =========================================================
       if (filterStatus === 'all') return true;
       if (filterStatus === 'fixing') return ['acknowledged', 'in_progress', 'on_hold'].includes(t.status);
       if (filterStatus === 'completed') return t.status === 'verified';
@@ -1997,7 +2102,7 @@ const executeRatingSubmit = async () => {
         
       return t.status === filterStatus;
       
-    }); 
+    });
   }, [tickets, searchTerm, filterStatus, trackTimeframe, trackMonth, trackDate, currentUserRole, currentUserName]);
 
 
@@ -2765,7 +2870,6 @@ const executeRatingSubmit = async () => {
           {ThaiDateFormatter(sysTime)}
         </div>
 
-
        {/* 🌟 วิดเจ็ตแสดงวิศวกรเวรประจำการ (แปะบนสุด) */}
        {(() => {
           const today = new Date(sysTime);
@@ -2778,13 +2882,13 @@ const executeRatingSubmit = async () => {
           
           // 1. กำหนดสีประจำวันเกิดแบบเป๊ะๆ 1,000,000%
           const dayColors = {
-            0: 'text-rose-500 drop-shadow-[0_0_8px_rgba(244,63,94,0.8)]',    // อาทิตย์ (แดง)
-            1: 'text-yellow-400 drop-shadow-[0_0_8px_rgba(250,204,21,0.8)]', // จันทร์ (เหลือง)
-            2: 'text-pink-400 drop-shadow-[0_0_8px_rgba(244,114,182,0.8)]',  // อังคาร (ชมพู)
-            3: 'text-emerald-400 drop-shadow-[0_0_8px_rgba(52,211,153,0.8)]',// พุธ (เขียว)
-            4: 'text-orange-400 drop-shadow-[0_0_8px_rgba(251,146,60,0.8)]', // พฤหัส (ส้ม)
-            5: 'text-sky-400 drop-shadow-[0_0_8px_rgba(56,189,248,0.8)]',    // ศุกร์ (ฟ้า)
-            6: 'text-violet-400 drop-shadow-[0_0_8px_rgba(167,139,250,0.8)]' // เสาร์ (ม่วง)
+            0: 'text-rose-500 drop-shadow-[0_0_8px_rgba(244,63,94,0.8)]',
+            1: 'text-yellow-400 drop-shadow-[0_0_8px_rgba(250,204,21,0.8)]',
+            2: 'text-pink-400 drop-shadow-[0_0_8px_rgba(244,114,182,0.8)]',
+            3: 'text-emerald-400 drop-shadow-[0_0_8px_rgba(52,211,153,0.8)]',
+            4: 'text-orange-400 drop-shadow-[0_0_8px_rgba(251,146,60,0.8)]',
+            5: 'text-sky-400 drop-shadow-[0_0_8px_rgba(56,189,248,0.8)]',
+            6: 'text-violet-400 drop-shadow-[0_0_8px_rgba(167,139,250,0.8)]'
           };
 
           // 🌟 2. ถ้ามีเวรจริงๆ (วันหยุด/วันพิเศษ) -> ใช้กรอบเรืองแสงแบบเดิม
@@ -2793,9 +2897,9 @@ const executeRatingSubmit = async () => {
             
             if (dutyPerson?.isHoliday) {
               wTheme = { bg: 'bg-orange-500/20', border: 'border-orange-500/80', textHead: 'text-orange-400', textName: 'text-orange-400', glow: 'shadow-[0_0_30px_rgba(249,115,22,0.3)]', iconGlow: 'shadow-[0_0_10px_rgba(249,115,22,1)]', iconText: 'text-orange-400', dayLabel: `วันหยุดนักขัตฤกษ์ (${dutyPerson.holidayName})` };
-            } else if (dayOfWeek === 0) { // วันอาทิตย์ (สีแดง)
+            } else if (dayOfWeek === 0) {
               wTheme = { bg: 'bg-rose-500/20', border: 'border-rose-500/80', textHead: 'text-rose-400', textName: 'text-rose-400', glow: 'shadow-[0_0_30px_rgba(225,29,72,0.3)]', iconGlow: 'shadow-[0_0_10px_rgba(225,29,72,1)]', iconText: 'text-rose-400', dayLabel: 'วันอาทิตย์' };
-            } else if (dayOfWeek === 6) { // วันเสาร์ (สีฟ้า/น้ำเงิน)
+            } else if (dayOfWeek === 6) {
               wTheme = { bg: 'bg-sky-500/20', border: 'border-sky-500/80', textHead: 'text-sky-400', textName: 'text-sky-400', glow: 'shadow-[0_0_30px_rgba(14,165,233,0.3)]', iconGlow: 'shadow-[0_0_10px_rgba(14,165,233,1)]', iconText: 'text-sky-400', dayLabel: 'วันเสาร์' };
             }
 
@@ -2826,7 +2930,7 @@ const executeRatingSubmit = async () => {
             );
           }
 
-          // 🌟 3. โหมดวันธรรมดา (ไม่มีเวร) -> ฟันธง: ออกแบบใหม่เป็นป้ายประกาศ (Info Alert) สวยงาม คลีนตา!
+          // 🌟 3. โหมดวันธรรมดา (ไม่มีเวร)
           return (
             <div className="mb-2 mt-4 p-3.5 md:p-5 rounded-2xl border-[2px] border-dashed border-cyan-400/80 bg-slate-900/50 flex items-center gap-3.5 md:gap-5 transition-all shadow-inner">
               <div className="w-10 h-10 md:w-12 md:h-12 rounded-full bg-slate-800 flex items-center justify-center border border-slate-600 shrink-0 shadow-sm">
@@ -2844,6 +2948,7 @@ const executeRatingSubmit = async () => {
           );
         })()}
 
+
         {/* ================= กรอบที่ 1: ข้อมูลผู้แจ้งซ่อม (ธีม Emerald 🟢) ================= */}
         <div className="relative bg-slate-900/80 backdrop-blur-xl border-[2px] border-solid border-emerald-500/60 rounded-[1.5rem] p-5 md:p-8 shadow-[0_0_30px_rgba(16,185,129,0.5)] mt-6 overflow-hidden">
           
@@ -2860,79 +2965,48 @@ const executeRatingSubmit = async () => {
             </h2>
           </div>
 
-          <div className="space-y-4 md:space-y-6 relative z-10">
-            {/* 🌟 ดรอปดาวน์ชื่อผู้แจ้ง */}
-            <SciFiSelectModal
-              id="field-reporter"
-              themeColor="emerald"
-              label={
-                <span className="text-[16px] md:text-[20px] font-black tracking-wide text-emerald-300 flex items-center gap-1.5 md:gap-2">
-                  <User size={18} className="md:w-5 md:h-5"/> ชื่อ-นามสกุล <span className="text-rose-500">*</span>
-                </span>
-              }
-              icon={<User size={16} className="text-emerald-400 md:w-6 md:h-6"/>}
-              placeholder="เลือกผู้แจ้งซ่อม"
-              options={employeeList.map((e) => String(e.name))}
-              value={formData.reporter}
-              onChange={handleReporterChange}
-              error={formErrors.reporter}
-            />
-
-            <div className="space-y-1.5 md:space-y-2">
-              <label className="text-[16px] md:text-[20px] font-black text-emerald-300 uppercase tracking-wide ml-1 flex items-center gap-1.5 md:gap-2">
-                <Briefcase size={18} className="md:w-5 md:h-5" /> ตำแหน่ง
-              </label>
-              <input
-                value={formData.position}
-                readOnly
-                className="w-full bg-slate-950/50 border-[2px] border-solid border-emerald-500/30 rounded-2xl px-5 py-4 md:py-5 text-sm md:text-[16px] font-bold text-emerald-100 outline-none cursor-not-allowed shadow-[inset_0_0_15px_rgba(16,185,129,0.2)] transition-all placeholder:text-emerald-200/40"
-                placeholder="-"
-              />
-
-            </div>
-
-            <div className="space-y-1.5 md:space-y-2">
-              <label className="text-[16px] md:text-[20px] font-black text-emerald-300 uppercase tracking-wide ml-1 flex items-center gap-1.5 md:gap-2">
-                <Users size={18} className="md:w-6 md:h-6" /> ฝ่าย
-              </label>
-              <input
-                value={formData.department}
-                readOnly
-                className="w-full bg-slate-950/50 border-[2px] border-solid border-emerald-500/30 rounded-2xl px-5 py-4 md:py-5 text-sm md:text-[16px] font-bold text-emerald-100 outline-none cursor-not-allowed shadow-[inset_0_0_15px_rgba(16,185,129,0.2)] transition-all placeholder:text-emerald-200/40"
-                placeholder="-"
-              />
-            </div>
-
-            <div className="space-y-1.5 md:space-y-2">
-              <label className="text-[16px] md:text-[20px] font-black text-emerald-300 uppercase tracking-wide ml-1 flex items-center gap-1.5 md:gap-2">
-                <Landmark size={18} className="md:w-5 md:h-5" /> สำนัก
-              </label>
-              <input
-                value={formData.bureau}
-                readOnly
-                className="w-full bg-slate-950/50 border-[2px] border-solid border-emerald-500/30 rounded-2xl px-5 py-4 md:py-5 text-sm md:text-[16px] font-bold text-emerald-100 outline-none cursor-not-allowed shadow-[inset_0_0_15px_rgba(16,185,129,0.2)] transition-all placeholder:text-emerald-200/40"
-                placeholder="สำนักปฏิบัติการดาวเทียม"
-              />
-            </div>
-
-            <div className="space-y-1.5 md:space-y-2" id="field-reporterContact">
-              <label className="text-[16px] md:text-[20px] font-black text-emerald-300 uppercase tracking-wide ml-1 flex items-center gap-1.5 md:gap-2">
-                <Phone size={18} className="md:w-5 md:h-5" /> เบอร์โทรศัพท์ <span className="text-rose-500">*</span>
-              </label>
-              <div 
-                onClick={() => setShowNumpad(true)}
-                className={`w-full bg-slate-900 border-[2px] border-solid ${
-                  formErrors.reporterContact ? 'border-rose-500 ring-1 ring-rose-500/30' : 'border-emerald-500/40 hover:border-emerald-400 shadow-[0_0_15px_rgba(16,185,129,0.5)] hover:shadow-[0_0_25px_rgba(16,185,129,0.8)]'
-                } rounded-2xl px-5 py-4 md:py-5 cursor-pointer transition-all duration-300`}
-              >
-                <span className={`text-[16px] md:text-[20px] font-bold font-mono tracking-widest ${formData.reporterContact ? 'text-emerald-300 drop-shadow-sm' : 'text-emerald-900/50'}`}>
-                  {formData.reporterContact || '0X-XXXX-XXXX'}
-                </span>
+          {/* 🌟 ฟันธง: เปลี่ยนจากฟอร์มกรอกข้อมูล เป็นสมาร์ทการ์ดแสดงข้อมูลอัตโนมัติ 1,000,000% */}
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-3 md:gap-5 relative z-10 animate-in fade-in zoom-in-95 duration-500">
+            
+            {/* การ์ด: ชื่อ-นามสกุล */}
+            <div className="bg-slate-950/50 border border-emerald-500/30 rounded-2xl p-4 flex items-center gap-4 shadow-inner">
+              <div className="w-10 h-10 md:w-12 md:h-12 rounded-full bg-emerald-900/50 flex items-center justify-center border border-emerald-400/50 shrink-0 shadow-[0_0_10px_rgba(16,185,129,0.3)]">
+                 <User className="text-emerald-400 w-5 h-5 md:w-6 md:h-6" />
               </div>
-              {formErrors.reporterContact && (
-                <div className="text-rose-500 text-[13px] md:text-[16px] font-bold mt-1 px-1">⚠️ {formErrors.reporterContact}</div>
-              )}
+              <div className="overflow-hidden">
+                <p className="text-[11px] md:text-[13px] font-bold text-emerald-200/70 uppercase tracking-widest mb-0.5">ชื่อ-นามสกุล (อัตโนมัติ)</p>
+                <p className="text-[16px] md:text-[20px] font-black text-emerald-300 drop-shadow-sm truncate">
+                  {formData.reporter || 'กำลังโหลดข้อมูล...'}
+                </p>
+              </div>
             </div>
+
+            {/* การ์ด: เบอร์โทรศัพท์ */}
+            <div className="bg-slate-950/50 border border-emerald-500/30 rounded-2xl p-4 flex items-center gap-4 shadow-inner">
+              <div className="w-10 h-10 md:w-12 md:h-12 rounded-full bg-emerald-900/50 flex items-center justify-center border border-emerald-400/50 shrink-0 shadow-[0_0_10px_rgba(16,185,129,0.3)]">
+                 <Phone className="text-emerald-400 w-5 h-5 md:w-6 md:h-6" />
+              </div>
+              <div className="overflow-hidden">
+                <p className="text-[11px] md:text-[13px] font-bold text-emerald-200/70 uppercase tracking-widest mb-0.5">เบอร์โทรศัพท์ (อัตโนมัติ)</p>
+                <p className="text-[16px] md:text-[20px] font-black font-mono tracking-wider text-emerald-300 drop-shadow-sm truncate">
+                  {formData.reporterContact || 'กำลังโหลดข้อมูล...'}
+                </p>
+              </div>
+            </div>
+
+            {/* การ์ด: สังกัด/ฝ่าย (กินพื้นที่เต็ม 2 คอลัมน์ในโหมด PC) */}
+            <div className="bg-slate-950/50 border border-emerald-500/30 rounded-2xl p-4 flex items-center gap-4 md:col-span-2 shadow-inner">
+              <div className="w-10 h-10 md:w-12 md:h-12 rounded-full bg-emerald-900/50 flex items-center justify-center border border-emerald-400/50 shrink-0 shadow-[0_0_10px_rgba(16,185,129,0.3)]">
+                 <Briefcase className="text-emerald-400 w-5 h-5 md:w-6 md:h-6" />
+              </div>
+              <div className="overflow-hidden">
+                <p className="text-[11px] md:text-[13px] font-bold text-emerald-200/70 uppercase tracking-widest mb-0.5">หน่วยงาน (อัตโนมัติ)</p>
+                <p className="text-[14px] md:text-[18px] font-black text-emerald-300 drop-shadow-sm truncate">
+                  {formData.position ? `${formData.position} | ` : ''} {formData.department || 'ไม่ระบุฝ่าย'} | {formData.bureau}
+                </p>
+              </div>
+            </div>
+
           </div>
         </div>
 
@@ -3056,11 +3130,10 @@ const executeRatingSubmit = async () => {
                   name="room"
                   value={formData.room}
                   onChange={handleInputChange}
-                  // 🌟 แก้ตรงนี้: เปลี่ยน bg และ border ให้เป็นสีธีมมืด Sci-Fi เหมือนช่องอื่นๆ
                   className={`w-full bg-slate-900 border-[2px] border-solid ${
                     formErrors.room
                       ? 'border-rose-500 ring-1 ring-rose-500/30'
-                      : 'border-orange-500/40 focus:border-orange-400 shadow-[0_0_15px_rgba(249,115,22,0.2)] focus:shadow-[0_0_25px_rgba(249,115,22,0.8)]'
+                      : 'border-orange-500/30 focus:border-orange-400 shadow-[0_0_15px_rgba(249,115,22,0.2)] focus:shadow-[0_0_25px_rgba(249,115,22,0.8)]'
                   } rounded-2xl px-5 py-4 md:py-5 text-sm md:text-[16px] font-bold text-orange-100 outline-none transition-all duration-300 placeholder:text-slate-500`}
                   placeholder="ระบุสถานที่หรือห้อง"
                 />
@@ -3089,28 +3162,38 @@ const executeRatingSubmit = async () => {
                 </div>
               </div>
 
-              <div className={formData.images.length === 0 ? "flex w-full" : "grid grid-cols-3 gap-3 md:gap-4"}>
+              {/* 🌟 ฟันธง: เปลี่ยนเป็น grid-cols-4 md:grid-cols-5 รูปจะเล็กลงและประหยัดพื้นที่ทันที */}
+              <div className={formData.images.length === 0 ? "flex w-full" : "grid grid-cols-4 md:grid-cols-5 gap-2 md:gap-3"}>
                 
                 {formData.images.map((img, i) => (
-                  <div key={i} className="relative aspect-square rounded-2xl md:rounded-3xl overflow-hidden border-[2px] border-orange-400/80 shadow-[0_0_15px_rgba(249,115,22,0.3)] group">
-                    <img src={img} className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500" />
+                  <div 
+                    key={i} 
+                    className="relative aspect-square rounded-xl md:rounded-2xl overflow-hidden border-[2px] border-orange-400/80 shadow-[0_0_15px_rgba(249,115,22,0.3)] group cursor-pointer"
+                    onClick={() => setLightboxImg(img)} /* 🌟 ฟันธง: เพิ่มคำสั่งกดปุ๊บ ซูมรูปปั๊บ! */
+                  >
+                    <img src={img} className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500" alt="รูปประกอบ" />
                     <button
                       type="button"
-                      onClick={() => setFormData({ ...formData, images: formData.images.filter((_, idx) => idx !== i) })}
-                      className="absolute top-1 right-1 md:top-2 md:right-2 bg-rose-500/90 backdrop-blur-sm text-white p-1.5 md:p-2 rounded-full shadow-lg transition-all active:scale-75 hover:bg-rose-600 border border-rose-400"
+                      onClick={(e) => {
+                        e.stopPropagation(); /* 🌟 สำคัญมาก: ตัวกันชนไม่ให้กดปุ่ม X แล้วกลายเป็นซูมรูป */
+                        setFormData({ ...formData, images: formData.images.filter((_, idx) => idx !== i) });
+                      }}
+                      className="absolute top-1 right-1 md:top-1.5 md:right-1.5 bg-rose-500/90 backdrop-blur-sm text-white p-1 md:p-1.5 rounded-full shadow-lg transition-all active:scale-75 hover:bg-rose-600 border border-rose-400 z-10"
                     >
-                      <X size={14} className="md:w-4 md:h-4 stroke-[3px]" />
+                      <X size={12} className="md:w-3 md:h-3 stroke-[3px]" />
                     </button>
                   </div>
                 ))}
+                
 
-              {/* 🎯 ปุ่มเรียกเมนูเลือกรูป (คลิกปุ๊บ เมนูเด้งปั๊บ) */}
-              <div onClick={() => setShowImagePicker(true)} className={`border-2 border-dashed border-cyan-300/80 bg-cyan-950/20 hover:bg-orange-900/40 hover:border-orange-400 rounded-2xl md:rounded-3xl flex flex-col items-center justify-center transition-all duration-300 cursor-pointer shadow-[inset_0_0_20px_rgba(6,182,212,0.8)] hover:shadow-[0_0_25px_rgba(249,115,22,0.5)] group ${formData.images.length === 0 ? 'w-full h-36 md:h-48' : 'aspect-square'}`}>
-                <Camera size={formData.images.length === 0 ? 50 : 38} className="text-white-300/70 group-hover:text-orange-400 mb-2 transition-all" />
-                <span className="font-black tracking-widest text-cyan-300/80 group-hover:text-cyan-300">
-                  {formData.images.length === 0 ? 'คลิกเพื่อแนบรูปภาพ' : 'เพิ่มรูปภาพ'}
+              {/* 🎯 ปุ่มเรียกเมนูเลือกรูป (ปรับไซส์ให้เข้ากับรูปที่เล็กลง) */}
+              <div onClick={() => setShowImagePicker(true)} className={`border-2 border-dashed border-cyan-300/80 bg-cyan-950/20 hover:bg-orange-900/40 hover:border-orange-400 rounded-xl md:rounded-2xl flex flex-col items-center justify-center transition-all duration-300 cursor-pointer shadow-[inset_0_0_20px_rgba(6,182,212,0.8)] hover:shadow-[0_0_25px_rgba(249,115,22,0.5)] group ${formData.images.length === 0 ? 'w-full h-36 md:h-48' : 'aspect-square'}`}>
+                <Camera size={formData.images.length === 0 ? 50 : 26} className="text-white-300/70 group-hover:text-orange-400 mb-1 transition-all" />
+                <span className="font-black tracking-widest text-cyan-300/80 group-hover:text-cyan-300 text-[10px] md:text-[14px]">
+                  {formData.images.length === 0 ? 'คลิกเพื่อแนบรูปภาพ' : 'เพิ่มรูป'}
                 </span>
               </div>
+            </div> {/* ปิด div ของตารางรูปภาพ */}
 
       {/* ======================================================= */}
       {/* 🌟 จุดเริ่มต้น: หน้าต่างป๊อบอัพเลือกรูปภาพ (Hybrid: Mobile เรืองแสง + PC วูบวาบ 1,000,000%) */}
@@ -3165,12 +3248,11 @@ const executeRatingSubmit = async () => {
     </div>
   </div>,
   document.body
-) : null}
-      </div>
-            </div>
+  ) : null}
+</div>
+</div>
+</div>
 
-          </div>
-        </div>
 {/* ======================================================= */}
 {/* 🌟 จุดสิ้นสุด: หน้าต่างป๊อบอัพเลือกรูปภาพ (Hybrid: Mobile เรืองแสง + PC วูบวาบ) */}
 {/* ======================================================= */}
@@ -3515,6 +3597,7 @@ const renderTracking = () => (
                       <div className="grid grid-cols-7 gap-1 md:gap-2 mb-3 md:mb-5">
                         {['อา', 'จ', 'อ', 'พ', 'พฤ', 'ศ', 'ส'].map(day => (<div key={day} className={`text-[13px] md:text-[20px] font-black ${day === 'อา' ? 'text-rose-400' : day === 'ส' ? 'text-sky-400' : 'text-slate-300'}`}>{day}</div>))}
                       </div>
+
                       <div className="grid grid-cols-7 gap-1.5 md:gap-3">
                         {Array.from({ length: new Date(trackCalYear, trackCalMonth, 1).getDay() }).map((_, i) => (<div key={`empty-${i}`} />))}
                         {Array.from({ length: new Date(trackCalYear, trackCalMonth + 1, 0).getDate() }).map((_, i) => {
@@ -4655,7 +4738,38 @@ const renderTracking = () => (
           </div>
           
           <div>
-            <h1 className="font-black text-white text-3xl md:text-5xl tracking-widest leading-none drop-shadow-[0_4px_4px_rgba(0,0,0,0.5)] py-2 whitespace-nowrap">
+
+
+           {/* ========================================================= */}
+            {/* 🌟 ฟันธง: สมองกลคำทักทายอัจฉริยะ (คำนวณสดๆ ตรงนี้เลย ปลอดภัย 1,000,000%) */}
+            {(() => {
+              const hour = sysTime.getHours();
+              // 1. ดึงชื่อมาจากตัวแปร หรือ ความจำเครื่อง
+              let rawName = String(currentUserName || localStorage.getItem('gse_remembered_name') || '').trim();
+              
+              // 2. ปอกเปลือกคำนำหน้าออกให้หมดก่อน (รองรับ น.ส. / ว่าที่ ร.ต. ฯลฯ)
+              let noPrefixName = rawName.replace(/^(นาย|นางสาว|น\.ส\.|นาง|ว่าที่ ร\.ต\. |ว่าที่ ร\.ต\.)/g, '').trim();
+              
+              // 3. ดึงเอาแค่ชื่อจริง (คำแรก)
+              let shortName = noPrefixName.split(' ')[0].trim();
+              
+              // 🌟 ฟันธง: ประกอบร่างคำทักทาย (ถ้ามีชื่อก็ใส่ชื่อ ถ้าไม่มีก็โชว์แค่คำทักทาย)
+              const displayName = shortName ? ` คุณ${shortName}` : '';
+              
+              let greeting = `🌙 สแตนด์บายรอบดึก`;
+              if (hour >= 5 && hour < 12) greeting = `☀️ อรุณสวัสดิ์`;
+              else if (hour >= 12 && hour < 17) greeting = `🌤️ สวัสดีตอนบ่าย`;
+              else if (hour >= 17 && hour < 22) greeting = `🌇 สวัสดีตอนเย็น`;
+
+              return (
+                <div className="text-orange-300 font-bold text-[12px] md:text-[14px] tracking-widest mb-0.5 md:mb-1 animate-in slide-in-from-top-2 flex items-center gap-1.5 opacity-90 drop-shadow-sm">
+                   {greeting}{displayName}
+                </div>
+              );
+            })()}
+            {/* ========================================================= */}
+
+            <h1 className="font-black text-white text-3xl md:text-5xl tracking-widest leading-none drop-shadow-[0_4px_4px_rgba(0,0,0,0.5)] md:py-1 whitespace-nowrap">
               {activeTab === 'dashboard' ? 'แผงควบคุม' : activeTab === 'report' ? 'แจ้งซ่อม' : currentUserRole !== 'reporter' ? 'จัดการงานซ่อม' : 'ติดตามสถานะ'}
             </h1>
           </div>
@@ -4697,6 +4811,47 @@ const renderTracking = () => (
       </div>
 
       {/* 🌟 ปิดกรอบเนื้อหาหลักของแอป */}
+
+
+{/* ======================================================================= */}
+      {/* 🌟 ฟันธงจุดที่ 2: Popup ต้อนรับผู้ใช้งานใหม่ (ฉลองการสมัครสำเร็จครั้งแรก) */}
+      {/* ======================================================================= */}
+      {showWelcomePopup && typeof document !== 'undefined' ? createPortal(
+        <div className="fixed inset-0 z-[999999] flex items-center justify-center p-4 bg-slate-950/80 backdrop-blur-md animate-in fade-in zoom-in duration-500" onClick={() => setShowWelcomePopup(false)}>
+          
+          {/* พลุแสงสีส้มด้านหลัง */}
+          <div className="absolute w-[300px] h-[300px] bg-orange-500/40 rounded-full blur-[100px] animate-pulse pointer-events-none z-0"></div>
+          
+          <div className="relative z-10 w-full max-w-sm bg-slate-900 border-[3px] border-solid border-orange-500 rounded-[2.5rem] p-8 shadow-[0_0_50px_rgba(249,115,22,0.6)] flex flex-col items-center text-center transform transition-all" onClick={e => e.stopPropagation()}>
+            
+            <div className="w-24 h-24 bg-gradient-to-tr from-orange-400 to-amber-500 rounded-full flex items-center justify-center shadow-[0_0_20px_rgba(249,115,22,0.8)] border-[3px] border-solid border-white mb-6 animate-bounce">
+              <span className="text-5xl drop-shadow-md pb-2">🎉</span>
+            </div>
+
+            <h2 className="text-2xl md:text-3xl font-black text-transparent bg-clip-text bg-gradient-to-b from-orange-300 to-orange-600 drop-shadow-lg mb-2">
+              ยินดีต้อนรับ!
+            </h2>
+            <h3 className="text-[18px] md:text-2xl font-black text-white mb-4 drop-shadow-sm">
+              คุณ{String(currentUserName || localStorage.getItem('gse_remembered_name') || 'ผู้ใช้งานใหม่').split(' ')[0]}
+            </h3>
+
+            <p className="text-[13px] md:text-[15px] font-bold text-slate-300 leading-relaxed mb-6 bg-slate-800/50 p-4 rounded-2xl border border-orange-500/30 shadow-inner">
+              การลงทะเบียนเสร็จสมบูรณ์!<br/>
+              ทีมวิศวกร ฝวด. ยินดีให้บริการครับ<br/>
+              <span className="text-orange-400 mt-2 block font-black tracking-wide">หากระบบหรืออุปกรณ์มีปัญหา<br/>กดที่ปุ่ม "แจ้งซ่อม" ได้ตลอด 24 ชม.</span>
+            </p>
+
+            <button 
+              onClick={() => setShowWelcomePopup(false)}
+              className="w-full h-14 bg-gradient-to-r from-orange-500 to-amber-500 text-white font-black text-[18px] md:text-xl rounded-2xl border-[2px] border-solid border-orange-300 shadow-[0_0_20px_rgba(249,115,22,0.5)] hover:shadow-[0_0_30px_rgba(249,115,22,0.8)] active:scale-95 hover:-translate-y-1 transition-all"
+            >
+              เริ่มต้นใช้งานเลย 🚀
+            </button>
+
+          </div>
+        </div>,
+        document.body
+      ) : null}
 
 {/* 🌟 หน้าต่าง Popup ประเมินความพึงพอใจ (CSAT) - คงไว้สมบูรณ์แบบปลอดภัย 100% */}
 {ratingModal.isOpen && (() => {
@@ -5062,27 +5217,33 @@ function ReporterLoginPopup({ onClose, onLoginSuccess }) {
   const [failedAttempts, setFailedAttempts] = useState(0);
   const maxAttempts = 5; 
 
-  // ตรวจสอบชิปความจำเครื่องตอนเปิดหน้าจอ
-  useEffect(() => {
-    const savedPhone = localStorage.getItem('gse_remembered_phone');
-    if (savedPhone && savedPhone.length === 10) {
-      setPhone(savedPhone);
-      setIsLoading(true);
-      getDocs(query(collection(db, 'users'), where('phone', '==', savedPhone)))
-        .then((snapshot) => {
-          if (!snapshot.empty) {
-            const userData = snapshot.docs[0].data();
-            setUserRealEmail(userData.email); // ดึงเมลจริงมาแสตนด์บาย
-            setIsNewUser(false);
-          } else {
-            setIsNewUser(true);
-          }
-          setStep(2); 
-        })
-        .catch((err) => console.error("Auto-check error:", err))
-        .finally(() => setIsLoading(false));
-    }
-  }, []);
+
+ // ตรวจสอบชิปความจำเครื่องตอนเปิดหน้าจอ
+ useEffect(() => {
+  const savedPhone = localStorage.getItem('gse_remembered_phone');
+  if (savedPhone && savedPhone.length === 10) {
+    setPhone(savedPhone);
+    setIsLoading(true);
+    getDocs(query(collection(db, 'users'), where('phone', '==', savedPhone)))
+      .then((snapshot) => {
+        if (!snapshot.empty) {
+          const userData = snapshot.docs[0].data();
+          setUserRealEmail(userData.email); // ดึงเมลจริงมาแสตนด์บาย
+          
+          // 🌟 ฟันธง: ดึงชื่อจริงจาก Database มาล้างบางชื่อ "สมชาย" ทิ้งทันที!
+          localStorage.setItem('gse_remembered_name', userData.fullName || '');
+          
+          setIsNewUser(false);
+        } else {
+          setIsNewUser(true);
+        }
+        setStep(2); 
+      })
+      .catch((err) => console.error("Auto-check error:", err))
+      .finally(() => setIsLoading(false));
+  }
+}, []);
+
 
   const handleForgotDevice = () => {
     localStorage.removeItem('gse_remembered_phone'); 
@@ -5157,6 +5318,10 @@ function ReporterLoginPopup({ onClose, onLoginSuccess }) {
       if (!querySnapshot.empty) {
         const userData = querySnapshot.docs[0].data();
         setUserRealEmail(userData.email); // 🌟 บันทึกอีเมลจริงไว้ใช้ล็อกอินหลังบ้าน
+        
+        // 🌟 ฟันธง: ดึงชื่อจริงจาก Database มาล้างบางชื่อ "สมชาย" ทิ้งทันที!
+        localStorage.setItem('gse_remembered_name', userData.fullName || '');
+        
         setIsNewUser(false);
       } else {
         setIsNewUser(true);
@@ -5199,19 +5364,28 @@ function ReporterLoginPopup({ onClose, onLoginSuccess }) {
     }
   };
 
+
   const handleFinalRegister = async (e) => {
     e.preventDefault();
     if (!fullName || !email) { setErrorMsg('กรุณากรอกข้อมูลให้ครบถ้วนค่ะ'); return; }
     setIsLoading(true); setErrorMsg('');
     try {
-      // 🌟 ฟันธง: บันทึกเข้า Firebase Auth ด้วยอีเมลจริงองค์กรที่เขากรอก
+      // 🌟 บันทึกเข้า Firebase Auth ด้วยอีเมลจริงองค์กรที่เขากรอก
       await createUserWithEmailAndPassword(auth, email, pin);
       await addDoc(collection(db, 'users'), { phone, fullName, email, role: 'reporter', createdAt: new Date().toISOString() });
+      
+      // =====================================================================
+      // 🌟 ฟันธงจุดที่ 3: ฝังชิปความจำให้ระบบรู้ว่า "นี่คือการเข้าครั้งแรก"
+      // =====================================================================
       localStorage.setItem('gse_remembered_phone', phone);
+      localStorage.setItem('gse_remembered_name', fullName); 
+      sessionStorage.setItem('gse_show_welcome', 'true'); // สั่งเปิด Popup ในหน้าถัดไป!
+      
       onLoginSuccess('reporter');
     } catch (error) { setErrorMsg('อีเมลนี้อาจถูกใช้งานแล้ว หรือรูปแบบไม่ถูกต้องค่ะ'); } 
     finally { setIsLoading(false); }
   };
+
 
   // 🌟 ฟันธง: ฟังก์ชันยิงอีเมลรีเซ็ตรหัสผ่าน Self-Service ฟรีจากกูเกิล!
   const handleForgotPin = async () => {
@@ -5892,6 +6066,10 @@ export default function App() {
     sessionStorage.removeItem('hasStarted');
     sessionStorage.removeItem('activeTab');
     sessionStorage.removeItem('role'); 
+    
+    // 🌟 ฟันธง: ล้างสมองเครื่องให้สะอาดหมดจด ป้องกันอาการชื่อค้าง/กำลังโหลด 100%
+    localStorage.removeItem('gse_remembered_phone');
+    localStorage.removeItem('gse_remembered_name');
   };
 
   return (
