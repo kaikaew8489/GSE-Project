@@ -4741,29 +4741,35 @@ const renderTracking = () => (
 
 
            {/* ========================================================= */}
-            {/* 🌟 ฟันธง: สมองกลคำทักทายอัจฉริยะ (คำนวณสดๆ ตรงนี้เลย ปลอดภัย 1,000,000%) */}
+            {/* 🌟 ฟันธง: สมองกลคำทักทายอัจฉริยะฉบับไซไฟอวกาศ 24/7 (คำนวณเรียบร้อย ปลอดภัย 1,000,000%) */}
             {(() => {
               const hour = sysTime.getHours();
               // 1. ดึงชื่อมาจากตัวแปร หรือ ความจำเครื่อง
               let rawName = String(currentUserName || localStorage.getItem('gse_remembered_name') || '').trim();
+              let shortName = rawName.split(' ')[0].replace(/^(นาย|นางสาว|น\.ส\.|นาง|ว่าที่ ร\.ต\.)/g, '').trim();
+              const displayName = shortName ? `คุณ${shortName}` : '';
               
-              // 2. ปอกเปลือกคำนำหน้าออกให้หมดก่อน (รองรับ น.ส. / ว่าที่ ร.ต. ฯลฯ)
-              let noPrefixName = rawName.replace(/^(นาย|นางสาว|น\.ส\.|นาง|ว่าที่ ร\.ต\. |ว่าที่ ร\.ต\.)/g, '').trim();
+              // 2. แอบเช็คว่า User คนนี้มีตั๋วที่กำลังซ่อมค้างอยู่หรือไม่ (ดึงเบอร์โทรมาเช็คความค้างคา)
+              const myRawPhone = String(sessionStorage.getItem('userPhone') || localStorage.getItem('gse_remembered_phone') || '').trim().replace(/\D/g, '');
+              const hasActiveTicket = tickets.some(t => {
+                const tPhone = String(t.reporterContact || t.contact || '').trim().replace(/\D/g, '');
+                return tPhone === myRawPhone && ['pending', 'acknowledged', 'in_progress', 'on_hold'].includes(t.status);
+              });
+
+              // 3. แบ่ง Logic ข้อความทักทายตามเวลาและสถานะงานค้าง
+              let greeting = `🚀 ระบบ 24/7 พร้อมซัพพอร์ต ${displayName} ภารกิจดาวเทียมไม่มีหยุด แจ้งซ่อมรอบดึกได้เลยครับ`; // Default รอบดึกสุดเท่
               
-              // 3. ดึงเอาแค่ชื่อจริง (คำแรก)
-              let shortName = noPrefixName.split(' ')[0].trim();
-              
-              // 🌟 ฟันธง: ประกอบร่างคำทักทาย (ถ้ามีชื่อก็ใส่ชื่อ ถ้าไม่มีก็โชว์แค่คำทักทาย)
-              const displayName = shortName ? ` คุณ${shortName}` : '';
-              
-              let greeting = `🌙 สแตนด์บายรอบดึก`;
-              if (hour >= 5 && hour < 12) greeting = `☀️ อรุณสวัสดิ์`;
-              else if (hour >= 12 && hour < 17) greeting = `🌤️ สวัสดีตอนบ่าย`;
-              else if (hour >= 17 && hour < 22) greeting = `🌇 สวัสดีตอนเย็น`;
+              if (hasActiveTicket) {
+                greeting = `🔧 สวัสดีครับ ${displayName} 👋 มีงานซ่อมของท่านกำลังดำเนินการอยู่ ตรวจสอบสถานะได้เลยครับ`;
+              } else {
+                if (hour >= 5 && hour < 12) greeting = `☀️ อรุณสวัสดิ์ ${displayName} ทีม ฝวด. พร้อมสนับสนุนการปฏิบัติงานภาคพื้นดินวันนี้ครับ`;
+                else if (hour >= 12 && hour < 17) greeting = `🌤️ สวัสดีตอนบ่ายครับ ${displayName} ให้ ฝวด. ช่วยดูแลระบบหรืออุปกรณ์ระบบไหน แจ้งได้เลยครับ`;
+                else if (hour >= 17 && hour < 21) greeting = `🌇 สวัสดีตอนเย็น ${displayName} นอกเวลาทำการ วิศวกรเวร ฝวด. ก็พร้อมดูแลระบบให้ท่านครับ`;
+              }
 
               return (
                 <div className="text-orange-300 font-bold text-[12px] md:text-[14px] tracking-widest mb-0.5 md:mb-1 animate-in slide-in-from-top-2 flex items-center gap-1.5 opacity-90 drop-shadow-sm">
-                   {greeting}{displayName}
+                   {greeting}
                 </div>
               );
             })()}
