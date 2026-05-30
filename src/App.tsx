@@ -49,6 +49,10 @@ import {
   ClipboardList,
   Moon,
   ShieldCheck,
+  Lock,
+  LogOut,
+  Eye,
+  EyeOff,
 } from 'lucide-react';
 
 
@@ -56,35 +60,24 @@ import {
 // 🔥 1. เชื่อมต่อ Firebase
 // ==========================================
 import { initializeApp, getApps, getApp } from 'firebase/app';
-import { getAuth, signInAnonymously, onAuthStateChanged } from 'firebase/auth';
-import {
-  getFirestore,
-  collection,
-  addDoc,
-  onSnapshot,
-  doc,
-  updateDoc,
-  query,   // <--- เพิ่มตัวนี้
-  orderBy, // <--- เพิ่มตัวนี้
-  limit,    // <--- เพิ่มตัวนี้
-  writeBatch, // 🌟 เพิ่มตัวนี้
-  getDocs,    // 🌟 เพิ่มตัวนี้
-  where,       // 🌟 เพิ่มตัวนี้
-  getDoc      // 🌟 ฟันธง: พิมพ์เพิ่มคำนี้เข้าไปครับ!
-} from 'firebase/firestore';
 
+import { getAuth, signInAnonymously, onAuthStateChanged, signInWithEmailAndPassword, signOut, createUserWithEmailAndPassword, sendPasswordResetEmail } from 'firebase/auth';
+
+// 🌟 ฟันธง: คำสั่งฐานข้อมูลครบทุกตัวเหมือนเดิม 100% แค่รวบให้อยู่ในบรรทัดเดียวกันเฉยๆ ครับ
+import { getFirestore, collection, addDoc, onSnapshot, doc, updateDoc, query, orderBy, limit, writeBatch, getDocs, where, getDoc } from 'firebase/firestore';
+
+// ✅ เปลี่ยนมาใช้ฐานข้อมูลตัวทดสอบ (UAT Phase 2)
 const firebaseConfig = {
-  apiKey: 'AIzaSyAwhkNwz3GB83Sr1hlCrm6t4N7CTbrBTlw',
-  authDomain: 'gistda-gse-maintenance-3f83a.firebaseapp.com',
-  projectId: 'gistda-gse-maintenance-3f83a',
-  storageBucket: 'gistda-gse-maintenance-3f83a.firebasestorage.app',
-  messagingSenderId: '234467850316',
-  appId: '1:234467850316:web:9509ab93ccb150477e9ce9',
-  measurementId: 'G-8RN127D4KD',
+  apiKey: "AIzaSyD3440oEO-8MvilWbHd5DUHVnlHSjiH1rk",
+  authDomain: "gse-project-phase-2.firebaseapp.com",
+  projectId: "gse-project-phase-2",
+  storageBucket: "gse-project-phase-2.firebasestorage.app",
+  messagingSenderId: "729534573275",
+  appId: "1:729534573275:web:ff7c87bce93afc9852bafe",
+  measurementId: "G-7XWJ5SHYWC"
 };
 
-const appInstance =
-  getApps().length === 0 ? initializeApp(firebaseConfig) : getApp();
+const appInstance = getApps().length === 0 ? initializeApp(firebaseConfig) : getApp();
 const auth = getAuth(appInstance);
 const db = getFirestore(appInstance);
 
@@ -112,9 +105,6 @@ const getHolidayName = (year, month, day) => {
   return ""; 
 };
 
-// ==========================================
-// 🌟 Component: จัดการและดูตารางเวร (อัปเกรด UX ใหม่!)
-// ==========================================
 // ==========================================
 // 🌟 Component: จัดการและดูตารางเวร (อัปเกรด UX ขั้นสุด)
 // ==========================================
@@ -673,6 +663,7 @@ const employeeList = [
   { name: 'นายธนกาญจน์ ไตรปิฎก', position: 'นักเทคโนโลยีอวกาศ', department: 'ฝวด.', },
   { name: 'นายชุติพงษ์ ลาวงศ์เกิด', position: 'นักเทคโนโลยีอวกาศ', department: 'ฝวด.', },
   { name: 'น.ส.จินวะรา สุรัตนกุล', position: 'วิศวกร', department: 'ฝวด.' },
+  { name: 'น.ส.พิชชาภรณ์ อัมพรายน์', position: 'วิศวกร', department: 'ฝวด.' },
   { name: 'น.ส.ฐิตาภรณ์ ทองคำภา', position: 'เจ้าหน้าที่พัฒนาธุรกิจ', department: 'ฝวด.', },
 
   // ฝ่ายปฏิบัติการควบคุมดาวเทียม (ฝปค.)
@@ -783,8 +774,10 @@ const technicianList = [
   { name: 'นายประมินทร์ พิชิตการค้า', phone: '08-1135-1599', photo: '/pramin.webp' },
   { name: 'นายธนกาญจน์ ไตรปิฎก', phone: '06-2463-5544', photo: '/karn.webp' },
   { name: 'นายชุติพงษ์ ลาวงศ์เกิด', phone: '09-8938-9839', photo: '/neng.webp' },
-  { name: 'นายวิชญ์ภาส ดรบัณฑิต', phone: '09-1415-5194', photo: '/top.webp' },
   { name: 'น.ส.จินวะรา สุรัตนกุล', phone: '08-2480-2280', photo: '/jun.webp' },
+  { name: 'น.ส.พิชชาภรณ์ อัมพรายน์', phone: '08-6351-3420', photo: '/่jun.webp' },
+  { name: 'น.ส.ฐิตาภรณ์ ทองคำภา', phone: '09-4232-6437', photo: '/่jun.webp' },
+  { name: 'นายวิชญ์ภาส ดรบัณฑิต', phone: '09-1415-5194', photo: '/top.webp' },
 ];
 
 // ==========================================
@@ -1225,7 +1218,7 @@ function MainApp({ onGoHome, initialRole }) {
 
   // 🌟 ฟันธงแก้: เปลี่ยนเป็น sessionStorage (จำเฉพาะตอนเปิดแอป ปิดแอปปุ๊บลืมทันที!)
   const [activeTab, setActiveTab] = useState(
-    () => sessionStorage.getItem('activeTab') || (initialRole === 'technician' ? 'dashboard' : 'report')
+    initialRole !== 'reporter' ? 'dashboard' : 'report'
   );
 
   useEffect(() => {
@@ -1270,6 +1263,7 @@ function MainApp({ onGoHome, initialRole }) {
   );
 
   const [user, setUser] = useState(null);
+  const [currentUserName, setCurrentUserName] = useState('');
   const [tickets, setTickets] = useState([]);
   const [isDataLoading, setIsDataLoading] = useState(true);
   const [authErrorMsg, setAuthErrorMsg] = useState('');
@@ -1277,25 +1271,36 @@ function MainApp({ onGoHome, initialRole }) {
   // 🌟 ตัวควบคุมเปิด/ปิดหน้าจอ Admin Roster
   const [showAdminRoster, setShowAdminRoster] = useState(false);
 
-  // --- Auth Setup ---
-  useEffect(() => {
-    const initAuth = async () => {
-      try {
-        await signInAnonymously(auth);
-      } catch (error) {
-        console.warn('Auth error, using bypass user...', error);
-        setUser({ uid: 'public-bypass-user' });
+  
+ // --- Auth Setup (อัปเกรดเฟส 2) ---
+ useEffect(() => {
+  const initAuth = async () => {
+    if (initialRole === 'reporter' && !auth.currentUser) {
+      try { await signInAnonymously(auth); } catch (error) { setUser({ uid: 'public-bypass-user' }); }
+    }
+  };
+  initAuth();
+
+  const unsubscribeAuth = onAuthStateChanged(auth, async (u) => {
+    if (u) {
+      setUser(u);
+      // 🌟 สมองกลดึงชื่อจริงของช่างจากฐานข้อมูล เพื่อเอาไปจำกัดสิทธิ์หน้าจอ
+      if (initialRole !== 'reporter') {
+        try {
+          const q = query(collection(db, 'staff_roles'), where('email', '==', u.email));
+          const snap = await getDocs(q);
+          if (!snap.empty) {
+            setCurrentUserName(snap.docs[0].data().fullName);
+          }
+        } catch (err) { console.error("ดึงชื่อช่างไม่สำเร็จ", err); }
       }
-    };
-    initAuth();
+    }
+    else if (initialRole === 'reporter') setUser({ uid: 'public-bypass-user' });
+  });
 
-    const unsubscribeAuth = onAuthStateChanged(auth, (u) => {
-      if (u) setUser(u);
-      else setUser({ uid: 'public-bypass-user' });
-    });
+  return () => unsubscribeAuth();
+}, [initialRole]);
 
-    return () => unsubscribeAuth();
-  }, []);
 
   // --- Data Fetching ---
   useEffect(() => {
@@ -1310,7 +1315,7 @@ function MainApp({ onGoHome, initialRole }) {
 
     const unsubscribeData = onSnapshot(
       ticketsRef,
-// ...
+
       (snapshot) => {
         try {
           const ticketsData = [];
@@ -1610,8 +1615,10 @@ const toggleTag = (tag) => {
   };
 
   const executeSubmit = async () => {
-    setConfirmSubmitModal(false);
-    if (!user) return;
+    setConfirmSubmitModal(false); // ปิด Popup ยืนยัน
+
+    // 🚨 ฟันธง: ลบ if (!user) return; ทิ้งไปเลยครับ! นี่คือตัวการที่ทำให้ระบบแกล้งตายเวลาเน็ตกระตุก
+    
     setIsSubmitting(true);
     const newId = getNextReqId(tickets);
 
@@ -1619,7 +1626,7 @@ const toggleTag = (tag) => {
     const selectedCategory = formData.equipmentCategory; 
     const autoAssignedTech = techMapping[selectedCategory];
 
-    // 🌟 2. สมองกลดึงเวร SSC อัตโนมัติ (ตรวจสอบแบบเซฟสุดๆ ป้องกันแอปพัง)
+    // 🌟 2. สมองกลดึงเวร SSC อัตโนมัติ
     let currentSscTechName = null;
     let currentSscTechPhone = null;
     let isHolidaySSC = false;
@@ -1634,27 +1641,40 @@ const toggleTag = (tag) => {
         currentSscTechPhone = sscRosterForDate.techPhone;
       }
     } catch (error) {
-      console.error("ดึงข้อมูลเวร SSC ไม่สำเร็จ:", error);
+      console.error("SSC Error:", error);
     }
 
-    // 🌟 3. ประกอบร่างตั๋วแจ้งซ่อม
+    // 🌟 3. ประกอบร่างข้อมูล (ฟันธง: คลีนขยะ undefined ทิ้ง 100% ป้องกัน Firebase ช็อคตาย)
     const newTicket = {
       id: newId,
-      ...formData,
+      reporter: formData.reporter || '',
+      reporterContact: formData.reporterContact || '',
+      position: formData.position || '',
+      department: formData.department || '',
+      bureau: formData.bureau || 'สำนักปฏิบัติการดาวเทียม',
+      equipment: formData.equipment || '',
+      description: formData.description || '',
+      assetNumber: formData.assetNumber || '',
+      building: formData.building || '',
+      room: formData.room || '',
+      equipmentCategory: formData.equipmentCategory || '',
+      images: formData.images || [],
+      isSsc: formData.isSsc || false,
       techName: autoAssignedTech ? autoAssignedTech.name : 'รอเจ้าหน้าที่รับงาน',
       techPhone: autoAssignedTech ? autoAssignedTech.phone : '-',
-      sscTechName: currentSscTechName,
-      sscTechPhone: currentSscTechPhone,
+      sscTechName: currentSscTechName || null,
+      sscTechPhone: currentSscTechPhone || null,
       status: 'pending',
-      isOutOfHours: isHolidaySSC, // ใช้ค่าที่สมองกลเช็คมา
+      isOutOfHours: isHolidaySSC, 
       date: new Date().toISOString(),
     };
 
     try {
+      // 🌟 ยิงข้อมูลขึ้น Database
       await addDoc(collection(db, 'tickets'), newTicket);
-      setShowSuccess(true);
+      setShowSuccess(true); // สั่งเปิดหน้าต่างเขียวๆ!
 
-      // 🌟 โค้ดยิงแจ้งเตือนเข้า LINE ผ่าน GAS
+      // 🌟 ยิง LINE แจ้งเตือน
       const gasUrl = "https://script.google.com/macros/s/AKfycbxBoB_e637WkWMeSuX9NP3BSKcSiE8J3dSXmlzNV9aeiq6DRUvn81bSp6w-B0nzCVA5/exec"; 
       let primaryTech = "ทีมช่าง ฝวด."; 
       
@@ -1668,35 +1688,35 @@ const toggleTag = (tag) => {
         primaryTech = "คุณนรัตว์/คุณทศพล"; 
       }
 
-      try {
-        fetch(gasUrl, {
-          method: 'POST',
-          mode: 'no-cors',
-          headers: { 'Content-Type': 'text/plain;charset=utf-8' }, 
-          body: JSON.stringify({
-            ticketId: newId,
-            equipment: formData.equipment,
-            description: formData.description,
-            reporter: formData.reporter,
-            phone: formData.reporterContact,
-            primaryTech: primaryTech,
-            status: 'NEW',
-            building: formData.building,
-            room: formData.room
-          })
-        });
-      } catch (err) {
-        console.error("Line Notify Error:", err);
-      }
+      fetch(gasUrl, {
+        method: 'POST',
+        mode: 'no-cors',
+        headers: { 'Content-Type': 'text/plain;charset=utf-8' }, 
+        body: JSON.stringify({
+          ticketId: newId,
+          equipment: formData.equipment,
+          description: formData.description,
+          reporter: formData.reporter,
+          phone: formData.reporterContact,
+          primaryTech: primaryTech,
+          status: 'NEW',
+          building: formData.building,
+          room: formData.room
+        })
+      }).catch(err => console.error(err));
 
+      // 🌟 สั่งรันหน้าต่างเขียว 5 วินาที แล้วเคลียร์ข้อมูลเก่าทิ้งทั้งหมด!
       setTimeout(() => {
         setShowSuccess(false);
+        handleResetForm(); // 🌟 ฟันธง: เติมคำสั่งนี้! ล้างฟอร์มให้สะอาดกริ๊บ ไม่ค้างหน้าเดิม!
         setFilterStatus('all');
         setActiveTab('tracking');
       }, 5000);
       
     } catch (e) {
       console.error("Submit Error:", e);
+      // 🚨 ฟันธง: ถ้าระบบพัง จะต้องโชว์ Alert ทันที! ห้ามแกล้งตายเงียบๆ เด็ดขาด!
+      alert("❌ เกิดข้อผิดพลาดในการส่งข้อมูล: " + e.message + "\n\nกรุณาลองกดส่งใหม่อีกครั้ง หรือเช็คอินเทอร์เน็ตครับ");
     } finally {
       setIsSubmitting(false);
     }
@@ -1828,12 +1848,22 @@ const executeRatingSubmit = async () => {
 };
 
   // 🌟 ฟันธง: ตัวคำนวณสถิติที่รองรับปฏิทินย้อนหลังแบบ 100%
+  // 🌟 ฟันธง: ตัวคำนวณสถิติที่รองรับปฏิทินย้อนหลังแบบ 100%
+  // 🌟 ฟันธง: ตัวคำนวณสถิติที่รองรับปฏิทินย้อนหลังแบบ 100%
   const stats = useMemo(() => {
     try {
       const now = new Date();
       
       const filteredByTime = tickets.filter(t => {
         if (!t.date) return false;
+
+        // 🌟 1. ด่านจำกัดสิทธิ์: ถ้าไม่ใช่หัวหน้า ให้นับสถิติเฉพาะงานตัวเองเท่านั้น!
+        if (currentUserRole !== 'Commander' && currentUserRole !== 'reporter') {
+          const isMyJob = t.techName === currentUserName || t.sscTechName === currentUserName;
+          const isUnassigned = !t.techName || t.techName === 'รอเจ้าหน้าที่รับงาน';
+          if (!isMyJob && !isUnassigned) return false; // ไม่ใช่งานตัวเอง เตะออกจากการคำนวณสถิติ
+        }
+        
         const tDate = new Date(t.date);
 
         // 📅 1. กรณีหัวหน้ากดเลือก "ระบุเดือน"
@@ -1867,30 +1897,61 @@ const executeRatingSubmit = async () => {
         return true;
       });
 
+      // ==================================================
+      // 🌟 ฟันธงสมองกลใหม่: จำแนกยอดงานแยกตาม "ภารกิจ"
+      // ==================================================
+      const categoryBreakdown = {};
+      filteredByTime.forEach(t => {
+        const cat = t.equipmentCategory || 'ไม่ระบุภารกิจ';
+        if (!categoryBreakdown[cat]) {
+          categoryBreakdown[cat] = { count: 0, techs: new Set() };
+        }
+        categoryBreakdown[cat].count += 1;
+        // เก็บรายชื่อช่างที่รับผิดชอบงานในกลุ่มนี้ (ไม่เอาคำว่า รอเจ้าหน้าที่)
+        if (t.techName && t.techName !== 'รอเจ้าหน้าที่รับงาน') {
+          categoryBreakdown[cat].techs.add(t.techName);
+        }
+      });
+      
+      // แปลง Set เป็น Array ให้ React เอาไปเรนเดอร์ได้ และเรียงลำดับจากงานเยอะสุดไปน้อยสุด
+      const formattedBreakdown = Object.keys(categoryBreakdown).map(cat => ({
+        category: cat,
+        count: categoryBreakdown[cat].count,
+        techs: Array.from(categoryBreakdown[cat].techs).join(', ') || 'รอผู้รับผิดชอบ'
+      })).sort((a, b) => b.count - a.count);
+
       return {
         total: filteredByTime.length,
         pending: filteredByTime.filter((t) => t.status === 'pending').length,
         fixing: filteredByTime.filter((t) => ['acknowledged', 'in_progress', 'on_hold'].includes(t.status)).length,
         done: filteredByTime.filter((t) => ['completed', 'verified'].includes(t.status)).length,
         cancelled: filteredByTime.filter((t) => t.status === 'cancelled').length,
-        // 🌟 ฟันธง: เพิ่มสมองกลคำนวณคะแนนดาวเฉลี่ย (CSAT)
         ratedCount: filteredByTime.filter((t) => t.rating > 0).length,
         avgRating: filteredByTime.filter((t) => t.rating > 0).length > 0 
           ? (filteredByTime.filter((t) => t.rating > 0).reduce((sum, t) => sum + t.rating, 0) / filteredByTime.filter((t) => t.rating > 0).length).toFixed(1) 
           : 0,
+        missionBreakdown: formattedBreakdown // 🌟 ส่งข้อมูลตารางภารกิจออกไปให้หน้าจอ
       };
     } catch (err) {
       console.error("Stats Error:", err);
-      return { total: 0, pending: 0, fixing: 0, done: 0, cancelled: 0 };
+      return { total: 0, pending: 0, fixing: 0, done: 0, cancelled: 0, ratedCount: 0, avgRating: 0, missionBreakdown: [] };
     }
-  }, [tickets, dashTimeframe, customMonth, customDate]); // 🌟 อัปเดตทันทีที่เลือกปฏิทินและวัน
+  }, [tickets, dashTimeframe, customMonth, customDate, currentUserRole, currentUserName]);
 
 
-  
+
   // 🌟 ลิสต์รายการงานสำหรับหน้า "ติดตามสถานะ/จัดการงาน" (แยกสมองอิสระ ไม่เกี่ยวกับเวลาในแผงควบคุม)
   const filteredTickets = useMemo(() => {
+    
     return tickets.filter((t) => {
-      // 🌟 1. กรองวันที่เฉพาะหน้า "ติดตามสถานะ"
+      // 🌟 1. ด่านจำกัดสิทธิ์หน้าจอจัดการงาน (ย้ายเข้ามาอยู่ข้างในนี้แล้วครับ!)
+      if (currentUserRole !== 'Commander' && currentUserRole !== 'reporter') {
+        const isMyJob = t.techName === currentUserName || t.sscTechName === currentUserName;
+        const isUnassigned = !t.techName || t.techName === 'รอเจ้าหน้าที่รับงาน';
+        if (!isMyJob && !isUnassigned) return false; // ซ่อนงานของช่างคนอื่นไม่ให้เห็น
+      }
+
+      // 🌟 2. กรองวันที่เฉพาะหน้า "ติดตามสถานะ"
       let timeMatch = true;
       if (t.date) {
         const tDate = new Date(t.date);
@@ -1917,7 +1978,7 @@ const executeRatingSubmit = async () => {
       }
       if (!timeMatch) return false; // 🚫 ถ้าวันที่ไม่ตรง เตะออกเลย!
 
-      // 🌟 2. กรองตาม "คำค้นหา (Search)"
+      // 🌟 3. กรองตาม "คำค้นหา (Search)"
       const searchStr = searchTerm.toLowerCase();
       const matchSearch =
         !searchTerm ||
@@ -1927,7 +1988,7 @@ const executeRatingSubmit = async () => {
         (t.techName && String(t.techName).toLowerCase().includes(searchStr));
       if (!matchSearch) return false;
       
-      // 🌟 3. กรองตาม "สถานะ (Tab)"
+      // 🌟 4. กรองตาม "สถานะ (Tab)"
       if (filterStatus === 'all') return true;
       if (filterStatus === 'fixing') return ['acknowledged', 'in_progress', 'on_hold'].includes(t.status);
       if (filterStatus === 'completed') return t.status === 'verified';
@@ -1936,8 +1997,8 @@ const executeRatingSubmit = async () => {
         
       return t.status === filterStatus;
       
-    }); // 🌟🌟🌟 ฟันธง: บรรทัดนี้แหละครับตัวการ! ต้องเป็น }); เพื่อปิดการ filter นะครับ!
-  }, [tickets, searchTerm, filterStatus, trackTimeframe, trackMonth, trackDate]);
+    }); 
+  }, [tickets, searchTerm, filterStatus, trackTimeframe, trackMonth, trackDate, currentUserRole, currentUserName]);
 
 
   // 🌟 ฟันธง: สมองกลสะพานเชื่อม แปลงเวลาจากแผงควบคุม ส่งไปหน้า Tracking ให้ตรงเป๊ะ!
@@ -2332,6 +2393,63 @@ const executeRatingSubmit = async () => {
           </div> 
         </div>
         
+{/* ========================================================================= */}
+        {/* 🌟 ฟันธง: กล่องสรุปยอดแยกตามภารกิจ (อัปเกรดแยก 4 สี + บาลานซ์เต็มจอ PC) */}
+        {/* ========================================================================= */}
+        {stats.missionBreakdown && stats.missionBreakdown.length > 0 && (
+          <div className="w-full bg-slate-800/60 backdrop-blur-xl p-5 md:p-8 rounded-[1.5rem] border-2 border-solid border-cyan-500/60 shadow-[0_0_20px_rgba(6,182,212,0.15)] mt-6 md:mt-8 hover:shadow-[0_0_25px_rgba(6,182,212,0.5)] transition-all">
+            <h3 className="text-[18px] md:text-[22px] font-black text-cyan-400 uppercase tracking-widest mb-4 md:mb-6 flex items-center gap-2 md:gap-3 drop-shadow-sm">
+              <Activity className="w-5 h-5 md:w-7 md:h-7 text-cyan-400 animate-pulse" /> 
+              สรุปจำนวนงานแยกตามภารกิจ
+            </h3>
+            
+            {/* 🌟 ปรับเป็น w-full และใช้ lg:grid-cols-2 */}
+            <div className="w-full grid grid-cols-1 lg:grid-cols-2 gap-4 md:gap-6">
+              {stats.missionBreakdown.map((item, idx) => {
+                
+                // 🌟 สมองกลแยกสี: 4 ภารกิจ 4 สี (ส้ม ฟ้า แดง เขียว) ตามสั่ง!
+                let theme = { bg: 'bg-slate-900/80', border: 'border-slate-500/40', hover: 'hover:border-slate-400', textHead: 'text-slate-200', textSub: 'text-slate-400', icon: 'text-slate-500', numBox: 'bg-slate-800 border-slate-600', numText: 'text-slate-300 drop-shadow-sm' };
+                
+                if (item.category.includes('จานสายอากาศ')) {
+                  // 🟠 ภารกิจด้านจานสายอากาศ (สีส้ม)
+                  theme = { bg: 'bg-orange-950/80', border: 'border-orange-500/50', hover: 'hover:border-orange-400 hover:shadow-[0_0_15px_rgba(249,115,22,0.4)]', textHead: 'text-orange-400', textSub: 'text-orange-500', icon: 'text-orange-500', numBox: 'bg-orange-900/50 border-orange-500/30 shadow-[0_0_10px_rgba(249,115,22,0.2)]', numText: 'text-orange-400 drop-shadow-[0_0_8px_rgba(249,115,22,0.8)]' };
+                } else if (item.category.includes('คอมพิวเตอร์')) {
+                  // 🔵 ภารกิจด้านคอมพิวเตอร์แม่ข่าย (สีฟ้า)
+                  theme = { bg: 'bg-cyan-950/80', border: 'border-cyan-500/50', hover: 'hover:border-cyan-400 hover:shadow-[0_0_15px_rgba(6,182,212,0.4)]', textHead: 'text-cyan-400', textSub: 'text-cyan-500', icon: 'text-cyan-500', numBox: 'bg-cyan-900/50 border-cyan-500/30 shadow-[0_0_10px_rgba(6,182,212,0.2)]', numText: 'text-cyan-400 drop-shadow-[0_0_8px_rgba(6,182,212,0.8)]' };
+                } else if (item.category.includes('โครงสร้างพื้นฐาน')) {
+                  // 🔴 ภารกิจด้านโครงสร้างพื้นฐานไฟฟ้า (สีแดง/Rose)
+                  theme = { bg: 'bg-rose-950/80', border: 'border-rose-500/50', hover: 'hover:border-rose-400 hover:shadow-[0_0_15px_rgba(244,63,94,0.4)]', textHead: 'text-rose-400', textSub: 'text-rose-500', icon: 'text-rose-500', numBox: 'bg-rose-900/50 border-rose-500/30 shadow-[0_0_10px_rgba(244,63,94,0.2)]', numText: 'text-rose-400 drop-shadow-[0_0_8px_rgba(244,63,94,0.8)]' };
+                } else if (item.category.includes('SSC')) {
+                  // 🟢 ภารกิจด้านการให้บริการ SSC (สีเขียว/Emerald)
+                  theme = { bg: 'bg-emerald-950/80', border: 'border-emerald-500/50', hover: 'hover:border-emerald-400 hover:shadow-[0_0_15px_rgba(16,185,129,0.4)]', textHead: 'text-emerald-400', textSub: 'text-emerald-500', icon: 'text-emerald-500', numBox: 'bg-emerald-900/50 border-emerald-500/30 shadow-[0_0_10px_rgba(16,185,129,0.2)]', numText: 'text-emerald-400 drop-shadow-[0_0_8px_rgba(16,185,129,0.8)]' };
+                }
+
+                // 🌟 ฟันธง: ถ้าทั้งเดือนมีงานเข้าแค่ภารกิจเดียว ให้ยืดกล่องนี้กินพื้นที่เต็มจอไปเลย (lg:col-span-2)
+                const isSingle = stats.missionBreakdown.length === 1;
+
+                return (
+                  <div key={idx} className={`${isSingle ? 'lg:col-span-2' : ''} ${theme.bg} border-l-[6px] border border-solid ${theme.border} rounded-2xl p-4 md:p-5 flex items-center justify-between shadow-inner transition-all duration-300 ${theme.hover} group cursor-default`}>
+                    <div className="flex flex-col min-w-0 pr-4">
+                      <span className={`text-[16px] md:text-[20px] font-black ${theme.textHead} truncate drop-shadow-sm`}>{item.category}</span>
+                      <span className={`text-[13px] md:text-[16px] font-bold ${theme.textSub} mt-1.5 flex items-center gap-1.5 truncate`}>
+                        <User className={`w-4 h-4 ${theme.icon} shrink-0`} /> 
+                        <span className="truncate">{item.techs}</span>
+                      </span>
+                    </div>
+                    <div className={`flex items-baseline gap-1.5 px-4 py-2.5 rounded-xl border border-solid shrink-0 ${theme.numBox}`}>
+                      <span className={`text-[24px] md:text-[32px] font-black font-mono leading-none ${theme.numText}`}>
+                        {String(item.count).padStart(2, '0')}
+                      </span>
+                      <span className={`text-[13px] md:text-[16px] font-bold ${theme.textSub}`}>งาน</span>
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          </div>
+        )}
+
+
 {/* 🌟 ฟันธง: กล่องสรุปคะแนนประเมิน SLA (CSAT KPI) จะโชว์ก็ต่อเมื่อมีงานที่ซ่อมเสร็จแล้ว */}
 {stats.done > 0 && (
           <div className="bg-slate-800/60 backdrop-blur-xl p-5 md:p-8 rounded-[1.5rem] border-[2px] border-solid border-yellow-500/80 shadow-[0_0_20px_rgba(250,204,21,0.8)] mt-4 md:mt-8 relative overflow-hidden flex items-center justify-between hover:shadow-[0_0_30px_rgba(250,204,21,0.8)] transition-all">
@@ -2470,22 +2588,29 @@ const executeRatingSubmit = async () => {
         )}
 
 
-        {/* ================= จบกล่อง: งานที่รอเกินระยะเวลากำหนด ================= */}
-
+       {/* ========================================================================= */}
+        {/* 🌟 กล่อง: รายการล่าสุด (ฉบับสมบูรณ์แก้ Error แดง วงเล็บครบ 1,000,000%) */}
+        {/* ========================================================================= */}
         <div className="bg-slate-800/60 backdrop-blur-xl p-5 md:p-8 rounded-[1rem] md:rounded-[1.5rem] border-2 border-solid border-orange-500/80 shadow-[0_0_20px_rgba(249,115,22,0.15)] mt-6 md:mt-8 hover:shadow-[0_0_20px_rgba(249,115,22,0.8)]">
-          <h3 className="text-[18px] md:text-[22px] font-black text-white uppercase  tracking-widest mb-4 md:mb-6 flex items-center gap-2 md:gap-3">
+          <h3 className="text-[18px] md:text-[22px] font-black text-white uppercase tracking-widest mb-4 md:mb-6 flex items-center gap-2 md:gap-3">
             <FileText className="w-5 h-5 md:w-7 md:h-7 text-white-800" />{' '}
             รายการล่าสุด
           </h3>
           <div className="space-y-3 md:space-y-5">
-            {tickets.slice(0, 3).map((t) => (
+            
+            {tickets.filter(t => {
+              if (currentUserRole === 'Commander' || currentUserRole === 'reporter') return true;
+              const isMyJob = t.techName === currentUserName || t.sscTechName === currentUserName;
+              const isUnassigned = !t.techName || t.techName === 'รอเจ้าหน้าที่รับงาน';
+              return isMyJob || isUnassigned;
+            }).slice(0, 3).map((t) => (
               <div
                 key={t.id}
                 onClick={() => {
                   setActiveTab('tracking');
                   setSearchTerm(t.id);
                   setFilterStatus('all');
-                  setTrackTimeframe('all'); // 🌟 ฟันธง: ล้างตัวกรองเวลาเป็น 'ทุกวัน' เสมอ!
+                  setTrackTimeframe('all'); 
                 }}
                 className={`flex flex-col p-4 md:p-6 bg-slate-50 rounded-2xl border-2 cursor-pointer active:scale-[0.98] transition-all shadow-sm ${
                   t.status === 'pending'
@@ -2495,17 +2620,12 @@ const executeRatingSubmit = async () => {
                     : 'border-emerald-400 hover:bg-emerald-100 hover:border-emerald-500'
                 } relative`}
               >
-                {/* 🌟 ฟันธง: ส่วนหัวของกล่องรายการล่าสุด (จัดกลางด้วยเทคนิคตาชั่ง Flex-1) */}
                 <div className="flex items-center justify-between mb-2 md:mb-4 w-full gap-1 md:gap-2">
-                  
-                  {/* ซ้ายสุด: เลขที่แจ้งซ่อม (ถ่วงน้ำหนัก 1 ส่วนด้วย flex-1) */}
                   <div className="flex-1 flex justify-start items-center overflow-hidden">
                     <span className="text-[15px] md:text-[20px] font-mono font-bold text-slate-600 bg-white px-2 md:px-3 py-0.5 md:py-1 rounded-md md:rounded-lg border border-2 border-solid border-orange-400/70 tracking-widest shadow-sm truncate">
                       {t.id}
                     </span>
                   </div>
-
-                  {/* ตรงกลางเป๊ะ: ป้ายเวร SSC */}
                   <div className="flex-shrink-0 flex justify-center items-center">
                     {t.isOutOfHours && (
                       <span className="text-[15px] md:text-[20px] font-black text-rose-600 bg-rose-100 border border-solid border-rose-200 px-1.5 md:px-2 py-0.5 md:py-1 rounded-md md:rounded-lg animate-pulse whitespace-nowrap">
@@ -2513,8 +2633,6 @@ const executeRatingSubmit = async () => {
                       </span>
                     )}
                   </div>
-
-                  {/* ขวาสุด: ป้ายสถานะ (ถ่วงน้ำหนัก 1 ส่วนด้วย flex-1 เพื่อให้ตรงกลางสมดุล) */}
                   <div className="flex-1 flex justify-end items-center">
                     <span
                       className={`text-[15px] md:text-[20px] font-black uppercase px-2 md:px-3 py-0.5 md:py-1 rounded-md md:rounded-lg whitespace-nowrap ${
@@ -2527,13 +2645,7 @@ const executeRatingSubmit = async () => {
                           : 'bg-emerald-100 text-emerald-600'
                       }`}
                     >
-                      {t.status === 'pending'
-                        ? 'รอดำเนินการ'
-                        : t.status === 'verified'
-                        ? 'เสร็จสิ้นสมบูรณ์'
-                        : t.status === 'completed'
-                        ? 'รอผู้แจ้งยืนยัน'
-                        : 'กำลังซ่อม'}
+                      {t.status === 'pending' ? 'รอดำเนินการ' : t.status === 'verified' ? 'เสร็จสิ้นสมบูรณ์' : t.status === 'completed' ? 'รอผู้แจ้งยืนยัน' : 'กำลังซ่อม'}
                     </span>
                   </div>
                 </div>
@@ -2548,7 +2660,6 @@ const executeRatingSubmit = async () => {
                       {t.description}
                     </p>
 
-                    {/* 🌟 ฟันธง: แทรกชื่อเจ้าหน้าที่เวร SSC ตรงนี้! */}
                     {t.sscTechName && (
                       <div className="bg-purple-50 border border-purple-200 p-3 rounded-lg mt-3">
                         <p className="text-rose-700 font-bold text-[14px] md:text-[20px] flex items-center gap-2">
@@ -2560,15 +2671,11 @@ const executeRatingSubmit = async () => {
                       </div>
                     )}
                   </div>
-
                   <ChevronRight className="w-[18px] h-[18px] md:w-6 md:h-6 text-slate-300 shrink-0 ml-2 md:ml-4" />
                 </div>
 
-                {/* 🌟 อัปเกรด: โซนระบุชื่อผู้แจ้งและช่างแบบชัดเจน (แยกบรรทัดตามมาตรฐาน) */}
                 <div className="mt-3 md:mt-5 pt-3 md:pt-5 border-t border-2 border-orange-400/70 flex justify-between items-end">
                   <div className="flex flex-col gap-2.5 md:gap-4">
-                    
-                    {/* 👤 ข้อมูลผู้แจ้ง (มีเสมอ) */}
                     <div className="flex flex-col gap-0.5 md:gap-1">
                       <span className="text-[13px] md:text-[20px] font-bold text-slate-600 tracking-widest">ผู้แจ้งปัญหา:</span>
                       <span className="text-[15px] md:text-[20px] font-bold text-emerald-600 flex items-center gap-1.5 md:gap-2">
@@ -2576,8 +2683,6 @@ const executeRatingSubmit = async () => {
                         <span className="truncate max-w-[140px] md:max-w-[250px]">{t.reporter}</span>
                       </span>
                     </div>
-                    
-                    {/* 🔧 ข้อมูลช่าง (โชว์เฉพาะเมื่องานถูกรับไปแล้ว) */}
                     {t.techName && (
                       <div className="flex flex-col gap-0.5 md:gap-1">
                         <span className="text-[13px] md:text-[20px] font-bold text-slate-600 tracking-widest">ผู้รับผิดชอบ:</span>
@@ -2587,10 +2692,7 @@ const executeRatingSubmit = async () => {
                         </span>
                       </div>
                     )}
-
                   </div>
-                  
-                  {/* เวลาที่แจ้ง */}
                   <span className="text-[16px] md:text-[20px] font-bold font-mono text-orange-500 flex items-center gap-1 md:gap-2 shrink-0 mb-0.5 md:mb-1">
                     <Clock className="w-4 h-4 md:w-5 md:h-5 text-orange-500" /> 
                     {new Date(t.date).toLocaleTimeString('th-TH', { hour: '2-digit', minute: '2-digit' })} น.
@@ -2598,16 +2700,22 @@ const executeRatingSubmit = async () => {
                 </div>
               </div>
             ))}
-            {tickets.length === 0 && (
+            
+            {tickets.filter(t => {
+              if (currentUserRole === 'Commander' || currentUserRole === 'reporter') return true;
+              const isMyJob = t.techName === currentUserName || t.sscTechName === currentUserName;
+              const isUnassigned = !t.techName || t.techName === 'รอเจ้าหน้าที่รับงาน';
+              return isMyJob || isUnassigned;
+            }).length === 0 && (
               <p className="text-center text-xs md:text-base font-bold text-slate-500 py-4 md:py-8">
                 ไม่มีรายการซ่อมบำรุง
               </p>
-            )}
-          </div>
-        </div>
-      </div>
-    );
-  };
+           )}
+           </div>
+         </div>
+       </div>
+     );
+   };
 
   const renderReport = () => (
     <div className="p-5 pb-32 animate-in slide-in-from-right-4 duration-500 space-y-6 relative">
@@ -2943,17 +3051,21 @@ const executeRatingSubmit = async () => {
                 <label className="text-[16px] md:text-[20px] font-black text-orange-300 uppercase tracking-wide ml-1 flex items-center gap-1.5 md:gap-2">
                   <DoorOpen size={18} className="text-orange-400 md:w-5 md:h-5" /> สถานที่ / ห้อง <span className="text-rose-500">*</span>
                 </label>
+
                 <input
                   name="room"
                   value={formData.room}
                   onChange={handleInputChange}
+                  // 🌟 แก้ตรงนี้: เปลี่ยน bg และ border ให้เป็นสีธีมมืด Sci-Fi เหมือนช่องอื่นๆ
                   className={`w-full bg-slate-900 border-[2px] border-solid ${
                     formErrors.room
                       ? 'border-rose-500 ring-1 ring-rose-500/30'
-                      : 'border-orange-500/30 focus:border-orange-400 shadow-[0_0_15px_rgba(249,115,22,0.2)] focus:shadow-[0_0_25px_rgba(249,115,22,0.8)]'
+                      : 'border-orange-500/40 focus:border-orange-400 shadow-[0_0_15px_rgba(249,115,22,0.2)] focus:shadow-[0_0_25px_rgba(249,115,22,0.8)]'
                   } rounded-2xl px-5 py-4 md:py-5 text-sm md:text-[16px] font-bold text-orange-100 outline-none transition-all duration-300 placeholder:text-slate-500`}
                   placeholder="ระบุสถานที่หรือห้อง"
                 />
+
+                
                 {formErrors.room && (
                   <div className="text-rose-500 text-[11px] md:text-[13px] font-bold mt-1.5 ml-1 animate-in fade-in">
                     ⚠️ {formErrors.room}
@@ -3083,16 +3195,14 @@ const executeRatingSubmit = async () => {
 
           </div>
 
-{/* 🌟 หน้าต่าง Numpad ไซไฟอวกาศ (เวอร์ชันทุบสกรอลล์บาร์ทิ้ง + ผูกคีย์บอร์ด PC ถูกต้องตามกฎ React 1,000,000%) */}
+{/* 🌟 หน้าต่าง Numpad ไซไฟอวกาศ (เวอร์ชันอัปเกรด UI แสงเฟลอร์ 1,000,000%) */}
 {showNumpad && (
   <div 
-    className="fixed inset-0 z-[9999] flex items-center justify-center bg-slate-900/80 backdrop-blur-md p-4 animate-in fade-in duration-300" 
+    className="fixed inset-0 z-[9999] flex items-center justify-center bg-slate-900/80 backdrop-blur-md p-4 animate-in fade-in duration-300 outline-none" 
     onClick={() => setShowNumpad(false)}
-    // ⌨️ วิชามารขั้นสูง: ดักจับคีย์บอร์ดผ่าน Event ของตัว Container โดยตรง ไม่ใช้ Hook เพื่อป้องกันหน้าจอขาวระเบิด 100%
     tabIndex={0}
     ref={(el) => el && el.focus()}
     onKeyDown={(e) => {
-      // 1. กดเลข 0-9 บนคีย์บอร์ดปกติ หรือ แป้น Numpad ขวามือ
       if (/^[0-9]$/.test(e.key)) {
         let current = formData.reporterContact ? formData.reporterContact.replace(/\D/g, '') : '';
         if (current.length < 10) current += e.key;
@@ -3103,7 +3213,6 @@ const executeRatingSubmit = async () => {
         if (formErrors.reporterContact) setFormErrors(prev => ({ ...prev, reporterContact: null }));
       }
       
-      // 2. กดปุ่ม Backspace หรือ Delete เพื่อลบตัวเลขทีละหลัก
       if (e.key === 'Backspace' || e.key === 'Delete') {
         let current = formData.reporterContact ? formData.reporterContact.replace(/\D/g, '') : '';
         current = current.slice(0, -1);
@@ -3113,7 +3222,10 @@ const executeRatingSubmit = async () => {
         setFormData(prev => ({ ...prev, reporterContact: formatted }));
       }
 
-      // 3. กดปุ่ม Enter เพื่อตรวจสอบและยืนยันปิดหน้าต่าง
+      if (e.key.toLowerCase() === 'c' || e.key === 'Escape') {
+        setFormData(prev => ({ ...prev, reporterContact: '' }));
+      }
+
       if (e.key === 'Enter') {
         e.preventDefault();
         const digits = formData.reporterContact ? formData.reporterContact.replace(/\D/g, '') : '';
@@ -3127,35 +3239,42 @@ const executeRatingSubmit = async () => {
     }}
   >
     
-    <div className="absolute w-[350px] md:w-[500px] h-[350px] md:h-[500px] bg-cyan-500/40 rounded-full blur-[100px] md:blur-[150px] pointer-events-none z-0 animate-pulse"></div>
+    {/* แสง Flare พื้นหลัง */}
+    <div className="absolute w-[350px] md:w-[500px] h-[350px] md:h-[500px] bg-emerald-500/30 rounded-full blur-[100px] md:blur-[150px] pointer-events-none z-0 animate-pulse"></div>
 
-    {/* 🌟 ฟันธง: รักษารูปทรงเดิม p-4 md:p-10 แต่ทุบสกรอลล์บาร์ทิ้งถาวรด้วยการเอา max-h-[80dvh] และ overflow-y-auto ออก แล้วแทนที่ด้วย overflow-hidden */}
-    <div className="relative m-auto z-10 w-[90%] max-w-[320px] sm:max-w-[340px] md:max-w-[450px] bg-slate-900 border-[2px] border-solid border-white rounded-[2rem] md:rounded-[2.5rem] p-4 sm:p-6 md:p-10 shadow-[0_0_60px_rgba(6,182,212,0.6)] flex flex-col gap-4 sm:gap-5 md:gap-8 transition-all duration-300 overflow-hidden outline-none" onClick={(e) => e.stopPropagation()}>
+    {/* 🌟 ปรับขนาดกล่องให้กว้างเท่า Login Popup (max-w-sm) และขอบเรืองแสงสีฟ้า */}
+    <div className="relative m-auto z-10 w-full max-w-sm bg-slate-900 border-[3px] border-solid border-cyan-500/80 rounded-[2.5rem] p-6 shadow-[0_0_40px_rgba(34,211,238,0.3)] flex flex-col gap-4 sm:gap-5 transition-all duration-300 overflow-hidden outline-none" onClick={(e) => e.stopPropagation()}>
        
-      {/* 🌟 ฟันธง: เพิ่ม relative เข้าไปใน div นี้ เพื่อให้ปุ่มปิดไปอยู่ที่มุมขวาได้เป๊ะๆ */}
-      <div className="text-center mb-1 pb-3 md:pb-5 border-b border-white/20 relative">
-         <h3 className="font-black tracking-widest text-[16px] sm:text-[18px] md:text-[24px] flex items-center justify-center gap-2 text-orange-400 drop-shadow-[0_0_10px_rgba(249,115,22,0.8)]">
-           <Phone size={28} className="text-emerald-400 drop-shadow-sm md:w-6 md:h-6" />
-           ระบุเบอร์โทรศัพท์
-         </h3>
+       {/* ปุ่มปิด X มุมขวาบน */}
+       <button 
+         type="button"
+         onClick={() => setShowNumpad(false)} 
+         className="absolute right-5 top-5 text-slate-400 hover:text-rose-400 transition-colors z-20"
+       >
+         <X size={28} className="stroke-[2.5px]" />
+       </button>
 
-         {/* 🌟 ปุ่มกากบาท Sci-Fi เรืองแสง (ตรงจุดนี้เลยครับ) */}
-         <button 
-           type="button"
-           onClick={() => setShowNumpad(false)} 
-           className="absolute right-0 top-1/2 -translate-y-1/2 text-rose-500 hover:text-white bg-slate-900 hover:bg-rose-600 p-1.5 md:p-2 rounded-full transition-all border-2 border-rose-500 shadow-[0_0_15px_rgba(225,29,72,0.6)] animate-pulse hover:shadow-[0_0_25px_rgba(225,29,72,1)] cursor-pointer"
-         >
-           <X size={18} className="md:w-6 md:h-6 stroke-[3px]" />
-         </button>
+       {/* 🌟 ไอคอนโทรศัพท์สีเขียวเรืองแสง */}
+       <div className="relative mt-2 mx-auto">
+          <div className="absolute inset-0 bg-emerald-500 blur-[20px] opacity-40 rounded-full"></div>
+          <div className="relative w-16 h-16 bg-slate-950 border-[2px] border-emerald-400 rounded-full flex items-center justify-center shadow-[0_0_20px_rgba(16,185,129,0.6)] mx-auto">
+            <Phone className="w-8 h-8 text-emerald-400 drop-shadow-[0_0_8px_rgba(16,185,129,0.8)]" />
+          </div>
        </div>
+
+       <h3 className="font-black tracking-widest text-[18px] md:text-[20px] text-center text-orange-400 drop-shadow-[0_0_10px_rgba(249,115,22,0.8)]">
+         ระบุเบอร์โทรศัพท์
+       </h3>
        
-       <div className="bg-slate-950 border-[2px] border-solid border-cyan-400 rounded-2xl md:rounded-3xl py-4 px-4 md:py-6 text-center shadow-[0_0_15px_rgba(34,211,238,0.4)] flex items-center justify-center min-h-[70px] md:min-h-[100px] shrink-0">
-         <span className={`text-[24px] sm:text-[28px] md:text-[36px] font-mono font-black tracking-widest ${formData.reporterContact ? 'text-cyan-400 drop-shadow-[0_0_12px_rgba(34,211,238,0.9)]' : 'text-slate-500'}`}>
+       {/* 🌟 กล่องแสดงเบอร์โทร เรืองแสงสีฟ้า */}
+       <div className="bg-slate-950 border-[2px] border-solid border-cyan-400 rounded-2xl py-4 px-4 text-center shadow-[0_0_15px_rgba(34,211,238,0.4),inset_0_0_10px_rgba(34,211,238,0.2)] flex items-center justify-center min-h-[70px] shrink-0 transition-all">
+         <span className={`text-[24px] sm:text-[28px] md:text-[32px] font-mono font-black tracking-widest ${formData.reporterContact ? 'text-cyan-300 drop-shadow-[0_0_12px_rgba(34,211,238,0.9)]' : 'text-slate-500'}`}>
            {formData.reporterContact || '0X-XXXX-XXXX'}
          </span>
        </div>
 
-       <div className="grid grid-cols-3 gap-2.5 sm:gap-3 md:gap-4 shrink-0">
+       {/* 🌟 แป้นพิมพ์ 3 มิติ โฮเวอร์เรืองแสง */}
+       <div className="grid grid-cols-3 gap-3 shrink-0 px-1">
          {[1, 2, 3, 4, 5, 6, 7, 8, 9].map(num => (
            <button 
              key={num} type="button" 
@@ -3168,16 +3287,17 @@ const executeRatingSubmit = async () => {
                setFormData(prev => ({ ...prev, reporterContact: formatted }));
                if (formErrors.reporterContact) setFormErrors(prev => ({ ...prev, reporterContact: null }));
              }} 
-             className="bg-slate-800 border-[2px] border-solid border-white/80 text-slate-200 text-2xl md:text-3xl font-black py-3 sm:py-3.5 md:py-5 rounded-xl md:rounded-2xl active:scale-95 transition-all shadow-[0_0_10px_rgba(255,255,255,0.3)] hover:bg-cyan-600/90 hover:border-cyan-400 hover:text-white hover:shadow-[0_0_20px_rgba(34,211,238,0.7)]"
+             className="h-14 bg-slate-800 border-[2px] border-b-[4px] border-slate-600 hover:border-cyan-400 hover:text-cyan-300 hover:shadow-[0_0_15px_rgba(34,211,238,0.5)] active:border-b-[2px] active:translate-y-[2px] rounded-2xl text-2xl font-black text-white transition-all"
            >
              {num}
            </button>
          ))}
          
+         {/* ปุ่ม C สีส้ม/เหลืองเรืองแสง */}
          <button 
            type="button" 
            onClick={() => setFormData(prev => ({ ...prev, reporterContact: '' }))} 
-           className="bg-slate-800 border-[2px] border-solid border-white/80 text-orange-400 text-2xl md:text-3xl font-black py-3 sm:py-3.5 md:py-5 rounded-xl md:rounded-2xl active:scale-95 transition-all shadow-[0_0_10px_rgba(255,255,255,0.3)] hover:bg-orange-600 hover:border-orange-400 hover:text-white hover:shadow-[0_0_20px_rgba(249,115,22,0.7)] flex items-center justify-center"
+           className="h-14 bg-slate-800 border-[2px] border-b-[4px] border-amber-600/70 text-amber-500 hover:border-amber-400 hover:text-amber-300 hover:shadow-[0_0_15px_rgba(251,191,36,0.5)] active:border-b-[2px] active:translate-y-[2px] rounded-2xl text-2xl font-black transition-all flex items-center justify-center"
          >
            C
          </button>
@@ -3193,11 +3313,12 @@ const executeRatingSubmit = async () => {
              setFormData(prev => ({ ...prev, reporterContact: formatted }));
              if (formErrors.reporterContact) setFormErrors(prev => ({ ...prev, reporterContact: null }));
            }} 
-           className="bg-slate-800 border-[2px] border-solid border-white/80 text-slate-200 text-2xl md:text-3xl font-black py-3 sm:py-3.5 md:py-5 rounded-xl md:rounded-2xl active:scale-95 transition-all shadow-[0_0_10px_rgba(255,255,255,0.3)] hover:bg-cyan-600/90 hover:border-cyan-400 hover:text-white hover:shadow-[0_0_20px_rgba(34,211,238,0.7)]"
+           className="h-14 bg-slate-800 border-[2px] border-b-[4px] border-slate-600 hover:border-cyan-400 hover:text-cyan-300 hover:shadow-[0_0_15px_rgba(34,211,238,0.5)] active:border-b-[2px] active:translate-y-[2px] rounded-2xl text-2xl font-black text-white transition-all"
          >
            0
          </button>
          
+         {/* ปุ่ม X สีแดงเรืองแสง */}
          <button 
            type="button" 
            onClick={() => {
@@ -3208,12 +3329,13 @@ const executeRatingSubmit = async () => {
              else if (current.length > 2) formatted = `${current.substring(0, 2)}-${current.substring(2)}`;
              setFormData(prev => ({ ...prev, reporterContact: formatted }));
            }} 
-           className="bg-slate-800 border-[2px] border-solid border-white/80 text-rose-500 flex items-center justify-center py-3 sm:py-3.5 md:py-5 rounded-xl md:rounded-2xl active:scale-95 transition-all shadow-[0_0_10px_rgba(255,255,255,0.3)] hover:bg-rose-600 hover:border-rose-400 hover:text-white hover:shadow-[0_0_20px_rgba(225,29,72,0.7)]"
+           className="h-14 bg-slate-800 border-[2px] border-b-[4px] border-rose-700/70 text-rose-500 hover:border-rose-400 hover:text-rose-300 hover:shadow-[0_0_15px_rgba(244,63,94,0.5)] active:border-b-[2px] active:translate-y-[2px] rounded-2xl flex items-center justify-center transition-all"
          >
-           <X size={28} strokeWidth={3.5} className="md:w-8 md:h-8"/>
+           <X size={28} className="drop-shadow-md stroke-[3px]" />
          </button>
        </div>
 
+       {/* 🌟 ปุ่มยืนยัน (ส้ม โฮเวอร์เป็น ฟ้า-เขียว) */}
        <button 
          type="button" 
          onClick={() => {
@@ -3225,7 +3347,7 @@ const executeRatingSubmit = async () => {
            }
            setShowNumpad(false);
          }} 
-         className="w-full mt-2 md:mt-4 bg-gradient-to-r from-orange-500 to-amber-500 text-white font-black py-3.5 sm:py-4 md:py-6 rounded-xl md:rounded-2xl border-[2px] border-solid border-orange-300 shadow-[0_0_15px_rgba(249,115,22,0.5)] active:scale-95 transition-all duration-300 text-[15px] sm:text-[16px] md:text-[22px] tracking-widest uppercase hover:from-emerald-500 hover:to-emerald-600 hover:border-emerald-300 hover:shadow-[0_0_25px_rgba(16,185,129,0.8)] shrink-0"
+         className="w-full mt-2 h-14 bg-gradient-to-r from-orange-500 to-amber-500 text-white font-black text-lg rounded-2xl border-[2px] border-solid border-orange-400 shadow-[0_0_20px_rgba(249,115,22,0.5)] hover:from-cyan-500 hover:to-emerald-500 hover:border-cyan-300 hover:shadow-[0_0_25px_rgba(34,211,238,0.7)] active:scale-95 transition-all duration-300 tracking-widest shrink-0"
        >
          ยืนยัน
        </button>
@@ -4184,7 +4306,7 @@ const renderTracking = () => (
                       </div>
 
                      {/* 🌟 โซนปุ่มกด Action (ขนาดบิ๊กเบิ้ม สำหรับช่าง) */}
-                     {currentUserRole === 'technician' && !isCancelled && (
+                     {(currentUserRole !== 'reporter') && !isCancelled && (
                         <div className="flex flex-col gap-2.5 md:gap-6 mt-4 md:mt-8">
                           {isPending && (
                             <button
@@ -4505,7 +4627,7 @@ const renderTracking = () => (
      <div className={`relative z-10 flex flex-col h-[100dvh] w-full max-w-md md:max-w-6xl backdrop-blur-md overflow-hidden text-slate-100 font-sans select-none bg-slate-900/40 border-x border-solid transition-all duration-1000 ${
         activeTab === 'dashboard' ? 'shadow-[0_0_60px_-5px_rgba(249,115,22,1)] border-orange-500/50' :
         activeTab === 'report' ? 'shadow-[0_0_60px_-5px_rgba(16,185,129,1)] border-emerald-500/50' :
-        (activeTab === 'tracking' && currentUserRole === 'technician' ? 'shadow-[0_0_60px_-5px_rgba(6,182,212,1)] border-cyan-500/50' :
+        (activeTab === 'tracking' && currentUserRole !== 'reporter' ? 'shadow-[0_0_60px_-5px_rgba(6,182,212,1)] border-cyan-500/50' :
         'shadow-[0_0_60px_-5px_rgba(244,63,94,1)] border-rose-500/50')
       }`}>
 
@@ -4523,33 +4645,42 @@ const renderTracking = () => (
         </div>
       )}
 
+
       {/* 🚀 Dynamic Header (ฟันธง: รีดไขมันแนวตั้ง ปรับ md:py-4 ลดเหลือ md:py-2.5 คืนพื้นที่จอ) */}
       <div className="bg-slate-900/50 backdrop-blur-xl pl-5 md:pl-8 pr-4 py-3 md:py-2.5 flex items-center justify-between sticky top-4 z-50 border-2 border-solid border-orange-500 rounded-2xl md:rounded-xl mt-4 md:mt-3 transition-all duration-500 shadow-[0_0_15px_rgba(249,115,22,0.4)] mx-4 md:mx-6">
         <div className="flex items-center gap-3.5 md:gap-4 z-10">
           
-          {/* กล่องไอคอนซ้าย ปรับให้กระชับขึ้นบน PC จาก w-16 h-16 เป็น w-12 h-12 */}
           <div className="bg-white w-14 h-14 md:w-12 md:h-12 rounded-2xl md:rounded-xl shadow-md text-orange-500 border-2 border-solid border-orange-300 flex items-center justify-center shrink-0">
-            {activeTab === 'dashboard' ? <LayoutDashboard className="w-8 h-8 md:w-6 md:h-6" strokeWidth={2.5} /> : activeTab === 'report' ? <PlusCircle className="w-8 h-8 md:w-6 md:h-6" strokeWidth={2.5} /> : currentUserRole === 'technician' ? <Wrench className="w-8 h-8 md:w-6 md:h-6" strokeWidth={2.5} /> : <ClipboardCheck className="w-8 h-8 md:w-6 md:h-6" strokeWidth={2.5} />}
+            {activeTab === 'dashboard' ? <LayoutDashboard className="w-8 h-8 md:w-6 md:h-6" strokeWidth={2.5} /> : activeTab === 'report' ? <PlusCircle className="w-8 h-8 md:w-6 md:h-6" strokeWidth={2.5} /> : currentUserRole !== 'reporter' ? <Wrench className="w-8 h-8 md:w-6 md:h-6" strokeWidth={2.5} /> : <ClipboardCheck className="w-8 h-8 md:w-6 md:h-6" strokeWidth={2.5} />}
           </div>
           
           <div>
-            {/* ปรับขนาดตัวหนังสือหัวข้อบน PC จาก 4xl เป็น 2xl (md:text-2xl) ให้ดูเรียบหรู ไม่หนาเทอะทะ */}
-          {/* จากเดิมที่ท่านใช้อยู่ ให้แก้เป็นก้อนนี้ครับ */}
             <h1 className="font-black text-white text-3xl md:text-5xl tracking-widest leading-none drop-shadow-[0_4px_4px_rgba(0,0,0,0.5)] py-2 whitespace-nowrap">
-              {activeTab === 'dashboard' ? 'แผงควบคุม' : activeTab === 'report' ? 'แจ้งซ่อม' : currentUserRole === 'technician' ? 'จัดการงานซ่อม' : 'ติดตามสถานะ'}
-          </h1>
+              {activeTab === 'dashboard' ? 'แผงควบคุม' : activeTab === 'report' ? 'แจ้งซ่อม' : currentUserRole !== 'reporter' ? 'จัดการงานซ่อม' : 'ติดตามสถานะ'}
+            </h1>
           </div>
         </div>
 
-       {/* 🌟 ฟันธงแก้ไขมาสคอต: คืนค่าพิกดและความกว้างฉบับสมบูรณ์ หัวไม่แหว่ง ตัวใหญ่สวยงามบน PC 1,000,000% */}
-       <div className="relative w-12 md:w-28 h-14 md:h-16 shrink-0 z-50 pointer-events-none overflow-visible">
-           <img 
-             src={activeTab === 'dashboard' ? "/mascot-dashboard.webp" : activeTab === 'report' ? "/mascot-report.webp" : (activeTab === 'tracking' && currentUserRole === 'technician') ? "/mascot-tech.webp" : "/mascot-track.webp"}
-             key={activeTab + currentUserRole}
-             alt="GSE Mascot" 
-             /* 💡 ทริคท่านหัวหน้า: ปรับความกว้างที่ md:w-[92px] และดึงน้องลงมาที่ md:bottom-[-35px] เพื่อไม่ให้หัวแหว่งครับ */
-             className="absolute bottom-[-10px] right-[-10px] md:bottom-[-35px] md:right-[-5px] w-[65px] md:w-[85px] max-w-none h-auto object-contain drop-shadow-[0_5px_5px_rgba(0,0,0,0.4)] animate-in slide-in-from-right-4 fade-in duration-500 overflow-visible"
-           />
+       {/* 🌟 ฟันธง: โซนขวามือ (เพิ่มปุ่ม Logout + น้องมาสคอต) */}
+       <div className="flex items-center gap-4 z-50">
+       {(currentUserRole !== 'reporter') && (
+            <button
+              onClick={onGoHome}
+              className="flex items-center justify-center gap-1.5 md:gap-2 bg-rose-600/20 hover:bg-rose-600 text-rose-500 hover:text-white border border-rose-500/50 hover:border-rose-400 px-3 py-1.5 md:py-2 rounded-xl transition-all shadow-sm active:scale-95"
+              title="ออกจากระบบ"
+            >
+              <LogOut size={18} className="md:w-5 md:h-5" />
+              <span className="hidden md:block font-bold text-[15px]">ออกจากระบบ</span>
+            </button>
+          )}
+          <div className="relative w-12 md:w-28 h-14 md:h-16 shrink-0 pointer-events-none overflow-visible">
+            <img 
+              src={activeTab === 'dashboard' ? "/mascot-dashboard.webp" : activeTab === 'report' ? "/mascot-report.webp" : (activeTab === 'tracking' && currentUserRole !== 'reporter') ? "/mascot-tech.webp" : "/mascot-track.webp"}
+              key={activeTab + currentUserRole}
+              alt="GSE Mascot" 
+              className="absolute bottom-[-10px] right-[-10px] md:bottom-[-35px] md:right-[-5px] w-[65px] md:w-[85px] max-w-none h-auto object-contain drop-shadow-[0_5px_5px_rgba(0,0,0,0.4)] animate-in slide-in-from-right-4 fade-in duration-500 overflow-visible"
+            />
+          </div>
         </div>
       </div>
 
@@ -4558,7 +4689,7 @@ const renderTracking = () => (
         className="relative z-10 flex-1 overflow-y-auto overflow-x-hidden w-full [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none] pb-28 md:px-6"
         style={{ overscrollBehavior: 'none', touchAction: 'pan-y' }}
       >
-        {activeTab === 'dashboard' && currentUserRole === 'technician' && renderDashboard()}
+       {activeTab === 'dashboard' && (currentUserRole !== 'reporter') && renderDashboard()}
         {activeTab === 'report' && renderReport()}
         {activeTab === 'tracking' && renderTracking()}
       </div>
@@ -4843,13 +4974,23 @@ const renderTracking = () => (
   
   <div className="w-full flex justify-evenly items-center px-1 md:px-8">
           
-      {/* 🏠 ปุ่ม HOME */}
-      <button onClick={onGoHome} className="flex flex-col items-center justify-center gap-1.5 md:gap-3 active:scale-95 transition-all shrink-0 group">
-        <div className="p-2.5 md:p-4 rounded-full bg-transparent text-slate-400 group-hover:text-white transition-colors">
-          <Home className="w-6 h-6 md:w-12 md:h-12" />
-        </div>
-        <span className="block text-[14px] md:text-[22px] font-black text-slate-400 group-hover:text-white tracking-widest whitespace-nowrap shrink-0 transition-colors">หน้าแรก</span>
-      </button>
+      {/* 🚪 ปุ่มออกจากระบบ (แทนปุ่มหน้าแรก) */}
+      <button 
+            onClick={async () => {
+              try {
+                await signOut(auth); // สั่งเตะบัญชีออกจาก Firebase
+                onGoHome(); // วาร์ปกลับหน้า Landing Page
+              } catch (error) {
+                console.error("Logout Error:", error);
+              }
+            }} 
+            className="flex flex-col items-center justify-center gap-1.5 md:gap-3 active:scale-95 transition-all shrink-0 group"
+          >
+            <div className="p-2.5 md:p-4 rounded-full bg-transparent text-slate-400 group-hover:text-rose-400 transition-colors">
+              <LogOut className="w-6 h-6 md:w-12 md:h-12" />
+            </div>
+            <span className="block text-[14px] md:text-[22px] font-black text-slate-400 group-hover:text-rose-400 tracking-widest whitespace-nowrap shrink-0 transition-colors">ออกจากระบบ</span>
+          </button>
 
       {/* ================= โหมดแผงแจ้งซ่อม ติดตามสถานะ หน้าผู้แจ้ง (Reporter) ================= */}
       {currentUserRole === 'reporter' && (
@@ -4874,7 +5015,7 @@ const renderTracking = () => (
 
 
       {/* ======= โหมดแผงควบคุมด้านล่างช่าง (Technician) ======*/}
-      {currentUserRole === 'technician' && (
+      {currentUserRole !== 'reporter' && (
         <>
           {/* 🟠 ปุ่มแผงควบคุม */}
           <button onClick={() => setActiveTab('dashboard')} className="flex flex-col items-center justify-center gap-1.5 md:gap-3 transition-all shrink-0 active:scale-95 group">
@@ -4901,149 +5042,661 @@ const renderTracking = () => (
 
 
 // ==========================================
-// 🌟 Landing Page - ฉบับสมบูรณ์ ไร้ Error 100%
+// 📱 ฟังก์ชัน: หน้าต่าง Login สำหรับผู้แจ้งซ่อม (เวอร์ชันกู้รหัสผ่านผ่านอีเมลจริงฟรี 100%)
+// ==========================================
+function ReporterLoginPopup({ onClose, onLoginSuccess }) {
+  const [step, setStep] = useState(1); // 1=เบอร์, 2=PIN, 3=ลงทะเบียนข้อมูล, 4=โดนล็อก, 5=ส่งเมลสำเร็จ
+  const [phone, setPhone] = useState('');
+  const [pin, setPin] = useState('');
+  const [confirmPin, setConfirmPin] = useState(''); 
+  const [isConfirmingPin, setIsConfirmingPin] = useState(false); 
+  const [showPin, setShowPin] = useState(false); 
+  
+  const [fullName, setFullName] = useState('');
+  const [email, setEmail] = useState('');
+  const [userRealEmail, setUserRealEmail] = useState(''); // 🌟 ฟันธง: เก็บอีเมลจริงจากระบบมาใช้ล็อกอินหลังบ้าน
+  const [isNewUser, setIsNewUser] = useState(false);
+  const [errorMsg, setErrorMsg] = useState('');
+  const [isLoading, setIsLoading] = useState(false);
+
+  const [failedAttempts, setFailedAttempts] = useState(0);
+  const maxAttempts = 5; 
+
+  // ตรวจสอบชิปความจำเครื่องตอนเปิดหน้าจอ
+  useEffect(() => {
+    const savedPhone = localStorage.getItem('gse_remembered_phone');
+    if (savedPhone && savedPhone.length === 10) {
+      setPhone(savedPhone);
+      setIsLoading(true);
+      getDocs(query(collection(db, 'users'), where('phone', '==', savedPhone)))
+        .then((snapshot) => {
+          if (!snapshot.empty) {
+            const userData = snapshot.docs[0].data();
+            setUserRealEmail(userData.email); // ดึงเมลจริงมาแสตนด์บาย
+            setIsNewUser(false);
+          } else {
+            setIsNewUser(true);
+          }
+          setStep(2); 
+        })
+        .catch((err) => console.error("Auto-check error:", err))
+        .finally(() => setIsLoading(false));
+    }
+  }, []);
+
+  const handleForgotDevice = () => {
+    localStorage.removeItem('gse_remembered_phone'); 
+    setPhone(''); setPin(''); setConfirmPin(''); setIsConfirmingPin(false);
+    setFailedAttempts(0); setErrorMsg(''); setUserRealEmail('');
+    setStep(1); 
+  };
+
+  const handleNumpad = (num) => {
+    if (failedAttempts >= maxAttempts) return; 
+    setErrorMsg('');
+    if (step === 1 && phone.length < 10) setPhone(prev => prev + num);
+    if (step === 2) {
+      if (isConfirmingPin && confirmPin.length < 6) setConfirmPin(prev => prev + num);
+      else if (!isConfirmingPin && pin.length < 6) setPin(prev => prev + num);
+    }
+  };
+  
+  const handleDelete = () => {
+    if (failedAttempts >= maxAttempts) return;
+    if (step === 1) setPhone(prev => prev.slice(0, -1));
+    if (step === 2) {
+      if (isConfirmingPin) setConfirmPin(prev => prev.slice(0, -1));
+      else setPin(prev => prev.slice(0, -1));
+    }
+  };
+  
+  const handleClear = () => {
+    if (failedAttempts >= maxAttempts) return;
+    if (step === 1) setPhone('');
+    if (step === 2) {
+      if (isConfirmingPin) setConfirmPin('');
+      else setPin('');
+    }
+  };
+
+  const formatPhone = (p) => {
+    const padded = p.padEnd(10, '-');
+    return `${padded.slice(0,2)}-${padded.slice(2,6)}-${padded.slice(6,10)}`;
+  };
+  
+  const formatPinDisplay = (p) => {
+    const padded = p.padEnd(6, '-');
+    if (showPin) return padded.split('').join(' '); 
+    return padded.split('').map(c => c === '-' ? '-' : '•').join(' ');
+  };
+
+  useEffect(() => {
+    const handleKeyDown = (e) => {
+      if (step >= 3 || failedAttempts >= maxAttempts) return; 
+      if (/^[0-9]$/.test(e.key)) handleNumpad(e.key);
+      else if (e.key === 'Backspace') handleDelete();
+      else if (e.key.toLowerCase() === 'c' || e.key === 'Escape') handleClear();
+      else if (e.key === 'Enter') {
+        if (step === 1 && phone.length === 10) handleNextStep();
+        else if (step === 2) {
+          if (isConfirmingPin && confirmPin.length === 6) handleSubmit();
+          else if (!isConfirmingPin && pin.length === 6) handleSubmit();
+        }
+      }
+    };
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [step, phone, pin, isNewUser, isConfirmingPin, confirmPin, failedAttempts, userRealEmail]);
+
+  const handleNextStep = async () => {
+    if (phone.length !== 10) { setErrorMsg('กรุณากรอกเบอร์โทรศัพท์ให้ครบ 10 หลักค่ะ'); return; }
+    setIsLoading(true); setErrorMsg(''); setFailedAttempts(0); 
+    try {
+      const q = query(collection(db, 'users'), where('phone', '==', phone));
+      const querySnapshot = await getDocs(q);
+      if (!querySnapshot.empty) {
+        const userData = querySnapshot.docs[0].data();
+        setUserRealEmail(userData.email); // 🌟 บันทึกอีเมลจริงไว้ใช้ล็อกอินหลังบ้าน
+        setIsNewUser(false);
+      } else {
+        setIsNewUser(true);
+      }
+      setStep(2);
+    } catch (error) { setErrorMsg('ระบบตรวจสอบขัดข้อง: ' + error.message); } 
+    finally { setIsLoading(false); }
+  };
+
+  const handleSubmit = async () => {
+    if (isConfirmingPin) {
+      if (confirmPin.length !== 6) { setErrorMsg('กรุณายืนยันรหัส PIN ให้ครบ 6 หลักค่ะ'); return; }
+      if (pin !== confirmPin) { setErrorMsg('รหัส PIN ไม่ตรงกัน กรุณาลองใหม่อีกครั้งค่ะ'); setConfirmPin(''); return; }
+      setErrorMsg(''); setStep(3); 
+    } else {
+      if (pin.length !== 6) { setErrorMsg('กรุณากรอกรหัส PIN ให้ครบ 6 หลักค่ะ'); return; }
+      setErrorMsg('');
+      
+      if (isNewUser) {
+        setIsConfirmingPin(true); setShowPin(false);
+      } else {
+        setIsLoading(true);
+        try {
+          // 🌟 ฟันธง: ล็อกอินผ่านหลังบ้านด้วย "อีเมลจริงองค์กร" ที่ดึงมาจากเบอร์โทรคู่หูของเขา
+          await signInWithEmailAndPassword(auth, userRealEmail, pin);
+          localStorage.setItem('gse_remembered_phone', phone);
+          setFailedAttempts(0); onLoginSuccess('reporter');
+        } catch (error) { 
+          const newAttempts = failedAttempts + 1;
+          setFailedAttempts(newAttempts);
+          if (newAttempts >= maxAttempts) {
+            setStep(4); // ส่งไปหน้าล็อกถาวรทันที
+          } else {
+            setErrorMsg(`รหัส PIN ไม่ถูกต้องค่ะ กรุณาลองอีกครั้ง (${newAttempts}/${maxAttempts})`);
+          }
+          setPin(''); 
+        } 
+        finally { setIsLoading(false); }
+      }
+    }
+  };
+
+  const handleFinalRegister = async (e) => {
+    e.preventDefault();
+    if (!fullName || !email) { setErrorMsg('กรุณากรอกข้อมูลให้ครบถ้วนค่ะ'); return; }
+    setIsLoading(true); setErrorMsg('');
+    try {
+      // 🌟 ฟันธง: บันทึกเข้า Firebase Auth ด้วยอีเมลจริงองค์กรที่เขากรอก
+      await createUserWithEmailAndPassword(auth, email, pin);
+      await addDoc(collection(db, 'users'), { phone, fullName, email, role: 'reporter', createdAt: new Date().toISOString() });
+      localStorage.setItem('gse_remembered_phone', phone);
+      onLoginSuccess('reporter');
+    } catch (error) { setErrorMsg('อีเมลนี้อาจถูกใช้งานแล้ว หรือรูปแบบไม่ถูกต้องค่ะ'); } 
+    finally { setIsLoading(false); }
+  };
+
+  // 🌟 ฟันธง: ฟังก์ชันยิงอีเมลรีเซ็ตรหัสผ่าน Self-Service ฟรีจากกูเกิล!
+  const handleForgotPin = async () => {
+    if (!userRealEmail) { setErrorMsg('ไม่พบข้อมูลอีเมลสำหรับรีเซ็ตรหัสผ่านค่ะ'); return; }
+    setIsLoading(true); setErrorMsg('');
+    try {
+      await sendPasswordResetEmail(auth, userRealEmail);
+      setStep(5); // วาร์ปไปหน้าจอส่งสำเร็จ!
+    } catch (error) {
+      setErrorMsg('เกิดข้อผิดพลาดในการส่งลิงก์: ' + error.message);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  return (
+    <div className="fixed inset-0 z-[400] bg-slate-950/95 backdrop-blur-md flex items-center justify-center p-4 animate-in fade-in" onClick={onClose}>
+      <div className="relative w-full max-w-sm bg-slate-900 border-[3px] border-solid border-cyan-500/80 rounded-[2.5rem] p-6 shadow-[0_0_40px_rgba(34,211,238,0.3)] flex flex-col items-center gap-4 transition-all" onClick={e => e.stopPropagation()}>
+        
+        <button onClick={onClose} className="absolute top-5 right-5 text-slate-400 hover:text-rose-400 transition-colors z-20">
+          <X size={28} />
+        </button>
+
+        <div className="relative mt-2">
+          <div className="absolute inset-0 bg-orange-500 blur-[20px] opacity-40 rounded-full"></div>
+          <div className="relative w-16 h-16 bg-slate-950 border-[2px] border-orange-400 rounded-full flex items-center justify-center shadow-[0_0_20px_rgba(249,115,22,0.6)]">
+            <Phone className="w-8 h-8 text-orange-400 drop-shadow-[0_0_8px_rgba(249,115,22,0.8)]" />
+          </div>
+        </div>
+        
+        {step < 4 && (
+          <h2 className="text-xl font-black text-white tracking-wide text-center">
+            {step === 1 && 'เบอร์โทรศัพท์ผู้แจ้ง'}
+            {step === 2 && (isNewUser ? (isConfirmingPin ? '✅ ยืนยันรหัส PIN อีกครั้ง' : '✨ ตั้งรหัส PIN 6 หลัก') : '🔒 ใส่รหัส PIN เพื่อเข้าสู่ระบบ')}
+            {step === 3 && '📝 ข้อมูลแจ้งเตือน'}
+          </h2>
+        )}
+
+        {errorMsg && step < 4 && <p className={`text-sm font-bold text-center p-2 rounded-lg w-full border animate-in shake bg-rose-500/10 text-rose-400 border-rose-500/30 shadow-[0_0_10px_rgba(244,63,94,0.2)]`}>{errorMsg}</p>}
+
+        {/* --- ส่วนของ STEP 1 และ 2 (กรอกเบอร์ / PIN) --- */}
+        {step < 3 && (
+          <>
+            <div className="relative w-full mb-2">
+              <div className="w-full bg-slate-950 border-[2px] border-cyan-400 rounded-2xl h-16 flex items-center justify-center text-3xl font-black text-cyan-300 tracking-[0.1em] shadow-[0_0_15px_rgba(34,211,238,0.4),inset_0_0_10px_rgba(34,211,238,0.2)] transition-all">
+                {step === 1 ? formatPhone(phone) : formatPinDisplay(isConfirmingPin ? confirmPin : pin)}
+              </div>
+              {step === 2 && (
+                <button type="button" onClick={() => setShowPin(!showPin)} className="absolute right-4 top-1/2 -translate-y-1/2 text-cyan-600 hover:text-cyan-300 transition-colors drop-shadow-md">
+                  {showPin ? <EyeOff size={24} /> : <Eye size={24} />}
+                </button>
+              )}
+            </div>
+
+            {step === 2 && (
+              <div className="w-full flex justify-between items-center px-1 -mt-1 mb-1">
+                {failedAttempts >= 3 && !isNewUser ? (
+                  <button type="button" onClick={handleForgotPin} disabled={isLoading} className="text-xs font-bold text-rose-400 hover:text-rose-300 underline transition-colors animate-pulse z-10">
+                    {isLoading ? 'กำลังส่งข้อมูล...' : 'ลืมรหัส PIN ใช่หรือไม่?'}
+                  </button>
+                ) : (
+                  <div></div>
+                )}
+                <button type="button" onClick={handleForgotDevice} className="text-xs font-bold text-slate-400 hover:text-orange-400 underline transition-colors ml-auto z-10">ไม่ใช่คุณใช่ไหม?</button>
+              </div>
+            )}
+
+            <div className="grid grid-cols-3 gap-3 w-full px-1">
+              {[1, 2, 3, 4, 5, 6, 7, 8, 9].map((num) => (
+                <button key={num} onClick={() => handleNumpad(num.toString())} className="h-14 bg-slate-800 border-[2px] border-b-[4px] border-slate-600 hover:border-cyan-400 hover:text-cyan-300 hover:shadow-[0_0_15px_rgba(34,211,238,0.5)] active:border-b-[2px] active:translate-y-[2px] rounded-2xl text-2xl font-black text-white transition-all">{num}</button>
+              ))}
+              <button onClick={handleClear} className="h-14 bg-slate-800 border-[2px] border-b-[4px] border-amber-600/70 text-amber-500 hover:border-amber-400 hover:text-amber-300 hover:shadow-[0_0_15px_rgba(251,191,36,0.5)] active:border-b-[2px] active:translate-y-[2px] rounded-2xl text-2xl font-black transition-all">C</button>
+              <button onClick={() => handleNumpad('0')} className="h-14 bg-slate-800 border-[2px] border-b-[4px] border-slate-600 hover:border-cyan-400 hover:text-cyan-300 hover:shadow-[0_0_15px_rgba(34,211,238,0.5)] active:border-b-[2px] active:translate-y-[2px] rounded-2xl text-2xl font-black text-white transition-all">0</button>
+              <button onClick={handleDelete} className="h-14 bg-slate-800 border-[2px] border-b-[4px] border-rose-700/70 text-rose-500 hover:border-rose-400 hover:text-rose-300 hover:shadow-[0_0_15px_rgba(244,63,94,0.5)] active:border-b-[2px] active:translate-y-[2px] rounded-2xl flex items-center justify-center transition-all">
+                <X className="w-8 h-8 drop-shadow-md" />
+              </button>
+            </div>
+
+            <button onClick={step === 1 ? handleNextStep : handleSubmit} disabled={isLoading} className="w-full mt-3 h-14 rounded-2xl font-black text-white text-xl bg-gradient-to-r from-orange-500 to-amber-500 border-[2px] border-orange-400 shadow-[0_0_20px_rgba(249,115,22,0.5)] hover:from-cyan-500 hover:to-emerald-500 hover:border-cyan-300 hover:shadow-[0_0_25px_rgba(34,211,238,0.7)] active:scale-95 transition-all duration-300">
+              {isLoading ? 'กำลังตรวจสอบ...' : (step === 1 ? 'ถัดไป' : (isNewUser && !isConfirmingPin ? 'ถัดไป' : (isNewUser ? 'ยืนยันรหัสผ่าน' : 'เข้าสู่ระบบ')))}
+            </button>
+          </>
+        )}
+
+        {/* --- ส่วนของ STEP 3 (กรอกข้อมูลจริงเพื่อทำผังจำอีเมล) --- */}
+        {step === 3 && (
+          <form onSubmit={handleFinalRegister} className="w-full flex flex-col gap-4">
+            <p className="text-amber-400 text-xs font-bold text-center bg-amber-500/10 p-2 rounded-lg">ยินดีต้อนรับ! กรอกอีเมลจริงหน่วยงานเพื่อเปิดระบบกู้คืนรหัสผ่านอัตโนมัติ</p>
+            <div className="space-y-1.5 w-full text-left">
+              <label className="text-xs font-black text-slate-300">ชื่อ - นามสกุล</label>
+              <input type="text" required value={fullName} onChange={e => setFullName(e.target.value)} className="w-full bg-slate-950 border-2 border-slate-600 focus:border-cyan-400 shadow-inner rounded-xl px-4 py-3 text-white font-bold outline-none text-sm transition-all" />
+            </div>
+            <div className="space-y-1.5 w-full text-left">
+              <label className="text-xs font-black text-slate-300">อีเมลจริง (สำหรับรับลิงก์รีเซ็ตรหัสผ่าน)</label>
+              <input type="email" required value={email} onChange={e => setEmail(e.target.value)} className="w-full bg-slate-950 border-2 border-slate-600 focus:border-cyan-400 shadow-inner rounded-xl px-4 py-3 text-white font-bold outline-none text-sm transition-all" placeholder="username@gistda.or.th" />
+            </div>
+            <div className="flex gap-3 mt-2">
+              <button type="button" onClick={() => { setStep(2); setIsConfirmingPin(false); setPin(''); setConfirmPin(''); setShowPin(false); }} className="flex-1 py-3.5 rounded-xl font-bold text-white bg-slate-800 border-2 border-slate-600 hover:bg-slate-700 transition-all active:scale-95 text-sm">ย้อนกลับ</button>
+              <button type="submit" disabled={isLoading} className="flex-[1.5] py-3.5 rounded-xl font-black text-white bg-gradient-to-r from-orange-500 to-amber-500 border-2 border-orange-400 hover:from-cyan-500 hover:to-emerald-500 hover:border-cyan-300 shadow-[0_0_15px_rgba(249,115,22,0.4)] transition-all duration-300 active:scale-95 text-sm">{isLoading ? 'กำลังบันทึก...' : 'เสร็จสิ้นการสมัคร'}</button>
+            </div>
+          </form>
+        )}
+
+        {/* 🌟 ฟันธง: ส่วนของ STEP 4 (หน้าจอโดนบล็อกเพราะกดผิด 5 ครั้ง เสนอทางเลือกรีเซ็ตทันที) */}
+        {step === 4 && (
+          <div className="w-full flex flex-col items-center gap-4 text-center py-2 animate-in fade-in">
+            <div className="text-5xl drop-shadow-[0_0_15px_rgba(225,29,72,0.6)] mb-2">🔒</div>
+            <h3 className="text-xl font-black text-rose-400 tracking-wide">ระงับการใช้งานชั่วคราว</h3>
+            <p className="text-[14px] text-slate-300 font-bold leading-relaxed bg-rose-500/10 p-4 rounded-xl border border-rose-500/30">
+              ท่านระบุรหัส PIN ผิดพลาดเกิน 5 ครั้ง <br/>
+              เพื่อความปลอดภัย กรุณากดปุ่มด้านล่างเพื่อส่ง <br/>
+              <span className="text-emerald-400 font-black">ลิงก์กู้คืนรหัสผ่าน</span> ไปที่อีเมลจริงของท่านค่ะ
+            </p>
+            <button type="button" onClick={handleForgotPin} disabled={isLoading} className="w-full h-14 rounded-2xl font-black text-white bg-gradient-to-r from-emerald-500 to-teal-600 border-2 border-emerald-400 shadow-[0_0_15px_rgba(16,185,129,0.4)] transition-all active:scale-95">
+              {isLoading ? 'กำลังส่งลิงก์...' : '🚀 ส่งลิงก์กู้คืนรหัสเข้าอีเมล'}
+            </button>
+            <button type="button" onClick={handleForgotDevice} className="text-xs font-bold text-slate-400 hover:text-white underline">เปลี่ยนเบอร์โทรศัพท์</button>
+          </div>
+        )}
+
+
+       {/* 🌟 ฟันธง: ส่วนของ STEP 5 (หน้าจอส่งลิงก์รีเซ็ตสำเร็จ + แจ้งเตือน Spam) */}
+       {step === 5 && (
+          <div className="w-full flex flex-col items-center gap-4 text-center py-2 animate-in scale-in">
+            <div className="text-5xl drop-shadow-[0_0_15px_rgba(16,185,129,0.6)] mb-2">📩</div>
+            <h3 className="text-xl font-black text-emerald-400 tracking-wide">ส่งลิงก์กู้คืนสำเร็จ!</h3>
+            <div className="text-[13px] text-slate-300 font-bold leading-relaxed bg-slate-950 p-4 rounded-xl border border-cyan-500/30 shadow-inner">
+              ระบบได้ยิงอีเมลความปลอดภัยส่งตรงไปที่<br/>
+              <span className="text-cyan-400 font-black break-all">{userRealEmail}</span> เรียบร้อยแล้วค่ะ!<br/>
+              
+              {/* 🌟 กรอบแจ้งเตือนเช็คจดหมายขยะ */}
+              <div className="mt-3 mb-3 p-3 bg-amber-500/10 border border-amber-500/50 rounded-lg text-amber-400 animate-pulse">
+                ⚠️ <b>ข้อควรระวัง:</b> หากไม่พบอีเมลในกล่องจดหมายเข้า กรุณาตรวจสอบที่ <b>"จดหมายขยะ (Spam / Junk)"</b> นะคะ
+              </div>
+
+              <span className="text-amber-400">วิธีใช้งาน:</span> เปิดกล่องข้อความอีเมลองค์กร {"->"} คลิกปุ่มลิงก์จาก Firebase {"->"} ตั้งรหัสตัวเลข 6 ตัวใหม่ {"->"} กลับมาล็อกอินได้ทันทีค่ะ
+            </div>
+            <button type="button" onClick={() => { setStep(2); setFailedAttempts(0); }} className="w-full h-14 rounded-2xl font-black text-white bg-slate-800 border-2 border-slate-600 hover:border-cyan-400 transition-all active:scale-95">
+              กลับหน้าต่างใส่รหัส PIN
+            </button>
+          </div>
+        )}
+
+
+
+      </div>
+    </div>
+  );
+}
+
+
+// ==========================================
+// 🌟 Landing Page - ฉบับสมบูรณ์ ไร้ Error 100% (อัปเกรด Login)
 // ==========================================
 function LandingPage({ onStart }) {
   const [showManual, setShowManual] = useState(false); 
+  const [showLogin, setShowLogin] = useState(false);
+  const [showReporterLogin, setShowReporterLogin] = useState(false);
+  const [loginError, setLoginError] = useState('');
+  const [isLoggingIn, setIsLoggingIn] = useState(false);
+
+  // 🌟 ตัวแปรสำหรับระบบ PIN ของเจ้าหน้าที่ ฝวด.
+  const [staffPhone, setStaffPhone] = useState('');
+  const [staffPin, setStaffPin] = useState('');
+  const [staffStep, setStaffStep] = useState(1);
+  const [staffEmail, setStaffEmail] = useState('');
+  const [staffRole, setStaffRole] = useState('');
+  const [showStaffPin, setShowStaffPin] = useState(false)
+  const [attemptCount, setAttemptCount] = useState(0); // <--- เพิ่มบรรทัดนี้
+  const [confirmStaffPin, setConfirmStaffPin] = useState(''); 
+  const [isConfirmingStaffPin, setIsConfirmingStaffPin] = useState(false);
+  const [isNewStaff, setIsNewStaff] = useState(false);
+
+  const closeStaffLogin = () => {
+    setShowLogin(false);
+    setStaffPhone('');
+    setStaffPin('');
+    setStaffStep(1);
+    setStaffEmail('');
+    setStaffRole('');
+    setLoginError('');
+    setAttemptCount(0); // <--- รีเซ็ตค่าเมื่อปิดหน้าต่าง
+  };
+
+
+
+  const handleStaffPhoneNext = async () => {
+    if (staffPhone.length !== 10) {
+      setLoginError('กรุณากรอกเบอร์โทรศัพท์ให้ครบ 10 หลักค่ะ');
+      return;
+    }
+    setIsLoggingIn(true);
+    setLoginError('');
+    try {
+      // 1. เช็คว่าเป็นเจ้าหน้าที่ ฝวด. หรือไม่
+      const q = query(collection(db, 'staff_roles'), where('phone', '==', staffPhone));
+      const snap = await getDocs(q);
+      if (!snap.empty) {
+        const data = snap.docs[0].data();
+        setStaffEmail(data.email);
+        setStaffRole(data.role);
+        
+        // 🌟 2. สมองกลใหม่: เช็คว่าช่างคนนี้เคยตั้ง PIN (ลงทะเบียน) ไปหรือยัง
+        // โดยเช็คจากตาราง users ทะลวงขีดจำกัด Firebase ทันที!
+        const qCheck = query(collection(db, 'users'), where('email', '==', data.email));
+        const snapCheck = await getDocs(qCheck);
+        
+        if (snapCheck.empty) {
+          setIsNewStaff(true); // หาไม่เจอ = เป็นช่างใหม่ -> เปิดโหมด "ตั้งรหัส PIN 2 ครั้ง"
+        } else {
+          setIsNewStaff(false); // หาเจอ = เคยตั้งแล้ว -> เปิดโหมด "ใส่รหัส PIN ล็อกอิน"
+        }
+        setStaffStep(2);
+      } else {
+        setLoginError('เฉพาะเจ้าหน้าที่ ฝวด. เท่านั้น'); // ฟ้อง Error ตรงจุด
+      }
+    } catch (err) {
+      setLoginError('เกิดข้อผิดพลาดในการตรวจสอบข้อมูล');
+    } finally {
+      setIsLoggingIn(false);
+    }
+  };
+
+  const handleStaffPinSubmit = async () => {
+    // ==========================================
+    // 🌟 โหมดที่ 1: สำหรับช่างใหม่ (ตั้งรหัส PIN 2 ครั้งแบบเนียนๆ)
+    // ==========================================
+    if (isNewStaff) {
+      if (!isConfirmingStaffPin) {
+        // ครั้งที่ 1: ตั้งรหัส
+        if (staffPin.length !== 6) { setLoginError('กรุณาตั้งรหัส PIN ให้ครบ 6 หลักค่ะ'); return; }
+        setIsConfirmingStaffPin(true);
+        setLoginError('');
+      } else {
+        // ครั้งที่ 2: ยืนยันรหัส
+        if (confirmStaffPin.length !== 6) { setLoginError('กรุณายืนยันรหัส PIN ให้ครบ 6 หลักค่ะ'); return; }
+        if (staffPin !== confirmStaffPin) { 
+          setLoginError('รหัส PIN ไม่ตรงกัน กรุณาลองใหม่อีกครั้งค่ะ'); 
+          setConfirmStaffPin(''); 
+          return; 
+        }
+        // 🌟 สมัคร Account ให้ลับๆ + บันทึกประวัติลงตาราง users (ไม่ต้องกรอกชื่อซ้ำ)
+        setIsLoggingIn(true); setLoginError('');
+        try {
+          await createUserWithEmailAndPassword(auth, staffEmail, staffPin);
+          await addDoc(collection(db, 'users'), { 
+            phone: staffPhone, 
+            email: staffEmail, 
+            role: staffRole, 
+            isStaff: true,
+            createdAt: new Date().toISOString() 
+          });
+          setAttemptCount(0);
+          closeStaffLogin();
+          onStart(staffRole);
+        } catch (err) {
+          setLoginError('เกิดข้อผิดพลาดในการลงทะเบียน: ' + err.message);
+          setStaffPin(''); setConfirmStaffPin(''); setIsConfirmingStaffPin(false);
+        } finally { setIsLoggingIn(false); }
+      }
+      return;
+    }
+
+    // ==========================================
+    // 🌟 โหมดที่ 2: สำหรับช่างเก่า (ล็อกอินปกติ)
+    // ==========================================
+    if (staffPin.length !== 6) {
+      setLoginError('กรุณากรอกรหัส PIN ให้ครบ 6 หลักค่ะ');
+      return;
+    }
+    setIsLoggingIn(true);
+    setLoginError('');
+    try {
+      await signInWithEmailAndPassword(auth, staffEmail, staffPin);
+      setAttemptCount(0);
+      closeStaffLogin();
+      onStart(staffRole);
+    } catch (err) {
+      const newCount = attemptCount + 1;
+      setAttemptCount(newCount);
+      setLoginError(`รหัส PIN ไม่ถูกต้อง (ครั้งที่ ${newCount}/5)`);
+      setStaffPin('');
+    } finally {
+      setIsLoggingIn(false);
+    }
+  };
+
+
+
+  const handleStaffNumpad = (num) => {
+    setLoginError('');
+    if (staffStep === 1 && staffPhone.length < 10) setStaffPhone(prev => prev + num);
+    if (staffStep === 2) {
+      if (isConfirmingStaffPin && confirmStaffPin.length < 6) setConfirmStaffPin(prev => prev + num);
+      else if (!isConfirmingStaffPin && staffPin.length < 6) setStaffPin(prev => prev + num);
+    }
+  };
+
+  const handleStaffDelete = () => {
+    if (staffStep === 1) setStaffPhone(prev => prev.slice(0, -1));
+    if (staffStep === 2) {
+      if (isConfirmingStaffPin) setConfirmStaffPin(prev => prev.slice(0, -1));
+      else setStaffPin(prev => prev.slice(0, -1));
+    }
+  };
+
+  const handleStaffClear = () => {
+    if (staffStep === 1) setStaffPhone('');
+    if (staffStep === 2) {
+      if (isConfirmingStaffPin) setConfirmStaffPin('');
+      else setStaffPin('');
+    }
+  };
+
+  useEffect(() => {
+    const handleStaffKeyDown = (e) => {
+      if (!showLogin) return;
+      if (/^[0-9]$/.test(e.key)) handleStaffNumpad(e.key);
+      else if (e.key === 'Backspace') handleStaffDelete();
+      else if (e.key.toLowerCase() === 'c' || e.key === 'Escape') handleStaffClear();
+      else if (e.key === 'Enter') {
+        e.preventDefault();
+        if (staffStep === 1) handleStaffPhoneNext();
+        else if (staffStep === 2) handleStaffPinSubmit();
+      }
+    };
+    window.addEventListener('keydown', handleStaffKeyDown);
+    return () => window.removeEventListener('keydown', handleStaffKeyDown);
+    
+    // 🌟 ฟันธง: บรรทัดนี้แหละครับที่เป็นพระเอก! เติมตัวแปร 2 ตัวหลังสุดเข้าไปให้มันจำค่าได้!
+  }, [showLogin, staffStep, staffPhone, staffPin, staffEmail, staffRole, isConfirmingStaffPin, confirmStaffPin]);
+
+  const formatPhone = (p) => {
+    const padded = p.padEnd(10, '-');
+    return `${padded.slice(0,2)}-${padded.slice(2,6)}-${padded.slice(6,10)}`;
+  };
+
+  const formatPinDisplay = (p) => {
+    const padded = p.padEnd(6, '-');
+    if (showStaffPin) return padded.split('').join(' ');
+    return padded.split('').map(c => c === '-' ? '-' : '•').join(' ');
+  };
+
   return (
-    <div className="relative min-h-screen flex flex-col items-center justify-center p-6 md:p-12 overflow-hidden bg-slate-900 font-sans">
-      {/* 1. ภาพพื้นหลังลูกโลก */}
-      <div
-        className="absolute inset-0 z-0 bg-cover bg-center bg-no-repeat opacity-45 pointer-events-none"
-        style={{ backgroundImage: "url('/bg-earth-new.webp')" }}
-      ></div>
+    <div className="relative min-h-screen flex flex-col items-center justify-center p-6 md:p-12 overflow-hidden bg-[#020617] font-sans">
+      
+      <div className="absolute inset-0 z-0">
+        <div className="absolute inset-0 bg-[url('https://www.transparenttextures.com/patterns/carbon-fibre.png')] opacity-20 pointer-events-none"></div>
+        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[800px] h-[800px] bg-cyan-500/10 blur-[100px] rounded-full animate-pulse pointer-events-none"></div>
+        <div
+          className="absolute inset-0 bg-cover bg-center bg-no-repeat opacity-40 mix-blend-screen pointer-events-none"
+          style={{ backgroundImage: "url('/bg-earth-new.webp')" }}
+        ></div>
+        <div className="absolute inset-0 bg-gradient-to-b from-transparent via-[#020617]/50 to-[#020617] pointer-events-none"></div>
+      </div>
+
+      <style>{`
+        @keyframes scan {
+          0% { transform: translateY(-100%); }
+          100% { transform: translateY(100vh); }
+        }
+        .animate-scan::before {
+          content: '';
+          position: absolute;
+          width: 100%;
+          height: 2px;
+          background: linear-gradient(to right, transparent, rgba(34,211,238,0.6), transparent);
+          animation: scan 4s linear infinite;
+        }
+      `}</style>
+      <div className="animate-scan absolute inset-0 z-0 pointer-events-none overflow-hidden"></div>
 
       <div className="relative z-10 w-full max-w-md md:max-w-xl lg:max-w-2xl flex flex-col items-center animate-in slide-in-from-bottom-8 fade-in duration-1000">
         
-      <div
-          className="pt-8 pb-4 px-4 md:pt-14 md:pb-6 md:px-10 rounded-[1.5rem] md:rounded-[3rem] shadow-[0_0_80px_rgba(249,115,22,1)] flex flex-col items-center text-center w-full relative backdrop-blur-[2px] transition-all duration-500"
+        <div
+          className="pt-8 pb-4 px-4 md:pt-14 md:pb-6 md:px-10 rounded-[1.5rem] md:rounded-[3rem] shadow-[0_0_60px_rgba(249,115,22,0.4)] flex flex-col items-center text-center w-full relative backdrop-blur-md transition-all duration-500"
           style={{
-            backgroundColor: 'rgba(15, 23, 42, 0.35)',
-            border: '4px solid #FF4500',
+            backgroundColor: 'rgba(15, 23, 42, 0.5)',
+            border: '3px solid #FF4500',
+            boxShadow: '0 0 30px rgba(255, 69, 0, 0.3), inset 0 0 20px rgba(255, 69, 0, 0.1)'
           }}
         >
-          {/* โลโก้ (ฟันธง: ใช้ md:-mt-6 ดึงโลโก้ขึ้นไปชิดขอบบน แต่ไม่ติดขอบ 100%) */}
-          <div className="w-28 h-28 md:w-44 md:h-44 -mt-8 md:-mt-12 mb-10 md:mb-4 flex items-center justify-center transition-all duration-500">
+          <div className="w-28 h-28 md:w-44 md:h-44 -mt-8 md:-mt-12 mb-10 md:mb-4 flex items-center justify-center transition-all duration-500 relative">
+            <div className="absolute inset-0 bg-orange-500/30 blur-[20px] rounded-full animate-pulse z-0"></div>
             <img
               src="/GSE-logo.webp"
               alt="Logo"
-              className="w-full h-full object-contain drop-shadow-[0_15px_15px_rgba(0,0,0,0.6)] hover:scale-105 transition-transform duration-500" 
+              className="w-full h-full object-contain drop-shadow-[0_15px_25px_rgba(0,0,0,0.8)] hover:scale-105 transition-transform duration-500 relative z-10" 
             />
           </div>
 
-          {/* ชื่อระบบ 
-          <h1 className="text-2xl md:text-5xl font-black text-white -mb-4 md:mb-4 drop-shadow-md transition-all duration-500">
-            ระบบแจ้งซ่อม
-          </h1> */}
-
-          {/* 🌟 3. โซนน้องมาสคอต + กล่องคำพูด */}
           <div className="relative w-full -mt-6 md:mt-4 flex flex-col items-center min-h-[220px] md:min-h-[300px] transition-all duration-500">            
-            
-            {/* 💬 กล่องคำพูด (โปร่งแสงแบบกระจก + ติ่งสามเหลี่ยมโค้งมน) */}
-            <div className="relative z-20 bg-slate-900/80 backdrop-blur-md rounded-3xl md:rounded-[2rem] p-2 md:p-6 shadow-[0_15px_40px_rgba(249,115,22,0.8)] text-center border-[2px] border-solid border-orange-500 mb-1 md:mb-4 animate-bounce">
-              
-              {/* 🌟 ฟันธง: ติ่งสามเหลี่ยมใช้เทคนิค CSS หมุนกล่องให้โค้งมน เนียนกริบ 100% */}
+            <div className="relative z-20 bg-slate-900/90 backdrop-blur-md rounded-3xl md:rounded-[2rem] p-2 md:p-6 shadow-[0_15px_40px_rgba(249,115,22,0.6)] text-center border-[2px] border-solid border-orange-500 mb-1 md:mb-4 animate-bounce">
               <div className="absolute left-1/2 -translate-x-1/2 -bottom-[11px] w-5 h-5 bg-slate-900 border-b-[2px] border-r-[2px] border-solid border-orange-500 transform rotate-45 rounded-sm"></div>
-
               <p className="text-[20px] md:text-[22px] font-bold text-slate-100 leading-relaxed relative z-20 shadow-none">
                 ระบบ/อุปกรณ์มีปัญหาใช่มั้ยคะ?
                 <br />
-                <span className="text-orange-500 font-black text-[16px] md:text-[22px] mt-1 md:mt-2 inline-flex items-center justify-center gap-2 drop-shadow-sm whitespace-nowrap">
+                <span className="text-orange-400 font-black text-[16px] md:text-[22px] mt-1 md:mt-2 inline-flex items-center justify-center gap-2 drop-shadow-[0_0_8px_rgba(249,115,22,0.8)] whitespace-nowrap">
                   กดแจ้งซ่อมได้เลยค่ะ!
                   <span className="text-[30px] md:text-[45px] leading-[0] block transform translate-y-1 md:translate-y-2 drop-shadow-md">👇</span>
                 </span>
               </p>
             </div>
-
-            {/* 👩‍🔧 น้องมาสคอต (ฟันธงวิชามาร: ล็อกกุญแจมือด้วย style= ยัดลง HTML ตรงๆ Chrome แหกไม่ได้ 100%) */}
-            <div 
-              className="relative z-30 mx-auto mb-2 md:mb-4 pointer-events-none drop-shadow-[0_20px_20px_rgba(0,0,0,0.8)] transition-all duration-500"
-              style={{ width: '50%', maxWidth: '280px', minHeight: '150px' }} 
-            >
-              <img
-                src="/mascot.webp"
-                alt="Mascot"
-                className="w-full h-auto object-contain object-bottom hover:scale-105 transition-transform duration-500"
-              />
+            <div className="relative z-30 mx-auto mb-2 md:mb-4 pointer-events-none drop-shadow-[0_20px_30px_rgba(0,0,0,0.9)] transition-all duration-500" style={{ width: '50%', maxWidth: '280px', minHeight: '150px' }}>
+              <img src="/mascot.webp" alt="Mascot" className="w-full h-auto object-contain object-bottom hover:scale-105 transition-transform duration-500" />
             </div>
           </div>
 
-         {/* 4. กลุ่มปุ่มกด (ฟันธง: ลด gap-4 เหลือ gap-2.5 สำหรับมือถือ และลด md:gap-6 เหลือ md:gap-3.5 สำหรับ PC เพื่อดึงปุ่มให้กระชับเข้าหากันตามหลัก Law of Proximity) */}
-         <div className="w-full flex flex-col gap-2.5 md:gap-3.5 relative z-10 transition-all duration-500">
+          <div className="w-full flex flex-col gap-2.5 md:gap-3.5 relative z-10 transition-all duration-500">
             
-            {/* ปุ่ม 1: ส้ม-ทอง (Primary Action) */}
             <button
-              onClick={() => onStart('reporter')}
-              className="w-full pt-4 md:py-6 pb-5 bg-gradient-to-r from-orange-500 to-amber-500 text-white font-black text-[19px] md:text-[28px] rounded-2xl md:rounded-[1.5rem] flex items-center justify-center gap-5 md:gap-3 border-[2px] border-solid border-white/80 shadow-[0_15px_30px_rgba(249,115,22,0.5)] hover:shadow-[0_15px_35px_rgba(249,115,22,0.8)] active:scale-95 transition-all"
+              onClick={() => setShowReporterLogin(true)}
+              className="w-full pt-4 md:py-6 pb-5 bg-gradient-to-r from-orange-600 to-amber-500 text-white font-black text-[19px] md:text-[28px] rounded-2xl md:rounded-[1.5rem] flex items-center justify-center gap-5 md:gap-3 border-[2px] border-solid border-orange-400 shadow-[0_0_20px_rgba(249,115,22,0.4)] hover:shadow-[0_0_35px_rgba(249,115,22,0.8)] active:scale-95 transition-all duration-300"
             >
               <Wrench size={28} className="drop-shadow-md md:w-9 md:h-9" />{' '}
               แจ้งซ่อมระบบ/อุปกรณ์
             </button>
 
-            {/* ปุ่ม 2: เขียวมรกต (Admin Action) */}
-            <button
-              onClick={() => onStart('technician')}
-              className="w-full bg-gradient-to-r from-emerald-600 to-teal-700 text-white font-black text-lg md:text-[22px] py-3 md:py-6 rounded-2xl md:rounded-[1.5rem] border-[2px] border-solid border-white/50 flex items-center justify-center gap-5 md:gap-3 shadow-[0_10px_20px_rgba(16,185,129,0.5)] hover:shadow-[0_15px_25px_rgba(16,185,129,0.8)] active:scale-95 transition-all"
+            <button 
+              onClick={() => setShowLogin(true)}
+              className="group relative w-full overflow-hidden bg-gradient-to-r from-blue-900/60 to-blue-800/40 border-[2px] border-solid border-cyan-500/50 hover:border-cyan-400 rounded-2xl md:rounded-[1.5rem] transition-all duration-300 hover:scale-[1.02] hover:shadow-[0_0_30px_rgba(34,211,238,0.4)] p-1 active:scale-95"
             >
-              <Settings size={25} className="md:w-8 md:h-8 drop-shadow-sm" />{' '}
-              สำหรับเจ้าหน้าที่ ฝวด.
+              <div className="flex items-center justify-center bg-slate-900/60 p-3 md:p-5 rounded-xl md:rounded-[1.2rem] w-full">
+                <div className="flex items-center gap-3 md:gap-5">
+                  <div className="w-10 h-10 md:w-14 md:h-14 bg-cyan-600/50 rounded-lg md:rounded-xl flex items-center justify-center border border-cyan-400 shadow-[0_0_15px_rgba(34,211,238,0.5)] shrink-0">
+                    <ShieldCheck className="text-white w-6 h-6 md:w-8 md:h-8" />
+                  </div>
+                  <div className="flex flex-col items-start justify-center">
+                    <h3 className="text-[17px] md:text-[22px] font-black text-white group-hover:text-cyan-300 transition-colors drop-shadow-[0_0_5px_rgba(255,255,255,0.5)] leading-none">
+                      GSE-OMS SECURE LOGIN
+                    </h3>
+                    <p className="text-[11px] md:text-[13px] text-cyan-200/80 font-bold tracking-widest uppercase mt-1.5 md:mt-2">
+                      เฉพาะเจ้าหน้าที่ ฝวด.
+                    </p>
+                  </div>
+                </div>
+              </div>
             </button>
 
-            {/* ปุ่ม 3: ม่วง-ชมพู (Secondary Action) */}
             <button
               onClick={() => setShowManual(true)} 
-              className="w-full bg-gradient-to-r from-rose-700 to-purple-800 text-white text-[18px] md:text-[20px] font-bold py-3 md:py-5 rounded-2xl md:rounded-[1.5rem] border-[2px] border-solid border-white/40 flex items-center justify-center gap-5 md:gap-3 shadow-[0_10px_20px_rgba(225,29,72,0.5)] hover:shadow-[0_15px_25px_rgba(225,29,72,0.8)] active:scale-95 transition-all"
+              className="w-full bg-gradient-to-r from-slate-800 to-slate-700 text-slate-200 text-[18px] md:text-[20px] font-bold py-3 md:py-5 rounded-2xl md:rounded-[1.5rem] border-[2px] border-solid border-emerald-500/50 flex items-center justify-center gap-5 md:gap-3 shadow-[0_0_15px_rgba(16,185,129,0.2)] hover:shadow-[0_0_25px_rgba(16,185,129,0.6)] hover:border-emerald-400 hover:text-emerald-300 active:scale-95 transition-all duration-300"
             >
               <FileText size={20} className="md:w-7 md:h-7 drop-shadow-sm" /> คู่มือการใช้งานเบื้องต้น
             </button>
+
           </div>
 
-          {/* 🌟 1. ฟันธง: เปลี่ยนเป็นสีฟ้าสว่าง (Cyan) พร้อมเอฟเฟกต์เรืองแสงทะลุอวกาศ */}
-          <h2 className="text-[16px] md:text-[28px] font-black text-cyan-400 drop-shadow-[0_0_12px_rgba(34,211,238,0.8)] uppercase mt-4 md:mt-8 mb-1.5 md:mb-2 transition-all duration-500 tracking-wide">
+          <h2 className="text-[16px] md:text-[28px] font-black text-cyan-400 drop-shadow-[0_0_15px_rgba(34,211,238,0.9)] uppercase mt-4 md:mt-8 mb-1.5 md:mb-2 transition-all duration-500 tracking-wide">
             ฝ่ายวิศวกรรมระบบปฏิบัติการดาวเทียม
           </h2>
-
-          {/* 🌟 ฟันธง: เปลี่ยนเป็นสีขาวมุกเรืองแสง (Pearl White Glow) หรูหรา เป็นจุดพักสายตา */}
-          <h3 className="text-[14px] md:text-[18px] font-bold text-white tracking-widest mt-1 transition-all duration-500 drop-shadow-[0_0_10px_rgba(255,255,255,0.8)]">
+          <h3 className="text-[14px] md:text-[18px] font-bold text-slate-300 tracking-[0.2em] mt-1 transition-all duration-500">
             สำนักปฏิบัติการดาวเทียม
           </h3>
 
-          {/* 🌟 2. ฟันธง: ลูกเล่นตัวนำ G S E D ใหญ่พิเศษสีส้มทอง ตัดกับสีฟ้าด้านบน */}
-          <h3 className="font-mono text-slate-300 tracking-widest font-bold mt-5 md:mt-10 opacity-95 flex items-baseline justify-center flex-wrap gap-x-1.5 gap-y-1">
+          <h3 className="font-mono text-slate-400 tracking-widest font-bold mt-5 md:mt-10 opacity-95 flex items-baseline justify-center flex-wrap gap-x-1.5 gap-y-1">
             <span className="text-[10px] md:text-[14px]">©2026</span>
             <span>
-              <span className="text-[16px] md:text-[22px] text-orange-500 font-black drop-shadow-[0_0_8px_rgba(249,115,22,0.8)]">G</span>
+              <span className="text-[16px] md:text-[22px] text-orange-500 font-black drop-shadow-[0_0_10px_rgba(249,115,22,0.8)]">G</span>
               <span className="text-[10px] md:text-[14px]">round</span>
             </span>
             <span>
-              <span className="text-[16px] md:text-[22px] text-orange-500 font-black drop-shadow-[0_0_8px_rgba(249,115,22,0.8)]">S</span>
+              <span className="text-[16px] md:text-[22px] text-orange-500 font-black drop-shadow-[0_0_10px_rgba(249,115,22,0.8)]">S</span>
               <span className="text-[10px] md:text-[14px]">ystem</span>
             </span>
             <span>
-              <span className="text-[16px] md:text-[22px] text-orange-500 font-black drop-shadow-[0_0_8px_rgba(249,115,22,0.8)]">E</span>
+              <span className="text-[16px] md:text-[22px] text-orange-500 font-black drop-shadow-[0_0_10px_rgba(249,115,22,0.8)]">E</span>
               <span className="text-[10px] md:text-[14px]">ngineering:</span>
             </span>
-            <span className="text-[15px] md:text-[20px] text-orange-400 font-black drop-shadow-[0_0_10px_rgba(249,115,22,1)] ml-1">
+            <span className="text-[15px] md:text-[20px] text-orange-400 font-black drop-shadow-[0_0_15px_rgba(249,115,22,1)] ml-1">
               GSE
             </span>
           </h3>
         </div>
       </div>
 
-      {/* 🌟 หน้าต่าง Popup คู่มือ (อัปเกรดขยายกรอบบน-ล่างให้เต็มจอมือถือ + ซูมได้ 100%) */}
       {showManual && (
         <div className="fixed inset-0 z-[200] bg-slate-950/90 flex flex-col items-center justify-center p-2 md:p-4 backdrop-blur-md animate-in fade-in" onClick={() => setShowManual(false)}> 
           <div className="absolute w-[300px] h-[300px] bg-orange-500/40 rounded-full blur-[100px] animate-pulse pointer-events-none z-0"></div>
           <div className="w-full max-w-lg md:max-w-4xl bg-slate-900 border-[3px] md:border-[4px] border-solid border-orange-500 rounded-2xl md:rounded-[2rem] overflow-hidden shadow-[0_0_50px_rgba(249,115,22,0.6)] flex flex-col max-h-[96vh] md:max-h-[90vh] relative z-10 transition-all" onClick={(e) => e.stopPropagation()}>
-            
-            {/* 🌟 1. ส่วนหัว (Header) แยก ซ้าย-กลาง-ขวา ชัดเจน */}
             <div className="relative py-4 px-4 md:px-8 bg-slate-950 flex items-center justify-between border-b-4 border-orange-500 shrink-0 min-h-[70px] md:min-h-[90px]">
               <div className="absolute inset-0 bg-orange-500/20 blur-[40px] pointer-events-none animate-pulse z-0"></div>
-
               <div className="relative z-10 p-2 md:p-3 bg-gradient-to-br from-orange-400 to-orange-600 rounded-xl md:rounded-2xl shadow-[0_0_20px_rgba(249,115,22,0.6)] animate-pulse shrink-0">
                 <FileText size={24} className="md:w-8 md:h-8 text-white drop-shadow-md" />
               </div>
-
               <div className="absolute left-1/2 -translate-x-1/2 z-10 flex justify-center items-center pointer-events-none w-full px-16 md:px-0">
                 <div className="relative pointer-events-auto">
                   <div className="absolute -inset-1 bg-orange-500/30 blur-[10px] rounded-full animate-pulse z-0"></div>
@@ -5054,16 +5707,11 @@ function LandingPage({ onStart }) {
                   </div>
                 </div>
               </div>
-
               <button onClick={() => setShowManual(false)} className="relative z-20 bg-slate-900 border-2 border-solid border-orange-400 p-2 md:p-3 rounded-full transition-all shadow-[0_0_15px_rgba(249,115,22,0.6)] hover:shadow-[0_0_25px_rgba(225,29,72,1)] hover:-translate-y-1 active:scale-95 animate-pulse hover:bg-rose-600 hover:border-rose-400 group shrink-0">
                 <X size={20} className="md:w-6 md:h-6 text-rose-500 group-hover:text-white drop-shadow-[0_0_8px_rgba(225,29,72,0.8)] stroke-[3px] transition-colors" />
               </button>
             </div>
-
-            {/* 🌟 2. โซนแสดงรูปภาพคู่มือ (อัปเกรด: กดรูปเพื่อซูมขยาย) */}
             <div className="p-4 md:p-8 overflow-y-auto space-y-6 md:space-y-10 bg-slate-800 flex-1">
-              
-           {/* อาเรย์รูปภาพคู่มือ (ลูปเพื่อสร้างปุ่มขยายทีละรูปอัตโนมัติ) */}
            {[
                 { src: '/manual-1-1.png', alt: 'คู่มือเข้าโปรแกรมหน้าแรก' },
                 { src: '/manual-2-1.png', alt: 'คู่มือผู้แจ้งซ่อม-1' },
@@ -5075,21 +5723,14 @@ function LandingPage({ onStart }) {
                 { src: '/manual-PC.png', alt: 'คู่มือตั้งค่าการแสดงผลบน-PC' }
               ].map((manual, index) => (
                 <div key={index} className="flex flex-col items-center gap-3 md:gap-4">
-                  
-                  {/* 🖼️ รูปภาพคู่มือ (ไม่มีปุ่มไปบังทับแล้ว) */}
                   <img src={manual.src} alt={manual.alt} className="w-full rounded-xl md:rounded-2xl shadow-[0_10px_30px_rgba(0,0,0,0.6)] border-[2px] border-solid border-slate-600 transition-opacity" />
-                  
-                  {/* 🌟 ปุ่ม "คลิกเพื่อถ่างซูม" (อัปเกรด: ย้ายมาจัดเรียงใต้รูปภาพ ทรงแคปซูลสวยหรู) */}
                   <a href={manual.src} target="_blank" rel="noopener noreferrer" 
                      className="w-[85%] sm:w-[60%] md:w-[40%] bg-slate-900 border-[2px] border-solid border-orange-500/80 text-orange-400 p-3 md:p-4 rounded-full shadow-[0_0_15px_rgba(249,115,22,0.4)] backdrop-blur-sm transition-all active:scale-95 flex items-center justify-center gap-2 z-20 hover:bg-orange-500 hover:text-white hover:border-white hover:scale-105 group">
                     <Maximize2 size={18} className="md:w-6 md:h-6 drop-shadow-md group-hover:scale-125 transition-transform" strokeWidth={2.5}/>
                     <span className="text-[13px] md:text-[16px] font-black tracking-widest uppercase drop-shadow-md">แตะเพื่อขยายซูมเต็มจอ</span>
                   </a>
-                  
                 </div>
               ))}
-              
-              {/* ติ่งข้อความปิดท้ายคู่มือ */}
               <div className="text-center pt-6 pb-4 mt-8 border-t-2 border-dashed border-orange-500/30">
                 <p className="text-slate-200 font-black text-[12px] md:text-[24px] tracking-widest flex items-center justify-center gap-2 md:gap-3 drop-shadow-[0_0_10px_rgba(249,115,22,1)]">
                   <CheckCircle className="w-6 h-7 md:w-7 md:h-7 text-emerald-600 drop-shadow-[0_0_8px_rgba(16,185,129,1)]" /> 
@@ -5097,6 +5738,98 @@ function LandingPage({ onStart }) {
                 </p>
               </div>
             </div>
+          </div>
+        </div>
+      )}
+
+      {showReporterLogin && (
+        <ReporterLoginPopup 
+          onClose={() => setShowReporterLogin(false)} 
+          onLoginSuccess={onStart} 
+        />
+      )}
+
+      {/* 🌟 หน้าต่าง Popup Login สำหรับช่าง ฝวด. (ระบบ PIN 6 หลัก) */}
+      {showLogin && (
+        <div className="fixed inset-0 z-[300] bg-slate-950/90 backdrop-blur-md flex items-center justify-center p-4 animate-in fade-in duration-300" onClick={closeStaffLogin}>
+          <div className="absolute w-[300px] h-[300px] bg-cyan-500/30 rounded-full blur-[100px] animate-pulse pointer-events-none z-0"></div>
+          
+          <div className="relative z-10 w-full max-w-sm bg-slate-900 border-[3px] border-solid border-cyan-500 rounded-[2.5rem] p-6 shadow-[0_0_50px_rgba(34,211,238,0.5)] flex flex-col items-center gap-4 transform transition-all" onClick={e => e.stopPropagation()}>
+            
+            <button onClick={closeStaffLogin} className="absolute top-5 right-5 text-slate-400 hover:text-rose-400 transition-colors z-20">
+              <X size={28} />
+            </button>
+
+            <div className="relative mt-2">
+              <div className="absolute inset-0 bg-cyan-500 blur-[20px] opacity-40 rounded-full"></div>
+              <div className="relative w-16 h-16 bg-slate-950 border-[2px] border-cyan-400 rounded-full flex items-center justify-center shadow-[0_0_20px_rgba(34,211,238,0.6)]">
+                {/* 🌟 ฟันธง: เปลี่ยนเป็นไอคอน Phone */}
+                <Phone className="w-8 h-8 text-cyan-400 drop-shadow-[0_0_8px_rgba(34,211,238,0.8)]" />
+              </div>
+            </div>
+            
+            {/* 🌟 ฟันธง: อัปเดตข้อความหัวข้อให้รองรับการตั้ง PIN */}
+            <h2 className="text-xl font-black text-white tracking-wide text-center">
+              {staffStep === 1 
+                ? 'เบอร์โทรศัพท์เจ้าหน้าที่' 
+                : (isNewStaff 
+                    ? (isConfirmingStaffPin ? '✅ ยืนยันรหัส PIN อีกครั้ง' : '✨ ตั้งรหัส PIN 6 หลัก') 
+                    : '🔒 ใส่รหัส PIN เข้าสู่ระบบ')}
+            </h2>
+
+            {loginError && <p className="text-sm font-bold text-center p-2 rounded-lg w-full border animate-in shake bg-rose-500/10 text-rose-400 border-rose-500/30 shadow-[0_0_10px_rgba(244,63,94,0.2)]">{loginError}</p>}
+
+            <div className="relative w-full mb-2">
+              <div className="w-full bg-slate-950 border-[2px] border-cyan-400 rounded-2xl h-16 flex items-center justify-center text-3xl font-black text-cyan-300 tracking-[0.1em] shadow-[0_0_15px_rgba(34,211,238,0.4),inset_0_0_10px_rgba(34,211,238,0.2)] transition-all">
+              {staffStep === 1 ? formatPhone(staffPhone) : formatPinDisplay(isConfirmingStaffPin ? confirmStaffPin : staffPin)}
+              </div>
+              {staffStep === 2 && (
+                <button type="button" onClick={() => setShowStaffPin(!showStaffPin)} className="absolute right-4 top-1/2 -translate-y-1/2 text-cyan-600 hover:text-cyan-300 transition-colors drop-shadow-md">
+                  {showStaffPin ? <EyeOff size={24} /> : <Eye size={24} />}
+                </button>
+              )}
+            </div>
+
+            {staffStep === 2 && (
+              <div className="w-full flex justify-between items-center px-1 -mt-1 mb-1">
+                {attemptCount >= 3 && ( // <--- เพิ่มเงื่อนไขตรงนี้
+                  <button type="button" onClick={async () => {
+                    if (!staffEmail) return;
+                    setIsLoggingIn(true);
+                    try {
+                      await sendPasswordResetEmail(auth, staffEmail);
+                      setLoginError('ระบบได้ส่งลิงก์รีเซ็ต PIN ไปที่อีเมลหน่วยงานของท่านแล้วค่ะ');
+                    } catch (err) {
+                      setLoginError('ไม่สามารถส่งอีเมลรีเซ็ตได้');
+                    } finally {
+                      setIsLoggingIn(false);
+                    }
+                  }} disabled={isLoggingIn} className="text-xs font-bold text-rose-400 hover:text-rose-300 underline transition-colors animate-pulse z-10">
+                    ลืมรหัส PIN ใช่หรือไม่?
+                  </button>
+                )}
+                <button type="button" onClick={() => { setStaffStep(1); setStaffPhone(''); setStaffPin(''); setLoginError(''); setAttemptCount(0); }} className="text-xs font-bold text-slate-400 hover:text-cyan-400 underline transition-colors ml-auto z-10">ไม่ใช่คุณใช่ไหม?</button>
+              </div>
+            )}
+
+            <div className="grid grid-cols-3 gap-3 w-full px-1">
+              {[1, 2, 3, 4, 5, 6, 7, 8, 9].map((num) => (
+                <button key={num} onClick={() => handleStaffNumpad(num.toString())} className="h-14 bg-slate-800 border-[2px] border-b-[4px] border-slate-600 hover:border-cyan-400 hover:text-cyan-300 hover:shadow-[0_0_15px_rgba(34,211,238,0.5)] active:border-b-[2px] active:translate-y-[2px] rounded-2xl text-2xl font-black text-white transition-all">{num}</button>
+              ))}
+              <button onClick={handleStaffClear} className="h-14 bg-slate-800 border-[2px] border-b-[4px] border-amber-600/70 text-amber-500 hover:border-amber-400 hover:text-amber-300 hover:shadow-[0_0_15px_rgba(251,191,36,0.5)] active:border-b-[2px] active:translate-y-[2px] rounded-2xl text-2xl font-black transition-all">C</button>
+              <button onClick={() => handleStaffNumpad('0')} className="h-14 bg-slate-800 border-[2px] border-b-[4px] border-slate-600 hover:border-cyan-400 hover:text-cyan-300 hover:shadow-[0_0_15px_rgba(34,211,238,0.5)] active:border-b-[2px] active:translate-y-[2px] rounded-2xl text-2xl font-black text-white transition-all">0</button>
+              <button onClick={handleStaffDelete} className="h-14 bg-slate-800 border-[2px] border-b-[4px] border-rose-700/70 text-rose-500 hover:border-rose-400 hover:text-rose-300 hover:shadow-[0_0_15px_rgba(244,63,94,0.5)] active:border-b-[2px] active:translate-y-[2px] rounded-2xl flex items-center justify-center transition-all">
+                <X size={24} className="drop-shadow-md" />
+              </button>
+            </div>
+
+            <button onClick={staffStep === 1 ? handleStaffPhoneNext : handleStaffPinSubmit} disabled={isLoggingIn} className="w-full mt-3 h-14 rounded-2xl font-black text-white text-xl bg-gradient-to-r from-cyan-600 to-blue-600 border-[2px] border-cyan-400 shadow-[0_0_20px_rgba(34,211,238,0.5)] active:scale-95 transition-all duration-300">
+            {isLoggingIn 
+                ? 'กำลังตรวจสอบ...' 
+                : (staffStep === 1 
+                    ? 'ถัดไป' 
+                    : (isNewStaff && !isConfirmingStaffPin ? 'ถัดไป' : (isNewStaff ? 'ยืนยันรหัสผ่าน' : 'เข้าสู่ระบบ')))}
+            </button>
 
           </div>
         </div>
@@ -5104,7 +5837,9 @@ function LandingPage({ onStart }) {
 
     </div>
   );
-} 
+}
+
+
 
 /* 🌟 ฟันธง: นำเข้าฟอนต์ Sarabun และจัดระเบียบความเพรียวบางให้อ่านง่ายที่สุด */
 const SarabunFontEmbed = () => (
@@ -5114,7 +5849,7 @@ const SarabunFontEmbed = () => (
     /* บังคับใช้ฟอนต์ Sarabun กับทุกตัวอักษรในแอป */
     body, html, *, h1, h2, h3, p, button, input {
       font-family: 'Sarabun', sans-serif !important;
-      letter-spacing: 0.02em !important; /* จัดช่องไฟของ Sarabun ให้ละมุนสายตา */
+      letter-spacing: 0.02em !important; 
       line-height: 1.5 !important;
     }
     
@@ -5146,10 +5881,17 @@ export default function App() {
     sessionStorage.setItem('hasStarted', 'true');
   };
 
-  const handleGoHome = () => {
+  const handleGoHome = async () => {
+    // 🌟 ฟันธง: สั่ง SignOut เคลียร์คราบ Login ก่อนกลับหน้าแรก เพื่อความปลอดภัยของระบบ 1,000,000%
+    try {
+      await signOut(auth);
+    } catch (error) {
+      console.error("SignOut Error", error);
+    }
     setHasStarted(false);
     sessionStorage.removeItem('hasStarted');
     sessionStorage.removeItem('activeTab');
+    sessionStorage.removeItem('role'); 
   };
 
   return (
