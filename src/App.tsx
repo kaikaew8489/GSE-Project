@@ -1292,8 +1292,8 @@ const [currentUserName, setCurrentUserName] = useState(() => localStorage.getIte
   const [showAdminRoster, setShowAdminRoster] = useState(false);
 
   
- // --- Auth Setup (อัปเกรดเฟส 2) ---
- useEffect(() => {
+// --- Auth Setup (อัปเกรดเฟส 2) ---
+useEffect(() => {
   const initAuth = async () => {
     if (initialRole === 'reporter' && !auth.currentUser) {
       try { await signInAnonymously(auth); } catch (error) { setUser({ uid: 'public-bypass-user' }); }
@@ -1304,13 +1304,44 @@ const [currentUserName, setCurrentUserName] = useState(() => localStorage.getIte
   const unsubscribeAuth = onAuthStateChanged(auth, async (u) => {
     if (u) {
       setUser(u);
-      // 🌟 สมองกลดึงชื่อจริงของช่างจากฐานข้อมูล เพื่อเอาไปจำกัดสิทธิ์หน้าจอ
       if (initialRole !== 'reporter') {
         try {
           const q = query(collection(db, 'staff_roles'), where('email', '==', u.email));
           const snap = await getDocs(q);
           if (!snap.empty) {
-            setCurrentUserName(snap.docs[0].data().fullName);
+            const staffData = snap.docs[0].data();
+            
+            // =========================================================
+            // 🌟 ฟันธงแก้บั๊ก (รอบ 2): บังคับดึงชื่อจากระบบที่มีคำนำหน้า (นาย/น.ส.) มาใช้เป็นหลัก!
+            // เพื่อให้ชื่อตรงกับตั๋วแจ้งซ่อม 100% ช่างจะได้เห็นงานตัวเองไม่สูญหาย
+            // =========================================================
+            const dbPhone = String(staffData.phone || '').replace(/\D/g, '');
+            const dbName = String(staffData.fullName || '').trim();
+            
+            let exactName = dbName; // ค่าเริ่มต้น
+
+            // 1. ค้นหาเทียบใน technicianList ก่อน
+            const matchedTech = technicianList.find(t => 
+              (t.phone && String(t.phone).replace(/\D/g, '') === dbPhone) || 
+              (t.name && t.name.includes(dbName))
+            );
+
+            // 2. ค้นหาเทียบใน techMapping (ที่ท่านเพิ่งอัปเดตภารกิจ)
+            const mappedTech = Object.values(techMapping).find(t => 
+              (t.phone && String(t.phone).replace(/\D/g, '') === dbPhone) ||
+              (t.name && t.name.includes(dbName))
+            );
+
+            // 🌟 ลำดับความสำคัญ: เอาชื่อจากโค้ด (ที่มีคำนำหน้า) มาเขียนทับชื่อจาก Firebase
+            if (matchedTech) {
+              exactName = matchedTech.name;
+            } else if (mappedTech) {
+              exactName = mappedTech.name;
+            }
+
+            setCurrentUserName(exactName);
+            localStorage.setItem('gse_remembered_name', exactName);
+            localStorage.setItem('gse_remembered_phone', dbPhone);
           }
         } catch (err) { console.error("ดึงชื่อช่างไม่สำเร็จ", err); }
       }
@@ -2226,6 +2257,71 @@ const executeRatingSubmit = async () => {
             <Settings size={20} className="md:w-6 md:h-6" />
           </button>
         </div>
+
+{/* ========================================================= */}
+          {/* 🌟 ฟันธงจุดที่ 1: วิดเจ็ตเจ้าหน้าที่เวร SSC ประจำวัน (แสดงในหน้าแผงควบคุม) */}
+          {(() => {
+            const today = new Date(sysTime);
+            const todayStr = `${today.getFullYear()}-${String(today.getMonth() + 1).padStart(2, '0')}-${String(today.getDate()).padStart(2, '0')}`;
+            const sscRosterForDate = allRosters.find(r => r.date === todayStr);
+            
+            let autoSscPhone = sscRosterForDate?.techPhone;
+            if (sscRosterForDate?.techName) {
+              const foundTech = technicianList.find(t => t.name === sscRosterForDate.techName);
+              if (foundTech && foundTech.phone && foundTech.phone !== '-') autoSscPhone = foundTech.phone;
+            }
+
+            const dutyPerson = sscRosterForDate ? { techName: sscRosterForDate.techName, techPhone: autoSscPhone, isHoliday: sscRosterForDate.isHoliday, holidayName: sscRosterForDate.holidayName } : null;
+            const dayOfWeek = today.getDay();
+            const daysThai = ['วันอาทิตย์', 'วันจันทร์', 'วันอังคาร', 'วันพุธ', 'วันพฤหัสบดี', 'วันศุกร์', 'วันเสาร์'];
+
+            if (dutyPerson?.techName) {
+              let wTheme = { bg: 'bg-purple-500/20', border: 'border-purple-500/80', textHead: 'text-purple-400', textName: 'text-purple-400', glow: 'shadow-[0_0_30px_rgba(168,85,247,0.3)]', iconGlow: 'shadow-[0_0_10px_rgba(168,85,247,1)]', iconText: 'text-purple-400', dayLabel: daysThai[dayOfWeek] };
+              if (dutyPerson?.isHoliday) wTheme = { bg: 'bg-orange-500/20', border: 'border-orange-500/80', textHead: 'text-orange-400', textName: 'text-orange-400', glow: 'shadow-[0_0_30px_rgba(249,115,22,0.3)]', iconGlow: 'shadow-[0_0_10px_rgba(249,115,22,1)]', iconText: 'text-orange-400', dayLabel: `วันหยุดนักขัตฤกษ์ (${dutyPerson.holidayName})` };
+              else if (dayOfWeek === 0) wTheme = { bg: 'bg-rose-500/20', border: 'border-rose-500/80', textHead: 'text-rose-400', textName: 'text-rose-400', glow: 'shadow-[0_0_30px_rgba(225,29,72,0.3)]', iconGlow: 'shadow-[0_0_10px_rgba(225,29,72,1)]', iconText: 'text-rose-400', dayLabel: 'วันอาทิตย์' };
+              else if (dayOfWeek === 6) wTheme = { bg: 'bg-sky-500/20', border: 'border-sky-500/80', textHead: 'text-sky-400', textName: 'text-sky-400', glow: 'shadow-[0_0_30px_rgba(14,165,233,0.3)]', iconGlow: 'shadow-[0_0_10px_rgba(14,165,233,1)]', iconText: 'text-sky-400', dayLabel: 'วันเสาร์' };
+
+              return (
+                <div className={`relative bg-slate-900/80 backdrop-blur-xl border-[2px] border-solid ${wTheme.border} rounded-[1.5rem] p-5 md:p-8 ${wTheme.glow} mt-4 mb-4 overflow-hidden`}>
+                  <div className={`absolute -top-20 -left-20 w-40 h-40 ${wTheme.bg} blur-[60px] rounded-full pointer-events-none z-0`}></div>
+                  <div className="flex items-center gap-3 md:gap-4 mb-6 md:mb-8 pb-4 border-b-2 border-dashed border-slate-600/50 relative z-10">
+                    <div className={`bg-slate-950 border-[2px] border-solid ${wTheme.border} p-2 md:p-3 rounded-xl shadow-sm relative`}>
+                      <User className={`${wTheme.iconText} w-5 h-5 md:w-7 md:h-7`} strokeWidth={2.5} />
+                      <span className={`absolute -top-1 -right-1 w-2.5 h-2.5 md:w-3 md:h-3 bg-emerald-500 rounded-full animate-pulse border-2 border-slate-900 ${wTheme.iconGlow}`}></span>
+                    </div>
+                    <h2 className={`text-[16px] md:text-[22px] font-black ${wTheme.textHead} tracking-widest uppercase drop-shadow-sm`}>
+                      เจ้าหน้าที่เวร SSC | {wTheme.dayLabel}
+                    </h2>
+                  </div>
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-3 md:gap-5 relative z-10 animate-in fade-in zoom-in-95 duration-500">
+                    <div className={`bg-slate-950/50 border ${wTheme.border.replace('80', '30')} rounded-2xl p-4 flex items-center gap-4 shadow-inner`}>
+                      <div className={`w-10 h-10 md:w-12 md:h-12 rounded-full ${wTheme.bg} flex items-center justify-center border ${wTheme.border.replace('80', '50')} shrink-0`}>
+                         <User className={`${wTheme.iconText} w-5 h-5 md:w-6 md:h-6`} />
+                      </div>
+                      <div className="overflow-hidden">
+                        <p className={`text-[11px] md:text-[13px] font-bold ${wTheme.textHead} opacity-70 uppercase tracking-widest mb-0.5`}>ชื่อ-นามสกุล (เวรประจำวัน)</p>
+                        <p className={`text-[16px] md:text-[20px] font-black ${wTheme.textName} drop-shadow-sm truncate`}>{dutyPerson.techName}</p>
+                      </div>
+                    </div>
+                    <div className={`bg-slate-950/50 border ${wTheme.border.replace('80', '30')} rounded-2xl p-4 flex items-center gap-4 shadow-inner`}>
+                      <div className={`w-10 h-10 md:w-12 md:h-12 rounded-full ${wTheme.bg} flex items-center justify-center border ${wTheme.border.replace('80', '50')} shrink-0`}>
+                         <Phone className={`${wTheme.iconText} w-5 h-5 md:w-6 md:h-6`} />
+                      </div>
+                      <div className="overflow-hidden flex-1">
+                        <p className={`text-[11px] md:text-[13px] font-bold ${wTheme.textHead} opacity-70 uppercase tracking-widest mb-0.5`}>เบอร์โทรศัพท์ (ติดต่อด่วน)</p>
+                        {dutyPerson.techPhone && dutyPerson.techPhone !== '-' ? (
+                           <a href={`tel:${dutyPerson.techPhone.replace(/\D/g, '')}`} className={`text-[16px] md:text-[20px] font-black font-mono tracking-wider ${wTheme.textName} drop-shadow-sm truncate hover:opacity-80 transition-opacity block`}>{formatDisplayPhone(dutyPerson.techPhone)}</a>
+                        ) : ( <p className={`text-[16px] md:text-[20px] font-black font-mono tracking-wider text-slate-500 drop-shadow-sm truncate`}>ไม่มีข้อมูล</p> )}
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              );
+            }
+            return null; // วันธรรมดาไม่ต้องโชว์
+          })()}
+          {/* ========================================================= */}
+
 
        {/* 🔘 2. สวิตช์เลือกกรอบเวลา (ปรับเป็น ธีม Sci-Fi Cyan & Orange พรีเมียม 1,000,000%) */}
        <div className="flex gap-2 bg-slate-800/80 p-2 rounded-2xl border-[2px] border-solid border-slate-700 shadow-inner mt-4 overflow-x-auto [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none] snap-x">
@@ -4365,21 +4461,35 @@ const renderTracking = () => (
                           )}
                         </div>
 
-                        {/* 🌟 ฟันธง: ป้ายกำกับสถานะการรับงาน (ชัดเจนสำหรับทุกคน!) */}
+                        {/* 🌟 ฟันธงจุดที่ 2: ป้ายกำกับสถานะการรับงาน พร้อม Timestamp เวลาที่กดรับงาน (มาตรฐานสากล) */}
                         <div className="mt-4 pt-3 border-t-[1.5px] border-solid border-orange-200/80">
                           {t.status === 'pending' && (
-                            <div className="bg-rose-100/80 border border-rose-300 text-rose-600 font-bold text-[13px] md:text-[16px] px-3 py-2 rounded-lg flex items-center gap-2 w-fit animate-pulse">
-                              <Clock className="w-4 h-4 md:w-5 md:h-5" /> ⏳ ช่างอยู่ระหว่างตรวจสอบและรอการกดรับงาน
+                            <div className="bg-rose-100/80 border border-rose-300 text-rose-600 font-bold text-[13px] md:text-[16px] px-3 py-2 rounded-lg flex items-center gap-2 w-fit animate-pulse shadow-sm">
+                              <Clock className="w-4 h-4 md:w-5 md:h-5" /> ⏳ รอการกดรับงาน (จากผู้รับผิดชอบหลัก หรือ เวร SSC)
                             </div>
                           )}
                           {['in_progress', 'on_hold', 'acknowledged'].includes(t.status) && (
-                            <div className="bg-emerald-100/80 border border-emerald-300 text-emerald-700 font-bold text-[13px] md:text-[16px] px-3 py-2 rounded-lg flex items-center gap-2 w-fit shadow-sm">
-                              <Wrench className="w-4 h-4 md:w-5 md:h-5" /> 🛠️ ช่างกดรับงานและกำลังดำเนินการซ่อม
+                            <div className="flex flex-col gap-1.5">
+                              <div className="bg-emerald-100/80 border border-emerald-300 text-emerald-700 font-bold text-[13px] md:text-[16px] px-3 py-2 rounded-lg flex items-center gap-2 w-fit shadow-sm">
+                                <Wrench className="w-4 h-4 md:w-5 md:h-5" /> 🛠️ มีผู้รับผิดชอบกดรับงานและกำลังดำเนินการซ่อมแล้ว
+                              </div>
+                              {t.acceptedAt && (
+                                <div className="text-[12px] md:text-[14px] font-bold text-slate-500 ml-1 flex items-center gap-1.5">
+                                   <Clock className="w-3.5 h-3.5" /> เวลากดรับงาน: {ThaiDateFormatter(t.acceptedAt)}
+                                </div>
+                              )}
                             </div>
                           )}
                           {['completed', 'verified'].includes(t.status) && (
-                            <div className="bg-blue-100/80 border border-blue-300 text-blue-700 font-bold text-[13px] md:text-[16px] px-3 py-2 rounded-lg flex items-center gap-2 w-fit shadow-sm">
-                              <CheckCircle className="w-4 h-4 md:w-5 md:h-5" /> ✅ ดำเนินการแก้ไขเสร็จสิ้นเรียบร้อย
+                            <div className="flex flex-col gap-1.5">
+                              <div className="bg-blue-100/80 border border-blue-300 text-blue-700 font-bold text-[13px] md:text-[16px] px-3 py-2 rounded-lg flex items-center gap-2 w-fit shadow-sm">
+                                <CheckCircle className="w-4 h-4 md:w-5 md:h-5" /> ✅ ดำเนินการแก้ไขเสร็จสิ้นเรียบร้อย
+                              </div>
+                              {t.completedAt && (
+                                <div className="text-[12px] md:text-[14px] font-bold text-slate-500 ml-1 flex items-center gap-1.5">
+                                   <Clock className="w-3.5 h-3.5" /> เวลาปิดงาน: {ThaiDateFormatter(t.completedAt)}
+                                </div>
+                              )}
                             </div>
                           )}
                         </div>
@@ -4462,37 +4572,42 @@ const renderTracking = () => (
                      {/* 🌟 โซนปุ่มกด Action (ขนาดบิ๊กเบิ้ม สำหรับช่าง) */}
                      {(currentUserRole !== 'reporter') && !isCancelled && (
                         <div className="flex flex-col gap-2.5 md:gap-6 mt-4 md:mt-8">
+                          
+                          {/* 🌟 ฟันธงจุดที่ 3: สมองกลซ่อน/โชว์ปุ่มรับงาน ตามสิทธิ์การทำงาน */}
                           {isPending && (
-                            <button
-                              onClick={() =>
-                                setActionModal({
-                                  isOpen: true,
-                                  ticketId: t.id,
-                                  type: 'accept',
-                                })
-                              }
-                              className="w-full bg-gradient-to-r from-emerald-400 to-emerald-800 text-white border-2 border-solid border-orange-500 font-bold py-4 md:py-8 rounded-xl md:rounded-[2rem] shadow-[0_0_15px_rgba(16,185,129,0.4)] active:scale-95 transition-all text-[26px] md:text-[40px] hover:shadow-[0_0_25px_rgba(16,185,129,0.8)] hover:brightness-110 hover:-translate-y-1"
-                            >
-                              รับงานซ่อม
-                            </button>
-                          )}
+                            <div className="flex flex-col gap-3 w-full animate-in slide-in-from-bottom-2 fade-in">
+                              {(() => {
+                                const isCommander = currentUserRole === 'Commander';
+                                const isPrimary = currentUserName === t.techName;
+                                const tDate = new Date(t.date || Date.now());
+                                const tDateStr = `${tDate.getFullYear()}-${String(tDate.getMonth() + 1).padStart(2, '0')}-${String(tDate.getDate()).padStart(2, '0')}`;
+                                const sscDuty = allRosters.find(r => r.date === tDateStr);
+                                const isSSCToday = sscDuty && sscDuty.techName === currentUserName;
 
-                          {(t.status === 'pending' || t.status === 'acknowledged') &&
-                            t.isOutOfHours &&
-                            !t.sscNote && (
-                              <button
-                                onClick={() =>
-                                  setActionModal({
-                                    isOpen: true,
-                                    ticketId: t.id,
-                                    type: 'ssc',
-                                  })
-                                }
-                                className="w-full bg-gradient-to-r from-orange-400 to-orange-500 text-white border border-orange-300 font-bold py-3.5 md:py-6 rounded-xl md:rounded-3xl shadow-[0_0_15px_rgba(249,115,22,0.4)] hover:shadow-[0_0_25px_rgba(249,115,22,0.6)] active:scale-95 transition-all text-[15px] md:text-[26px]"
-                            >
-                              เจ้าหน้าที่เวร SSC แก้ไขเบื้องต้น
-                            </button>
-                            )}
+                                return (
+                                  <>
+                                    {(isCommander || isPrimary) && (
+                                      <button onClick={() => setActionModal({ isOpen: true, ticketId: t.id, type: 'accept' })} className="w-full bg-emerald-600/90 hover:bg-emerald-500 text-white font-black text-[16px] md:text-[20px] py-3.5 md:py-4 rounded-xl shadow-[0_0_15px_rgba(16,185,129,0.4)] transition-all active:scale-95 flex items-center justify-center gap-2">
+                                        <Wrench className="w-5 h-5 md:w-6 md:h-6" /> รับงานซ่อม (ในฐานะผู้รับผิดชอบหลัก)
+                                      </button>
+                                    )}
+                                    
+                                    {(isCommander || isSSCToday) && (
+                                      <button onClick={() => setActionModal({ isOpen: true, ticketId: t.id, type: 'ssc' })} className="w-full bg-orange-500/90 hover:bg-orange-400 text-white font-black text-[16px] md:text-[20px] py-3.5 md:py-4 rounded-xl shadow-[0_0_15px_rgba(249,115,22,0.4)] transition-all active:scale-95 flex items-center justify-center gap-2">
+                                        <ShieldAlert className="w-5 h-5 md:w-6 md:h-6" /> รับงานและแก้ไขเบื้องต้น (ในฐานะเวร SSC)
+                                      </button>
+                                    )}
+
+                                    {(!isCommander && !isPrimary && !isSSCToday) && (
+                                      <div className="w-full bg-slate-800/80 text-slate-400 font-bold text-[14px] md:text-[16px] text-center py-3.5 rounded-xl border border-dashed border-slate-600 shadow-inner">
+                                        🔒 คุณไม่มีสิทธิ์กดรับงานนี้ (เฉพาะผู้รับผิดชอบหลัก หรือ เวร SSC)
+                                      </div>
+                                    )}
+                                  </>
+                                );
+                              })()}
+                            </div>
+                          )}
 
                           {t.status === 'acknowledged' && (
                             <button
@@ -4508,23 +4623,14 @@ const renderTracking = () => (
                             </button>
                           )}
 
-                         {/* 🌟 โซนปุ่มดำเนินการต่อ / แจ้งขัดข้อง / ปิดงานซ่อม */}
-                         {(t.status === 'in_progress' || t.status === 'on_hold') && (
+                          {(t.status === 'in_progress' || t.status === 'on_hold') && (
                             <div className="flex gap-2.5 md:gap-6">
                               <button
                                 onClick={() => {
                                   if (t.status === 'on_hold') {
-                                    setActionModal({
-                                      isOpen: true,
-                                      ticketId: t.id,
-                                      type: 'resume', 
-                                    });
+                                    setActionModal({ isOpen: true, ticketId: t.id, type: 'resume' });
                                   } else {
-                                    setActionModal({
-                                      isOpen: true,
-                                      ticketId: t.id,
-                                      type: 'hold',
-                                    });
+                                    setActionModal({ isOpen: true, ticketId: t.id, type: 'hold' });
                                   }
                                 }}
                                 className="flex-1 bg-gradient-to-r from-orange-400 to-orange-500 text-white border border-orange-300 font-bold py-3.5 md:py-6 rounded-xl md:rounded-3xl shadow-[0_0_15px_rgba(249,115,22,0.4)] active:scale-95 transition-all text-[18px] md:text-[30px] hover:shadow-[0_0_25px_rgba(249,115,22,0.8)] hover:brightness-110 hover:-translate-y-1"
@@ -4532,23 +4638,16 @@ const renderTracking = () => (
                                 {t.status === 'on_hold' ? 'ดำเนินการต่อ' : 'แจ้งขัดข้อง'}
                               </button>
                               
-                              {/* 🌟 ฟันธง: ซ่อนปุ่มปิดงาน ถ้าสถานะคือ on_hold */}
                               {t.status !== 'on_hold' && (
                                 <button
-                                  onClick={() =>
-                                    setActionModal({
-                                      isOpen: true,
-                                      ticketId: t.id,
-                                      type: 'finish',
-                                    })
-                                  }
+                                  onClick={() => setActionModal({ isOpen: true, ticketId: t.id, type: 'finish' })}
                                   className="flex-[1.5] bg-gradient-to-r from-emerald-500 to-emerald-600 text-white border border-emerald-400 font-bold py-3.5 md:py-6 rounded-xl md:rounded-3xl shadow-[0_0_15px_rgba(16,185,129,0.4)] active:scale-95 transition-all text-[15px] md:text-[26px] hover:shadow-[0_0_25px_rgba(16,185,129,0.8)] hover:brightness-110 hover:-translate-y-1"
                                 >
                                   ปิดงานซ่อม
                                 </button>
                               )}
                             </div>
-                          )} {/* <--- 🌟 ฟันธง! บรรทัด 3348 ต้องเป็นตัวนี้ครับ ถึงจะสมบูรณ์ 100% */}
+                          )}
 
                           {t.status === 'completed' && (
                             <button
