@@ -5932,8 +5932,7 @@ function LandingPage({ onStart }) {
   };
 
   return (
-    // 🌟 1. เปลี่ยน min-h-screen เป็น h-[100dvh] w-full บังคับพอดีจอ 100%
-    <div className="relative h-[100dvh] w-full flex flex-col items-center justify-center p-4 md:p-8 overflow-hidden bg-[#020617] font-sans">
+    <div className="relative min-h-screen flex flex-col items-center justify-center p-6 md:p-12 overflow-hidden bg-[#020617] font-sans">
       
       <div className="absolute inset-0 z-0">
         <div className="absolute inset-0 bg-[url('https://www.transparenttextures.com/patterns/carbon-fibre.png')] opacity-20 pointer-events-none"></div>
@@ -5961,19 +5960,17 @@ function LandingPage({ onStart }) {
       `}</style>
       <div className="animate-scan absolute inset-0 z-0 pointer-events-none overflow-hidden"></div>
 
-      {/* 🌟 2. สั่งให้กล่องหลักมีความสูง h-full และ flex-col */}
-      <div className="relative z-10 w-full h-full max-h-[900px] max-w-md md:max-w-xl lg:max-w-2xl flex flex-col items-center justify-center animate-in slide-in-from-bottom-8 fade-in duration-1000">
+      <div className="relative z-10 w-full max-w-md md:max-w-xl lg:max-w-2xl flex flex-col items-center animate-in slide-in-from-bottom-8 fade-in duration-1000">
         
         <div
-          className="pt-8 pb-4 px-4 md:pt-14 md:pb-6 md:px-10 rounded-[1.5rem] md:rounded-[3rem] shadow-[0_0_60px_rgba(249,115,22,0.4)] flex flex-col items-center text-center w-full h-full relative backdrop-blur-md transition-all duration-500"
+          className="pt-8 pb-4 px-4 md:pt-14 md:pb-6 md:px-10 rounded-[1.5rem] md:rounded-[3rem] shadow-[0_0_60px_rgba(249,115,22,0.4)] flex flex-col items-center text-center w-full relative backdrop-blur-md transition-all duration-500"
           style={{
             backgroundColor: 'rgba(15, 23, 42, 0.5)',
             border: '3px solid #FF4500',
             boxShadow: '0 0 30px rgba(255, 69, 0, 0.3), inset 0 0 20px rgba(255, 69, 0, 0.1)'
           }}
         >
-          {/* ล็อกโลโก้ห้ามหด (shrink-0) */}
-          <div className="shrink-0 w-28 h-28 md:w-44 md:h-44 -mt-8 md:-mt-12 mb-6 md:mb-4 flex items-center justify-center transition-all duration-500 relative">
+          <div className="w-28 h-28 md:w-44 md:h-44 -mt-8 md:-mt-12 mb-10 md:mb-4 flex items-center justify-center transition-all duration-500 relative">
             <div className="absolute inset-0 bg-orange-500/30 blur-[20px] rounded-full animate-pulse z-0"></div>
             <img
               src="/GSE-logo.webp"
@@ -5982,35 +5979,30 @@ function LandingPage({ onStart }) {
             />
           </div>
 
-          {/* 🌟 3. โซนตรงกลาง: เสกให้เป็น "สปริง" (flex-1 min-h-0) บีบอัดตัวเองได้ */}
-          <div className="relative w-full -mt-2 md:mt-0 flex flex-col items-center flex-1 min-h-0 transition-all duration-500">            
-            
-            <div className="shrink-0 relative z-20 bg-slate-900/90 backdrop-blur-md rounded-3xl md:rounded-[2rem] p-2 md:p-6 shadow-[0_15px_40px_rgba(249,115,22,0.6)] text-center border-[2px] border-solid border-orange-500 mb-1 animate-bounce">
+          <div className="relative w-full -mt-6 md:mt-4 flex flex-col items-center min-h-[220px] md:min-h-[300px] transition-all duration-500">            
+            <div className="relative z-20 bg-slate-900/90 backdrop-blur-md rounded-3xl md:rounded-[2rem] p-2 md:p-6 shadow-[0_15px_40px_rgba(249,115,22,0.6)] text-center border-[2px] border-solid border-orange-500 mb-1 md:mb-4 animate-bounce">
               <div className="absolute left-1/2 -translate-x-1/2 -bottom-[11px] w-5 h-5 bg-slate-900 border-b-[2px] border-r-[2px] border-solid border-orange-500 transform rotate-45 rounded-sm"></div>
-              <p className="text-[17px] md:text-[22px] font-bold text-slate-100 leading-relaxed relative z-20 shadow-none">
+              <p className="text-[20px] md:text-[22px] font-bold text-slate-100 leading-relaxed relative z-20 shadow-none">
                 ระบบ/อุปกรณ์มีปัญหาใช่มั้ยคะ?
                 <br />
-                <span className="text-orange-400 font-black text-[15px] md:text-[22px] mt-1 md:mt-2 inline-flex items-center justify-center gap-2 drop-shadow-[0_0_8px_rgba(249,115,22,0.8)] whitespace-nowrap">
+                <span className="text-orange-400 font-black text-[16px] md:text-[22px] mt-1 md:mt-2 inline-flex items-center justify-center gap-2 drop-shadow-[0_0_8px_rgba(249,115,22,0.8)] whitespace-nowrap">
                   กดแจ้งซ่อมได้เลยค่ะ!
-                  <span className="text-[24px] md:text-[45px] leading-[0] block transform translate-y-1 md:translate-y-2 drop-shadow-md">👇</span>
+                  <span className="text-[30px] md:text-[45px] leading-[0] block transform translate-y-1 md:translate-y-2 drop-shadow-md">👇</span>
                 </span>
               </p>
             </div>
-
-            {/* บังคับรูปน้องมาสคอตยืดหดตามสัดส่วนจอ (max-h-full) */}
-            <div className="flex-1 min-h-0 flex items-end justify-center w-full relative z-30 mx-auto mb-2 pointer-events-none drop-shadow-[0_20px_30px_rgba(0,0,0,0.9)] transition-all duration-500" style={{ maxWidth: '280px' }}>
-              <img src="/mascot.webp" alt="Mascot" className="max-h-full w-auto object-contain object-bottom hover:scale-105 transition-transform duration-500" />
+            <div className="relative z-30 mx-auto mb-2 md:mb-4 pointer-events-none drop-shadow-[0_20px_30px_rgba(0,0,0,0.9)] transition-all duration-500" style={{ width: '50%', maxWidth: '280px', minHeight: '150px' }}>
+              <img src="/mascot.webp" alt="Mascot" className="w-full h-auto object-contain object-bottom hover:scale-105 transition-transform duration-500" />
             </div>
           </div>
 
-          {/* 🌟 4. โซนปุ่มด้านล่าง: ล็อกห้ามบีบเด็ดขาด (shrink-0) */}
-          <div className="shrink-0 w-full flex flex-col gap-2 md:gap-3.5 relative z-10 transition-all duration-500">
+          <div className="w-full flex flex-col gap-2.5 md:gap-3.5 relative z-10 transition-all duration-500">
             
             <button
               onClick={() => setShowReporterLogin(true)}
-              className="w-full pt-3.5 md:py-6 pb-4 bg-gradient-to-r from-orange-600 to-amber-500 text-white font-black text-[18px] md:text-[28px] rounded-2xl md:rounded-[1.5rem] flex items-center justify-center gap-3 md:gap-3 border-[2px] border-solid border-orange-400 shadow-[0_0_20px_rgba(249,115,22,0.4)] hover:shadow-[0_0_35px_rgba(249,115,22,0.8)] active:scale-95 transition-all duration-300"
+              className="w-full pt-4 md:py-6 pb-5 bg-gradient-to-r from-orange-600 to-amber-500 text-white font-black text-[19px] md:text-[28px] rounded-2xl md:rounded-[1.5rem] flex items-center justify-center gap-5 md:gap-3 border-[2px] border-solid border-orange-400 shadow-[0_0_20px_rgba(249,115,22,0.4)] hover:shadow-[0_0_35px_rgba(249,115,22,0.8)] active:scale-95 transition-all duration-300"
             >
-              <Wrench size={24} className="drop-shadow-md md:w-9 md:h-9" />{' '}
+              <Wrench size={28} className="drop-shadow-md md:w-9 md:h-9" />{' '}
               แจ้งซ่อมระบบ/อุปกรณ์
             </button>
 
