@@ -1781,13 +1781,15 @@ useEffect(() => {
       let primaryTech = "ทีมช่าง ฝวด."; 
       
       if (formData.equipmentCategory === 'ภารกิจด้านจานสายอากาศ') {
-        primaryTech = "คุณทศพล/นรัตว์"; 
-      } else if (formData.equipmentCategory === 'ภารกิจด้านคอมพิวเตอร์แม่ข่ายและไอที') {
-        primaryTech = "คุณธนกาญจน์/คุณชุติพงษ์"; 
+        primaryTech = "คุณทศพล ชินนิวัฒน์"; 
+      } else if (formData.equipmentCategory === 'ภารกิจด้านคอมพิวเตอร์แม่ข่าย-THEOS') {
+        primaryTech = "คุณชุติพงษ์ ลาวงศ์เกิด"; 
+      } else if (formData.equipmentCategory === 'ภารกิจด้านคอมพิวเตอร์แม่ข่าย-THEOS-2') {
+        primaryTech = "คุณธนกาญจน์ ไตรปิฎก"; 
       } else if (formData.equipmentCategory === 'ภารกิจด้านโครงสร้างพื้นฐานไฟฟ้า') {
-        primaryTech = "คุณประมินทร์/คุณนรัตว์"; 
+        primaryTech = "คุณประมินทร์ พิชิตการค้า"; 
       } else if (formData.equipmentCategory === 'ภารกิจด้านการให้บริการโครงการ SSC') {
-        primaryTech = "คุณนรัตว์/คุณทศพล"; 
+        primaryTech = "คุณนรัตว์ ศรีสวัสดิ์พงษ์"; 
       }
 
       fetch(gasUrl, {
@@ -1948,9 +1950,7 @@ const executeRatingSubmit = async () => {
     setRatingModal({ isOpen: false, ticketId: null, rating: 0, comment: '', techName: '' });
   }, 8000); 
 };
-
-  // 🌟 ฟันธง: ตัวคำนวณสถิติที่รองรับปฏิทินย้อนหลังแบบ 100%
-  // 🌟 ฟันธง: ตัวคำนวณสถิติที่รองรับปฏิทินย้อนหลังแบบ 100%
+ 
   // 🌟 ฟันธง: ตัวคำนวณสถิติที่รองรับปฏิทินย้อนหลังแบบ 100%
   const stats = useMemo(() => {
     try {
@@ -3678,29 +3678,29 @@ const renderTracking = () => (
           </div>
 
 
-     {/* 2. สวิตช์กรองสถานะงาน (เพิ่มขนาด เปลี่ยนสี ตัวอักษร ปุ่ม ทั้งหมด รอดำเนินการ กำลังซ่อม) */}
-     <div className="flex gap-2 md:gap-4 overflow-x-auto py-1 md:py-2 snap-x w-full [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]">
-        {[
-          { id: 'all', label: 'ทั้งหมด' },
-          { id: 'pending', label: 'รอดำเนินการ' },
-          { id: 'fixing', label: 'กำลังซ่อม' },
-          { id: 'on_hold', label: 'แจ้งขัดข้อง' },
-          { id: 'verify', label: 'รอยืนยัน' },
-          { id: 'cancelled', label: 'ยกเลิก' },
-          { id: 'completed', label: 'เสร็จสิ้น' },
-        ].map((f) => (
-          <button
-            key={f.id}
-            onClick={() => {
-              setFilterStatus(f.id);
-              setSearchTerm('');
-            }}
-            className={`flex-none md:flex-1 px-4 md:px-0 py-2 md:py-3.5 text-[14px] md:text-[20px] font-black rounded-lg md:rounded-xl transition-all duration-300 snap-center whitespace-nowrap flex items-center justify-center ${filterStatus === f.id ? 'bg-gradient-to-r from-orange-500 to-amber-500 text-white border-[2px] border-solid border-orange-300 shadow-[0_0_15px_rgba(249,115,22,0.8)] scale-[1.05] z-10' : 'bg-slate-900 text-cyan-300 border-[2px] border-solid border-cyan-400/30 shadow-[0_0_8px_rgba(34,211,238,0.4)] hover:bg-cyan-900/60 hover:text-white hover:border-cyan-300 hover:shadow-[0_0_20px_rgba(34,211,238,1)] hover:-translate-y-1'}`}
-          >
-            {f.label}
-          </button>
-        ))}
-     </div>
+     {/* 2. สวิตช์กรองสถานะงาน (🌟 ฟันธง: เพิ่ม px-1 เพื่อกันเงาโดนตัด และเอา scale-[1.05] ออกไม่ให้ปุ่มล้นขอบ) */}
+     <div className="flex gap-2 md:gap-4 overflow-x-auto py-2 md:py-3 px-1 snap-x w-full [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]">
+         {[
+           { id: 'all', label: 'ทั้งหมด' },
+           { id: 'pending', label: 'รอดำเนินการ' },
+           { id: 'fixing', label: 'กำลังซ่อม' },
+           { id: 'on_hold', label: 'แจ้งขัดข้อง' },
+           { id: 'verify', label: 'รอยืนยัน' },
+           { id: 'cancelled', label: 'ยกเลิก' },
+           { id: 'completed', label: 'เสร็จสิ้น' },
+         ].map((f) => (
+           <button
+             key={f.id}
+             onClick={() => {
+               setFilterStatus(f.id);
+               setSearchTerm('');
+             }}
+             className={`flex-none md:flex-1 px-4 md:px-0 py-2 md:py-3.5 text-[14px] md:text-[20px] font-black rounded-lg md:rounded-xl transition-all duration-300 snap-center whitespace-nowrap flex items-center justify-center ${filterStatus === f.id ? 'bg-gradient-to-r from-orange-500 to-amber-500 text-white border-[2px] border-solid border-orange-300 shadow-[0_0_15px_rgba(249,115,22,0.8)] z-10' : 'bg-slate-900 text-cyan-300 border-[2px] border-solid border-cyan-400/30 shadow-[0_0_8px_rgba(34,211,238,0.4)] hover:bg-cyan-900/60 hover:text-white hover:border-cyan-300 hover:shadow-[0_0_20px_rgba(34,211,238,1)] hover:-translate-y-1'}`}
+           >
+             {f.label}
+           </button>
+         ))}
+      </div>
 
 
       {/* 3. ปุ่มกรองเวลา (ฟันธง: จัดเรียงให้ขอบซ้าย-ขวา ตรงเป๊ะกับปุ่มสถานะด้านบน 100%) */}
@@ -4900,7 +4900,7 @@ const renderTracking = () => (
 
 
       {/* 🚀 Dynamic Header (ฟันธง: รีดไขมันแนวตั้ง ปรับ md:py-4 ลดเหลือ md:py-2.5 คืนพื้นที่จอ) */}
-      <div className="bg-slate-900/50 backdrop-blur-xl pl-5 md:pl-8 pr-4 py-3 md:py-2.5 flex items-center justify-between sticky top-4 z-50 border-2 border-solid border-orange-500 rounded-2xl md:rounded-xl mt-4 md:mt-3 transition-all duration-500 shadow-[0_0_15px_rgba(249,115,22,0.4)] mx-4 md:mx-6">
+      <div className="bg-slate-900/50 backdrop-blur-xl pl-5 md:pl-8 pr-4 py-3 md:py-2.5 flex items-center justify-between sticky top-4 z-50 border-2 border-solid border-orange-500 rounded-2xl md:rounded-xl mt-4 md:mt-3 transition-all duration-500 shadow-[0_0_15px_rgba(249,115,22,0.5)] mx-4 md:mx-6">
         <div className="flex items-center gap-3.5 md:gap-4 z-10">
           
           <div className="bg-white w-14 h-14 md:w-12 md:h-12 rounded-2xl md:rounded-xl shadow-md text-orange-500 border-2 border-solid border-orange-300 flex items-center justify-center shrink-0">
@@ -4910,8 +4910,9 @@ const renderTracking = () => (
           <div>
 
 
-           {/* ========================================================= */}
-            {/* 🌟 ฟันธง: สมองกลคำทักทายอัจฉริยะฉบับไซไฟอวกาศ 24/7 (แยกระดับ Commander และ User ทั่วไป) */}
+
+          {/* ========================================================= */}
+            {/* 🌟 ฟันธง: สมองกลคำทักทายอัจฉริยะฉบับไซไฟอวกาศ (รู้ใจ แยกบริบทตามหน้าจอ 100%) */}
             {(() => {
               const hour = sysTime.getHours();
               let rawName = String(currentUserName || localStorage.getItem('gse_remembered_name') || '').trim();
@@ -4924,32 +4925,46 @@ const renderTracking = () => (
                 return tPhone === myRawPhone && ['pending', 'acknowledged', 'in_progress', 'on_hold'].includes(t.status);
               });
 
-              let greeting = `🚀 ระบบ 24/7 พร้อมซัพพอร์ต ${displayName} แจ้งซ่อมรอบดึกได้เลยครับ`;
+              let greeting = ``;
               
-              // 🌟 ฟันธง: ถ้าเป็น หน.ฝวด. (Commander) ให้ใช้คำทักทายระดับผู้บริหาร
+              // 🌟 1. สำหรับ หน.ฝวด. (Commander)
               if (currentUserRole === 'Commander') {
                 if (hour >= 5 && hour < 12) greeting = `☀️ อรุณสวัสดิ์ครับท่านหัวหน้า ศูนย์ปฏิบัติการ GSE พร้อมรายงานสถานะเช้านี้ครับ`;
                 else if (hour >= 12 && hour < 17) greeting = `🌤️ สวัสดีตอนบ่ายครับท่านหัวหน้า ระบบแดชบอร์ดพร้อมติดตามงานครับ`;
                 else if (hour >= 17 && hour < 21) greeting = `🌇 สวัสดีตอนเย็นครับท่านหัวหน้า ตรวจสอบภาพรวมงานประจำวันได้เลยครับ`;
-                else greeting = `🛰️ ศูนย์ปฏิบัติการ GSE ระบบสแตนด์บาย 24 ชั่วโมงครับท่านหัวหน้า`;
+                else {
+                  // 🌙 นอกเวลาทำการ (หลัง 21:00 น.) แยกตามหน้าต่างที่เปิด
+                  if (activeTab === 'dashboard') greeting = `🌙 นอกเวลาทำการ ระบบแผงควบคุมสแตนด์บายสรุปข้อมูลครับท่านหัวหน้า`;
+                  else greeting = `🌙 นอกเวลาทำการ ระบบจัดการงานซ่อมสแตนด์บายอัตโนมัติครับท่านหัวหน้า`;
+                }
               } 
-              // ถ้าเป็นช่าง/ผู้ใช้งานทั่วไป
+              // 🌟 2. สำหรับวิศวกร ฝวด. และ ผู้ใช้งานทั่วไป (Technician & Reporter)
               else {
-                if (hasActiveTicket) greeting = `🔧 สวัสดีครับ ${displayName} 👋 มีงานซ่อมของท่านกำลังดำเนินการอยู่ ตรวจสอบสถานะได้เลยครับ`;
-                else if (hour >= 5 && hour < 12) greeting = `☀️ อรุณสวัสดิ์ ${displayName} ทีม ฝวด. พร้อมสนับสนุนการปฏิบัติงานภาคพื้นดินวันนี้ครับ`;
-                else if (hour >= 12 && hour < 17) greeting = `🌤️ สวัสดีตอนบ่ายครับ ${displayName} ให้ ฝวด. ช่วยดูแลระบบหรืออุปกรณ์ระบบไหน แจ้งได้เลยครับ`;
-                else if (hour >= 17 && hour < 21) greeting = `🌇 สวัสดีตอนเย็น ${displayName} นอกเวลาทำการ วิศวกรเวร ฝวด. ก็พร้อมดูแลระบบให้ท่านครับ`;
+                // 🔧 กรณีมีงานค้าง (แสดงเฉพาะก่อน 3 ทุ่ม เพื่อไม่ไปทับข้อความแจ้งนอกเวลา)
+                if (hasActiveTicket && hour >= 5 && hour < 21) greeting = `🔧 สวัสดีครับ ${displayName} 👋 มีงานซ่อมของท่านกำลังดำเนินการอยู่ ตรวจสอบสถานะได้เลยครับ`;
+                else if (hour >= 5 && hour < 12) greeting = `☀️ สวัสดีตอนเช้าครับ ${displayName} ทีม ฝวด. พร้อมสนับสนุนการปฏิบัติงานภาคพื้นดินวันนี้ครับ`;
+                else if (hour >= 12 && hour < 17) greeting = `🌤️ สวัสดีตอนบ่ายครับ ${displayName} ให้ ฝวด. ช่วยดูแลระบบหรืออุปกรณ์ไหน แจ้งได้เลยครับ`;
+                else if (hour >= 17 && hour < 21) greeting = `🌇 สวัสดีตอนเย็นครับ ${displayName} นอกเวลาทำการ วิศวกรเวร ฝวด. ก็พร้อมดูแลระบบให้ท่านครับ`;
+                else {
+                  // 🌙 นอกเวลาทำการ (หลัง 21:00 น.) แยกตามหน้าต่างที่เปิด
+                  if (activeTab === 'report') {
+                    greeting = `🌙 ขณะนี้นอกเวลาทำการ (หลัง 21:00 น.) ท่านสามารถฝากเรื่องแจ้งซ่อมไว้ในระบบได้เลยครับ`;
+                  } else if (activeTab === 'tracking') {
+                    greeting = `🌙 ขณะนี้นอกเวลาทำการ ระบบรับเรื่องไว้แล้ว วิศวกร ฝวด. จะเร่งตรวจสอบให้ในวันทำการถัดไปครับ`;
+                  } else {
+                    greeting = `🌙 ขณะนี้นอกเวลาทำการ (หลัง 21:00 น.) ระบบสแตนด์บายอัตโนมัติครับ`;
+                  }
+                }
               }
 
               return (
-                <div className="text-orange-300 font-bold text-[12px] md:text-[14px] tracking-widest mb-0.5 md:mb-1 animate-in slide-in-from-top-2 flex items-center gap-1.5 opacity-90 drop-shadow-sm">
+                <div className="text-orange-300 font-bold text-[16px] md:text-22px] tracking-widest mb-0.5 md:mb-1 animate-in slide-in-from-top-2 flex items-center gap-1.5 opacity-90 drop-shadow-sm">
                    {greeting}
                 </div>
               );
             })()}
-
-
             {/* ========================================================= */}
+         
 
             <h1 className="font-black text-white text-3xl md:text-5xl tracking-widest leading-none drop-shadow-[0_4px_4px_rgba(0,0,0,0.5)] md:py-1 whitespace-nowrap">
               {activeTab === 'dashboard' ? 'แผงควบคุม' : activeTab === 'report' ? 'แจ้งซ่อม' : currentUserRole !== 'reporter' ? 'จัดการงานซ่อม' : 'ติดตามสถานะ'}
@@ -5421,12 +5436,13 @@ function ReporterLoginPopup({ onClose, onLoginSuccess }) {
 }, []);
 
 
-  const handleForgotDevice = () => {
-    localStorage.removeItem('gse_remembered_phone'); 
-    setPhone(''); setPin(''); setConfirmPin(''); setIsConfirmingPin(false);
-    setFailedAttempts(0); setErrorMsg(''); setUserRealEmail('');
-    setStep(1); 
-  };
+const handleForgotDevice = () => {
+  localStorage.removeItem('gse_remembered_phone'); 
+  localStorage.removeItem('gse_remembered_name'); // 🌟 เพิ่มคำสั่งล้างชื่อด้วย
+  setPhone(''); setPin(''); setConfirmPin(''); setIsConfirmingPin(false);
+  setFailedAttempts(0); setErrorMsg(''); setUserRealEmail('');
+  setStep(1); 
+};
 
   const handleNumpad = (num) => {
     if (failedAttempts >= maxAttempts) return; 
@@ -5485,18 +5501,18 @@ function ReporterLoginPopup({ onClose, onLoginSuccess }) {
     return () => window.removeEventListener('keydown', handleKeyDown);
   }, [step, phone, pin, isNewUser, isConfirmingPin, confirmPin, failedAttempts, userRealEmail]);
 
-// =========================================================
-  // 🌟 ฟันธงจุดที่ 1: ระบบ Auto-Login & Auto-Submit ทันทีที่พิมพ์ PIN ครบ 6 หลัก!
+  // =========================================================
+  // 🌟 ฟันธงจุดที่ 1: ระบบ Auto-Submit ทั้งเบอร์โทร (10 หลัก) และ PIN (6 หลัก)!
   // =========================================================
   useEffect(() => {
-    if (step === 2 && !isLoading) {
-      if (isConfirmingPin && confirmPin.length === 6) {
-        handleSubmit();
-      } else if (!isConfirmingPin && pin.length === 6) {
-        handleSubmit();
-      }
+    if (isLoading) return;
+    if (step === 1 && phone.length === 10) {
+      handleNextStep();
+    } else if (step === 2) {
+      if (isConfirmingPin && confirmPin.length === 6) handleSubmit();
+      else if (!isConfirmingPin && pin.length === 6) handleSubmit();
     }
-  }, [pin, confirmPin, step, isLoading, isConfirmingPin]);
+  }, [phone, pin, confirmPin, step, isLoading, isConfirmingPin]);
 
 
   const handleNextStep = async () => {
@@ -5643,20 +5659,37 @@ function ReporterLoginPopup({ onClose, onLoginSuccess }) {
               </div>
             )}
 
-            <div className="grid grid-cols-3 gap-3 w-full px-1">
+            {/* 🌟 ฟันธง: Numpad Sci-Fi สีส้ม (ไม่มีปุ่มตกลง) */}
+            <div className={`grid grid-cols-3 gap-3 w-full px-1 transition-all duration-500 ${isLoading ? 'opacity-0 scale-90 pointer-events-none absolute' : 'opacity-100 scale-100 relative'}`}>
               {[1, 2, 3, 4, 5, 6, 7, 8, 9].map((num) => (
-                <button key={num} onClick={() => handleNumpad(num.toString())} className="h-14 bg-slate-800 border-[2px] border-b-[4px] border-slate-600 hover:border-cyan-400 hover:text-cyan-300 hover:shadow-[0_0_15px_rgba(34,211,238,0.5)] active:border-b-[2px] active:translate-y-[2px] rounded-2xl text-2xl font-black text-white transition-all">{num}</button>
+                <button key={num} type="button" onClick={() => handleNumpad(num.toString())} className="h-16 flex items-center justify-center bg-slate-900/60 backdrop-blur-md border border-slate-600/50 rounded-2xl text-3xl font-black text-slate-200 transition-all duration-300 hover:bg-orange-500/10 hover:border-orange-500 hover:text-orange-400 hover:shadow-[0_0_20px_rgba(249,115,22,0.6),inset_0_0_10px_rgba(249,115,22,0.2)] active:scale-90 active:bg-orange-500 active:text-white">
+                  {num}
+                </button>
               ))}
-              <button onClick={handleClear} className="h-14 bg-slate-800 border-[2px] border-b-[4px] border-amber-600/70 text-amber-500 hover:border-amber-400 hover:text-amber-300 hover:shadow-[0_0_15px_rgba(251,191,36,0.5)] active:border-b-[2px] active:translate-y-[2px] rounded-2xl text-2xl font-black transition-all">C</button>
-              <button onClick={() => handleNumpad('0')} className="h-14 bg-slate-800 border-[2px] border-b-[4px] border-slate-600 hover:border-cyan-400 hover:text-cyan-300 hover:shadow-[0_0_15px_rgba(34,211,238,0.5)] active:border-b-[2px] active:translate-y-[2px] rounded-2xl text-2xl font-black text-white transition-all">0</button>
-              <button onClick={handleDelete} className="h-14 bg-slate-800 border-[2px] border-b-[4px] border-rose-700/70 text-rose-500 hover:border-rose-400 hover:text-rose-300 hover:shadow-[0_0_15px_rgba(244,63,94,0.5)] active:border-b-[2px] active:translate-y-[2px] rounded-2xl flex items-center justify-center transition-all">
-                <X className="w-8 h-8 drop-shadow-md" />
+              <button type="button" onClick={handleClear} className="h-16 flex items-center justify-center bg-slate-900/60 backdrop-blur-md border border-slate-600/50 rounded-2xl text-3xl font-black text-amber-500 transition-all duration-300 hover:bg-amber-500/10 hover:border-amber-400 hover:text-amber-400 hover:shadow-[0_0_20px_rgba(245,158,11,0.6),inset_0_0_10px_rgba(245,158,11,0.2)] active:scale-90 active:bg-amber-500 active:text-white">
+                C
+              </button>
+              <button type="button" onClick={() => handleNumpad('0')} className="h-16 flex items-center justify-center bg-slate-900/60 backdrop-blur-md border border-slate-600/50 rounded-2xl text-3xl font-black text-slate-200 transition-all duration-300 hover:bg-orange-500/10 hover:border-orange-500 hover:text-orange-400 hover:shadow-[0_0_20px_rgba(249,115,22,0.6),inset_0_0_10px_rgba(249,115,22,0.2)] active:scale-90 active:bg-orange-500 active:text-white">
+                0
+              </button>
+              <button type="button" onClick={handleDelete} className="h-16 flex items-center justify-center bg-slate-900/60 backdrop-blur-md border border-slate-600/50 rounded-2xl transition-all duration-300 hover:bg-rose-500/10 hover:border-rose-500 hover:text-rose-400 hover:shadow-[0_0_20px_rgba(225,29,72,0.6),inset_0_0_10px_rgba(225,29,72,0.2)] active:scale-90 active:bg-rose-600 active:text-white text-rose-500">
+                <X size={32} className="drop-shadow-md stroke-[3px]" />
               </button>
             </div>
 
-            <button onClick={step === 1 ? handleNextStep : handleSubmit} disabled={isLoading} className="w-full mt-3 h-14 rounded-2xl font-black text-white text-xl bg-gradient-to-r from-orange-500 to-amber-500 border-[2px] border-orange-400 shadow-[0_0_20px_rgba(249,115,22,0.5)] hover:from-cyan-500 hover:to-emerald-500 hover:border-cyan-300 hover:shadow-[0_0_25px_rgba(34,211,238,0.7)] active:scale-95 transition-all duration-300">
-              {isLoading ? 'กำลังตรวจสอบ...' : (step === 1 ? 'ถัดไป' : (isNewUser && !isConfirmingPin ? 'ถัดไป' : (isNewUser ? 'ยืนยันรหัสผ่าน' : 'เข้าสู่ระบบ')))}
-            </button>
+            {/* 🌟 ฟันธง: เอฟเฟกต์วงแหวนสแกนข้อมูล (แสดงแทนปุ่มเดิมตอนกำลังโหลด) */}
+            {isLoading && (
+              <div className="w-full h-[256px] flex flex-col items-center justify-center animate-in zoom-in duration-300">
+                <div className="relative w-20 h-20 mb-5">
+                  <div className="absolute inset-0 border-[4px] border-orange-500/20 rounded-full"></div>
+                  <div className="absolute inset-0 border-[4px] border-orange-500 border-t-transparent rounded-full animate-spin"></div>
+                  <CheckCircle className="absolute inset-0 m-auto text-orange-400 animate-pulse w-8 h-8" />
+                </div>
+                <span className="text-orange-400 font-black tracking-widest text-[18px] drop-shadow-[0_0_10px_rgba(249,115,22,0.8)] animate-pulse">
+                  กำลังตรวจสอบข้อมูล...
+                </span>
+              </div>
+            )}
           </>
         )}
 
@@ -5749,6 +5782,22 @@ function LandingPage({ onStart }) {
   const [isConfirmingStaffPin, setIsConfirmingStaffPin] = useState(false);
   const [isNewStaff, setIsNewStaff] = useState(false);
 
+// 🌟 ฟันธง: สมองกลแอปธนาคาร (ฝั่งเจ้าหน้าที่)
+useEffect(() => {
+  if (showLogin) {
+    const savedPhone = localStorage.getItem('gse_staff_phone');
+    if (savedPhone) {
+      setStaffPhone(savedPhone);
+      setStaffStep(2); // มีเบอร์แล้ว ข้ามไปหน้า PIN เลย
+    } else {
+      setStaffStep(1); // ไม่มีเบอร์ ให้เริ่มที่หน้า 1
+      setStaffPhone('');
+    }
+    setStaffPin('');
+    setLoginError('');
+  }
+}, [showLogin]);
+
   const closeStaffLogin = () => {
     setShowLogin(false);
     setStaffPhone('');
@@ -5759,8 +5808,6 @@ function LandingPage({ onStart }) {
     setLoginError('');
     setAttemptCount(0); // <--- รีเซ็ตค่าเมื่อปิดหน้าต่าง
   };
-
-
 
   const handleStaffPhoneNext = async () => {
     if (staffPhone.length !== 10) {
@@ -5800,34 +5847,25 @@ function LandingPage({ onStart }) {
   };
 
   const handleStaffPinSubmit = async () => {
-    // ==========================================
-    // 🌟 โหมดที่ 1: สำหรับช่างใหม่ (ตั้งรหัส PIN 2 ครั้งแบบเนียนๆ)
-    // ==========================================
     if (isNewStaff) {
       if (!isConfirmingStaffPin) {
-        // ครั้งที่ 1: ตั้งรหัส
         if (staffPin.length !== 6) { setLoginError('กรุณาตั้งรหัส PIN ให้ครบ 6 หลักค่ะ'); return; }
         setIsConfirmingStaffPin(true);
         setLoginError('');
       } else {
-        // ครั้งที่ 2: ยืนยันรหัส
         if (confirmStaffPin.length !== 6) { setLoginError('กรุณายืนยันรหัส PIN ให้ครบ 6 หลักค่ะ'); return; }
         if (staffPin !== confirmStaffPin) { 
           setLoginError('รหัส PIN ไม่ตรงกัน กรุณาลองใหม่อีกครั้งค่ะ'); 
           setConfirmStaffPin(''); 
           return; 
         }
-        // 🌟 สมัคร Account ให้ลับๆ + บันทึกประวัติลงตาราง users (ไม่ต้องกรอกชื่อซ้ำ)
         setIsLoggingIn(true); setLoginError('');
         try {
           await createUserWithEmailAndPassword(auth, staffEmail, staffPin);
           await addDoc(collection(db, 'users'), { 
-            phone: staffPhone, 
-            email: staffEmail, 
-            role: staffRole, 
-            isStaff: true,
-            createdAt: new Date().toISOString() 
+            phone: staffPhone, email: staffEmail, role: staffRole, isStaff: true, createdAt: new Date().toISOString() 
           });
+          localStorage.setItem('gse_staff_phone', staffPhone); // 🌟 ฟันธง: ฝังชิปจำเบอร์ให้ช่าง
           setAttemptCount(0);
           closeStaffLogin();
           onStart(staffRole);
@@ -5839,17 +5877,11 @@ function LandingPage({ onStart }) {
       return;
     }
 
-    // ==========================================
-    // 🌟 โหมดที่ 2: สำหรับช่างเก่า (ล็อกอินปกติ)
-    // ==========================================
-    if (staffPin.length !== 6) {
-      setLoginError('กรุณากรอกรหัส PIN ให้ครบ 6 หลักค่ะ');
-      return;
-    }
-    setIsLoggingIn(true);
-    setLoginError('');
+    if (staffPin.length !== 6) { setLoginError('กรุณากรอกรหัส PIN ให้ครบ 6 หลักค่ะ'); return; }
+    setIsLoggingIn(true); setLoginError('');
     try {
       await signInWithEmailAndPassword(auth, staffEmail, staffPin);
+      localStorage.setItem('gse_staff_phone', staffPhone); // 🌟 ฟันธง: ฝังชิปจำเบอร์ให้ช่าง
       setAttemptCount(0);
       closeStaffLogin();
       onStart(staffRole);
@@ -5858,9 +5890,7 @@ function LandingPage({ onStart }) {
       setAttemptCount(newCount);
       setLoginError(`รหัส PIN ไม่ถูกต้อง (ครั้งที่ ${newCount}/5)`);
       setStaffPin('');
-    } finally {
-      setIsLoggingIn(false);
-    }
+    } finally { setIsLoggingIn(false); }
   };
 
 // =========================================================
@@ -5935,303 +5965,293 @@ function LandingPage({ onStart }) {
     // 🌟 1. ฟันธง: เพิ่ม overscroll-none บล็อกการดึงหน้าจอบน Android (ห้ามไถ 100%)
     // และคืนค่า PC (md:min-h-screen) ให้กลับมาเป็นปกติเหมือนเดิม
     /* 🌟 1. ฟันธง: ล็อกมือถือห้ามไถ (overflow-hidden overscroll-none) แต่ปลดล็อก PC ให้ใช้ลูกกลิ้งเมาส์ได้ปกติ 100% (md:overflow-y-auto md:overscroll-auto) */
-
-    <div className="relative h-[100dvh] md:min-h-screen md:h-auto w-full flex flex-col items-center justify-center p-6 md:p-12 overflow-hidden md:overflow-x-hidden md:overflow-y-auto overscroll-none md:overscroll-auto bg-[#020617] font-sans">
-      
-      <div className="absolute inset-0 z-0">
-        <div className="absolute inset-0 bg-[url('https://www.transparenttextures.com/patterns/carbon-fibre.png')] opacity-20 pointer-events-none"></div>
-        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[800px] h-[800px] bg-cyan-500/10 blur-[100px] rounded-full animate-pulse pointer-events-none"></div>
-        <div
-          className="absolute inset-0 bg-cover bg-center bg-no-repeat opacity-40 mix-blend-screen pointer-events-none"
-          style={{ backgroundImage: "url('/bg-earth-new.webp')" }}
-        ></div>
-        <div className="absolute inset-0 bg-gradient-to-b from-transparent via-[#020617]/50 to-[#020617] pointer-events-none"></div>
-      </div>
-
-      <style>{`
-        @keyframes scan {
-          0% { transform: translateY(-100%); }
-          100% { transform: translateY(100vh); }
-        }
-        .animate-scan::before {
-          content: '';
-          position: absolute;
-          width: 100%;
-          height: 2px;
-          background: linear-gradient(to right, transparent, rgba(34,211,238,0.6), transparent);
-          animation: scan 4s linear infinite;
-        }
-      `}</style>
-      <div className="animate-scan absolute inset-0 z-0 pointer-events-none overflow-hidden"></div>
-
-      {/* 🌟 2. กล่องเนื้อหาหลัก: มือถือบังคับ h-full, PC ปล่อยอิสระ */}
+      <div className="relative h-[100dvh] md:min-h-screen md:h-auto w-full flex flex-col items-center justify-center p-6 md:p-12 overflow-hidden md:overflow-x-hidden md:overflow-y-auto overscroll-none md:overscroll-auto bg-[#020617] font-sans">
+        
+        {/* 🌟 Background & Radar Scan */}
+        <div className="absolute inset-0 z-0">
+          <div className="absolute inset-0 bg-[url('https://www.transparenttextures.com/patterns/carbon-fibre.png')] opacity-20 pointer-events-none"></div>
+          <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[800px] h-[800px] bg-cyan-500/10 blur-[100px] rounded-full animate-pulse pointer-events-none"></div>
+          <div
+            className="absolute inset-0 bg-cover bg-center bg-no-repeat opacity-40 mix-blend-screen pointer-events-none"
+            style={{ backgroundImage: "url('/bg-earth-new.webp')" }}
+          ></div>
+          <div className="absolute inset-0 bg-gradient-to-b from-transparent via-[#020617]/50 to-[#020617] pointer-events-none"></div>
+        </div>
+  
+        <style>{`
+          @keyframes scan {
+            0% { transform: translateY(-100%); opacity: 0; }
+            10% { opacity: 1; }
+            90% { opacity: 1; }
+            100% { transform: translateY(100vh); opacity: 0; }
+          }
+          .animate-scan::before {
+            content: '';
+            position: absolute;
+            width: 100%;
+            height: 8px;
+            background: linear-gradient(to bottom, transparent, rgba(34,211,238,0.8), rgba(255,255,255,0.9));
+            box-shadow: 0 0 20px rgba(34,211,238,0.8);
+            animation: scan 3.5s cubic-bezier(0.4, 0, 0.2, 1) infinite;
+          }
+          .bg-cyber-grid {
+            background-image: 
+              linear-gradient(rgba(34, 211, 238, 0.05) 1px, transparent 1px),
+              linear-gradient(90deg, rgba(34, 211, 238, 0.05) 1px, transparent 1px);
+            background-size: 30px 30px;
+          }
+        `}</style>
+        <div className="absolute inset-0 z-0 bg-cyber-grid pointer-events-none"></div>
+        <div className="animate-scan absolute inset-0 z-0 pointer-events-none overflow-hidden"></div>
+  
+       {/* 🌟 Main Content Box */}
       <div className="relative z-10 w-full h-full md:h-auto max-w-md md:max-w-xl lg:max-w-2xl flex flex-col items-center animate-in slide-in-from-bottom-8 fade-in duration-1000">
         
+        {/* 🔥 ฟันธง: แสงเฟลอร์ยักษ์สีส้ม สว่างวาบอยู่ด้านหลังกรอบหลัก! */}
+        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[120%] h-[120%] bg-orange-500/20 blur-[120px] rounded-full pointer-events-none z-0 animate-pulse"></div>
+
         <div
-          className="pt-8 pb-4 px-4 md:pt-14 md:pb-6 md:px-10 rounded-[1.5rem] md:rounded-[3rem] shadow-[0_0_60px_rgba(249,115,22,0.4)] flex flex-col items-center text-center w-full h-full md:h-auto relative backdrop-blur-md transition-all duration-500"
+          className="pt-8 pb-4 px-4 md:pt-14 md:pb-6 md:px-10 rounded-[1.5rem] md:rounded-[3rem] flex flex-col items-center text-center w-full h-full md:h-auto relative backdrop-blur-xl transition-all duration-500 z-10"
           style={{
-            backgroundColor: 'rgba(15, 23, 42, 0.5)',
+            backgroundColor: 'rgba(15, 23, 42, 0.65)',
             border: '3px solid #FF4500',
-            boxShadow: '0 0 30px rgba(255, 69, 0, 0.3), inset 0 0 20px rgba(255, 69, 0, 0.1)'
+            boxShadow: '0 0 50px rgba(255, 69, 0, 0.6), inset 0 0 30px rgba(255, 69, 0, 0.2)'
           }}
         >
           {/* Logo */}
           <div className="shrink-0 w-28 h-28 md:w-44 md:h-44 -mt-8 md:-mt-12 mb-10 md:mb-4 flex items-center justify-center transition-all duration-500 relative">
-            <div className="absolute inset-0 bg-orange-500/30 blur-[20px] rounded-full animate-pulse z-0"></div>
-            <img
-              src="/GSE-logo.webp"
-              alt="Logo"
-              className="w-full h-full object-contain drop-shadow-[0_15px_25px_rgba(0,0,0,0.8)] hover:scale-105 transition-transform duration-500 relative z-10" 
-            />
+            <div className="absolute inset-0 bg-orange-500/40 blur-[25px] rounded-full animate-pulse z-0"></div>
+            <img src="/GSE-logo.webp" alt="Logo" className="w-full h-full object-contain drop-shadow-[0_15px_25px_rgba(0,0,0,0.8)] hover:scale-105 transition-transform duration-500 relative z-10" />
           </div>
 
-          {/* 🌟 3. โซนมาสคอต: มือถือใช้ระบบสปริง (flex-1 min-h-0), PC ใช้ค่าดั้งเดิมเป๊ะ (min-h-[300px]) */}
+          {/* Mascot Text */}
           <div className="relative w-full -mt-6 md:mt-4 flex flex-col items-center flex-1 min-h-0 md:flex-none md:min-h-[300px] transition-all duration-500">            
-            
-            <div className="shrink-0 relative z-20 bg-slate-900/90 backdrop-blur-md rounded-3xl md:rounded-[2rem] p-2 md:p-6 shadow-[0_15px_40px_rgba(249,115,22,0.6)] text-center border-[2px] border-solid border-orange-500 mb-1 md:mb-4 animate-bounce">
+            <div className="shrink-0 relative z-20 bg-slate-900/90 backdrop-blur-md rounded-3xl md:rounded-[2rem] p-2 md:p-6 shadow-[0_15px_40px_rgba(249,115,22,0.8)] text-center border-[2px] border-solid border-orange-500 mb-1 md:mb-4 animate-bounce">
               <div className="absolute left-1/2 -translate-x-1/2 -bottom-[11px] w-5 h-5 bg-slate-900 border-b-[2px] border-r-[2px] border-solid border-orange-500 transform rotate-45 rounded-sm"></div>
               <p className="text-[20px] md:text-[22px] font-bold text-slate-100 leading-relaxed relative z-20 shadow-none">
                 ระบบ/อุปกรณ์มีปัญหาใช่มั้ยคะ?
                 <br />
-                <span className="text-orange-400 font-black text-[16px] md:text-[22px] mt-1 md:mt-2 inline-flex items-center justify-center gap-2 drop-shadow-[0_0_8px_rgba(249,115,22,0.8)] whitespace-nowrap">
+                <span className="text-orange-400 font-black text-[16px] md:text-[22px] mt-1 md:mt-2 inline-flex items-center justify-center gap-2 drop-shadow-[0_0_12px_rgba(249,115,22,1)] whitespace-nowrap">
                   กดแจ้งซ่อมได้เลยค่ะ!
                   <span className="text-[30px] md:text-[45px] leading-[0] block transform translate-y-1 md:translate-y-2 drop-shadow-md">👇</span>
                 </span>
               </p>
             </div>
 
-            {/* 🌟 4. คืนชีพน้องมาสคอต: มือถือใช้ (max-h-full), PC กลับมาใช้ (w-[50%]) สวยงามเหมือนเดิม! */}
-           {/* 🌟 4. ฟันธง: แก้มาสคอตทับปุ่มในมือถือ (ปลด minHeight จัดให้อยู่กึ่งกลาง) โหมด PC คงเดิม 100% */}
-           <div 
-              className="flex-1 min-h-0 md:min-h-[150px] md:flex-none flex items-center md:items-start justify-center w-full md:w-[50%] relative z-30 mx-auto mb-2 md:mb-4 pointer-events-none drop-shadow-[0_20px_30px_rgba(0,0,0,0.9)] transition-all duration-500" 
+            {/* Mascot Image */}
+            <div 
+              className="flex-1 min-h-0 md:min-h-[150px] md:flex-none flex items-center md:items-start justify-center w-full md:w-[50%] relative z-30 mx-auto mb-2 md:mb-4 pointer-events-none drop-shadow-[0_20px_40px_rgba(0,0,0,0.9)] transition-all duration-500" 
               style={{ maxWidth: '280px' }}
             >
-              <img 
-                src="/mascot.webp" 
-                alt="Mascot" 
-                className="max-h-full w-auto md:w-full md:h-auto object-contain object-center md:object-bottom hover:scale-105 transition-transform duration-500" 
-              />
+              <img src="/mascot.webp" alt="Mascot" className="max-h-full w-auto md:w-full md:h-auto object-contain object-center md:object-bottom hover:scale-105 transition-transform duration-500" />
             </div>
-            </div>
+          </div>
 
-          <div className="shrink-0 w-full flex flex-col gap-2.5 md:gap-3.5 relative z-10 transition-all duration-500">
+          {/* 🌟 The 3 Sci-Fi Buttons (สีสด 100% เรืองแสงกระแทกตา!) */}
+          <div className="shrink-0 w-full flex flex-col gap-3 md:gap-5 relative z-10 transition-all duration-500 mt-2 md:mt-4">
             
-            <button
-              onClick={() => setShowReporterLogin(true)}
-              className="w-full pt-4 md:py-6 pb-5 md:pb-6 bg-gradient-to-r from-orange-600 to-amber-500 text-white font-black text-[19px] md:text-[28px] rounded-2xl md:rounded-[1.5rem] flex items-center justify-center gap-5 md:gap-3 border-[2px] border-solid border-orange-400 shadow-[0_0_20px_rgba(249,115,22,0.4)] hover:shadow-[0_0_35px_rgba(249,115,22,0.8)] active:scale-95 transition-all duration-300"
-            >
-              <Wrench size={28} className="drop-shadow-md md:w-9 md:h-9" />{' '}
-              แจ้งซ่อมระบบ/อุปกรณ์
-            </button>
 
-            <button 
-              onClick={() => setShowLogin(true)}
-              className="group relative w-full overflow-hidden bg-gradient-to-r from-blue-900/60 to-blue-800/40 border-[2px] border-solid border-cyan-500/50 hover:border-cyan-400 rounded-2xl md:rounded-[1.5rem] transition-all duration-300 hover:scale-[1.02] hover:shadow-[0_0_30px_rgba(34,211,238,0.4)] p-1 active:scale-95"
-            >
-              <div className="flex items-center justify-center bg-slate-900/60 p-3 md:p-5 rounded-xl md:rounded-[1.2rem] w-full">
-                <div className="flex items-center gap-3 md:gap-5">
-                  <div className="w-10 h-10 md:w-14 md:h-14 bg-cyan-600/50 rounded-lg md:rounded-xl flex items-center justify-center border border-cyan-400 shadow-[0_0_15px_rgba(34,211,238,0.5)] shrink-0">
-                    <ShieldCheck className="text-white w-6 h-6 md:w-8 md:h-8" />
-                  </div>
-                  <div className="flex flex-col items-start justify-center">
-                    <h3 className="text-[17px] md:text-[22px] font-black text-white group-hover:text-cyan-300 transition-colors drop-shadow-[0_0_5px_rgba(255,255,255,0.5)] leading-none">
-                      GSE-OMS SECURE LOGIN
-                    </h3>
-                    <p className="text-[11px] md:text-[13px] text-cyan-200/80 font-bold tracking-widest uppercase mt-1.5 md:mt-2">
-                      เฉพาะเจ้าหน้าที่ ฝวด.
-                    </p>
-                  </div>
-                </div>
+            {/* 🟠 ปุ่ม 1: ส้มอร่าม */}
+            <button onClick={() => setShowReporterLogin(true)} className="group relative w-full bg-gradient-to-r from-orange-600 to-amber-600 text-white font-black text-[18px] md:text-[26px] py-4 md:py-5 rounded-2xl md:rounded-[1.5rem] border-[2px] border-solid border-white/40 shadow-[0_0_30px_rgba(249,115,22,1)] hover:from-orange-400 hover:to-amber-400 hover:border-white hover:shadow-[0_0_60px_rgba(249,115,22,1),inset_0_0_20px_rgba(255,255,255,0.5)] hover:scale-[1.03] active:scale-95 transition-all duration-300 flex items-center justify-center gap-3 md:gap-4 overflow-hidden">
+              <div className="absolute inset-0 bg-gradient-to-t from-orange-300/0 via-white/40 to-orange-300/0 opacity-0 group-hover:opacity-100 group-hover:animate-pulse transition-opacity duration-300"></div>
+              <div className="bg-orange-900/60 p-2 md:p-3 rounded-xl md:rounded-2xl border border-orange-300 shadow-[inset_0_0_10px_rgba(0,0,0,0.5)] group-hover:bg-orange-800 group-hover:border-white group-hover:shadow-[0_0_20px_rgba(255,255,255,0.9)] transition-all z-10">
+                <Wrench className="w-6 h-6 md:w-8 md:h-8 text-white drop-shadow-[0_0_8px_rgba(255,255,255,0.8)]" />
               </div>
+              <span className="tracking-widest drop-shadow-[0_2px_5px_rgba(0,0,0,0.8)] z-10 group-hover:drop-shadow-[0_0_15px_rgba(255,255,255,1)]">แจ้งซ่อมระบบ/อุปกรณ์</span>
             </button>
 
-            <button
-              onClick={() => setShowManual(true)} 
-              className="w-full bg-gradient-to-r from-slate-800 to-slate-700 text-slate-200 text-[18px] md:text-[20px] font-bold py-3 md:py-5 rounded-2xl md:rounded-[1.5rem] border-[2px] border-solid border-emerald-500/50 flex items-center justify-center gap-5 md:gap-3 shadow-[0_0_15px_rgba(16,185,129,0.2)] hover:shadow-[0_0_25px_rgba(16,185,129,0.6)] hover:border-emerald-400 hover:text-emerald-300 active:scale-95 transition-all duration-300"
-            >
-              <FileText size={20} className="md:w-7 md:h-7 drop-shadow-sm" /> คู่มือการใช้งานเบื้องต้น
+
+            {/* 🟢 ปุ่ม 2: เขียวมรกต */}
+            <button onClick={() => setShowLogin(true)} className="group relative w-full bg-gradient-to-r from-emerald-700 to-teal-600 text-white font-black text-[18px] md:text-[26px] py-4 md:py-5 rounded-2xl md:rounded-[1.5rem] border-[2px] border-solid border-white/40 shadow-[0_0_30px_rgba(16,185,129,0.8)] hover:from-emerald-400 hover:to-teal-400 hover:border-white hover:shadow-[0_0_60px_rgba(16,185,129,1),inset_0_0_20px_rgba(255,255,255,0.5)] hover:scale-[1.03] active:scale-95 transition-all duration-300 flex items-center justify-center gap-3 md:gap-4 overflow-hidden">
+              <div className="absolute inset-0 bg-gradient-to-t from-emerald-300/0 via-white/40 to-emerald-300/0 opacity-0 group-hover:opacity-100 group-hover:animate-pulse transition-opacity duration-300"></div>
+              <div className="bg-emerald-900/60 p-2 md:p-3 rounded-xl md:rounded-2xl border border-emerald-300 shadow-[inset_0_0_10px_rgba(0,0,0,0.5)] group-hover:bg-emerald-800 group-hover:border-white group-hover:shadow-[0_0_20px_rgba(255,255,255,0.9)] transition-all z-10">
+                <ShieldCheck className="w-6 h-6 md:w-8 md:h-8 text-white drop-shadow-[0_0_8px_rgba(255,255,255,0.8)]" />
+              </div>
+              <span className="tracking-widest drop-shadow-[0_2px_5px_rgba(0,0,0,0.8)] z-10 group-hover:drop-shadow-[0_0_15px_rgba(255,255,255,1)]">สำหรับเจ้าหน้าที่ ฝวด.</span>
+            </button>
+
+
+
+            {/* 🟣 ปุ่ม 3: ม่วงไซไฟ */}
+            <button onClick={() => setShowManual(true)} className="group relative w-full bg-gradient-to-r from-indigo-700 to-purple-600 text-white font-black text-[18px] md:text-[26px] py-4 md:py-5 rounded-2xl md:rounded-[1.5rem] border-[2px] border-solid border-white/40 shadow-[0_0_30px_rgba(99,102,241,0.8)] hover:from-indigo-400 hover:to-purple-400 hover:border-white hover:shadow-[0_0_60px_rgba(99,102,241,1),inset_0_0_20px_rgba(255,255,255,0.5)] hover:scale-[1.03] active:scale-95 transition-all duration-300 flex items-center justify-center gap-3 md:gap-4 overflow-hidden">
+              <div className="absolute inset-0 bg-gradient-to-t from-indigo-300/0 via-white/40 to-indigo-300/0 opacity-0 group-hover:opacity-100 group-hover:animate-pulse transition-opacity duration-300"></div>
+              <div className="bg-indigo-900/60 p-2 md:p-3 rounded-xl md:rounded-2xl border border-indigo-300 shadow-[inset_0_0_10px_rgba(0,0,0,0.5)] group-hover:bg-indigo-800 group-hover:border-white group-hover:shadow-[0_0_20px_rgba(255,255,255,0.9)] transition-all z-10">
+                <FileText className="w-6 h-6 md:w-8 md:h-8 text-white drop-shadow-[0_0_8px_rgba(255,255,255,0.8)]" />
+              </div>
+              <span className="tracking-widest drop-shadow-[0_2px_5px_rgba(0,0,0,0.8)] z-10 group-hover:drop-shadow-[0_0_15px_rgba(255,255,255,1)]">คู่มือการใช้งานโปแกรม</span>
             </button>
 
           </div>
 
-          <h2 className="text-[16px] md:text-[28px] font-black text-cyan-400 drop-shadow-[0_0_15px_rgba(34,211,238,0.9)] uppercase mt-4 md:mt-8 mb-1.5 md:mb-2 transition-all duration-500 tracking-wide">
+          <h2 className="text-[16px] md:text-[28px] font-black text-cyan-400 drop-shadow-[0_0_15px_rgba(34,211,238,0.9)] uppercase mt-5 md:mt-8 mb-1.5 md:mb-2 transition-all duration-500 tracking-wide">
             ฝ่ายวิศวกรรมระบบปฏิบัติการดาวเทียม
           </h2>
           <h3 className="text-[14px] md:text-[18px] font-bold text-slate-300 tracking-[0.2em] mt-1 transition-all duration-500">
             สำนักปฏิบัติการดาวเทียม
           </h3>
 
-          <h3 className="font-mono text-slate-400 tracking-widest font-bold mt-5 md:mt-10 opacity-95 flex items-baseline justify-center flex-wrap gap-x-1.5 gap-y-1">
+          <h3 className="font-mono text-slate-400 tracking-widest font-bold mt-6 md:mt-10 opacity-95 flex items-baseline justify-center flex-wrap gap-x-1.5 gap-y-1">
             <span className="text-[10px] md:text-[14px]">©2026</span>
-            <span>
-              <span className="text-[16px] md:text-[22px] text-orange-500 font-black drop-shadow-[0_0_10px_rgba(249,115,22,0.8)]">G</span>
-              <span className="text-[10px] md:text-[14px]">round</span>
-            </span>
-            <span>
-              <span className="text-[16px] md:text-[22px] text-orange-500 font-black drop-shadow-[0_0_10px_rgba(249,115,22,0.8)]">S</span>
-              <span className="text-[10px] md:text-[14px]">ystem</span>
-            </span>
-            <span>
-              <span className="text-[16px] md:text-[22px] text-orange-500 font-black drop-shadow-[0_0_10px_rgba(249,115,22,0.8)]">E</span>
-              <span className="text-[10px] md:text-[14px]">ngineering:</span>
-            </span>
-            <span className="text-[15px] md:text-[20px] text-orange-400 font-black drop-shadow-[0_0_15px_rgba(249,115,22,1)] ml-1">
-              GSE
-            </span>
+            <span><span className="text-[16px] md:text-[22px] text-orange-500 font-black drop-shadow-[0_0_10px_rgba(249,115,22,0.8)]">G</span><span className="text-[10px] md:text-[14px]">round</span></span>
+            <span><span className="text-[16px] md:text-[22px] text-orange-500 font-black drop-shadow-[0_0_10px_rgba(249,115,22,0.8)]">S</span><span className="text-[10px] md:text-[14px]">ystem</span></span>
+            <span><span className="text-[16px] md:text-[22px] text-orange-500 font-black drop-shadow-[0_0_10px_rgba(249,115,22,0.8)]">E</span><span className="text-[10px] md:text-[14px]">ngineering:</span></span>
+            <span className="text-[15px] md:text-[20px] text-orange-400 font-black drop-shadow-[0_0_15px_rgba(249,115,22,1)] ml-1">GSE</span>
           </h3>
         </div>
       </div>
-
-      {showManual && (
-        <div className="fixed inset-0 z-[200] bg-slate-950/90 flex flex-col items-center justify-center p-2 md:p-4 backdrop-blur-md animate-in fade-in" onClick={() => setShowManual(false)}> 
-          <div className="absolute w-[300px] h-[300px] bg-orange-500/40 rounded-full blur-[100px] animate-pulse pointer-events-none z-0"></div>
-          <div className="w-full max-w-lg md:max-w-4xl bg-slate-900 border-[3px] md:border-[4px] border-solid border-orange-500 rounded-2xl md:rounded-[2rem] overflow-hidden shadow-[0_0_50px_rgba(249,115,22,0.6)] flex flex-col max-h-[96vh] md:max-h-[90vh] relative z-10 transition-all" onClick={(e) => e.stopPropagation()}>
-            <div className="relative py-4 px-4 md:px-8 bg-slate-950 flex items-center justify-between border-b-4 border-orange-500 shrink-0 min-h-[70px] md:min-h-[90px]">
-              <div className="absolute inset-0 bg-orange-500/20 blur-[40px] pointer-events-none animate-pulse z-0"></div>
-              <div className="relative z-10 p-2 md:p-3 bg-gradient-to-br from-orange-400 to-orange-600 rounded-xl md:rounded-2xl shadow-[0_0_20px_rgba(249,115,22,0.6)] animate-pulse shrink-0">
-                <FileText size={24} className="md:w-8 md:h-8 text-white drop-shadow-md" />
-              </div>
-              <div className="absolute left-1/2 -translate-x-1/2 z-10 flex justify-center items-center pointer-events-none w-full px-16 md:px-0">
-                <div className="relative pointer-events-auto">
-                  <div className="absolute -inset-1 bg-orange-500/30 blur-[10px] rounded-full animate-pulse z-0"></div>
-                  <div className="relative z-10 bg-slate-800 border-[2px] md:border-[3px] border-solid border-orange-400 rounded-lg md:rounded-xl px-3 md:px-8 py-2 md:py-2.5 shadow-[0_0_10px_rgba(249,115,22,0.8)]">
-                    <h3 className="text-white font-black tracking-widest text-[14px] sm:text-[15px] md:text-2xl drop-shadow-[0_0_5px_rgba(255,255,255,0.8)] whitespace-nowrap">
-                      คู่มือการใช้งานเบื้องต้น
-                    </h3>
+  
+        {/* 🌟 Modals */}
+        {showManual && (
+          <div className="fixed inset-0 z-[200] bg-slate-950/90 flex flex-col items-center justify-center p-2 md:p-4 backdrop-blur-md animate-in fade-in" onClick={() => setShowManual(false)}> 
+            <div className="absolute w-[300px] h-[300px] bg-orange-500/40 rounded-full blur-[100px] animate-pulse pointer-events-none z-0"></div>
+            <div className="w-full max-w-lg md:max-w-4xl bg-slate-900 border-[3px] md:border-[4px] border-solid border-orange-500 rounded-2xl md:rounded-[2rem] overflow-hidden shadow-[0_0_50px_rgba(249,115,22,0.6)] flex flex-col max-h-[96vh] md:max-h-[90vh] relative z-10 transition-all" onClick={(e) => e.stopPropagation()}>
+              <div className="relative py-4 px-4 md:px-8 bg-slate-950 flex items-center justify-between border-b-4 border-orange-500 shrink-0 min-h-[70px] md:min-h-[90px]">
+                <div className="absolute inset-0 bg-orange-500/20 blur-[40px] pointer-events-none animate-pulse z-0"></div>
+                <div className="relative z-10 p-2 md:p-3 bg-gradient-to-br from-orange-400 to-orange-600 rounded-xl md:rounded-2xl shadow-[0_0_20px_rgba(249,115,22,0.6)] animate-pulse shrink-0">
+                  <FileText size={24} className="md:w-8 md:h-8 text-white drop-shadow-md" />
+                </div>
+                <div className="absolute left-1/2 -translate-x-1/2 z-10 flex justify-center items-center pointer-events-none w-full px-16 md:px-0">
+                  <div className="relative pointer-events-auto">
+                    <div className="absolute -inset-1 bg-orange-500/30 blur-[10px] rounded-full animate-pulse z-0"></div>
+                    <div className="relative z-10 bg-slate-800 border-[2px] md:border-[3px] border-solid border-orange-400 rounded-lg md:rounded-xl px-3 md:px-8 py-2 md:py-2.5 shadow-[0_0_10px_rgba(249,115,22,0.8)]">
+                      <h3 className="text-white font-black tracking-widest text-[14px] sm:text-[15px] md:text-2xl drop-shadow-[0_0_5px_rgba(255,255,255,0.8)] whitespace-nowrap">
+                        คู่มือการใช้งานเบื้องต้น
+                      </h3>
+                    </div>
                   </div>
                 </div>
+                <button onClick={() => setShowManual(false)} className="relative z-20 bg-slate-900 border-2 border-solid border-orange-400 p-2 md:p-3 rounded-full transition-all shadow-[0_0_15px_rgba(249,115,22,0.6)] hover:shadow-[0_0_25px_rgba(225,29,72,1)] hover:-translate-y-1 active:scale-95 animate-pulse hover:bg-rose-600 hover:border-rose-400 group shrink-0">
+                  <X size={20} className="md:w-6 md:h-6 text-rose-500 group-hover:text-white drop-shadow-[0_0_8px_rgba(225,29,72,0.8)] stroke-[3px] transition-colors" />
+                </button>
               </div>
-              <button onClick={() => setShowManual(false)} className="relative z-20 bg-slate-900 border-2 border-solid border-orange-400 p-2 md:p-3 rounded-full transition-all shadow-[0_0_15px_rgba(249,115,22,0.6)] hover:shadow-[0_0_25px_rgba(225,29,72,1)] hover:-translate-y-1 active:scale-95 animate-pulse hover:bg-rose-600 hover:border-rose-400 group shrink-0">
-                <X size={20} className="md:w-6 md:h-6 text-rose-500 group-hover:text-white drop-shadow-[0_0_8px_rgba(225,29,72,0.8)] stroke-[3px] transition-colors" />
-              </button>
-            </div>
-            <div className="p-4 md:p-8 overflow-y-auto space-y-6 md:space-y-10 bg-slate-800 flex-1">
-           {[
-                { src: '/manual-1-1.png', alt: 'คู่มือเข้าโปรแกรมหน้าแรก' },
-                { src: '/manual-2-1.png', alt: 'คู่มือผู้แจ้งซ่อม-1' },
-                { src: '/manual-2-2.png', alt: 'คู่มือผู้แจ้งซ่อม-2' },
-                { src: '/manual-3-1.png', alt: 'คู่มือเจ้าหน้าที่ ฝวด.-1' },
-                { src: '/manual-3-2.png', alt: 'คู่มือเจ้าหน้าที่ ฝวด.-2' },
-                { src: '/manual-iPhone.png', alt: 'คู่มือตั้งค่าโทรศัพท์-iOS' },
-                { src: '/manual-Android.png', alt: 'คู่มือการตั้งค่าโทรศัพท์-Android' },
-                { src: '/manual-PC.png', alt: 'คู่มือตั้งค่าการแสดงผลบน-PC' }
-              ].map((manual, index) => (
-                <div key={index} className="flex flex-col items-center gap-3 md:gap-4">
-                  <img src={manual.src} alt={manual.alt} className="w-full rounded-xl md:rounded-2xl shadow-[0_10px_30px_rgba(0,0,0,0.6)] border-[2px] border-solid border-slate-600 transition-opacity" />
-                  <a href={manual.src} target="_blank" rel="noopener noreferrer" 
-                     className="w-[85%] sm:w-[60%] md:w-[40%] bg-slate-900 border-[2px] border-solid border-orange-500/80 text-orange-400 p-3 md:p-4 rounded-full shadow-[0_0_15px_rgba(249,115,22,0.4)] backdrop-blur-sm transition-all active:scale-95 flex items-center justify-center gap-2 z-20 hover:bg-orange-500 hover:text-white hover:border-white hover:scale-105 group">
-                    <Maximize2 size={18} className="md:w-6 md:h-6 drop-shadow-md group-hover:scale-125 transition-transform" strokeWidth={2.5}/>
-                    <span className="text-[13px] md:text-[16px] font-black tracking-widest uppercase drop-shadow-md">แตะเพื่อขยายซูมเต็มจอ</span>
-                  </a>
+              <div className="p-4 md:p-8 overflow-y-auto space-y-6 md:space-y-10 bg-slate-800 flex-1">
+             {[
+                  { src: '/manual-1-1.png', alt: 'คู่มือเข้าโปรแกรมหน้าแรก' },
+                  { src: '/manual-2-1.png', alt: 'คู่มือผู้แจ้งซ่อม-1' },
+                  { src: '/manual-2-2.png', alt: 'คู่มือผู้แจ้งซ่อม-2' },
+                  { src: '/manual-3-1.png', alt: 'คู่มือเจ้าหน้าที่ ฝวด.-1' },
+                  { src: '/manual-3-2.png', alt: 'คู่มือเจ้าหน้าที่ ฝวด.-2' },
+                  { src: '/manual-iPhone.png', alt: 'คู่มือตั้งค่าโทรศัพท์-iOS' },
+                  { src: '/manual-Android.png', alt: 'คู่มือการตั้งค่าโทรศัพท์-Android' },
+                  { src: '/manual-PC.png', alt: 'คู่มือตั้งค่าการแสดงผลบน-PC' }
+                ].map((manual, index) => (
+                  <div key={index} className="flex flex-col items-center gap-3 md:gap-4">
+                    <img src={manual.src} alt={manual.alt} className="w-full rounded-xl md:rounded-2xl shadow-[0_10px_30px_rgba(0,0,0,0.6)] border-[2px] border-solid border-slate-600 transition-opacity" />
+                    <a href={manual.src} target="_blank" rel="noopener noreferrer" 
+                       className="w-[85%] sm:w-[60%] md:w-[40%] bg-slate-900 border-[2px] border-solid border-orange-500/80 text-orange-400 p-3 md:p-4 rounded-full shadow-[0_0_15px_rgba(249,115,22,0.4)] backdrop-blur-sm transition-all active:scale-95 flex items-center justify-center gap-2 z-20 hover:bg-orange-500 hover:text-white hover:border-white hover:scale-105 group">
+                      <Maximize2 size={18} className="md:w-6 md:h-6 drop-shadow-md group-hover:scale-125 transition-transform" strokeWidth={2.5}/>
+                      <span className="text-[13px] md:text-[16px] font-black tracking-widest uppercase drop-shadow-md">แตะเพื่อขยายซูมเต็มจอ</span>
+                    </a>
+                  </div>
+                ))}
+                <div className="text-center pt-6 pb-4 mt-8 border-t-2 border-dashed border-orange-500/30">
+                  <p className="text-slate-200 font-black text-[12px] md:text-[24px] tracking-widest flex items-center justify-center gap-2 md:gap-3 drop-shadow-[0_0_10px_rgba(249,115,22,1)]">
+                    <CheckCircle className="w-6 h-7 md:w-7 md:h-7 text-emerald-600 drop-shadow-[0_0_8px_rgba(16,185,129,1)]" /> 
+                    สิ้นสุดคู่มือการใช้งาน
+                  </p>
                 </div>
-              ))}
-              <div className="text-center pt-6 pb-4 mt-8 border-t-2 border-dashed border-orange-500/30">
-                <p className="text-slate-200 font-black text-[12px] md:text-[24px] tracking-widest flex items-center justify-center gap-2 md:gap-3 drop-shadow-[0_0_10px_rgba(249,115,22,1)]">
-                  <CheckCircle className="w-6 h-7 md:w-7 md:h-7 text-emerald-600 drop-shadow-[0_0_8px_rgba(16,185,129,1)]" /> 
-                  สิ้นสุดคู่มือการใช้งาน
-                </p>
               </div>
             </div>
           </div>
-        </div>
-      )}
-
-      {showReporterLogin && (
-        <ReporterLoginPopup 
-          onClose={() => setShowReporterLogin(false)} 
-          onLoginSuccess={onStart} 
-        />
-      )}
-
-      {/* 🌟 หน้าต่าง Popup Login สำหรับช่าง ฝวด. (ระบบ PIN 6 หลัก) */}
-      {showLogin && (
-        <div className="fixed inset-0 z-[300] bg-slate-950/90 backdrop-blur-md flex items-center justify-center p-4 animate-in fade-in duration-300" onClick={closeStaffLogin}>
-          <div className="absolute w-[300px] h-[300px] bg-cyan-500/30 rounded-full blur-[100px] animate-pulse pointer-events-none z-0"></div>
-          
-          <div className="relative z-10 w-full max-w-sm bg-slate-900 border-[3px] border-solid border-cyan-500 rounded-[2.5rem] p-6 shadow-[0_0_50px_rgba(34,211,238,0.5)] flex flex-col items-center gap-4 transform transition-all" onClick={e => e.stopPropagation()}>
+        )}
+  
+        {showReporterLogin && (
+          <ReporterLoginPopup onClose={() => setShowReporterLogin(false)} onLoginSuccess={onStart} />
+        )}
+  
+        {showLogin && (
+          <div className="fixed inset-0 z-[300] bg-slate-950/90 backdrop-blur-md flex items-center justify-center p-4 animate-in fade-in duration-300" onClick={closeStaffLogin}>
+            <div className="absolute w-[300px] h-[300px] bg-cyan-500/30 rounded-full blur-[100px] animate-pulse pointer-events-none z-0"></div>
             
-            <button onClick={closeStaffLogin} className="absolute top-5 right-5 text-slate-400 hover:text-rose-400 transition-colors z-20">
-              <X size={28} />
-            </button>
-
-            <div className="relative mt-2">
-              <div className="absolute inset-0 bg-cyan-500 blur-[20px] opacity-40 rounded-full"></div>
-              <div className="relative w-16 h-16 bg-slate-950 border-[2px] border-cyan-400 rounded-full flex items-center justify-center shadow-[0_0_20px_rgba(34,211,238,0.6)]">
-                {/* 🌟 ฟันธง: เปลี่ยนเป็นไอคอน Phone */}
-                <Phone className="w-8 h-8 text-cyan-400 drop-shadow-[0_0_8px_rgba(34,211,238,0.8)]" />
+            <div className="relative z-10 w-full max-w-sm bg-slate-900 border-[3px] border-solid border-cyan-500 rounded-[2.5rem] p-6 shadow-[0_0_50px_rgba(34,211,238,0.5)] flex flex-col items-center gap-4 transform transition-all" onClick={e => e.stopPropagation()}>
+              
+              <button onClick={closeStaffLogin} className="absolute top-5 right-5 text-slate-400 hover:text-rose-400 transition-colors z-20">
+                <X size={28} />
+              </button>
+  
+              <div className="relative mt-2">
+                <div className="absolute inset-0 bg-cyan-500 blur-[20px] opacity-40 rounded-full"></div>
+                <div className="relative w-16 h-16 bg-slate-950 border-[2px] border-cyan-400 rounded-full flex items-center justify-center shadow-[0_0_20px_rgba(34,211,238,0.6)]">
+                  <Phone className="w-8 h-8 text-cyan-400 drop-shadow-[0_0_8px_rgba(34,211,238,0.8)]" />
+                </div>
               </div>
-            </div>
-            
-            {/* 🌟 ฟันธง: อัปเดตข้อความหัวข้อให้รองรับการตั้ง PIN */}
-            <h2 className="text-xl font-black text-white tracking-wide text-center">
-              {staffStep === 1 
-                ? 'เบอร์โทรศัพท์เจ้าหน้าที่' 
-                : (isNewStaff 
-                    ? (isConfirmingStaffPin ? '✅ ยืนยันรหัส PIN อีกครั้ง' : '✨ ตั้งรหัส PIN 6 หลัก') 
-                    : '🔒 ใส่รหัส PIN เข้าสู่ระบบ')}
-            </h2>
-
-            {loginError && <p className="text-sm font-bold text-center p-2 rounded-lg w-full border animate-in shake bg-rose-500/10 text-rose-400 border-rose-500/30 shadow-[0_0_10px_rgba(244,63,94,0.2)]">{loginError}</p>}
-
-            <div className="relative w-full mb-2">
-              <div className="w-full bg-slate-950 border-[2px] border-cyan-400 rounded-2xl h-16 flex items-center justify-center text-3xl font-black text-cyan-300 tracking-[0.1em] shadow-[0_0_15px_rgba(34,211,238,0.4),inset_0_0_10px_rgba(34,211,238,0.2)] transition-all">
-              {staffStep === 1 ? formatPhone(staffPhone) : formatPinDisplay(isConfirmingStaffPin ? confirmStaffPin : staffPin)}
-              </div>
-              {staffStep === 2 && (
-                <button type="button" onClick={() => setShowStaffPin(!showStaffPin)} className="absolute right-4 top-1/2 -translate-y-1/2 text-cyan-600 hover:text-cyan-300 transition-colors drop-shadow-md">
-                  {showStaffPin ? <EyeOff size={24} /> : <Eye size={24} />}
-                </button>
-              )}
-            </div>
-
-            {staffStep === 2 && (
-              <div className="w-full flex justify-between items-center px-1 -mt-1 mb-1">
-                {attemptCount >= 3 && ( // <--- เพิ่มเงื่อนไขตรงนี้
-                  <button type="button" onClick={async () => {
-                    if (!staffEmail) return;
-                    setIsLoggingIn(true);
-                    try {
-                      await sendPasswordResetEmail(auth, staffEmail);
-                      setLoginError('ระบบได้ส่งลิงก์รีเซ็ต PIN ไปที่อีเมลหน่วยงานของท่านแล้วค่ะ');
-                    } catch (err) {
-                      setLoginError('ไม่สามารถส่งอีเมลรีเซ็ตได้');
-                    } finally {
-                      setIsLoggingIn(false);
-                    }
-                  }} disabled={isLoggingIn} className="text-xs font-bold text-rose-400 hover:text-rose-300 underline transition-colors animate-pulse z-10">
-                    ลืมรหัส PIN ใช่หรือไม่?
+              
+              <h2 className="text-xl font-black text-white tracking-wide text-center">
+                {staffStep === 1 ? 'เบอร์โทรศัพท์เจ้าหน้าที่' : (isNewStaff ? (isConfirmingStaffPin ? '✅ ยืนยันรหัส PIN อีกครั้ง' : '✨ ตั้งรหัส PIN 6 หลัก') : '🔒 ใส่รหัส PIN เข้าสู่ระบบ')}
+              </h2>
+  
+              {loginError && <p className="text-sm font-bold text-center p-2 rounded-lg w-full border animate-in shake bg-rose-500/10 text-rose-400 border-rose-500/30 shadow-[0_0_10px_rgba(244,63,94,0.2)]">{loginError}</p>}
+  
+              <div className="relative w-full mb-2">
+                <div className="w-full bg-slate-950 border-[2px] border-cyan-400 rounded-2xl h-16 flex items-center justify-center text-3xl font-black text-cyan-300 tracking-[0.1em] shadow-[0_0_15px_rgba(34,211,238,0.4),inset_0_0_10px_rgba(34,211,238,0.2)] transition-all">
+                {staffStep === 1 ? formatPhone(staffPhone) : formatPinDisplay(isConfirmingStaffPin ? confirmStaffPin : staffPin)}
+                </div>
+                {staffStep === 2 && (
+                  <button type="button" onClick={() => setShowStaffPin(!showStaffPin)} className="absolute right-4 top-1/2 -translate-y-1/2 text-cyan-600 hover:text-cyan-300 transition-colors drop-shadow-md">
+                    {showStaffPin ? <EyeOff size={24} /> : <Eye size={24} />}
                   </button>
                 )}
-                <button type="button" onClick={() => { setStaffStep(1); setStaffPhone(''); setStaffPin(''); setLoginError(''); setAttemptCount(0); }} className="text-xs font-bold text-slate-400 hover:text-cyan-400 underline transition-colors ml-auto z-10">ไม่ใช่คุณใช่ไหม?</button>
               </div>
-            )}
-
-            <div className="grid grid-cols-3 gap-3 w-full px-1">
-              {[1, 2, 3, 4, 5, 6, 7, 8, 9].map((num) => (
-                <button key={num} onClick={() => handleStaffNumpad(num.toString())} className="h-14 bg-slate-800 border-[2px] border-b-[4px] border-slate-600 hover:border-cyan-400 hover:text-cyan-300 hover:shadow-[0_0_15px_rgba(34,211,238,0.5)] active:border-b-[2px] active:translate-y-[2px] rounded-2xl text-2xl font-black text-white transition-all">{num}</button>
-              ))}
-              <button onClick={handleStaffClear} className="h-14 bg-slate-800 border-[2px] border-b-[4px] border-amber-600/70 text-amber-500 hover:border-amber-400 hover:text-amber-300 hover:shadow-[0_0_15px_rgba(251,191,36,0.5)] active:border-b-[2px] active:translate-y-[2px] rounded-2xl text-2xl font-black transition-all">C</button>
-              <button onClick={() => handleStaffNumpad('0')} className="h-14 bg-slate-800 border-[2px] border-b-[4px] border-slate-600 hover:border-cyan-400 hover:text-cyan-300 hover:shadow-[0_0_15px_rgba(34,211,238,0.5)] active:border-b-[2px] active:translate-y-[2px] rounded-2xl text-2xl font-black text-white transition-all">0</button>
-              <button onClick={handleStaffDelete} className="h-14 bg-slate-800 border-[2px] border-b-[4px] border-rose-700/70 text-rose-500 hover:border-rose-400 hover:text-rose-300 hover:shadow-[0_0_15px_rgba(244,63,94,0.5)] active:border-b-[2px] active:translate-y-[2px] rounded-2xl flex items-center justify-center transition-all">
-                <X size={24} className="drop-shadow-md" />
-              </button>
+  
+              {staffStep === 2 && (
+                <div className="w-full flex justify-between items-center px-1 -mt-1 mb-1">
+                  {attemptCount >= 3 && (
+                    <button type="button" onClick={async () => {
+                      if (!staffEmail) return;
+                      setIsLoggingIn(true);
+                      try {
+                        await sendPasswordResetEmail(auth, staffEmail);
+                        setLoginError('ระบบได้ส่งลิงก์รีเซ็ต PIN ไปที่อีเมลหน่วยงานของท่านแล้วค่ะ');
+                      } catch (err) {
+                        setLoginError('ไม่สามารถส่งอีเมลรีเซ็ตได้');
+                      } finally {
+                        setIsLoggingIn(false);
+                      }
+                    }} disabled={isLoggingIn} className="text-xs font-bold text-rose-400 hover:text-rose-300 underline transition-colors animate-pulse z-10">
+                      ลืมรหัส PIN ใช่หรือไม่?
+                    </button>
+                  )}
+                  <button type="button" onClick={() => { setStaffStep(1); setStaffPhone(''); setStaffPin(''); setLoginError(''); setAttemptCount(0); }} className="text-xs font-bold text-slate-400 hover:text-cyan-400 underline transition-colors ml-auto z-10">ไม่ใช่คุณใช่ไหม?</button>
+                </div>
+              )}
+  
+              <div className={`grid grid-cols-3 gap-3 w-full px-1 transition-all duration-500 ${isLoggingIn ? 'opacity-0 scale-90 pointer-events-none absolute' : 'opacity-100 scale-100 relative'}`}>
+                {[1, 2, 3, 4, 5, 6, 7, 8, 9].map((num) => (
+                  <button key={num} type="button" onClick={() => handleStaffNumpad(num.toString())} className="h-16 flex items-center justify-center bg-slate-900/60 backdrop-blur-md border border-slate-600/50 rounded-2xl text-3xl font-black text-slate-200 transition-all duration-300 hover:bg-cyan-500/10 hover:border-cyan-400 hover:text-cyan-300 hover:shadow-[0_0_20px_rgba(34,211,238,0.6),inset_0_0_10px_rgba(34,211,238,0.2)] active:scale-90 active:bg-cyan-500 active:text-white">
+                    {num}
+                  </button>
+                ))}
+                <button type="button" onClick={handleStaffClear} className="h-16 flex items-center justify-center bg-slate-900/60 backdrop-blur-md border border-slate-600/50 rounded-2xl text-3xl font-black text-amber-500 transition-all duration-300 hover:bg-amber-500/10 hover:border-amber-400 hover:text-amber-400 hover:shadow-[0_0_20px_rgba(245,158,11,0.6),inset_0_0_10px_rgba(245,158,11,0.2)] active:scale-90 active:bg-amber-500 active:text-white">
+                  C
+                </button>
+                <button type="button" onClick={() => handleStaffNumpad('0')} className="h-16 flex items-center justify-center bg-slate-900/60 backdrop-blur-md border border-slate-600/50 rounded-2xl text-3xl font-black text-slate-200 transition-all duration-300 hover:bg-cyan-500/10 hover:border-cyan-400 hover:text-cyan-300 hover:shadow-[0_0_20px_rgba(34,211,238,0.6),inset_0_0_10px_rgba(34,211,238,0.2)] active:scale-90 active:bg-cyan-500 active:text-white">
+                  0
+                </button>
+                <button type="button" onClick={handleStaffDelete} className="h-16 flex items-center justify-center bg-slate-900/60 backdrop-blur-md border border-slate-600/50 rounded-2xl transition-all duration-300 hover:bg-rose-500/10 hover:border-rose-500 hover:text-rose-400 hover:shadow-[0_0_20px_rgba(225,29,72,0.6),inset_0_0_10px_rgba(225,29,72,0.2)] active:scale-90 active:bg-rose-600 active:text-white text-rose-500">
+                  <X size={32} className="drop-shadow-md stroke-[3px]" />
+                </button>
+              </div>
+  
+              {isLoggingIn && (
+                <div className="w-full h-[256px] flex flex-col items-center justify-center animate-in zoom-in duration-300">
+                  <div className="relative w-20 h-20 mb-5">
+                    <div className="absolute inset-0 border-[4px] border-cyan-500/20 rounded-full"></div>
+                    <div className="absolute inset-0 border-[4px] border-cyan-400 border-t-transparent rounded-full animate-spin"></div>
+                    <ShieldCheck className="absolute inset-0 m-auto text-cyan-400 animate-pulse w-8 h-8" />
+                  </div>
+                  <span className="text-cyan-400 font-black tracking-widest text-[18px] drop-shadow-[0_0_10px_rgba(34,211,238,0.8)] animate-pulse">
+                    ตรวจสอบสิทธิ์...
+                  </span>
+                </div>
+              )}
+  
             </div>
-
-            <button onClick={staffStep === 1 ? handleStaffPhoneNext : handleStaffPinSubmit} disabled={isLoggingIn} className="w-full mt-3 h-14 rounded-2xl font-black text-white text-xl bg-gradient-to-r from-cyan-600 to-blue-600 border-[2px] border-cyan-400 shadow-[0_0_20px_rgba(34,211,238,0.5)] active:scale-95 transition-all duration-300">
-            {isLoggingIn 
-                ? 'กำลังตรวจสอบ...' 
-                : (staffStep === 1 
-                    ? 'ถัดไป' 
-                    : (isNewStaff && !isConfirmingStaffPin ? 'ถัดไป' : (isNewStaff ? 'ยืนยันรหัสผ่าน' : 'เข้าสู่ระบบ')))}
-            </button>
-
           </div>
-        </div>
-      )}
-
-    </div>
-  );
-}
+        )}
+  
+      </div>
+    );
+  }
 
 
 
@@ -6276,20 +6296,12 @@ export default function App() {
   };
 
   const handleGoHome = async () => {
-    // 🌟 ฟันธง: สั่ง SignOut เคลียร์คราบ Login ก่อนกลับหน้าแรก เพื่อความปลอดภัยของระบบ 1,000,000%
-    try {
-      await signOut(auth);
-    } catch (error) {
-      console.error("SignOut Error", error);
-    }
+    try { await signOut(auth); } catch (error) { console.error("SignOut Error", error); }
     setHasStarted(false);
     sessionStorage.removeItem('hasStarted');
     sessionStorage.removeItem('activeTab');
     sessionStorage.removeItem('role'); 
-    
-    // 🌟 ฟันธง: ล้างสมองเครื่องให้สะอาดหมดจด ป้องกันอาการชื่อค้าง/กำลังโหลด 100%
-    localStorage.removeItem('gse_remembered_phone');
-    localStorage.removeItem('gse_remembered_name');
+    // 🌟 ฟันธง: ปลดล็อก! ไม่ต้องลบ localStorage แล้ว เพื่อให้แอปจำเบอร์ไว้ตลอดกาลเหมือนแอปธนาคาร
   };
 
   return (
