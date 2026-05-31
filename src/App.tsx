@@ -6000,18 +6000,17 @@ function LandingPage({ onStart }) {
               </p>
             </div>
 
-            {/* 🌟 4. คืนชีพน้องมาสคอต: มือถือใช้ (max-h-full), PC กลับมาใช้ (w-[50%]) สวยงามเหมือนเดิม! */}
+            {/* 🌟 4. ฟันธง: แก้มาสคอตทับปุ่มในมือถือ (ปลด minHeight จัดให้อยู่กึ่งกลาง) โหมด PC คงเดิม 100% */}
             <div 
-              className="flex-1 min-h-0 md:flex-none flex items-end md:items-start justify-center w-full md:w-[50%] relative z-30 mx-auto mb-2 md:mb-4 pointer-events-none drop-shadow-[0_20px_30px_rgba(0,0,0,0.9)] transition-all duration-500" 
-              style={{ maxWidth: '280px', minHeight: '150px' }}
+              className="flex-1 min-h-0 md:min-h-[150px] md:flex-none flex items-center md:items-start justify-center w-full md:w-[50%] relative z-30 mx-auto mb-2 md:mb-4 pointer-events-none drop-shadow-[0_20px_30px_rgba(0,0,0,0.9)] transition-all duration-500" 
+              style={{ maxWidth: '280px' }}
             >
               <img 
                 src="/mascot.webp" 
                 alt="Mascot" 
-                className="max-h-full w-auto md:w-full md:h-auto object-contain object-bottom hover:scale-105 transition-transform duration-500" 
+                className="max-h-full w-auto md:w-full md:h-auto object-contain object-center md:object-bottom hover:scale-105 transition-transform duration-500" 
               />
             </div>
-          </div>
 
           <div className="shrink-0 w-full flex flex-col gap-2.5 md:gap-3.5 relative z-10 transition-all duration-500">
             
