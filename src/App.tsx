@@ -699,7 +699,8 @@ const employeeList = [
 
 const techMapping = {
   "ภารกิจด้านจานสายอากาศ": { name: "นายทศพล ชินนิวัฒน์", phone: "08-1513-7854" },
-  "ภารกิจด้านคอมพิวเตอร์และไอที": { name: "นายธนกาญจน์ ไตรปิฎก", phone: "06-2463-5544" },
+  "ภารกิจด้านคอมพิวเตอร์แม่ข่าย-THEOS-2": { name: "นายธนกาญจน์ ไตรปิฎก", phone: "06-2463-5544" },
+  "ภารกิจด้านคอมพิวเตอร์แม่ข่าย-THEOS": { name: 'นายชุติพงษ์ ลาวงศ์เกิด', phone: '09-8938-9839',},
   "ภารกิจด้านโครงสร้างพื้นฐานไฟฟ้า": { name: "นายประมินทร์ พิชิตการค้า", phone: "08-1135-1599" },
   "ภารกิจด้านการให้บริการโครงการ SSC": { name: "นายนรัตว์ ศรีสวัสดิ์พงษ์", phone: "08-6361-4399" },
 
@@ -715,22 +716,26 @@ const equipmentCategories = {
     'Antenna-7.3m.',
     'Satellites Receiving System'
   ],
-  'ภารกิจด้านคอมพิวเตอร์แม่ข่ายและไอที': [
+  'ภารกิจด้านคอมพิวเตอร์แม่ข่าย-THEOS': [
     'THEOS-DPF',
     'THEOS-STORNEXT',
     'THEOS-CGS',
     'THEOS-FDS',
     'THEOS-MPC',
-    'THEOS2-IGS',
-    'THEOS2-MGS',
-    'THEOS2-CGS',
-    'THEOS2-FDS',
-    'THEOS2-GIPS',
     'RS2-AMS/PGS/CUDOS',
     'RS2-DAS/NSART/FTD',
     'JPSS/MODIS',
     'Cosmo-SkyMED'
   ],
+
+  'ภารกิจด้านคอมพิวเตอร์แม่ข่าย-THEOS-2': [
+    'THEOS2-IGS',
+    'THEOS2-MGS',
+    'THEOS2-CGS',
+    'THEOS2-FDS',
+    'THEOS2-GIPS',
+  ],
+
   'ภารกิจด้านโครงสร้างพื้นฐานไฟฟ้า': [
     'UPS-120kVA-VIASAT',
     'UPS-120kVA-Building-1',
@@ -2870,12 +2875,28 @@ const executeRatingSubmit = async () => {
           {ThaiDateFormatter(sysTime)}
         </div>
 
-       {/* 🌟 วิดเจ็ตแสดงวิศวกรเวรประจำการ (แปะบนสุด) */}
-       {(() => {
+
+      {/* 🌟 วิดเจ็ตแสดงวิศวกรเวรประจำการ (แปะบนสุด) */}
+      {(() => {
           const today = new Date(sysTime);
           const todayStr = `${today.getFullYear()}-${String(today.getMonth() + 1).padStart(2, '0')}-${String(today.getDate()).padStart(2, '0')}`;
           const sscRosterForDate = allRosters.find(r => r.date === todayStr);
-          const dutyPerson = sscRosterForDate ? { techName: sscRosterForDate.techName, techPhone: sscRosterForDate.techPhone, isHoliday: sscRosterForDate.isHoliday, holidayName: sscRosterForDate.holidayName } : null;
+          
+          // 🌟 ฟันธง: สมองกลค้นหาเบอร์โทรช่างเวร SSC จากฐานข้อมูล technicianList โดยอัตโนมัติ!
+          let autoSscPhone = sscRosterForDate?.techPhone;
+          if (sscRosterForDate?.techName) {
+            const foundTech = technicianList.find(t => t.name === sscRosterForDate.techName);
+            if (foundTech && foundTech.phone && foundTech.phone !== '-') {
+              autoSscPhone = foundTech.phone;
+            }
+          }
+
+          const dutyPerson = sscRosterForDate ? { 
+            techName: sscRosterForDate.techName, 
+            techPhone: autoSscPhone, 
+            isHoliday: sscRosterForDate.isHoliday, 
+            holidayName: sscRosterForDate.holidayName 
+          } : null;
 
           const dayOfWeek = today.getDay();
           const daysThai = ['วันอาทิตย์', 'วันจันทร์', 'วันอังคาร', 'วันพุธ', 'วันพฤหัสบดี', 'วันศุกร์', 'วันเสาร์'];
@@ -2891,44 +2912,75 @@ const executeRatingSubmit = async () => {
             6: 'text-violet-400 drop-shadow-[0_0_8px_rgba(167,139,250,0.8)]'
           };
 
-          // 🌟 2. ถ้ามีเวรจริงๆ (วันหยุด/วันพิเศษ) -> ใช้กรอบเรืองแสงแบบเดิม
-          if (dutyPerson?.techName) {
-            let wTheme = { bg: 'bg-purple-500/20', border: 'border-purple-500/80', textHead: 'text-purple-400', textName: 'text-purple-400', glow: 'shadow-[0_0_30px_rgba(168,85,247,0.3)]', iconGlow: 'shadow-[0_0_10px_rgba(168,85,247,1)]', iconText: 'text-purple-400', dayLabel: daysThai[dayOfWeek] };
-            
-            if (dutyPerson?.isHoliday) {
-              wTheme = { bg: 'bg-orange-500/20', border: 'border-orange-500/80', textHead: 'text-orange-400', textName: 'text-orange-400', glow: 'shadow-[0_0_30px_rgba(249,115,22,0.3)]', iconGlow: 'shadow-[0_0_10px_rgba(249,115,22,1)]', iconText: 'text-orange-400', dayLabel: `วันหยุดนักขัตฤกษ์ (${dutyPerson.holidayName})` };
-            } else if (dayOfWeek === 0) {
-              wTheme = { bg: 'bg-rose-500/20', border: 'border-rose-500/80', textHead: 'text-rose-400', textName: 'text-rose-400', glow: 'shadow-[0_0_30px_rgba(225,29,72,0.3)]', iconGlow: 'shadow-[0_0_10px_rgba(225,29,72,1)]', iconText: 'text-rose-400', dayLabel: 'วันอาทิตย์' };
-            } else if (dayOfWeek === 6) {
-              wTheme = { bg: 'bg-sky-500/20', border: 'border-sky-500/80', textHead: 'text-sky-400', textName: 'text-sky-400', glow: 'shadow-[0_0_30px_rgba(14,165,233,0.3)]', iconGlow: 'shadow-[0_0_10px_rgba(14,165,233,1)]', iconText: 'text-sky-400', dayLabel: 'วันเสาร์' };
-            }
+         // 🌟 2. ถ้ามีเวรจริงๆ (วันหยุด/วันพิเศษ) -> ใช้กรอบเรืองแสงแบบเดิม (อัปเกรดเป็น Smart Card)
+         if (dutyPerson?.techName) {
+          let wTheme = { bg: 'bg-purple-500/20', border: 'border-purple-500/80', textHead: 'text-purple-400', textName: 'text-purple-400', glow: 'shadow-[0_0_30px_rgba(168,85,247,0.3)]', iconGlow: 'shadow-[0_0_10px_rgba(168,85,247,1)]', iconText: 'text-purple-400', dayLabel: daysThai[dayOfWeek] };
+          
+          if (dutyPerson?.isHoliday) {
+            wTheme = { bg: 'bg-orange-500/20', border: 'border-orange-500/80', textHead: 'text-orange-400', textName: 'text-orange-400', glow: 'shadow-[0_0_30px_rgba(249,115,22,0.3)]', iconGlow: 'shadow-[0_0_10px_rgba(249,115,22,1)]', iconText: 'text-orange-400', dayLabel: `วันหยุดนักขัตฤกษ์ (${dutyPerson.holidayName})` };
+          } else if (dayOfWeek === 0) {
+            wTheme = { bg: 'bg-rose-500/20', border: 'border-rose-500/80', textHead: 'text-rose-400', textName: 'text-rose-400', glow: 'shadow-[0_0_30px_rgba(225,29,72,0.3)]', iconGlow: 'shadow-[0_0_10px_rgba(225,29,72,1)]', iconText: 'text-rose-400', dayLabel: 'วันอาทิตย์' };
+          } else if (dayOfWeek === 6) {
+            wTheme = { bg: 'bg-sky-500/20', border: 'border-sky-500/80', textHead: 'text-sky-400', textName: 'text-sky-400', glow: 'shadow-[0_0_30px_rgba(14,165,233,0.3)]', iconGlow: 'shadow-[0_0_10px_rgba(14,165,233,1)]', iconText: 'text-sky-400', dayLabel: 'วันเสาร์' };
+          }
 
-            return (
-              <div className={`mb-2 mt-4 p-4 md:p-6 rounded-2xl border-[2px] border-solid ${wTheme.border} bg-slate-900/90 ${wTheme.glow} flex items-center justify-between transition-all hover:brightness-110`}>
-                <div className="flex items-center gap-4">
-                  <div className="relative">
-                    <div className={`w-12 h-12 md:w-16 md:h-16 rounded-xl ${wTheme.bg} flex items-center justify-center border ${wTheme.border}`}>
-                      <User className={`w-6 h-6 md:w-8 md:h-8 ${wTheme.iconText}`} />
-                    </div>
-                    <span className={`absolute -top-1 -right-1 w-3 h-3 md:w-4 md:h-4 bg-emerald-500 rounded-full animate-pulse border-2 border-slate-900 ${wTheme.iconGlow}`}></span>
+          return (
+            <div className={`relative bg-slate-900/80 backdrop-blur-xl border-[2px] border-solid ${wTheme.border} rounded-[1.5rem] p-5 md:p-8 ${wTheme.glow} mt-4 mb-2 overflow-hidden`}>
+              
+              {/* แสง Flare พื้นหลัง */}
+              <div className={`absolute -top-20 -left-20 w-40 h-40 ${wTheme.bg} blur-[60px] rounded-full pointer-events-none z-0`}></div>
+
+              {/* 🌟 Header กล่องเวร SSC ไร้รอยต่อ */}
+              <div className="flex items-center gap-3 md:gap-4 mb-6 md:mb-8 pb-4 border-b-2 border-dashed border-slate-600/50 relative z-10">
+                <div className={`bg-slate-950 border-[2px] border-solid ${wTheme.border} p-2 md:p-3 rounded-xl shadow-sm relative`}>
+                  <User className={`${wTheme.iconText} w-5 h-5 md:w-7 md:h-7`} strokeWidth={2.5} />
+                  <span className={`absolute -top-1 -right-1 w-2.5 h-2.5 md:w-3 md:h-3 bg-emerald-500 rounded-full animate-pulse border-2 border-slate-900 ${wTheme.iconGlow}`}></span>
+                </div>
+                <h2 className={`text-[16px] md:text-[22px] font-black ${wTheme.textHead} tracking-widest uppercase drop-shadow-sm`}>
+                  เจ้าหน้าที่เวร SSC | {wTheme.dayLabel}
+                </h2>
+              </div>
+
+              {/* 🌟 สมาร์ทการ์ด: ข้อมูลเวร SSC */}
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-3 md:gap-5 relative z-10 animate-in fade-in zoom-in-95 duration-500">
+                
+                {/* การ์ด: ชื่อ-นามสกุล */}
+                <div className={`bg-slate-950/50 border ${wTheme.border.replace('80', '30')} rounded-2xl p-4 flex items-center gap-4 shadow-inner`}>
+                  <div className={`w-10 h-10 md:w-12 md:h-12 rounded-full ${wTheme.bg} flex items-center justify-center border ${wTheme.border.replace('80', '50')} shrink-0`}>
+                     <User className={`${wTheme.iconText} w-5 h-5 md:w-6 md:h-6`} />
                   </div>
-                  <div>
-                    <p className={`text-[12px] md:text-[14px] font-bold uppercase tracking-widest text-slate-400`}>
-                      เจ้าหน้าที่เวร SSC | <span className={`${wTheme.textHead}`}>{wTheme.dayLabel}</span>
-                    </p>
-                    <p className={`text-[17px] md:text-[22px] font-black ${wTheme.textName} drop-shadow-md mt-0.5`}>
+                  <div className="overflow-hidden">
+                    <p className={`text-[11px] md:text-[13px] font-bold ${wTheme.textHead} opacity-70 uppercase tracking-widest mb-0.5`}>ชื่อ-นามสกุล (เวรประจำวัน)</p>
+                    <p className={`text-[16px] md:text-[20px] font-black ${wTheme.textName} drop-shadow-sm truncate`}>
                       {dutyPerson.techName}
                     </p>
                   </div>
                 </div>
-                {dutyPerson.techPhone && dutyPerson.techPhone !== '-' && (
-                  <a href={`tel:${dutyPerson.techPhone.replace(/\D/g, '')}`} className="bg-blue-600 hover:bg-blue-500 text-white p-3 md:p-4 rounded-xl shadow-[0_0_15px_rgba(37,99,235,0.5)] transition-all hover:scale-105 active:scale-95">
-                    <Phone className="w-6 h-6 md:w-8 md:h-8" />
-                  </a>
-                )}
+
+                {/* การ์ด: เบอร์โทรศัพท์ */}
+                <div className={`bg-slate-950/50 border ${wTheme.border.replace('80', '30')} rounded-2xl p-4 flex items-center gap-4 shadow-inner`}>
+                  <div className={`w-10 h-10 md:w-12 md:h-12 rounded-full ${wTheme.bg} flex items-center justify-center border ${wTheme.border.replace('80', '50')} shrink-0`}>
+                     <Phone className={`${wTheme.iconText} w-5 h-5 md:w-6 md:h-6`} />
+                  </div>
+                  <div className="overflow-hidden flex-1">
+                    <p className={`text-[11px] md:text-[13px] font-bold ${wTheme.textHead} opacity-70 uppercase tracking-widest mb-0.5`}>เบอร์โทรศัพท์ (ติดต่อด่วน)</p>
+                    {dutyPerson.techPhone && dutyPerson.techPhone !== '-' ? (
+                       <a href={`tel:${dutyPerson.techPhone.replace(/\D/g, '')}`} className={`text-[16px] md:text-[20px] font-black font-mono tracking-wider ${wTheme.textName} drop-shadow-sm truncate hover:opacity-80 transition-opacity block`}>
+                         {formatDisplayPhone(dutyPerson.techPhone)}
+                       </a>
+                    ) : (
+                       <p className={`text-[16px] md:text-[20px] font-black font-mono tracking-wider text-slate-500 drop-shadow-sm truncate`}>
+                         ไม่มีข้อมูล
+                       </p>
+                    )}
+                  </div>
+                </div>
+
               </div>
-            );
-          }
+            </div>
+          );
+        }
+
 
           // 🌟 3. โหมดวันธรรมดา (ไม่มีเวร)
           return (
@@ -2947,7 +2999,6 @@ const executeRatingSubmit = async () => {
             </div>
           );
         })()}
-
 
         {/* ================= กรอบที่ 1: ข้อมูลผู้แจ้งซ่อม (ธีม Emerald 🟢) ================= */}
         <div className="relative bg-slate-900/80 backdrop-blur-xl border-[2px] border-solid border-emerald-500/60 rounded-[1.5rem] p-5 md:p-8 shadow-[0_0_30px_rgba(16,185,129,0.5)] mt-6 overflow-hidden">
@@ -3130,14 +3181,14 @@ const executeRatingSubmit = async () => {
                   name="room"
                   value={formData.room}
                   onChange={handleInputChange}
+                  autoComplete="off" 
                   className={`w-full bg-slate-900 border-[2px] border-solid ${
                     formErrors.room
                       ? 'border-rose-500 ring-1 ring-rose-500/30'
                       : 'border-orange-500/30 focus:border-orange-400 shadow-[0_0_15px_rgba(249,115,22,0.2)] focus:shadow-[0_0_25px_rgba(249,115,22,0.8)]'
-                  } rounded-2xl px-5 py-4 md:py-5 text-sm md:text-[16px] font-bold text-orange-100 outline-none transition-all duration-300 placeholder:text-slate-500`}
+                  } rounded-2xl px-5 py-4 md:py-5 text-sm md:text-[16px] font-bold text-orange-100 outline-none transition-all duration-300 placeholder:text-slate-500 [&:-webkit-autofill]:bg-slate-900 [&:-webkit-autofill]:text-orange-100 [&:-webkit-autofill]:shadow-[0_0_0_1000px_#0f172a_inset]`}
                   placeholder="ระบุสถานที่หรือห้อง"
                 />
-
                 
                 {formErrors.room && (
                   <div className="text-rose-500 text-[11px] md:text-[13px] font-bold mt-1.5 ml-1 animate-in fade-in">
@@ -3162,38 +3213,39 @@ const executeRatingSubmit = async () => {
                 </div>
               </div>
 
-              {/* 🌟 ฟันธง: เปลี่ยนเป็น grid-cols-4 md:grid-cols-5 รูปจะเล็กลงและประหยัดพื้นที่ทันที */}
-              <div className={formData.images.length === 0 ? "flex w-full" : "grid grid-cols-4 md:grid-cols-5 gap-2 md:gap-3"}>
+
+              {/* 🌟 ฟันธง: ปรับลดขนาดรูปภาพให้เล็กลง ประหยัดพื้นที่ โดยใช้ grid-cols-5 md:grid-cols-7 */}
+              <div className={formData.images.length === 0 ? "flex w-full" : "grid grid-cols-5 sm:grid-cols-6 md:grid-cols-7 gap-2 md:gap-3"}>
                 
                 {formData.images.map((img, i) => (
                   <div 
                     key={i} 
-                    className="relative aspect-square rounded-xl md:rounded-2xl overflow-hidden border-[2px] border-orange-400/80 shadow-[0_0_15px_rgba(249,115,22,0.3)] group cursor-pointer"
-                    onClick={() => setLightboxImg(img)} /* 🌟 ฟันธง: เพิ่มคำสั่งกดปุ๊บ ซูมรูปปั๊บ! */
+                    className="relative aspect-square rounded-xl overflow-hidden border-[2px] border-orange-400/80 shadow-[0_0_15px_rgba(249,115,22,0.3)] group cursor-pointer"
+                    onClick={() => setLightboxImg(img)} 
                   >
                     <img src={img} className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500" alt="รูปประกอบ" />
                     <button
                       type="button"
                       onClick={(e) => {
-                        e.stopPropagation(); /* 🌟 สำคัญมาก: ตัวกันชนไม่ให้กดปุ่ม X แล้วกลายเป็นซูมรูป */
+                        e.stopPropagation(); 
                         setFormData({ ...formData, images: formData.images.filter((_, idx) => idx !== i) });
                       }}
-                      className="absolute top-1 right-1 md:top-1.5 md:right-1.5 bg-rose-500/90 backdrop-blur-sm text-white p-1 md:p-1.5 rounded-full shadow-lg transition-all active:scale-75 hover:bg-rose-600 border border-rose-400 z-10"
+                      className="absolute top-1 right-1 bg-rose-500/90 backdrop-blur-sm text-white p-1 rounded-full shadow-lg transition-all active:scale-75 hover:bg-rose-600 border border-rose-400 z-10"
                     >
-                      <X size={12} className="md:w-3 md:h-3 stroke-[3px]" />
+                      <X size={12} className="w-3 h-3 md:w-3.5 md:h-3.5 stroke-[3px]" />
                     </button>
                   </div>
                 ))}
                 
-
-              {/* 🎯 ปุ่มเรียกเมนูเลือกรูป (ปรับไซส์ให้เข้ากับรูปที่เล็กลง) */}
-              <div onClick={() => setShowImagePicker(true)} className={`border-2 border-dashed border-cyan-300/80 bg-cyan-950/20 hover:bg-orange-900/40 hover:border-orange-400 rounded-xl md:rounded-2xl flex flex-col items-center justify-center transition-all duration-300 cursor-pointer shadow-[inset_0_0_20px_rgba(6,182,212,0.8)] hover:shadow-[0_0_25px_rgba(249,115,22,0.5)] group ${formData.images.length === 0 ? 'w-full h-36 md:h-48' : 'aspect-square'}`}>
-                <Camera size={formData.images.length === 0 ? 50 : 26} className="text-white-300/70 group-hover:text-orange-400 mb-1 transition-all" />
-                <span className="font-black tracking-widest text-cyan-300/80 group-hover:text-cyan-300 text-[10px] md:text-[14px]">
-                  {formData.images.length === 0 ? 'คลิกเพื่อแนบรูปภาพ' : 'เพิ่มรูป'}
+              {/* 🎯 ปุ่มเรียกเมนูเลือกรูป (ปรับให้ขนาดเล็กลงเข้ากับตาราง) */}
+              <div onClick={() => setShowImagePicker(true)} className={`border-2 border-dashed border-cyan-300/80 bg-cyan-950/20 hover:bg-orange-900/40 hover:border-orange-400 rounded-xl flex flex-col items-center justify-center transition-all duration-300 cursor-pointer shadow-[inset_0_0_20px_rgba(6,182,212,0.8)] hover:shadow-[0_0_25px_rgba(249,115,22,0.5)] group ${formData.images.length === 0 ? 'w-full h-24 md:h-32' : 'aspect-square'}`}>
+                <Camera size={formData.images.length === 0 ? 32 : 20} className="text-white-300/70 group-hover:text-orange-400 mb-1 transition-all" />
+                <span className="font-black tracking-widest text-cyan-300/80 group-hover:text-cyan-300 text-[9px] md:text-[12px]">
+                  {formData.images.length === 0 ? 'คลิกแนบรูปภาพ' : 'เพิ่มรูป'}
                 </span>
               </div>
             </div> {/* ปิด div ของตารางรูปภาพ */}
+
 
       {/* ======================================================= */}
       {/* 🌟 จุดเริ่มต้น: หน้าต่างป๊อบอัพเลือกรูปภาพ (Hybrid: Mobile เรืองแสง + PC วูบวาบ 1,000,000%) */}
@@ -3529,33 +3581,31 @@ const renderTracking = () => (
             />
           </div>
 
-     {/* 2. สวิตช์กรองสถานะงาน (เพิ่มขนาด เปลี่ยนสี ตัวอักษร ปุ่ม ทั้งหมด รอดำเนินการ กำลังซ่อม) */}
+
+     {/* 2. สวิตช์กรองสถานะงาน (เพิ่มขนาด เปลี่ยนสี ตัวอักษร ปุ่ม ทั้งหมด รอดำเนินการ กำลังซ่อม) */}
      <div className="flex gap-2 md:gap-4 overflow-x-auto py-1 md:py-2 snap-x w-full [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]">
         {[
-            { id: 'all', label: 'ทั้งหมด' },
-            { id: 'pending', label: 'รอดำเนินการ' },
-            { id: 'fixing', label: 'กำลังซ่อม' },
-            { id: 'on_hold', label: 'แจ้งขัดข้อง' },
-            { id: 'verify', label: 'รอยืนยัน' },
-            { id: 'cancelled', label: 'ยกเลิก' },
-            { id: 'completed', label: 'เสร็จสิ้น' },
-          ].map((f) => (
-            <button
-              key={f.id}
-              onClick={() => {
-                setFilterStatus(f.id);
-                setSearchTerm('');
-              }}
-             className={`flex-none md:flex-1 px-4 md:px-0 py-2 md:py-3.5 text-[14px] md:text-[20px] font-black rounded-lg md:rounded-xl transition-all duration-300 snap-center whitespace-nowrap flex items-center justify-center ${
-                filterStatus === f.id
-                  ? 'bg-gradient-to-r from-orange-500 to-amber-500 text-white border-[2px] border-solid border-orange-300 shadow-[0_0_15px_rgba(249,115,22,0.8)] scale-[1.05] z-10' 
-                  : 'bg-slate-900 text-cyan-300 border-[2px] border-solid border-cyan-400/30 shadow-[0_0_8px_rgba(34,211,238,0.4)] hover:bg-cyan-900/60 hover:text-white hover:border-cyan-300 hover:shadow-[0_0_20px_rgba(34,211,238,1)] hover:-translate-y-1' 
-              }`}
-            >
-              {f.label}
-            </button>
-          ))}
-      </div>
+          { id: 'all', label: 'ทั้งหมด' },
+          { id: 'pending', label: 'รอดำเนินการ' },
+          { id: 'fixing', label: 'กำลังซ่อม' },
+          { id: 'on_hold', label: 'แจ้งขัดข้อง' },
+          { id: 'verify', label: 'รอยืนยัน' },
+          { id: 'cancelled', label: 'ยกเลิก' },
+          { id: 'completed', label: 'เสร็จสิ้น' },
+        ].map((f) => (
+          <button
+            key={f.id}
+            onClick={() => {
+              setFilterStatus(f.id);
+              setSearchTerm('');
+            }}
+            className={`flex-none md:flex-1 px-4 md:px-0 py-2 md:py-3.5 text-[14px] md:text-[20px] font-black rounded-lg md:rounded-xl transition-all duration-300 snap-center whitespace-nowrap flex items-center justify-center ${filterStatus === f.id ? 'bg-gradient-to-r from-orange-500 to-amber-500 text-white border-[2px] border-solid border-orange-300 shadow-[0_0_15px_rgba(249,115,22,0.8)] scale-[1.05] z-10' : 'bg-slate-900 text-cyan-300 border-[2px] border-solid border-cyan-400/30 shadow-[0_0_8px_rgba(34,211,238,0.4)] hover:bg-cyan-900/60 hover:text-white hover:border-cyan-300 hover:shadow-[0_0_20px_rgba(34,211,238,1)] hover:-translate-y-1'}`}
+          >
+            {f.label}
+          </button>
+        ))}
+     </div>
+
 
       {/* 3. ปุ่มกรองเวลา (ฟันธง: จัดเรียงให้ขอบซ้าย-ขวา ตรงเป๊ะกับปุ่มสถานะด้านบน 100%) */}
       <div className="flex gap-2 md:gap-4 md:mt-2 w-full">
@@ -4201,16 +4251,17 @@ const renderTracking = () => (
         {t.images && t.images.length > 0 && (
           <div className="bg-slate-100 border-2 border-solid border-emerald-500 p-4 md:p-6 rounded-2xl md:rounded-[1.5rem] shadow-sm w-full mt-4 md:mt-6">
             <span className="text-[14px] md:text-[22px] font-black text-rose-700 mb-3 md:mb-4 flex items-center gap-2">
-               📸 ภาพประกอบการแจ้งซ่อม:
+                📸 ภาพประกอบการแจ้งซ่อม:
             </span>
-            <div className="grid grid-cols-3 gap-2 md:gap-4 mt-2">
+            {/* 🌟 ฟันธง: ย่อขนาดรูปภาพโดยปรับ Grid เป็น 4-6 คอลัมน์ ประหยัดพื้นที่แบบ 1,000,000% */}
+            <div className="grid grid-cols-4 sm:grid-cols-5 md:grid-cols-6 gap-2 md:gap-3 mt-2">
               {t.images.map((img, i) => (
                 <img 
                   key={i} 
                   src={img} 
                   alt={`ภาพประกอบ ${i+1}`} 
-                  className="rounded-lg w-full aspect-square object-cover border border-slate-200 shadow-sm hover:scale-105 transition-transform cursor-pointer" 
-                  onClick={() => setLightboxImg(img)} /* 🌟 ฟันธง: เติมคำสั่งนี้ให้กดแล้วซูมได้! */
+                  className="rounded-lg md:rounded-xl w-full aspect-square object-cover border border-slate-300 shadow-sm hover:scale-110 transition-transform cursor-pointer" 
+                  onClick={() => setLightboxImg(img)} 
                 />
               ))}
             </div>
@@ -4282,7 +4333,7 @@ const renderTracking = () => (
                         </div>
                       </div>
           
-                      {/* 🛠️ การ์ด 2: ผู้รับผิดชอบหลัก */}
+                      {/* 🛠️ การ์ด 2: ผู้รับผิดชอบหลัก (อัปเกรดมาตรฐาน Helpdesk ระดับโลก) */}
                       <div className="bg-orange-50/40 border-2 border-solid border-orange-400 p-4 md:p-6 rounded-2xl md:rounded-[1.5rem] shadow-sm flex flex-col w-full transition-all hover:shadow-md">
                         <span className="text-[16px] md:text-[20px] font-black text-orange-600 mb-2 md:mb-4 flex items-center gap-1.5 md:gap-2 uppercase tracking-wider">
                           <Wrench className="w-5 h-5 md:w-6 md:h-6" /> ผู้รับผิดชอบหลัก
@@ -4290,9 +4341,9 @@ const renderTracking = () => (
                         
                         <div className="flex flex-col mb-3">
                           <span className="font-black text-orange-950 flex items-center gap-2 text-[16px] md:text-[28px]">
-                            {t.techName ? String(t.techName) : "รอดำเนินการ"}
+                            {/* 🌟 ฟันธง: โชว์ชื่อช่างเสมอ ถ้าไม่มีให้ขึ้นว่า ทีมช่าง ฝวด. แทนคำว่ารอเจ้าหน้าที่ */}
+                            {t.techName && t.techName !== 'รอเจ้าหน้าที่รับงาน' ? String(t.techName) : "ทีมช่าง ฝวด."}
                           </span>
-                          {/* 🌟 ฟันธง: เติมภารกิจที่รับผิดชอบ เพื่อไม่ให้กล่องโล่งในโหมด PC */}
                           {t.equipmentCategory && (
                             <span className="text-[12px] md:text-[18px] font-bold text-orange-700/80 mt-1 md:mt-2">
                               รับผิดชอบ: {t.equipmentCategory}
@@ -4301,7 +4352,7 @@ const renderTracking = () => (
                         </div>
           
                         {/* รายละเอียด (เบอร์โทร) */}
-                        <div className="flex flex-col md:flex-row md:items-center justify-end mt-auto pt-3 border-t-[1.5px] border-dashed border-orange-400/50 gap-3">
+                        <div className="flex flex-col md:flex-row md:items-center justify-between mt-auto pt-3 border-t-[1.5px] border-dashed border-orange-400/50 gap-3">
                           {t.techPhone && t.techPhone !== '-' && t.techPhone !== 'N/A' ? (
                             <a href={`tel:${String(t.techPhone).replace(/\D/g, '')}`} className="font-mono text-[16px] md:text-[22px] font-bold bg-orange-100 px-3 py-1.5 rounded-lg text-orange-800 border border-orange-300 shadow-sm hover:bg-orange-200 transition-colors flex items-center gap-1.5 active:scale-95 w-fit md:w-auto self-start md:self-auto">
                               <Phone className="w-5 h-5 md:w-6 md:h-6 text-orange-600" />
@@ -4309,11 +4360,31 @@ const renderTracking = () => (
                             </a>
                           ) : (
                             <span className="font-mono text-[16px] md:text-[20px] text-slate-400 bg-slate-100 px-3 py-1.5 rounded-lg border border-slate-200 w-fit md:w-auto self-start md:self-auto">
-                              {String(t.techPhone || 'N/A')}
+                              {String(t.techPhone || 'ไม่มีข้อมูลเบอร์โทร')}
                             </span>
                           )}
                         </div>
+
+                        {/* 🌟 ฟันธง: ป้ายกำกับสถานะการรับงาน (ชัดเจนสำหรับทุกคน!) */}
+                        <div className="mt-4 pt-3 border-t-[1.5px] border-solid border-orange-200/80">
+                          {t.status === 'pending' && (
+                            <div className="bg-rose-100/80 border border-rose-300 text-rose-600 font-bold text-[13px] md:text-[16px] px-3 py-2 rounded-lg flex items-center gap-2 w-fit animate-pulse">
+                              <Clock className="w-4 h-4 md:w-5 md:h-5" /> ⏳ ช่างอยู่ระหว่างตรวจสอบและรอการกดรับงาน
+                            </div>
+                          )}
+                          {['in_progress', 'on_hold', 'acknowledged'].includes(t.status) && (
+                            <div className="bg-emerald-100/80 border border-emerald-300 text-emerald-700 font-bold text-[13px] md:text-[16px] px-3 py-2 rounded-lg flex items-center gap-2 w-fit shadow-sm">
+                              <Wrench className="w-4 h-4 md:w-5 md:h-5" /> 🛠️ ช่างกดรับงานและกำลังดำเนินการซ่อม
+                            </div>
+                          )}
+                          {['completed', 'verified'].includes(t.status) && (
+                            <div className="bg-blue-100/80 border border-blue-300 text-blue-700 font-bold text-[13px] md:text-[16px] px-3 py-2 rounded-lg flex items-center gap-2 w-fit shadow-sm">
+                              <CheckCircle className="w-4 h-4 md:w-5 md:h-5" /> ✅ ดำเนินการแก้ไขเสร็จสิ้นเรียบร้อย
+                            </div>
+                          )}
+                        </div>
                       </div>
+
                       
                       {/* ==================== 🚨 การ์ด 3: โซนเจ้าหน้าที่เวร SSC ==================== */}
                       {t.isOutOfHours && (() => {
@@ -4741,28 +4812,32 @@ const renderTracking = () => (
 
 
            {/* ========================================================= */}
-            {/* 🌟 ฟันธง: สมองกลคำทักทายอัจฉริยะฉบับไซไฟอวกาศ 24/7 (คำนวณเรียบร้อย ปลอดภัย 1,000,000%) */}
+            {/* 🌟 ฟันธง: สมองกลคำทักทายอัจฉริยะฉบับไซไฟอวกาศ 24/7 (แยกระดับ Commander และ User ทั่วไป) */}
             {(() => {
               const hour = sysTime.getHours();
-              // 1. ดึงชื่อมาจากตัวแปร หรือ ความจำเครื่อง
               let rawName = String(currentUserName || localStorage.getItem('gse_remembered_name') || '').trim();
               let shortName = rawName.split(' ')[0].replace(/^(นาย|นางสาว|น\.ส\.|นาง|ว่าที่ ร\.ต\.)/g, '').trim();
               const displayName = shortName ? `คุณ${shortName}` : '';
               
-              // 2. แอบเช็คว่า User คนนี้มีตั๋วที่กำลังซ่อมค้างอยู่หรือไม่ (ดึงเบอร์โทรมาเช็คความค้างคา)
               const myRawPhone = String(sessionStorage.getItem('userPhone') || localStorage.getItem('gse_remembered_phone') || '').trim().replace(/\D/g, '');
               const hasActiveTicket = tickets.some(t => {
                 const tPhone = String(t.reporterContact || t.contact || '').trim().replace(/\D/g, '');
                 return tPhone === myRawPhone && ['pending', 'acknowledged', 'in_progress', 'on_hold'].includes(t.status);
               });
 
-              // 3. แบ่ง Logic ข้อความทักทายตามเวลาและสถานะงานค้าง
-              let greeting = `🚀 ระบบ 24/7 พร้อมซัพพอร์ต ${displayName} ภารกิจดาวเทียมไม่มีหยุด แจ้งซ่อมรอบดึกได้เลยครับ`; // Default รอบดึกสุดเท่
+              let greeting = `🚀 ระบบ 24/7 พร้อมซัพพอร์ต ${displayName} แจ้งซ่อมรอบดึกได้เลยครับ`;
               
-              if (hasActiveTicket) {
-                greeting = `🔧 สวัสดีครับ ${displayName} 👋 มีงานซ่อมของท่านกำลังดำเนินการอยู่ ตรวจสอบสถานะได้เลยครับ`;
-              } else {
-                if (hour >= 5 && hour < 12) greeting = `☀️ อรุณสวัสดิ์ ${displayName} ทีม ฝวด. พร้อมสนับสนุนการปฏิบัติงานภาคพื้นดินวันนี้ครับ`;
+              // 🌟 ฟันธง: ถ้าเป็น หน.ฝวด. (Commander) ให้ใช้คำทักทายระดับผู้บริหาร
+              if (currentUserRole === 'Commander') {
+                if (hour >= 5 && hour < 12) greeting = `☀️ อรุณสวัสดิ์ครับท่านหัวหน้า ศูนย์ปฏิบัติการ GSE พร้อมรายงานสถานะเช้านี้ครับ`;
+                else if (hour >= 12 && hour < 17) greeting = `🌤️ สวัสดีตอนบ่ายครับท่านหัวหน้า ระบบแดชบอร์ดพร้อมติดตามงานครับ`;
+                else if (hour >= 17 && hour < 21) greeting = `🌇 สวัสดีตอนเย็นครับท่านหัวหน้า ตรวจสอบภาพรวมงานประจำวันได้เลยครับ`;
+                else greeting = `🛰️ ศูนย์ปฏิบัติการ GSE ระบบสแตนด์บาย 24 ชั่วโมงครับท่านหัวหน้า`;
+              } 
+              // ถ้าเป็นช่าง/ผู้ใช้งานทั่วไป
+              else {
+                if (hasActiveTicket) greeting = `🔧 สวัสดีครับ ${displayName} 👋 มีงานซ่อมของท่านกำลังดำเนินการอยู่ ตรวจสอบสถานะได้เลยครับ`;
+                else if (hour >= 5 && hour < 12) greeting = `☀️ อรุณสวัสดิ์ ${displayName} ทีม ฝวด. พร้อมสนับสนุนการปฏิบัติงานภาคพื้นดินวันนี้ครับ`;
                 else if (hour >= 12 && hour < 17) greeting = `🌤️ สวัสดีตอนบ่ายครับ ${displayName} ให้ ฝวด. ช่วยดูแลระบบหรืออุปกรณ์ระบบไหน แจ้งได้เลยครับ`;
                 else if (hour >= 17 && hour < 21) greeting = `🌇 สวัสดีตอนเย็น ${displayName} นอกเวลาทำการ วิศวกรเวร ฝวด. ก็พร้อมดูแลระบบให้ท่านครับ`;
               }
@@ -4773,6 +4848,8 @@ const renderTracking = () => (
                 </div>
               );
             })()}
+
+
             {/* ========================================================= */}
 
             <h1 className="font-black text-white text-3xl md:text-5xl tracking-widest leading-none drop-shadow-[0_4px_4px_rgba(0,0,0,0.5)] md:py-1 whitespace-nowrap">
@@ -4781,18 +4858,10 @@ const renderTracking = () => (
           </div>
         </div>
 
-       {/* 🌟 ฟันธง: โซนขวามือ (เพิ่มปุ่ม Logout + น้องมาสคอต) */}
+
+
+       {/* 🌟 ฟันธง: โซนขวามือ (ลบปุ่ม Logout ทิ้ง เหลือแค่น้องมาสคอตน่ารักๆ คลีนๆ) */}
        <div className="flex items-center gap-4 z-50">
-       {(currentUserRole !== 'reporter') && (
-            <button
-              onClick={onGoHome}
-              className="flex items-center justify-center gap-1.5 md:gap-2 bg-rose-600/20 hover:bg-rose-600 text-rose-500 hover:text-white border border-rose-500/50 hover:border-rose-400 px-3 py-1.5 md:py-2 rounded-xl transition-all shadow-sm active:scale-95"
-              title="ออกจากระบบ"
-            >
-              <LogOut size={18} className="md:w-5 md:h-5" />
-              <span className="hidden md:block font-bold text-[15px]">ออกจากระบบ</span>
-            </button>
-          )}
           <div className="relative w-12 md:w-28 h-14 md:h-16 shrink-0 pointer-events-none overflow-visible">
             <img 
               src={activeTab === 'dashboard' ? "/mascot-dashboard.webp" : activeTab === 'report' ? "/mascot-report.webp" : (activeTab === 'tracking' && currentUserRole !== 'reporter') ? "/mascot-tech.webp" : "/mascot-track.webp"}
@@ -4803,6 +4872,8 @@ const renderTracking = () => (
           </div>
         </div>
       </div>
+
+
 
       {/* 🎯 พื้นที่แสดงผลเนื้อหาภายในแอป */}
       <div 
@@ -5315,6 +5386,20 @@ function ReporterLoginPopup({ onClose, onLoginSuccess }) {
     return () => window.removeEventListener('keydown', handleKeyDown);
   }, [step, phone, pin, isNewUser, isConfirmingPin, confirmPin, failedAttempts, userRealEmail]);
 
+// =========================================================
+  // 🌟 ฟันธงจุดที่ 1: ระบบ Auto-Login & Auto-Submit ทันทีที่พิมพ์ PIN ครบ 6 หลัก!
+  // =========================================================
+  useEffect(() => {
+    if (step === 2 && !isLoading) {
+      if (isConfirmingPin && confirmPin.length === 6) {
+        handleSubmit();
+      } else if (!isConfirmingPin && pin.length === 6) {
+        handleSubmit();
+      }
+    }
+  }, [pin, confirmPin, step, isLoading, isConfirmingPin]);
+
+
   const handleNextStep = async () => {
     if (phone.length !== 10) { setErrorMsg('กรุณากรอกเบอร์โทรศัพท์ให้ครบ 10 หลักค่ะ'); return; }
     setIsLoading(true); setErrorMsg(''); setFailedAttempts(0); 
@@ -5679,6 +5764,18 @@ function LandingPage({ onStart }) {
     }
   };
 
+// =========================================================
+  // 🌟 ฟันธงจุดที่ 3: ระบบ Auto-Login & Auto-Submit ทันทีที่ช่างพิมพ์ PIN ครบ 6 หลัก!
+  // =========================================================
+  useEffect(() => {
+    if (showLogin && staffStep === 2 && !isLoggingIn) {
+      if (isNewStaff && isConfirmingStaffPin && confirmStaffPin.length === 6) {
+        handleStaffPinSubmit();
+      } else if (!isNewStaff && staffPin.length === 6) {
+        handleStaffPinSubmit();
+      }
+    }
+  }, [staffPin, confirmStaffPin, staffStep, isLoggingIn, isConfirmingStaffPin, isNewStaff, showLogin]);
 
 
   const handleStaffNumpad = (num) => {
