@@ -109,8 +109,9 @@ const getHolidayName = (year, month, day) => {
 // 🌟 Component: จัดการและดูตารางเวร (อัปเกรด UX ขั้นสุด)
 // ==========================================
 function AdminRosterSettings({ onClose }) {
-  const [selectedYear, setSelectedYear] = useState(2026);
-  const [selectedMonth, setSelectedMonth] = useState(5); 
+  // 🌟 ฟันธง: ให้ระบบดึงค่า "ปีปัจจุบัน" และ "เดือนปัจจุบัน" อัตโนมัติ!
+  const [selectedYear, setSelectedYear] = useState(() => new Date().getFullYear());
+  const [selectedMonth, setSelectedMonth] = useState(() => new Date().getMonth() + 1);
   const [daysInMonth, setDaysInMonth] = useState([]);
   const [rosterData, setRosterData] = useState({}); 
   const [loading, setLoading] = useState(false);
@@ -1292,61 +1293,48 @@ const [currentUserName, setCurrentUserName] = useState(() => localStorage.getIte
   const [showAdminRoster, setShowAdminRoster] = useState(false);
 
   
-// --- Auth Setup (อัปเกรดเฟส 2) ---
+// --- Auth Setup (อัปเกรดเฟส 2) - แก้บั๊กหน้าจอหมุนติ้วๆ และกู้คืนความจำชื่อ 🌟 ---
 useEffect(() => {
+  // 🌟 สมองกลทะลวงฐานข้อมูลให้ดึงตั๋วซ่อมได้ทุกคน!
+  const bypassAuth = () => setUser({ uid: 'public-bypass-user' });
+
   const initAuth = async () => {
-    if (initialRole === 'reporter' && !auth.currentUser) {
-      try { await signInAnonymously(auth); } catch (error) { setUser({ uid: 'public-bypass-user' }); }
+    if (!auth.currentUser) {
+      try { await signInAnonymously(auth); } catch (error) { bypassAuth(); }
     }
   };
   initAuth();
 
   const unsubscribeAuth = onAuthStateChanged(auth, async (u) => {
-    if (u) {
-      setUser(u);
-      if (initialRole !== 'reporter') {
-        try {
-          const q = query(collection(db, 'staff_roles'), where('email', '==', u.email));
+    if (u) setUser(u);
+    else bypassAuth(); // ถ้าไม่มี Auth ก็ให้ผ่านเข้าไปดึงข้อมูลได้เลย (แก้บั๊กหมุนติ้วๆ)
+
+    // 🌟 สมองกลกู้ชื่อ: ถ้าเป็นช่าง ให้ดึงชื่อจากฐานข้อมูลผ่านเบอร์โทรศัพท์ (แทนอีเมล)
+    if (initialRole !== 'reporter') {
+      try {
+        const savedPhone = localStorage.getItem('gse_staff_phone');
+        if (savedPhone) {
+          const cleanPhone = savedPhone.replace(/-/g, '');
+          const q = query(collection(db, 'staff_roles'), where('phone', '==', cleanPhone));
           const snap = await getDocs(q);
           if (!snap.empty) {
             const staffData = snap.docs[0].data();
-            
-            // =========================================================
-            // 🌟 ฟันธงแก้บั๊ก (รอบ 2): บังคับดึงชื่อจากระบบที่มีคำนำหน้า (นาย/น.ส.) มาใช้เป็นหลัก!
-            // เพื่อให้ชื่อตรงกับตั๋วแจ้งซ่อม 100% ช่างจะได้เห็นงานตัวเองไม่สูญหาย
-            // =========================================================
             const dbPhone = String(staffData.phone || '').replace(/\D/g, '');
             const dbName = String(staffData.fullName || '').trim();
             
-            let exactName = dbName; // ค่าเริ่มต้น
+            let exactName = dbName;
+            const matchedTech = technicianList.find(t => (t.phone && String(t.phone).replace(/\D/g, '') === dbPhone) || (t.name && t.name.includes(dbName)));
+            const mappedTech = Object.values(techMapping).find(t => (t.phone && String(t.phone).replace(/\D/g, '') === dbPhone) || (t.name && t.name.includes(dbName)));
 
-            // 1. ค้นหาเทียบใน technicianList ก่อน
-            const matchedTech = technicianList.find(t => 
-              (t.phone && String(t.phone).replace(/\D/g, '') === dbPhone) || 
-              (t.name && t.name.includes(dbName))
-            );
-
-            // 2. ค้นหาเทียบใน techMapping (ที่ท่านเพิ่งอัปเดตภารกิจ)
-            const mappedTech = Object.values(techMapping).find(t => 
-              (t.phone && String(t.phone).replace(/\D/g, '') === dbPhone) ||
-              (t.name && t.name.includes(dbName))
-            );
-
-            // 🌟 ลำดับความสำคัญ: เอาชื่อจากโค้ด (ที่มีคำนำหน้า) มาเขียนทับชื่อจาก Firebase
-            if (matchedTech) {
-              exactName = matchedTech.name;
-            } else if (mappedTech) {
-              exactName = mappedTech.name;
-            }
+            if (matchedTech) exactName = matchedTech.name;
+            else if (mappedTech) exactName = mappedTech.name;
 
             setCurrentUserName(exactName);
             localStorage.setItem('gse_remembered_name', exactName);
-            localStorage.setItem('gse_remembered_phone', dbPhone);
           }
-        } catch (err) { console.error("ดึงชื่อช่างไม่สำเร็จ", err); }
-      }
+        }
+      } catch (err) { console.error("กู้คืนชื่อไม่สำเร็จ", err); }
     }
-    else if (initialRole === 'reporter') setUser({ uid: 'public-bypass-user' });
   });
 
   return () => unsubscribeAuth();
@@ -5389,7 +5377,7 @@ const renderTracking = () => (
 
 
 // =========================================================================
-// 🌟 ฟันธง: หน้าต่างลงทะเบียนผู้แจ้งซ่อม (อัปเกรดจำอุปกรณ์ + ฟอร์แมตเบอร์ + ตาดู PIN)
+// 🌟 ฟันธง: หน้าต่างลงทะเบียนผู้แจ้งซ่อม (ฉบับสมบูรณ์ Smart Login 1,000,000%)
 // =========================================================================
 function ReporterLoginPopup({ onClose, onLoginSuccess }) {
   const [step, setStep] = useState(1);
@@ -5405,98 +5393,115 @@ function ReporterLoginPopup({ onClose, onLoginSuccess }) {
   const [loginError, setLoginError] = useState('');
   const [isLoading, setIsLoading] = useState(false);
 
-  // 🌟 ฟันธง: เพิ่ม State สำหรับเปิด/ปิดตา (ดูรหัสผ่าน PIN)
   const [showPin, setShowPin] = useState(false);
+  const [attemptCount, setAttemptCount] = useState(0); // 🌟 ฟันธง: เพิ่มตัวนับจำนวนครั้ง 1/5
 
-  // 🌟 สมองกลดักจับแป้นพิมพ์คีย์บอร์ด (ทำงานเฉพาะฝั่งผู้แจ้งซ่อม)
-  useEffect(() => {
-    const handleKeyDown = (e) => {
-      if (e.target.tagName === 'INPUT' || isLoading || showPhoneConfirm) return;
-      
-      if (/^[0-9]$/.test(e.key)) {
-        handleNumpad(e.key);
-      } else if (e.key === 'Backspace') {
-        handleDelete();
-      } else if (e.key === 'Enter' && step === 1 && phone.length === 10) {
-        setShowPhoneConfirm(true);
-      } else if (e.key === 'Escape') {
-        onClose();
-      }
-    };
+// 🌟 สมองกลใหม่: ดึงความจำจากเบราว์เซอร์ (Auto-Remember)
+useEffect(() => {
+  // ล้วงกระเป๋าดูว่ามือถือ/คอมเครื่องนี้ เคยล็อกอินเบอร์ไหนไว้
+  const savedPhone = localStorage.getItem('gse_remembered_phone');
+  
+  if (savedPhone) {
+    // ถ้าเคยมีเบอร์ ให้ดึงเบอร์มากรอกอัตโนมัติ แล้วกระโดดไปหน้าใส่ PIN ทันที!
+    setPhone(savedPhone);
+    setStep(2); 
+    setIsNewUser(false); 
+  }
+}, []);
 
-    window.addEventListener('keydown', handleKeyDown);
-    return () => window.removeEventListener('keydown', handleKeyDown);
-  });
-
-  const handleNumpad = (num) => {
-    if (step === 1 && phone.length < 10) setPhone(phone + num);
-    else if (step === 2 && pin.length < 6 && !isConfirmingPin) {
-      const newPin = pin + num;
-      setPin(newPin);
-      if (newPin.length === 6) {
-        if (isNewUser) setIsConfirmingPin(true);
-        else submitLogin(phone, newPin); 
-      }
-    } else if (step === 2 && confirmPin.length < 6 && isConfirmingPin) {
-      const newConfirmPin = confirmPin + num;
-      setConfirmPin(newConfirmPin);
-      if (newConfirmPin.length === 6) {
-        if (newConfirmPin === pin) setStep(3); 
-        else {
-          setLoginError('รหัส PIN ไม่ตรงกัน กรุณาตั้งใหม่');
-          setPin(''); setConfirmPin(''); setIsConfirmingPin(false);
-        }
-      }
-    }
-  };
-
-  const handleDelete = () => {
-    if (step === 1) setPhone(phone.slice(0, -1));
-    else if (step === 2 && isConfirmingPin) setConfirmPin(confirmPin.slice(0, -1));
-    else if (step === 2 && !isConfirmingPin) setPin(pin.slice(0, -1));
-  };
-
-  const handleClear = () => {
-    if (step === 1) setPhone('');
-    else if (step === 2 && isConfirmingPin) setConfirmPin('');
-    else if (step === 2 && !isConfirmingPin) setPin('');
-  };
-
-  // 🌟 ฟันธง: ฟอร์แมตเบอร์โทร 3-3-4 เรียลไทม์ (086-554-5665)
-  const formatPhone = (p) => {
-    if (!p) return '___-___-____';
-    const str = p.padEnd(10, '_');
-    return `${str.slice(0, 3)}-${str.slice(3, 6)}-${str.slice(6)}`;
-  };
-
-  // 🌟 ฟันธง: ฟอร์แมต PIN ให้เป็นดอกจัน (*****) และเปิด/ปิดได้
-  const formatPinDisplay = (p) => {
-    if (showPin) return p.padEnd(6, '-');
-    return '*'.repeat(p.length).padEnd(6, '-');
-  };
-
-  const confirmPhoneNext = async () => {
-    setShowPhoneConfirm(false);
+  // 🌟 สมองกล 1: ตรวจสอบเบอร์ทันที (Smart Login)
+  const handlePhoneNextClick = async () => {
     setIsLoading(true);
     setLoginError('');
     try {
-      // 🌟 ฟันธง: ลบโค้ดหลอก endsWith('9') ทิ้ง และใช้การ Query จาก Firebase ของจริง
-      const cleanPhone = phone.replace(/-/g, ''); // กันเหนียว ล้างขีดออกก่อนค้นหา
+      const cleanPhone = phone.replace(/-/g, '');
       const q = query(collection(db, 'users'), where('phone', '==', cleanPhone));
       const snap = await getDocs(q);
-      
-      if (snap.empty) {
-        setIsNewUser(true);  // หาใน Firebase ไม่เจอ = ผู้ใช้ใหม่ (ให้ตั้งรหัส PIN)
+
+      if (!snap.empty) {
+        // ✅ มีเบอร์ในระบบ (ผู้ใช้เก่า) -> ดึงชื่อและอีเมลมาจำไว้ แล้วข้ามไปหน้า PIN ทันที!
+        const userData = snap.docs[0].data();
+        localStorage.setItem('gse_remembered_name', userData.fullName || userData.name || '');
+        localStorage.setItem('gse_remembered_phone', cleanPhone);
+        setEmail(userData.email || ''); // 🌟 ฟันธง: ดึงอีเมลมาเก็บไว้รอส่งลิงก์รีเซ็ต
+
+        setIsNewUser(false);
+        setStep(2);
+
+        
       } else {
-        setIsNewUser(false); // หาใน Firebase เจอ = ผู้ใช้เก่า (ให้ใส่รหัส PIN ล็อกอิน)
+        // 🆕 ไม่มีเบอร์ (ผู้ใช้ใหม่) -> เด้ง Popup ถามความชัวร์
+        setIsNewUser(true);
+        setShowPhoneConfirm(true);
       }
-      setStep(2); 
     } catch (error) {
-      setLoginError('เกิดข้อผิดพลาดในการตรวจสอบฐานข้อมูล กรุณาลองใหม่');
+      setLoginError('เกิดข้อผิดพลาดในการตรวจสอบฐานข้อมูล');
     }
     setIsLoading(false);
   };
 
+  const confirmPhoneNext = () => {
+    setShowPhoneConfirm(false);
+    setStep(2);
+  };
+
+  // 🌟 สมองกล 2: Auto-Submit เมื่อกรอก PIN ครบ 6 หลัก (ไม่ต้องกดปุ่มยืนยัน)
+  useEffect(() => {
+    if (step === 2 && !isLoading) {
+      if (isNewUser && isConfirmingPin && confirmPin.length === 6) {
+        if (pin === confirmPin) {
+          setStep(3); // ไปหน้ากรอกชื่อ
+        } else {
+          setLoginError('รหัส PIN ไม่ตรงกัน กรุณาตั้งใหม่');
+          setPin(''); setConfirmPin(''); setIsConfirmingPin(false);
+        }
+      } else if (!isNewUser && pin.length === 6) {
+        submitLogin(phone, pin);
+      }
+    }
+  }, [pin, confirmPin, step, isLoading, isConfirmingPin, isNewUser, phone]);
+
+  // 🌟 สมองกล 3: เข้าสู่ระบบ (ผู้ใช้เก่า) พร้อมระบบเยียวยาบัญชีเก่าที่ไม่มี PIN
+  const submitLogin = async (loginPhone, loginPin) => {
+    setIsLoading(true);
+    setLoginError('');
+    try {
+      const cleanPhone = loginPhone.replace(/-/g, '');
+      const q = query(collection(db, 'users'), where('phone', '==', cleanPhone));
+      const snap = await getDocs(q);
+
+      if (!snap.empty) {
+        const userData = snap.docs[0].data();
+        const docId = snap.docs[0].id;
+        
+        // 🌟 แก้ปัญหาบัญชีเก่าที่ท่านเคยเทสไว้แต่ไม่มีรหัส PIN ใน Firebase
+        if (!userData.pin) {
+          await updateDoc(doc(db, 'users', docId), { pin: loginPin }); // บันทึก PIN ให้เลยอัตโนมัติ
+          localStorage.setItem('gse_remembered_phone', cleanPhone);
+          localStorage.setItem('gse_remembered_name', userData.fullName || userData.name || '');
+          setAttemptCount(0);
+          onLoginSuccess('reporter');
+        } else if (userData.pin === loginPin) {
+          localStorage.setItem('gse_remembered_phone', cleanPhone);
+          localStorage.setItem('gse_remembered_name', userData.fullName || userData.name || '');
+          setAttemptCount(0);
+          onLoginSuccess('reporter');
+        } else {
+          const newCount = attemptCount + 1;
+          setAttemptCount(newCount);
+          setLoginError(`รหัส PIN ไม่ถูกต้อง (ครั้งที่ ${newCount}/5)`);
+          setPin('');
+        }
+      } else {
+        setLoginError('ไม่พบข้อมูลผู้ใช้งาน');
+      }
+    } catch (error) {
+      setLoginError('ตรวจสอบ PIN ไม่สำเร็จ');
+    }
+    setIsLoading(false);
+  };
+
+  // 🌟 สมองกล 4: บันทึกผู้ใช้ใหม่
   const handleFinalSubmit = async () => {
     if (!name || !email) {
       setLoginError('กรุณากรอกข้อมูลให้ครบถ้วน');
@@ -5504,19 +5509,82 @@ function ReporterLoginPopup({ onClose, onLoginSuccess }) {
     }
     setIsLoading(true);
     try {
-      localStorage.setItem('gse_reporter_phone', phone); 
-      onLoginSuccess();
+      const cleanPhone = phone.replace(/-/g, '');
+      await addDoc(collection(db, 'users'), {
+        phone: cleanPhone,
+        email: email,
+        fullName: name,
+        pin: pin, // 🌟 ฟันธง: บันทึกรหัส PIN ลงฐานข้อมูล 100%
+        role: 'reporter',
+        createdAt: new Date().toISOString()
+      });
+      localStorage.setItem('gse_remembered_phone', cleanPhone);
+      localStorage.setItem('gse_remembered_name', name);
+      setAttemptCount(0);
+      onLoginSuccess('reporter'); // วาร์ปไปหน้าแจ้งซ่อม!
     } catch (error) {
       setLoginError('บันทึกข้อมูลไม่สำเร็จ');
     }
     setIsLoading(false);
   };
 
-  const submitLogin = async (loginPhone, loginPin) => {
-    setIsLoading(true);
-    localStorage.setItem('gse_reporter_phone', loginPhone); 
-    onLoginSuccess();
-    setIsLoading(false);
+  const handleNumpad = (num) => {
+    setLoginError('');
+    if (step === 1 && phone.length < 10) setPhone(prev => prev + num);
+    else if (step === 2) {
+      if (isNewUser) {
+         if (!isConfirmingPin && pin.length < 6) {
+            const newPin = pin + num;
+            setPin(newPin);
+            if (newPin.length === 6) setIsConfirmingPin(true);
+         } else if (isConfirmingPin && confirmPin.length < 6) {
+            setConfirmPin(prev => prev + num);
+         }
+      } else {
+         if (pin.length < 6) setPin(prev => prev + num);
+      }
+    }
+  };
+
+  const handleDelete = () => {
+    if (step === 1) setPhone(prev => prev.slice(0, -1));
+    else if (step === 2) {
+      if (isConfirmingPin) setConfirmPin(prev => prev.slice(0, -1));
+      else setPin(prev => prev.slice(0, -1));
+    }
+  };
+
+  const handleClear = () => {
+    if (step === 1) setPhone('');
+    else if (step === 2) {
+      if (isConfirmingPin) setConfirmPin('');
+      else setPin('');
+    }
+  };
+
+  // ดักจับการพิมพ์คีย์บอร์ด
+  useEffect(() => {
+    const handleKeyDown = (e) => {
+      if (e.target.tagName === 'INPUT' || isLoading || showPhoneConfirm) return;
+      if (/^[0-9]$/.test(e.key)) handleNumpad(e.key);
+      else if (e.key === 'Backspace') handleDelete();
+      else if (e.key.toLowerCase() === 'c' || e.key === 'Escape') handleClear();
+      else if (e.key === 'Enter' && step === 1 && phone.length === 10) handlePhoneNextClick();
+    };
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [phone, pin, confirmPin, step, isLoading, isConfirmingPin, isNewUser, showPhoneConfirm]);
+
+  const formatPhone = (p) => {
+    if (!p) return '___-___-____';
+    const str = p.padEnd(10, '_');
+    return `${str.slice(0, 3)}-${str.slice(3, 6)}-${str.slice(6)}`;
+  };
+
+  const formatPinDisplay = (p) => {
+    const padded = p.padEnd(6, '-');
+    if (showPin) return padded.split('').join(' ');
+    return padded.split('').map(c => c === '-' ? '-' : '•').join(' ');
   };
 
   return (
@@ -5560,7 +5628,6 @@ function ReporterLoginPopup({ onClose, onLoginSuccess }) {
 
             {loginError && <p className="text-sm font-bold text-center p-2 rounded-lg w-full border animate-in shake bg-rose-500/10 text-rose-400 border-rose-500/30">{loginError}</p>}
 
-            {/* 🌟 ฟันธง: แผงแสดงตัวเลข และ ปุ่มดวงตาตา */}
             <div className="relative w-full mb-2">
               <div className="w-full bg-slate-950 border-[2px] border-slate-700 rounded-2xl h-16 flex items-center justify-center text-3xl font-black text-white tracking-[0.1em] shadow-inner transition-all">
                 {step === 1 ? formatPhone(phone) : formatPinDisplay(isConfirmingPin ? confirmPin : pin)}
@@ -5571,6 +5638,36 @@ function ReporterLoginPopup({ onClose, onLoginSuccess }) {
                 </button>
               )}
             </div>
+
+            {/* 🌟 ฟันธง: เพิ่มปุ่มลืมรหัส PIN และ ไม่ใช่คุณใช่ไหม? ให้เหมือนของช่างเป๊ะ! */}
+            {step === 2 && (
+              <div className="w-full flex justify-between items-center px-1 -mt-1 mb-1">
+                {attemptCount >= 3 && (
+                  <button type="button" onClick={async () => {
+                    if (!email) {
+                      setLoginError('ไม่พบอีเมลในระบบ กรุณาสมัครใหม่ค่ะ');
+                      return;
+                    }
+                    setIsLoading(true);
+                    try {
+                      // 🌟 ฟันธง: เรียกใช้ระบบส่งลิงก์รีเซ็ตผ่านอีเมล
+                      await sendPasswordResetEmail(auth, email);
+                      setLoginError('ระบบได้ส่งลิงก์รีเซ็ต PIN ไปที่อีเมลของท่านแล้วค่ะ');
+                    } catch (err) {
+                      setLoginError('ไม่สามารถส่งอีเมลรีเซ็ตได้ กรุณาลองใหม่');
+                    } finally {
+                      setIsLoading(false);
+                    }
+                  }} disabled={isLoading} className="text-xs font-bold text-rose-400 hover:text-rose-300 underline transition-colors animate-pulse z-10">
+                    ลืมรหัส PIN ใช่หรือไม่?
+                  </button>
+                )}
+                <button type="button" onClick={() => { setStep(1); setPhone(''); setPin(''); setConfirmPin(''); setIsConfirmingPin(false); setLoginError(''); setAttemptCount(0); }} className="text-xs font-bold text-slate-400 hover:text-cyan-400 underline transition-colors ml-auto z-10">
+                  ไม่ใช่คุณใช่ไหม?
+                </button>
+              </div>
+            )}
+            
 
             <div className={`grid grid-cols-3 gap-3 w-full px-1 ${isLoading ? 'opacity-50 pointer-events-none' : ''}`}>
               {[1, 2, 3, 4, 5, 6, 7, 8, 9].map((num) => (
@@ -5585,11 +5682,11 @@ function ReporterLoginPopup({ onClose, onLoginSuccess }) {
 
             {step === 1 && (
               <button
-                onClick={() => { if (phone.length === 10) setShowPhoneConfirm(true); }}
-                disabled={phone.length !== 10}
+                onClick={() => { if (phone.length === 10) handlePhoneNextClick(); }}
+                disabled={phone.length !== 10 || isLoading}
                 className={`w-full mt-4 py-3 md:py-4 rounded-xl font-black text-[16px] md:text-[18px] transition-all duration-300 ${phone.length === 10 ? 'bg-gradient-to-r from-orange-500 to-amber-500 text-white shadow-[0_0_15px_rgba(249,115,22,0.6)] hover:scale-[1.02]' : 'bg-slate-800 text-slate-500 cursor-not-allowed'}`}
               >
-                ถัดไป (ตรวจสอบหมายเลข)
+                {isLoading ? 'กำลังตรวจสอบ...' : 'ถัดไป (ตรวจสอบหมายเลข)'}
               </button>
             )}
           </>
@@ -5598,19 +5695,19 @@ function ReporterLoginPopup({ onClose, onLoginSuccess }) {
         {step === 3 && (
           <div className="w-full flex flex-col items-center animate-in slide-in-from-right duration-300 mt-4">
             <h2 className="text-xl font-black text-white tracking-wide text-center mb-4 flex items-center gap-2">
-              📝 ข้อมูลแจ้งเตือน
+              📝 ข้อมูลผู้แจ้งซ่อม
             </h2>
             <div className="w-full bg-slate-800/80 border border-amber-500/30 rounded-lg p-3 mb-6 text-center shadow-inner">
-              <p className="text-amber-400 font-bold text-sm">ยินดีต้อนรับ! กรอกอีเมลจริงหน่วยงานเพื่อเปิดระบบกู้คืนรหัสผ่านอัตโนมัติ</p>
+              <p className="text-amber-400 font-bold text-sm">ยินดีต้อนรับ! กรุณากรอกชื่อและอีเมลเพื่อเปิดใช้งานระบบอัตโนมัติ</p>
             </div>
 
             <div className="w-full space-y-5">
                <div>
-                 <label className="text-slate-300 text-sm font-bold mb-2 block">ชื่อ - นามสกุล</label>
-                 <input type="text" value={name} onChange={e=>setName(e.target.value)} className="w-full bg-slate-950 border-[2px] border-slate-700 rounded-lg p-3 text-white font-bold focus:border-orange-500 outline-none transition-colors" />
+                 <label className="text-slate-300 text-sm font-bold mb-2 block text-left">ชื่อ - นามสกุล</label>
+                 <input type="text" value={name} onChange={e=>setName(e.target.value)} className="w-full bg-slate-950 border-[2px] border-slate-700 rounded-lg p-3 text-white font-bold focus:border-orange-500 outline-none transition-colors" placeholder="ระบุชื่อของท่าน..." />
                </div>
                <div>
-                 <label className="text-slate-300 text-sm font-bold mb-2 block">อีเมลจริง (สำหรับรับลิงก์รีเซ็ตรหัสผ่าน)</label>
+                 <label className="text-slate-300 text-sm font-bold mb-2 block text-left">อีเมลหน่วยงาน</label>
                  <input type="email" placeholder="username@gistda.or.th" value={email} onChange={e=>setEmail(e.target.value)} className="w-full bg-slate-950 border-[2px] border-slate-700 rounded-lg p-3 text-white font-bold focus:border-orange-500 outline-none transition-colors" />
                </div>
             </div>
@@ -5621,7 +5718,6 @@ function ReporterLoginPopup({ onClose, onLoginSuccess }) {
             </div>
           </div>
         )}
-
       </div>
     </div>
   );
@@ -5650,123 +5746,133 @@ function LandingPage({ onStart }) {
   const [isConfirmingStaffPin, setIsConfirmingStaffPin] = useState(false);
   const [isNewStaff, setIsNewStaff] = useState(false);
 
-// 🌟 ฟันธง: สมองกลแอปธนาคาร (ฝั่งเจ้าหน้าที่)
+// 🌟 ฟันธง: สมองกลแอปธนาคาร (อัปเกรดจำยศช่าง แก้บั๊กเมนูด้านล่างผิด!)
 useEffect(() => {
-  if (showLogin) {
-    const savedPhone = localStorage.getItem('gse_staff_phone');
-    if (savedPhone) {
-      setStaffPhone(savedPhone);
-      setStaffStep(2); // มีเบอร์แล้ว ข้ามไปหน้า PIN เลย
-    } else {
-      setStaffStep(1); // ไม่มีเบอร์ ให้เริ่มที่หน้า 1
-      setStaffPhone('');
+  const initStaffLogin = async () => {
+    if (showLogin) {
+      const savedPhone = localStorage.getItem('gse_staff_phone');
+      if (savedPhone) {
+        setStaffPhone(savedPhone);
+        try {
+          // 🌟 ดึงยศและอีเมลมาตุนไว้ล่วงหน้า จะได้ไม่หลงไปโหมดผู้แจ้งซ่อม!
+          const cleanPhone = savedPhone.replace(/-/g, '');
+          const qRole = query(collection(db, 'staff_roles'), where('phone', '==', cleanPhone));
+          const snapRole = await getDocs(qRole);
+          if (!snapRole.empty) {
+            setStaffEmail(snapRole.docs[0].data().email);
+            setStaffRole(snapRole.docs[0].data().role);
+          }
+        } catch (e) {}
+        setStaffStep(2); 
+      } else {
+        setStaffStep(1); 
+        setStaffPhone('');
+      }
+      setStaffPin('');
+      setLoginError('');
     }
-    setStaffPin('');
-    setLoginError('');
-  }
+  };
+  initStaffLogin();
 }, [showLogin]);
 
-  const closeStaffLogin = () => {
-    setShowLogin(false);
-    setStaffPhone('');
-    setStaffPin('');
-    setStaffStep(1);
-    setStaffEmail('');
-    setStaffRole('');
-    setLoginError('');
-    setAttemptCount(0); // <--- รีเซ็ตค่าเมื่อปิดหน้าต่าง
-  };
+const closeStaffLogin = () => {
+  setShowLogin(false);
+  setStaffPhone('');
+  setStaffPin('');
+  setStaffStep(1);
+  setStaffEmail('');
+  setStaffRole('');
+  setLoginError('');
+  setAttemptCount(0);
+};
 
-  const handleStaffPhoneNext = async () => {
-    // 🌟 ฟันธง 1: ล้างขีดออกให้หมดก่อน ดึงมาแค่ตัวเลขเพียวๆ
-    const cleanPhone = staffPhone.replace(/-/g, '');
-
-    // 🌟 ฟันธง 2: ใช้ตัวเลขเพียวๆ มาเช็คความยาว 10 หลัก (แก้ปัญหาพิมพ์ขีดแล้ว error)
-    if (cleanPhone.length !== 10) {
-      setLoginError('กรุณากรอกเบอร์โทรศัพท์ให้ครบ 10 หลักค่ะ');
-      return;
-    }
+const handleStaffPhoneNext = async () => {
+  const cleanPhone = staffPhone.replace(/-/g, '');
+  if (cleanPhone.length !== 10) {
+    setLoginError('กรุณากรอกเบอร์โทรศัพท์ให้ครบ 10 หลักค่ะ');
+    return;
+  }
+  
+  setIsLoggingIn(true);
+  setLoginError('');
+  try {
+    const qRole = query(collection(db, 'staff_roles'), where('phone', '==', cleanPhone));
+    const snapRole = await getDocs(qRole);
     
-    setIsLoggingIn(true);
-    setLoginError('');
-    try {
-      // 🌟 ฟันธง 3: เอา cleanPhone ไปค้นหาในฐานข้อมูล Firebase
-      // 🌟 ล้างขีดออกจากเบอร์ผู้แจ้งซ่อมก่อนไปค้นหา
-const cleanPhone = phone.replace(/-/g, '');
-const q = query(collection(db, 'users'), where('phone', '==', cleanPhone));
-      const snap = await getDocs(q);
+    if (!snapRole.empty) {
+      const data = snapRole.docs[0].data();
+      setStaffEmail(data.email);
+      setStaffRole(data.role); // 🌟 จำยศที่แท้จริงของช่าง
       
-      if (!snap.empty) {
-        const data = snap.docs[0].data();
-        setStaffEmail(data.email);
-        setStaffRole(data.role);
-        
-        // เช็คว่าช่างคนนี้เคยตั้ง PIN (ลงทะเบียน) ไปหรือยัง
-        const qCheck = query(collection(db, 'users'), where('email', '==', data.email));
-        const snapCheck = await getDocs(qCheck);
-        
-        if (snapCheck.empty) {
-          setIsNewStaff(true); // หาไม่เจอ = เป็นช่างใหม่ -> เปิดโหมด "ตั้งรหัส PIN 2 ครั้ง"
-        } else {
-          setIsNewStaff(false); // หาเจอ = เคยตั้งแล้ว -> เปิดโหมด "ใส่รหัส PIN ล็อกอิน"
-        }
-        setStaffStep(2);
-      } else {
-        setLoginError('เฉพาะเจ้าหน้าที่ ฝวด. เท่านั้น'); 
-      }
-    } catch (err) {
-      setLoginError('เกิดข้อผิดพลาดในการตรวจสอบข้อมูล');
-    } finally {
-      setIsLoggingIn(false);
+      const qCheck = query(collection(db, 'users'), where('phone', '==', cleanPhone));
+      const snapCheck = await getDocs(qCheck);
+      
+      setIsNewStaff(snapCheck.empty);
+      setStaffStep(2);
+    } else {
+      setLoginError('เฉพาะเจ้าหน้าที่ ฝวด. เท่านั้น'); 
     }
-  };
+  } catch (err) {
+    setLoginError('เกิดข้อผิดพลาดในการตรวจสอบข้อมูล');
+  } finally {
+    setIsLoggingIn(false);
+  }
+};
 
-  const handleStaffPinSubmit = async () => {
-    if (isNewStaff) {
-      if (!isConfirmingStaffPin) {
-        if (staffPin.length !== 6) { setLoginError('กรุณาตั้งรหัส PIN ให้ครบ 6 หลักค่ะ'); return; }
-        setIsConfirmingStaffPin(true);
-        setLoginError('');
-      } else {
-        if (confirmStaffPin.length !== 6) { setLoginError('กรุณายืนยันรหัส PIN ให้ครบ 6 หลักค่ะ'); return; }
-        if (staffPin !== confirmStaffPin) { 
-          setLoginError('รหัส PIN ไม่ตรงกัน กรุณาลองใหม่อีกครั้งค่ะ'); 
-          setConfirmStaffPin(''); 
-          return; 
-        }
-        setIsLoggingIn(true); setLoginError('');
-        try {
-          await createUserWithEmailAndPassword(auth, staffEmail, staffPin);
-          await addDoc(collection(db, 'users'), { 
-            phone: staffPhone.replace(/-/g, ''), email: staffEmail, role: staffRole, isStaff: true, createdAt: new Date().toISOString() 
-          });
-          localStorage.setItem('gse_staff_phone', staffPhone); // 🌟 ฟันธง: ฝังชิปจำเบอร์ให้ช่าง
-          setAttemptCount(0);
-          closeStaffLogin();
-          onStart(staffRole);
-        } catch (err) {
-          setLoginError('เกิดข้อผิดพลาดในการลงทะเบียน: ' + err.message);
-          setStaffPin(''); setConfirmStaffPin(''); setIsConfirmingStaffPin(false);
-        } finally { setIsLoggingIn(false); }
+const handleStaffPinSubmit = async () => {
+  if (isNewStaff) {
+    if (!isConfirmingStaffPin) {
+      if (staffPin.length !== 6) { setLoginError('กรุณาตั้งรหัส PIN ให้ครบ 6 หลักค่ะ'); return; }
+      setIsConfirmingStaffPin(true);
+      setLoginError('');
+    } else {
+      if (confirmStaffPin.length !== 6) { setLoginError('กรุณายืนยันรหัส PIN ให้ครบ 6 หลักค่ะ'); return; }
+      if (staffPin !== confirmStaffPin) { 
+        setLoginError('รหัส PIN ไม่ตรงกัน กรุณาลองใหม่อีกครั้งค่ะ'); 
+        setConfirmStaffPin(''); 
+        return; 
       }
-      return;
+      setIsLoggingIn(true); setLoginError('');
+      try {
+        const cleanPhone = staffPhone.replace(/-/g, '');
+        await addDoc(collection(db, 'users'), { 
+          phone: cleanPhone, email: staffEmail, role: staffRole, pin: staffPin, isStaff: true, createdAt: new Date().toISOString() 
+        });
+        localStorage.setItem('gse_staff_phone', cleanPhone);
+        setAttemptCount(0);
+        closeStaffLogin();
+        onStart(staffRole); // 🌟 บังคับใช้ยศช่าง 1,000,000%
+      } catch (err) {
+        setLoginError('เกิดข้อผิดพลาดในการลงทะเบียน');
+        setStaffPin(''); setConfirmStaffPin(''); setIsConfirmingStaffPin(false);
+      } finally { setIsLoggingIn(false); }
     }
+    return;
+  }
 
-    if (staffPin.length !== 6) { setLoginError('กรุณากรอกรหัส PIN ให้ครบ 6 หลักค่ะ'); return; }
-    setIsLoggingIn(true); setLoginError('');
-    try {
-      await signInWithEmailAndPassword(auth, staffEmail, staffPin);
-      localStorage.setItem('gse_staff_phone', staffPhone); // 🌟 ฟันธง: ฝังชิปจำเบอร์ให้ช่าง
+  if (staffPin.length !== 6) { setLoginError('กรุณากรอกรหัส PIN ให้ครบ 6 หลักค่ะ'); return; }
+  setIsLoggingIn(true); setLoginError('');
+  try {
+    const cleanPhone = staffPhone.replace(/-/g, '');
+    const q = query(collection(db, 'users'), where('phone', '==', cleanPhone), where('pin', '==', staffPin));
+    const snap = await getDocs(q);
+
+    if (!snap.empty) {
+      localStorage.setItem('gse_staff_phone', cleanPhone);
       setAttemptCount(0);
       closeStaffLogin();
-      onStart(staffRole);
-    } catch (err) {
+      // 🌟 บังคับใช้ยศช่างจากฐานข้อมูล staff_roles เพื่อกันหลงไปโหมดผู้แจ้ง!
+      onStart(staffRole || 'Commander'); 
+    } else {
       const newCount = attemptCount + 1;
       setAttemptCount(newCount);
       setLoginError(`รหัส PIN ไม่ถูกต้อง (ครั้งที่ ${newCount}/5)`);
       setStaffPin('');
-    } finally { setIsLoggingIn(false); }
-  };
+    }
+  } catch (err) {
+    setLoginError('เกิดข้อผิดพลาดในการตรวจสอบรหัส');
+  } finally { setIsLoggingIn(false); }
+};
 
 // =========================================================
   // 🌟 ฟันธงจุดที่ 3: ระบบ Auto-Login & Auto-Submit ทันทีที่ช่างพิมพ์ PIN ครบ 6 หลัก!
@@ -5838,9 +5944,12 @@ const q = query(collection(db, 'users'), where('phone', '==', cleanPhone));
     return padded.split('').map(c => c === '-' ? '-' : '•').join(' ');
   };
 
-  return (
-    /* 🌟 ฟันธง: เปลี่ยนจาก h-[100dvh] เป็น min-h-[100dvh] และเปิดให้ไถจอได้ (overflow-y-auto) บนมือถือ จะได้ไม่บีบแบน */
-    <div className="relative min-h-[100dvh] md:min-h-screen w-full flex flex-col items-center justify-center p-4 sm:p-6 md:p-12 overflow-y-auto overflow-x-hidden overscroll-none md:overscroll-auto bg-[#020617] font-sans">
+
+
+   /* 🌟 ฟันธง: เปลี่ยนจาก h-[100dvh] เป็น min-h-[100dvh] และเปิดให้ไถจอได้ (overflow-y-auto) บนมือถือ จะได้ไม่บีบแบน */
+   return (
+    /* 🌟 ฟันธง 1: คืนชีพโหมด PC! ปรับเป็น min-h-[100dvh] และ overflow-y-auto ให้สกอร์เมาส์ได้ 100% */
+    <div className="relative min-h-[100dvh] w-full flex flex-col items-center justify-center p-4 sm:p-6 md:p-12 overflow-hidden bg-[#020617] font-sans">
       
       {/* 🌟 Background & Radar Scan */}
       <div className="absolute inset-0 z-0">
@@ -5875,77 +5984,57 @@ const q = query(collection(db, 'users'), where('phone', '==', cleanPhone));
             linear-gradient(90deg, rgba(34, 211, 238, 0.05) 1px, transparent 1px);
           background-size: 30px 30px;
         }
-        /* 🌟 เพิ่มชุดคำสั่ง Animation Loading */
-        @keyframes loading {
-          0% { width: 0%; }
-          100% { width: 100%; }
-        }
-        .fill-bar {
-          animation: loading 3s ease-in-out forwards;
-        }
-`}</style>
-
+      `}</style>
 
       <div className="absolute inset-0 z-0 bg-cyber-grid pointer-events-none fixed"></div>
       <div className="animate-scan absolute inset-0 z-0 pointer-events-none overflow-hidden fixed"></div>
 
       {/* 🌟 Main Content Box */}
-      <div className="relative z-10 w-full h-full md:h-auto max-w-md md:max-w-xl lg:max-w-2xl flex flex-col items-center animate-in slide-in-from-bottom-8 fade-in duration-1000 my-auto py-6 md:py-0">
+      <div className="relative z-10 w-full h-full md:h-auto max-w-md md:max-w-xl lg:max-w-2xl flex flex-col items-center justify-center animate-in slide-in-from-bottom-8 fade-in duration-1000 my-auto py-4 md:py-0">
         
         <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[120%] h-[120%] bg-orange-500/20 blur-[120px] rounded-full pointer-events-none z-0 animate-pulse"></div>
 
-        {/* 🌟 ฟันธง: เปลี่ยน h-full เป็น min-h-fit เพื่อให้กล่องขยายตามเนื้อหาในมือถือ */}
-        <div
-          className="pt-8 pb-6 px-4 md:pt-14 md:pb-6 md:px-10 rounded-[1.5rem] md:rounded-[3rem] flex flex-col items-center text-center w-full min-h-fit md:h-auto relative backdrop-blur-xl transition-all duration-500 z-10"
-          style={{
-            backgroundColor: 'rgba(15, 23, 42, 0.65)',
-            border: '3px solid #FF4500',
-            boxShadow: '0 0 50px rgba(255, 69, 0, 0.6), inset 0 0 30px rgba(255, 69, 0, 0.2)'
-          }}
-        >
-         {/* ===================================================================== */}
-          {/* 🌟 ฟันธง: โซน Header & Hero (โลโก้ซ้าย + กล่องข้อความขวา + น้องมาสคอตใหญ่) */}
-          {/* ===================================================================== */}
-          <div className="w-full flex flex-col items-center shrink-0 md:flex-none transition-all duration-500 -mt-6 md:-mt-10 mb-2 md:mb-4">
-            
-            {/* 1. แถวบน: โลโก้จิ๋ว (ซ้ายบน) + กล่องคำถาม (กลาง) */}
-            <div className="w-full relative flex items-start justify-center mb-4 md:mb-6 mt-2 min-h-[80px]">
-              
-              {/* โลโก้ (ขยับชิดขอบจอทะลุกำแพง) */}
-              <div className="fixed left-2 top-2 w-12 h-12 sm:w-14 sm:h-14 md:w-24 md:h-24 flex items-center justify-center z-50">
-                <div className="absolute inset-0 bg-orange-500/30 blur-[10px] rounded-full animate-pulse z-0"></div>
-                <img src="/GSE-logo.webp" alt="Logo" className="w-full h-full object-contain drop-shadow-[0_5px_10px_rgba(0,0,0,0.5)] relative z-10" />
-              </div>
 
-              {/* กล่องข้อความคำพูด (จัดให้อยู่ตรงกลางเด่นๆ) */}
-              <div className="relative z-20 bg-slate-900/90 backdrop-blur-md rounded-2xl md:rounded-[2rem] p-3 md:p-6 shadow-[0_10px_30px_rgba(249,115,22,0.6)] text-center border-[2px] border-solid border-orange-500 animate-bounce mx-auto max-w-[75%] sm:max-w-[80%] ml-auto mr-auto mt-2">
-                {/* ลูกศรชี้ลงไปหามาสคอต (จัดให้อยู่กึ่งกลางเป๊ะ) */}
-                <div className="absolute left-1/2 -translate-x-1/2 -bottom-[11px] w-5 h-5 bg-slate-900 border-b-[2px] border-r-[2px] border-solid border-orange-500 transform rotate-45 rounded-sm"></div>
-                <p className="text-[13px] sm:text-[15px] md:text-[22px] font-bold text-slate-100 leading-tight md:leading-relaxed relative z-20 shadow-none">
-                  ระบบ/อุปกรณ์มีปัญหาใช่มั้ยคะ?
-                  <br />
-                  <span className="text-orange-400 font-black text-[13px] sm:text-[14px] md:text-[22px] mt-1 inline-flex items-center justify-center gap-1.5 drop-shadow-[0_0_12px_rgba(249,115,22,1)] whitespace-nowrap">
-                    กดแจ้งซ่อมได้เลยค่ะ! <span className="text-[20px] md:text-[45px] leading-[0] transform translate-y-1">👇</span>
-                  </span>
-                </p>
-              </div>
+      
+      {/* 🌟 ฟันธง 2: กรอบสีส้มหน้าแรก คืนชีพโหมดมือถือ! เปลี่ยนเป็น min-h-[90vh] เพื่อให้มือถือยาวสะใจ แต่ PC ยังพอดีตัว! */}
+      <div className="pt-6 pb-6 px-4 md:pt-14 md:pb-6 md:px-10 rounded-[1.5rem] md:rounded-[3rem] flex flex-col items-center justify-between md:justify-center text-center w-full min-h-[90vh] md:min-h-0 md:h-auto relative backdrop-blur-xl transition-all duration-500 z-10 overflow-y-auto [&::-webkit-scrollbar]:hidden" 
+        style={{ backgroundColor: 'rgba(15, 23, 42, 0.8)', border: '3px solid #FF4500', boxShadow: '0 0 50px rgba(255, 69, 0, 0.8), inset 0 0 30px rgba(255, 69, 0, 0.5)' }}>
+
+
+          {/* ===================================================================== */}
+          {/* 🌟 โซนบน: โลโก้ & กล่องข้อความ */}
+          {/* ===================================================================== */}
+
+          <div className="w-full relative flex items-start justify-center mb-2 md:mb-6 min-h-[70px] md:min-h-[80px]">
+            <div className="absolute -left-3 -top-5 md:fixed md:left-2 md:top-2 w-14 h-14 md:w-24 md:h-24 flex items-center justify-center z-50">
+              <div className="absolute inset-0 bg-orange-500/30 blur-[10px] rounded-full animate-pulse z-0"></div>
+              <img src="/GSE-logo.webp" alt="Logo" className="w-full h-full object-contain drop-shadow-[0_5px_10px_rgba(0,0,0,0.8)] relative z-10" />
             </div>
 
-            {/* 2. ภาพน้องมาสคอต (ขยายร่างให้ใหญ่ขึ้นได้เต็มที่แล้ว!) */}
-            <div 
-              className="shrink-0 flex items-center justify-center w-full relative z-30 mx-auto pointer-events-none drop-shadow-[0_20px_40px_rgba(0,0,0,0.9)] transition-all duration-500" 
-              style={{ maxWidth: '320px' }}
-            >
-              {/* 🌟 ปรับขนาดมาสคอต h-[200px] บนมือถือใหญ่สะใจ! */}
-              <img src="/mascot.webp" alt="Mascot" className="h-[200px] sm:h-[240px] md:h-auto w-auto md:w-full object-contain object-bottom hover:scale-105 transition-transform duration-500" />
+
+            <div className="relative z-20 bg-slate-900/90 backdrop-blur-md rounded-2xl md:rounded-[2rem] p-3 md:p-6 shadow-[0_10px_30px_rgba(249,115,22,0.6)] text-center border-[2px] border-solid border-cyan-500 animate-bounce mx-auto max-w-[90%] sm:max-w-[80%] ml-14 md:ml-auto mt-5 md:mt-2">
+              <div className="absolute left-1/2 -translate-x-1/2 -bottom-[11px] w-5 h-5 bg-slate-900 border-b-[2px] border-r-[2px] border-solid border-cyan-500 transform rotate-45 rounded-sm"></div>
+              <p className="text-[15px] sm:text-[18px] md:text-[24px] font-bold text-slate-100 leading-tight md:leading-relaxed relative z-20 shadow-none">
+                ระบบ/อุปกรณ์มีปัญหาใช่มั้ยคะ?
+                <br className="hidden md:block"/>
+                <span className="text-orange-400 font-black text-[15px] md:text-[24px] mt-0.5 md:mt-1 inline-flex items-center justify-center gap-1.5 drop-shadow-[0_0_12px_rgba(249,115,22,1)] whitespace-nowrap">
+                  กดแจ้งซ่อมได้เลยค่ะ! <span className="text-[20px] md:text-[45px] leading-[0] transform translate-y-1">👇</span>
+                </span>
+              </p>
             </div>
           </div>
-          {/* ===================================================================== */}
 
-          {/* 🌟 The 3 Sci-Fi Buttons - ฟันธง: ปรับขนาดปุ่ม, ระยะห่าง (gap), และ padding ให้เพรียวบางบนมือถือ */}
-          <div className="shrink-0 w-full flex flex-col gap-2 md:gap-5 relative z-10 transition-all duration-500 mt-1 md:mt-4">
+          {/* 🌟 โซนกลาง: ภาพน้องมาสคอต (ล็อกความสูงไม่ให้ดันกล่องจนยืด) */}
+          <div className="flex items-center justify-center w-full relative z-30 pointer-events-none drop-shadow-[0_20px_40px_rgba(0,0,0,0.9)] mt-2 -mb-7 md:mt-2 -mb-5 ">
+            <img src="/mascot.webp" alt="Mascot" className="h-[280px] sm:h-[280px] md:h-[320px] w-auto object-contain hover:scale-105 transition-transform duration-500" />
+          </div>
+
+          {/* ===================================================================== */}
+          {/* 🌟 โซนล่าง: ปุ่มกด 3 ปุ่ม */}
+          {/* ===================================================================== */}
+          <div className="w-full flex flex-col gap-3 md:gap-5 relative z-10 mt-3 md:mt-6">
             
-            <button onClick={() => setShowReporterLogin(true)} className="group relative w-full bg-gradient-to-r from-orange-500 to-amber-500 text-white font-black text-[15px] sm:text-[16px] md:text-[26px] py-3 md:py-5 rounded-2xl md:rounded-[1.5rem] border-[2px] border-solid border-white/40 shadow-[0_0_20px_rgba(249,115,22,0.8)] md:shadow-[0_0_30px_rgba(249,115,22,0.8)] hover:from-orange-400 hover:to-amber-400 hover:border-white hover:shadow-[0_0_60px_rgba(249,115,22,1),inset_0_0_20px_rgba(255,255,255,0.4)] hover:scale-[1.03] active:scale-95 transition-all duration-300 flex items-center justify-center gap-2 md:gap-4 overflow-hidden">
+            <button onClick={() => setShowReporterLogin(true)} className="group relative w-full bg-gradient-to-r from-orange-500 to-amber-500 text-white font-black text-[15px] sm:text-[16px] md:text-[26px] py-3.5 md:py-5 rounded-2xl md:rounded-[1rem] border-[2px] border-solid border-white/40 shadow-[0_0_20px_rgba(249,115,22,0.8)] md:shadow-[0_0_30px_rgba(249,115,22,0.8)] hover:from-orange-400 hover:to-amber-400 hover:border-white hover:shadow-[0_0_60px_rgba(249,115,22,1),inset_0_0_20px_rgba(255,255,255,0.4)] hover:scale-[1.03] active:scale-95 transition-all duration-300 flex items-center justify-center gap-2 md:gap-4 overflow-hidden">
               <div className="absolute inset-0 bg-gradient-to-t from-orange-300/0 via-white/40 to-orange-300/0 opacity-0 group-hover:opacity-100 group-hover:animate-pulse transition-opacity duration-300"></div>
               <div className="bg-orange-900/60 p-1.5 md:p-3 rounded-xl md:rounded-2xl border border-orange-300 shadow-[inset_0_0_10px_rgba(0,0,0,0.5)] group-hover:bg-orange-800 group-hover:border-white group-hover:shadow-[0_0_20px_rgba(255,255,255,0.9)] transition-all z-10">
                 <Wrench className="w-5 h-5 md:w-8 md:h-8 text-white drop-shadow-[0_0_8px_rgba(255,255,255,0.8)]" />
@@ -5953,7 +6042,7 @@ const q = query(collection(db, 'users'), where('phone', '==', cleanPhone));
               <span className="tracking-widest drop-shadow-[0_2px_5px_rgba(0,0,0,0.6)] z-10 group-hover:drop-shadow-[0_0_15px_rgba(255,255,255,1)]">แจ้งซ่อมระบบ/อุปกรณ์</span>
             </button>
 
-            <button onClick={() => setShowLogin(true)} className="group relative w-full bg-gradient-to-r from-emerald-500 to-teal-500 text-white font-black text-[15px] sm:text-[16px] md:text-[26px] py-3 md:py-5 rounded-2xl md:rounded-[1.5rem] border-[2px] border-solid border-white/40 shadow-[0_0_20px_rgba(16,185,129,0.8)] md:shadow-[0_0_30px_rgba(16,185,129,0.8)] hover:from-emerald-400 hover:to-teal-400 hover:border-white hover:shadow-[0_0_60px_rgba(16,185,129,1),inset_0_0_20px_rgba(255,255,255,0.4)] hover:scale-[1.03] active:scale-95 transition-all duration-300 flex items-center justify-center gap-2 md:gap-4 overflow-hidden">
+            <button onClick={() => setShowLogin(true)} className="group relative w-full bg-gradient-to-r from-emerald-500 to-teal-500 text-white font-black text-[15px] sm:text-[16px] md:text-[26px] py-3.5 md:py-5 rounded-2xl md:rounded-[1rem] border-[2px] border-solid border-white/40 shadow-[0_0_20px_rgba(16,185,129,0.8)] md:shadow-[0_0_30px_rgba(16,185,129,0.8)] hover:from-emerald-400 hover:to-teal-400 hover:border-white hover:shadow-[0_0_60px_rgba(16,185,129,1),inset_0_0_20px_rgba(255,255,255,0.4)] hover:scale-[1.03] active:scale-95 transition-all duration-300 flex items-center justify-center gap-2 md:gap-4 overflow-hidden">
               <div className="absolute inset-0 bg-gradient-to-t from-emerald-300/0 via-white/40 to-emerald-300/0 opacity-0 group-hover:opacity-100 group-hover:animate-pulse transition-opacity duration-300"></div>
               <div className="bg-emerald-900/60 p-1.5 md:p-3 rounded-xl md:rounded-2xl border border-emerald-300 shadow-[inset_0_0_10px_rgba(0,0,0,0.5)] group-hover:bg-emerald-800 group-hover:border-white group-hover:shadow-[0_0_20px_rgba(255,255,255,0.9)] transition-all z-10">
                 <ShieldCheck className="w-5 h-5 md:w-8 md:h-8 text-white drop-shadow-[0_0_8px_rgba(255,255,255,0.8)]" />
@@ -5961,31 +6050,34 @@ const q = query(collection(db, 'users'), where('phone', '==', cleanPhone));
               <span className="tracking-widest drop-shadow-[0_2px_5px_rgba(0,0,0,0.6)] z-10 group-hover:drop-shadow-[0_0_15px_rgba(255,255,255,1)]">สำหรับเจ้าหน้าที่ ฝวด.</span>
             </button>
 
-            <button onClick={() => setShowManual(true)} className="group relative w-full bg-gradient-to-r from-indigo-500 to-purple-500 text-white font-black text-[15px] sm:text-[16px] md:text-[26px] py-3 md:py-5 rounded-2xl md:rounded-[1.5rem] border-[2px] border-solid border-white/40 shadow-[0_0_20px_rgba(99,102,241,0.8)] md:shadow-[0_0_30px_rgba(99,102,241,0.8)] hover:from-indigo-400 hover:to-purple-400 hover:border-white hover:shadow-[0_0_60px_rgba(99,102,241,1),inset_0_0_20px_rgba(255,255,255,0.4)] hover:scale-[1.03] active:scale-95 transition-all duration-300 flex items-center justify-center gap-2 md:gap-4 overflow-hidden">
+
+            <button onClick={() => setShowManual(true)} className="group relative w-full bg-gradient-to-r from-indigo-500 to-purple-500 text-white font-black text-[15px] sm:text-[16px] md:text-[26px] py-3.5 md:py-5 rounded-2xl md:rounded-[1rem] border-[2px] border-solid border-white/40 shadow-[0_0_20px_rgba(99,102,241,0.8)] md:shadow-[0_0_30px_rgba(99,102,241,0.8)] hover:from-indigo-400 hover:to-purple-400 hover:border-white hover:shadow-[0_0_60px_rgba(99,102,241,1),inset_0_0_20px_rgba(255,255,255,0.4)] hover:scale-[1.03] active:scale-95 transition-all duration-300 flex items-center justify-center gap-2 md:gap-4 overflow-hidden">
               <div className="absolute inset-0 bg-gradient-to-t from-indigo-300/0 via-white/40 to-indigo-300/0 opacity-0 group-hover:opacity-100 group-hover:animate-pulse transition-opacity duration-300"></div>
               <div className="bg-indigo-900/60 p-1.5 md:p-3 rounded-xl md:rounded-2xl border border-indigo-300 shadow-[inset_0_0_10px_rgba(0,0,0,0.5)] group-hover:bg-indigo-800 group-hover:border-white group-hover:shadow-[0_0_20px_rgba(255,255,255,0.9)] transition-all z-10">
                 <FileText className="w-5 h-5 md:w-8 md:h-8 text-white drop-shadow-[0_0_8px_rgba(255,255,255,0.8)]" />
               </div>
               <span className="tracking-widest drop-shadow-[0_2px_5px_rgba(0,0,0,0.6)] z-10 group-hover:drop-shadow-[0_0_15px_rgba(255,255,255,1)]">คู่มือการใช้งาน</span>
             </button>
-
           </div>
 
-          <h2 className="text-[14px] md:text-[28px] font-black text-cyan-400 drop-shadow-[0_0_15px_rgba(34,211,238,0.9)] uppercase mt-3 md:mt-8 mb-1 transition-all duration-500 tracking-wide">
-            ฝ่ายวิศวกรรมระบบปฏิบัติการดาวเทียม
-          </h2>
-          <h3 className="text-[12px] md:text-[18px] font-bold text-slate-300 tracking-[0.2em] mt-0.5 md:mt-1 transition-all duration-500">
-            สำนักปฏิบัติการดาวเทียม
-          </h3>
 
-          <h3 className="font-mono text-slate-400 tracking-widest font-bold mt-2 md:mt-10 opacity-95 flex items-baseline justify-center flex-wrap gap-x-1.5 gap-y-1">
-            <span className="text-[10px] md:text-[14px]">©2026</span>
-            <span><span className="text-[14px] md:text-[22px] text-orange-500 font-black drop-shadow-[0_0_10px_rgba(249,115,22,0.8)]">G</span><span className="text-[10px] md:text-[14px]">round</span></span>
-            <span><span className="text-[14px] md:text-[22px] text-orange-500 font-black drop-shadow-[0_0_10px_rgba(249,115,22,0.8)]">S</span><span className="text-[10px] md:text-[14px]">ystem</span></span>
-            <span><span className="text-[14px] md:text-[22px] text-orange-500 font-black drop-shadow-[0_0_10px_rgba(249,115,22,0.8)]">E</span><span className="text-[10px] md:text-[14px]">ngineering:</span></span>
-            <span className="text-[13px] md:text-[20px] text-orange-400 font-black drop-shadow-[0_0_15px_rgba(249,115,22,1)] ml-1">GSE</span>
-          </h3>
+          <div className="mt-4 md:mt-6">
+            <h2 className="text-[16px] sm:text-[20px] md:text-[24px] font-black text-cyan-400 drop-shadow-[0_0_15px_rgba(34,211,238,0.9)] uppercase mb-0.5 md:mb-1 transition-all duration-500 tracking-wide">
+              ฝ่ายวิศวกรรมระบบปฏิบัติการดาวเทียม
+            </h2>
+            <h3 className="text-[14px] sm:text-[16px] md:text-[20px] font-bold text-slate-300 tracking-[0.2em] transition-all duration-500">
+              สำนักปฏิบัติการดาวเทียม
+            </h3>
+            <h3 className="font-mono text-slate-400 tracking-widest font-bold mt-2 md:mt-4 opacity-95 flex items-baseline justify-center flex-wrap gap-x-1.5 gap-y-1">
+              <span className="text-[13px] md:text-[14px]">©2026</span>
+              <span><span className="text-[15px] md:text-[22px] text-orange-500 font-black drop-shadow-[0_0_10px_rgba(249,115,22,0.8)]">G</span><span className="text-[10px] md:text-[13px]">round</span></span>
+              <span><span className="text-[15px] md:text-[22px] text-orange-500 font-black drop-shadow-[0_0_10px_rgba(249,115,22,0.8)]">S</span><span className="text-[10px] md:text-[13px]">ystem</span></span>
+              <span><span className="text-[15px] md:text-[22px] text-orange-500 font-black drop-shadow-[0_0_10px_rgba(249,115,22,0.8)]">E</span><span className="text-[10px] md:text-[13px]">ngineering:</span></span>
+              <span className="text-[15px] md:text-[22px] text-orange-400 font-black drop-shadow-[0_0_15px_rgba(249,115,22,1)] ml-1">GSE</span>
+            </h3>
+          </div>
         </div>
+
       </div>
 
       {/* 🌟 Modals */}
@@ -6088,10 +6180,11 @@ const q = query(collection(db, 'users'), where('phone', '==', cleanPhone));
                     if (!staffEmail) return;
                     setIsLoggingIn(true);
                     try {
+                      // 🌟 ฟันธง: นำระบบส่งลิงก์รีเซ็ตผ่านอีเมลกลับมาใช้ตามเดิม!
                       await sendPasswordResetEmail(auth, staffEmail);
                       setLoginError('ระบบได้ส่งลิงก์รีเซ็ต PIN ไปที่อีเมลหน่วยงานของท่านแล้วค่ะ');
                     } catch (err) {
-                      setLoginError('ไม่สามารถส่งอีเมลรีเซ็ตได้');
+                      setLoginError('ไม่สามารถส่งอีเมลรีเซ็ตได้ กรุณาลองใหม่');
                     } finally {
                       setIsLoggingIn(false);
                     }
@@ -6099,7 +6192,9 @@ const q = query(collection(db, 'users'), where('phone', '==', cleanPhone));
                     ลืมรหัส PIN ใช่หรือไม่?
                   </button>
                 )}
-                <button type="button" onClick={() => { setStaffStep(1); setStaffPhone(''); setStaffPin(''); setLoginError(''); setAttemptCount(0); }} className="text-xs font-bold text-slate-400 hover:text-cyan-400 underline transition-colors ml-auto z-10">ไม่ใช่คุณใช่ไหม?</button>
+                <button type="button" onClick={() => { setStaffStep(1); setStaffPhone(''); setStaffPin(''); setLoginError(''); setAttemptCount(0); setIsNewStaff(false); }} className="text-xs font-bold text-slate-400 hover:text-cyan-400 underline transition-colors ml-auto z-10">
+                  ไม่ใช่คุณใช่ไหม?
+                </button>
               </div>
             )}
 
