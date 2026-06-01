@@ -5908,7 +5908,7 @@ useEffect(() => {
               className="shrink-0 flex items-center justify-center w-full md:w-[50%] relative z-30 mx-auto mb-3 md:mb-4 pointer-events-none drop-shadow-[0_20px_40px_rgba(0,0,0,0.9)] transition-all duration-500" 
               style={{ maxWidth: '280px' }}
             >
-              <img src="/mascot.webp" alt="Mascot" className="h-[130px] sm:h-[150px] md:h-auto w-auto md:w-full object-contain object-bottom hover:scale-105 transition-transform duration-500" />
+              <img src="/mascot.webp" alt="Mascot" className="h-[160px] sm:h-[185px] md:h-auto w-auto md:w-full object-contain object-bottom hover:scale-105 transition-transform duration-500" />
             </div>
           </div>
 
