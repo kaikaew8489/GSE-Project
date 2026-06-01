@@ -6026,7 +6026,7 @@ const handleStaffPinSubmit = async () => {
 
           {/* 🌟 โซนกลาง: ภาพน้องมาสคอต (ล็อกความสูงไม่ให้ดันกล่องจนยืด) */}
           <div className="flex items-center justify-center w-full relative z-30 pointer-events-none drop-shadow-[0_20px_40px_rgba(0,0,0,0.9)] mt-2 -mb-7 md:mt-2 -mb-5 ">
-            <img src="/mascot.webp" alt="Mascot" className="h-[280px] sm:h-[280px] md:h-[320px] w-auto object-contain hover:scale-105 transition-transform duration-500" />
+            <img src="/mascot.webp" alt="Mascot" className="h-[210px] sm:h-[240px] md:h-[320px] w-auto object-contain hover:scale-105 transition-transform duration-500" />
           </div>
 
           {/* ===================================================================== */}
