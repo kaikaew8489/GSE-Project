@@ -2579,6 +2579,7 @@ const executeRatingSubmit = async () => {
             </div>
           </div>
 
+
           {/* ========================================================================= */}
           {/* 🌟 ฟันธง: กล่องเสร็จสิ้น (สีเขียว) ถูกยกมาไว้ข้างล่างแล้ว! จะแสดงผลทีหลัง (หรืออยู่ขวา) */}
           {/* ========================================================================= */}
@@ -2598,8 +2599,9 @@ const executeRatingSubmit = async () => {
             </div>
           </div> 
         </div>
+
         
-{/* ========================================================================= */}
+        {/* ========================================================================= */}
         {/* 🌟 ฟันธง: กล่องสรุปยอดแยกตามภารกิจ (อัปเกรดแยก 4 สี + บาลานซ์เต็มจอ PC) */}
         {/* ========================================================================= */}
         {stats.missionBreakdown && stats.missionBreakdown.length > 0 && (
@@ -2656,8 +2658,8 @@ const executeRatingSubmit = async () => {
         )}
 
 
-{/* 🌟 ฟันธง: กล่องสรุปคะแนนประเมิน SLA (CSAT KPI) จะโชว์ก็ต่อเมื่อมีงานที่ซ่อมเสร็จแล้ว */}
-{stats.done > 0 && (
+      {/* 🌟 ฟันธง: กล่องสรุปคะแนนประเมิน SLA (CSAT KPI) จะโชว์ก็ต่อเมื่อมีงานที่ซ่อมเสร็จแล้ว */}
+      {stats.done > 0 && (
           <div className="bg-slate-800/60 backdrop-blur-xl p-5 md:p-8 rounded-[1.5rem] border-[2px] border-solid border-yellow-500/80 shadow-[0_0_20px_rgba(250,204,21,0.8)] mt-4 md:mt-8 relative overflow-hidden flex items-center justify-between hover:shadow-[0_0_30px_rgba(250,204,21,0.8)] transition-all">
             
             {/* แสงเฟลอร์หลังกล่อง สีทองอร่าม */}
@@ -5934,7 +5936,7 @@ useEffect(() => {
               <div className="bg-indigo-900/60 p-1.5 md:p-3 rounded-xl md:rounded-2xl border border-indigo-300 shadow-[inset_0_0_10px_rgba(0,0,0,0.5)] group-hover:bg-indigo-800 group-hover:border-white group-hover:shadow-[0_0_20px_rgba(255,255,255,0.9)] transition-all z-10">
                 <FileText className="w-5 h-5 md:w-8 md:h-8 text-white drop-shadow-[0_0_8px_rgba(255,255,255,0.8)]" />
               </div>
-              <span className="tracking-widest drop-shadow-[0_2px_5px_rgba(0,0,0,0.6)] z-10 group-hover:drop-shadow-[0_0_15px_rgba(255,255,255,1)]">คู่มือการใช้งานเบื้องต้น</span>
+              <span className="tracking-widest drop-shadow-[0_2px_5px_rgba(0,0,0,0.6)] z-10 group-hover:drop-shadow-[0_0_15px_rgba(255,255,255,1)]">คู่มือการใช้งาน</span>
             </button>
 
           </div>
@@ -5971,7 +5973,7 @@ useEffect(() => {
                   <div className="absolute -inset-1 bg-orange-500/30 blur-[10px] rounded-full animate-pulse z-0"></div>
                   <div className="relative z-10 bg-slate-800 border-[2px] md:border-[3px] border-solid border-orange-400 rounded-lg md:rounded-xl px-3 md:px-8 py-2 md:py-2.5 shadow-[0_0_10px_rgba(249,115,22,0.8)]">
                     <h3 className="text-white font-black tracking-widest text-[14px] sm:text-[15px] md:text-2xl drop-shadow-[0_0_5px_rgba(255,255,255,0.8)] whitespace-nowrap">
-                      คู่มือการใช้งานเบื้องต้น
+                      คู่มือการใช้งานโปรแกรม
                     </h3>
                   </div>
                 </div>
