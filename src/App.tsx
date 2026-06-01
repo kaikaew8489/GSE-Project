@@ -4959,7 +4959,7 @@ const renderTracking = () => (
               }
 
               return (
-                <div className="text-orange-300 font-bold text-[16px] md:text-22px] tracking-widest mb-0.5 md:mb-1 animate-in slide-in-from-top-2 flex items-center gap-1.5 opacity-90 drop-shadow-sm">
+                <div className="text-orange-300 font-bold text-[16px] md:text-24px] tracking-widest mb-0.5 md:mb-1 animate-in slide-in-from-top-2 flex items-center gap-1.5 opacity-90 drop-shadow-sm">
                    {greeting}
                 </div>
               );
@@ -5480,16 +5480,19 @@ function ReporterLoginPopup({ onClose, onLoginSuccess }) {
     setIsLoading(true);
     setLoginError('');
     try {
-      const isOldUser = phone.endsWith('9'); 
-      if (isOldUser) {
-        setIsNewUser(false);
-        setStep(2); 
+      // 🌟 ฟันธง: ลบโค้ดหลอก endsWith('9') ทิ้ง และใช้การ Query จาก Firebase ของจริง
+      const cleanPhone = phone.replace(/-/g, ''); // กันเหนียว ล้างขีดออกก่อนค้นหา
+      const q = query(collection(db, 'users'), where('phone', '==', cleanPhone));
+      const snap = await getDocs(q);
+      
+      if (snap.empty) {
+        setIsNewUser(true);  // หาใน Firebase ไม่เจอ = ผู้ใช้ใหม่ (ให้ตั้งรหัส PIN)
       } else {
-        setIsNewUser(true);
-        setStep(2); 
+        setIsNewUser(false); // หาใน Firebase เจอ = ผู้ใช้เก่า (ให้ใส่รหัส PIN ล็อกอิน)
       }
+      setStep(2); 
     } catch (error) {
-      setLoginError('เกิดข้อผิดพลาด กรุณาลองใหม่');
+      setLoginError('เกิดข้อผิดพลาดในการตรวจสอบฐานข้อมูล กรุณาลองใหม่');
     }
     setIsLoading(false);
   };
@@ -5675,23 +5678,30 @@ useEffect(() => {
   };
 
   const handleStaffPhoneNext = async () => {
-    if (staffPhone.length !== 10) {
+    // 🌟 ฟันธง 1: ล้างขีดออกให้หมดก่อน ดึงมาแค่ตัวเลขเพียวๆ
+    const cleanPhone = staffPhone.replace(/-/g, '');
+
+    // 🌟 ฟันธง 2: ใช้ตัวเลขเพียวๆ มาเช็คความยาว 10 หลัก (แก้ปัญหาพิมพ์ขีดแล้ว error)
+    if (cleanPhone.length !== 10) {
       setLoginError('กรุณากรอกเบอร์โทรศัพท์ให้ครบ 10 หลักค่ะ');
       return;
     }
+    
     setIsLoggingIn(true);
     setLoginError('');
     try {
-      // 1. เช็คว่าเป็นเจ้าหน้าที่ ฝวด. หรือไม่
-      const q = query(collection(db, 'staff_roles'), where('phone', '==', staffPhone));
+      // 🌟 ฟันธง 3: เอา cleanPhone ไปค้นหาในฐานข้อมูล Firebase
+      // 🌟 ล้างขีดออกจากเบอร์ผู้แจ้งซ่อมก่อนไปค้นหา
+const cleanPhone = phone.replace(/-/g, '');
+const q = query(collection(db, 'users'), where('phone', '==', cleanPhone));
       const snap = await getDocs(q);
+      
       if (!snap.empty) {
         const data = snap.docs[0].data();
         setStaffEmail(data.email);
         setStaffRole(data.role);
         
-        // 🌟 2. สมองกลใหม่: เช็คว่าช่างคนนี้เคยตั้ง PIN (ลงทะเบียน) ไปหรือยัง
-        // โดยเช็คจากตาราง users ทะลวงขีดจำกัด Firebase ทันที!
+        // เช็คว่าช่างคนนี้เคยตั้ง PIN (ลงทะเบียน) ไปหรือยัง
         const qCheck = query(collection(db, 'users'), where('email', '==', data.email));
         const snapCheck = await getDocs(qCheck);
         
@@ -5702,7 +5712,7 @@ useEffect(() => {
         }
         setStaffStep(2);
       } else {
-        setLoginError('เฉพาะเจ้าหน้าที่ ฝวด. เท่านั้น'); // ฟ้อง Error ตรงจุด
+        setLoginError('เฉพาะเจ้าหน้าที่ ฝวด. เท่านั้น'); 
       }
     } catch (err) {
       setLoginError('เกิดข้อผิดพลาดในการตรวจสอบข้อมูล');
@@ -5728,7 +5738,7 @@ useEffect(() => {
         try {
           await createUserWithEmailAndPassword(auth, staffEmail, staffPin);
           await addDoc(collection(db, 'users'), { 
-            phone: staffPhone, email: staffEmail, role: staffRole, isStaff: true, createdAt: new Date().toISOString() 
+            phone: staffPhone.replace(/-/g, ''), email: staffEmail, role: staffRole, isStaff: true, createdAt: new Date().toISOString() 
           });
           localStorage.setItem('gse_staff_phone', staffPhone); // 🌟 ฟันธง: ฝังชิปจำเบอร์ให้ช่าง
           setAttemptCount(0);
@@ -5865,7 +5875,17 @@ useEffect(() => {
             linear-gradient(90deg, rgba(34, 211, 238, 0.05) 1px, transparent 1px);
           background-size: 30px 30px;
         }
-      `}</style>
+        /* 🌟 เพิ่มชุดคำสั่ง Animation Loading */
+        @keyframes loading {
+          0% { width: 0%; }
+          100% { width: 100%; }
+        }
+        .fill-bar {
+          animation: loading 3s ease-in-out forwards;
+        }
+`}</style>
+
+
       <div className="absolute inset-0 z-0 bg-cyber-grid pointer-events-none fixed"></div>
       <div className="animate-scan absolute inset-0 z-0 pointer-events-none overflow-hidden fixed"></div>
 
@@ -5883,39 +5903,49 @@ useEffect(() => {
             boxShadow: '0 0 50px rgba(255, 69, 0, 0.6), inset 0 0 30px rgba(255, 69, 0, 0.2)'
           }}
         >
-          {/* Logo */}
-          <div className="shrink-0 w-24 h-24 sm:w-28 sm:h-28 md:w-44 md:h-44 -mt-10 md:-mt-12 mb-6 md:mb-4 flex items-center justify-center transition-all duration-500 relative">
-            <div className="absolute inset-0 bg-orange-500/40 blur-[25px] rounded-full animate-pulse z-0"></div>
-            <img src="/GSE-logo.webp" alt="Logo" className="w-full h-full object-contain drop-shadow-[0_15px_25px_rgba(0,0,0,0.8)] hover:scale-105 transition-transform duration-500 relative z-10" />
-          </div>
+         {/* ===================================================================== */}
+          {/* 🌟 ฟันธง: โซน Header & Hero (โลโก้ซ้าย + กล่องข้อความขวา + น้องมาสคอตใหญ่) */}
+          {/* ===================================================================== */}
+          <div className="w-full flex flex-col items-center shrink-0 md:flex-none transition-all duration-500 -mt-6 md:-mt-10 mb-2 md:mb-4">
+            
+            {/* 1. แถวบน: โลโก้จิ๋ว (ซ้ายบน) + กล่องคำถาม (กลาง) */}
+            <div className="w-full relative flex items-start justify-center mb-4 md:mb-6 mt-2 min-h-[80px]">
+              
+              {/* โลโก้ (ขยับชิดขอบจอทะลุกำแพง) */}
+              <div className="fixed left-2 top-2 w-12 h-12 sm:w-14 sm:h-14 md:w-24 md:h-24 flex items-center justify-center z-50">
+                <div className="absolute inset-0 bg-orange-500/30 blur-[10px] rounded-full animate-pulse z-0"></div>
+                <img src="/GSE-logo.webp" alt="Logo" className="w-full h-full object-contain drop-shadow-[0_5px_10px_rgba(0,0,0,0.5)] relative z-10" />
+              </div>
 
-          {/* Mascot Text */}
-          <div className="relative w-full flex flex-col items-center shrink-0 md:flex-none transition-all duration-500">            
-            <div className="shrink-0 relative z-20 bg-slate-900/90 backdrop-blur-md rounded-2xl md:rounded-[2rem] p-3 md:p-6 shadow-[0_15px_40px_rgba(249,115,22,0.8)] text-center border-[2px] border-solid border-orange-500 mb-3 md:mb-4 animate-bounce">
-              <div className="absolute left-1/2 -translate-x-1/2 -bottom-[11px] w-5 h-5 bg-slate-900 border-b-[2px] border-r-[2px] border-solid border-orange-500 transform rotate-45 rounded-sm"></div>
-              <p className="text-[15px] sm:text-[18px] md:text-[22px] font-bold text-slate-100 leading-relaxed relative z-20 shadow-none">
-                ระบบ/อุปกรณ์มีปัญหาใช่มั้ยคะ?
-                <br />
-                <span className="text-orange-400 font-black text-[14px] sm:text-[15px] md:text-[22px] mt-1 md:mt-2 inline-flex items-center justify-center gap-1.5 md:gap-2 drop-shadow-[0_0_12px_rgba(249,115,22,1)] whitespace-nowrap">
-                  กดแจ้งซ่อมได้เลยค่ะ!
-                  <span className="text-[24px] md:text-[45px] leading-[0] block transform translate-y-1 md:translate-y-2 drop-shadow-md">👇</span>
-                </span>
-              </p>
+              {/* กล่องข้อความคำพูด (จัดให้อยู่ตรงกลางเด่นๆ) */}
+              <div className="relative z-20 bg-slate-900/90 backdrop-blur-md rounded-2xl md:rounded-[2rem] p-3 md:p-6 shadow-[0_10px_30px_rgba(249,115,22,0.6)] text-center border-[2px] border-solid border-orange-500 animate-bounce mx-auto max-w-[75%] sm:max-w-[80%] ml-auto mr-auto mt-2">
+                {/* ลูกศรชี้ลงไปหามาสคอต (จัดให้อยู่กึ่งกลางเป๊ะ) */}
+                <div className="absolute left-1/2 -translate-x-1/2 -bottom-[11px] w-5 h-5 bg-slate-900 border-b-[2px] border-r-[2px] border-solid border-orange-500 transform rotate-45 rounded-sm"></div>
+                <p className="text-[13px] sm:text-[15px] md:text-[22px] font-bold text-slate-100 leading-tight md:leading-relaxed relative z-20 shadow-none">
+                  ระบบ/อุปกรณ์มีปัญหาใช่มั้ยคะ?
+                  <br />
+                  <span className="text-orange-400 font-black text-[13px] sm:text-[14px] md:text-[22px] mt-1 inline-flex items-center justify-center gap-1.5 drop-shadow-[0_0_12px_rgba(249,115,22,1)] whitespace-nowrap">
+                    กดแจ้งซ่อมได้เลยค่ะ! <span className="text-[20px] md:text-[45px] leading-[0] transform translate-y-1">👇</span>
+                  </span>
+                </p>
+              </div>
             </div>
 
-            {/* Mascot Image - 🌟 ฟันธง: ล็อกความสูงขั้นต่ำให้น้องมาสคอต ไม่ให้โดนบีบแบนบนมือถือ */}
+            {/* 2. ภาพน้องมาสคอต (ขยายร่างให้ใหญ่ขึ้นได้เต็มที่แล้ว!) */}
             <div 
-              className="shrink-0 flex items-center justify-center w-full md:w-[50%] relative z-30 mx-auto mb-3 md:mb-4 pointer-events-none drop-shadow-[0_20px_40px_rgba(0,0,0,0.9)] transition-all duration-500" 
-              style={{ maxWidth: '280px' }}
+              className="shrink-0 flex items-center justify-center w-full relative z-30 mx-auto pointer-events-none drop-shadow-[0_20px_40px_rgba(0,0,0,0.9)] transition-all duration-500" 
+              style={{ maxWidth: '320px' }}
             >
-              <img src="/mascot.webp" alt="Mascot" className="h-[160px] sm:h-[185px] md:h-auto w-auto md:w-full object-contain object-bottom hover:scale-105 transition-transform duration-500" />
+              {/* 🌟 ปรับขนาดมาสคอต h-[200px] บนมือถือใหญ่สะใจ! */}
+              <img src="/mascot.webp" alt="Mascot" className="h-[200px] sm:h-[240px] md:h-auto w-auto md:w-full object-contain object-bottom hover:scale-105 transition-transform duration-500" />
             </div>
           </div>
+          {/* ===================================================================== */}
 
           {/* 🌟 The 3 Sci-Fi Buttons - ฟันธง: ปรับขนาดปุ่ม, ระยะห่าง (gap), และ padding ให้เพรียวบางบนมือถือ */}
-          <div className="shrink-0 w-full flex flex-col gap-2.5 md:gap-5 relative z-10 transition-all duration-500 mt-1 md:mt-4">
+          <div className="shrink-0 w-full flex flex-col gap-2 md:gap-5 relative z-10 transition-all duration-500 mt-1 md:mt-4">
             
-            <button onClick={() => setShowReporterLogin(true)} className="group relative w-full bg-gradient-to-r from-orange-500 to-amber-500 text-white font-black text-[15px] sm:text-[16px] md:text-[26px] py-3.5 md:py-5 rounded-2xl md:rounded-[1.5rem] border-[2px] border-solid border-white/40 shadow-[0_0_20px_rgba(249,115,22,0.8)] md:shadow-[0_0_30px_rgba(249,115,22,0.8)] hover:from-orange-400 hover:to-amber-400 hover:border-white hover:shadow-[0_0_60px_rgba(249,115,22,1),inset_0_0_20px_rgba(255,255,255,0.4)] hover:scale-[1.03] active:scale-95 transition-all duration-300 flex items-center justify-center gap-2 md:gap-4 overflow-hidden">
+            <button onClick={() => setShowReporterLogin(true)} className="group relative w-full bg-gradient-to-r from-orange-500 to-amber-500 text-white font-black text-[15px] sm:text-[16px] md:text-[26px] py-3 md:py-5 rounded-2xl md:rounded-[1.5rem] border-[2px] border-solid border-white/40 shadow-[0_0_20px_rgba(249,115,22,0.8)] md:shadow-[0_0_30px_rgba(249,115,22,0.8)] hover:from-orange-400 hover:to-amber-400 hover:border-white hover:shadow-[0_0_60px_rgba(249,115,22,1),inset_0_0_20px_rgba(255,255,255,0.4)] hover:scale-[1.03] active:scale-95 transition-all duration-300 flex items-center justify-center gap-2 md:gap-4 overflow-hidden">
               <div className="absolute inset-0 bg-gradient-to-t from-orange-300/0 via-white/40 to-orange-300/0 opacity-0 group-hover:opacity-100 group-hover:animate-pulse transition-opacity duration-300"></div>
               <div className="bg-orange-900/60 p-1.5 md:p-3 rounded-xl md:rounded-2xl border border-orange-300 shadow-[inset_0_0_10px_rgba(0,0,0,0.5)] group-hover:bg-orange-800 group-hover:border-white group-hover:shadow-[0_0_20px_rgba(255,255,255,0.9)] transition-all z-10">
                 <Wrench className="w-5 h-5 md:w-8 md:h-8 text-white drop-shadow-[0_0_8px_rgba(255,255,255,0.8)]" />
@@ -5923,7 +5953,7 @@ useEffect(() => {
               <span className="tracking-widest drop-shadow-[0_2px_5px_rgba(0,0,0,0.6)] z-10 group-hover:drop-shadow-[0_0_15px_rgba(255,255,255,1)]">แจ้งซ่อมระบบ/อุปกรณ์</span>
             </button>
 
-            <button onClick={() => setShowLogin(true)} className="group relative w-full bg-gradient-to-r from-emerald-500 to-teal-500 text-white font-black text-[15px] sm:text-[16px] md:text-[26px] py-3.5 md:py-5 rounded-2xl md:rounded-[1.5rem] border-[2px] border-solid border-white/40 shadow-[0_0_20px_rgba(16,185,129,0.8)] md:shadow-[0_0_30px_rgba(16,185,129,0.8)] hover:from-emerald-400 hover:to-teal-400 hover:border-white hover:shadow-[0_0_60px_rgba(16,185,129,1),inset_0_0_20px_rgba(255,255,255,0.4)] hover:scale-[1.03] active:scale-95 transition-all duration-300 flex items-center justify-center gap-2 md:gap-4 overflow-hidden">
+            <button onClick={() => setShowLogin(true)} className="group relative w-full bg-gradient-to-r from-emerald-500 to-teal-500 text-white font-black text-[15px] sm:text-[16px] md:text-[26px] py-3 md:py-5 rounded-2xl md:rounded-[1.5rem] border-[2px] border-solid border-white/40 shadow-[0_0_20px_rgba(16,185,129,0.8)] md:shadow-[0_0_30px_rgba(16,185,129,0.8)] hover:from-emerald-400 hover:to-teal-400 hover:border-white hover:shadow-[0_0_60px_rgba(16,185,129,1),inset_0_0_20px_rgba(255,255,255,0.4)] hover:scale-[1.03] active:scale-95 transition-all duration-300 flex items-center justify-center gap-2 md:gap-4 overflow-hidden">
               <div className="absolute inset-0 bg-gradient-to-t from-emerald-300/0 via-white/40 to-emerald-300/0 opacity-0 group-hover:opacity-100 group-hover:animate-pulse transition-opacity duration-300"></div>
               <div className="bg-emerald-900/60 p-1.5 md:p-3 rounded-xl md:rounded-2xl border border-emerald-300 shadow-[inset_0_0_10px_rgba(0,0,0,0.5)] group-hover:bg-emerald-800 group-hover:border-white group-hover:shadow-[0_0_20px_rgba(255,255,255,0.9)] transition-all z-10">
                 <ShieldCheck className="w-5 h-5 md:w-8 md:h-8 text-white drop-shadow-[0_0_8px_rgba(255,255,255,0.8)]" />
@@ -5931,7 +5961,7 @@ useEffect(() => {
               <span className="tracking-widest drop-shadow-[0_2px_5px_rgba(0,0,0,0.6)] z-10 group-hover:drop-shadow-[0_0_15px_rgba(255,255,255,1)]">สำหรับเจ้าหน้าที่ ฝวด.</span>
             </button>
 
-            <button onClick={() => setShowManual(true)} className="group relative w-full bg-gradient-to-r from-indigo-500 to-purple-500 text-white font-black text-[15px] sm:text-[16px] md:text-[26px] py-3.5 md:py-5 rounded-2xl md:rounded-[1.5rem] border-[2px] border-solid border-white/40 shadow-[0_0_20px_rgba(99,102,241,0.8)] md:shadow-[0_0_30px_rgba(99,102,241,0.8)] hover:from-indigo-400 hover:to-purple-400 hover:border-white hover:shadow-[0_0_60px_rgba(99,102,241,1),inset_0_0_20px_rgba(255,255,255,0.4)] hover:scale-[1.03] active:scale-95 transition-all duration-300 flex items-center justify-center gap-2 md:gap-4 overflow-hidden">
+            <button onClick={() => setShowManual(true)} className="group relative w-full bg-gradient-to-r from-indigo-500 to-purple-500 text-white font-black text-[15px] sm:text-[16px] md:text-[26px] py-3 md:py-5 rounded-2xl md:rounded-[1.5rem] border-[2px] border-solid border-white/40 shadow-[0_0_20px_rgba(99,102,241,0.8)] md:shadow-[0_0_30px_rgba(99,102,241,0.8)] hover:from-indigo-400 hover:to-purple-400 hover:border-white hover:shadow-[0_0_60px_rgba(99,102,241,1),inset_0_0_20px_rgba(255,255,255,0.4)] hover:scale-[1.03] active:scale-95 transition-all duration-300 flex items-center justify-center gap-2 md:gap-4 overflow-hidden">
               <div className="absolute inset-0 bg-gradient-to-t from-indigo-300/0 via-white/40 to-indigo-300/0 opacity-0 group-hover:opacity-100 group-hover:animate-pulse transition-opacity duration-300"></div>
               <div className="bg-indigo-900/60 p-1.5 md:p-3 rounded-xl md:rounded-2xl border border-indigo-300 shadow-[inset_0_0_10px_rgba(0,0,0,0.5)] group-hover:bg-indigo-800 group-hover:border-white group-hover:shadow-[0_0_20px_rgba(255,255,255,0.9)] transition-all z-10">
                 <FileText className="w-5 h-5 md:w-8 md:h-8 text-white drop-shadow-[0_0_8px_rgba(255,255,255,0.8)]" />
@@ -5941,14 +5971,14 @@ useEffect(() => {
 
           </div>
 
-          <h2 className="text-[14px] md:text-[28px] font-black text-cyan-400 drop-shadow-[0_0_15px_rgba(34,211,238,0.9)] uppercase mt-5 md:mt-8 mb-1 transition-all duration-500 tracking-wide">
+          <h2 className="text-[14px] md:text-[28px] font-black text-cyan-400 drop-shadow-[0_0_15px_rgba(34,211,238,0.9)] uppercase mt-3 md:mt-8 mb-1 transition-all duration-500 tracking-wide">
             ฝ่ายวิศวกรรมระบบปฏิบัติการดาวเทียม
           </h2>
           <h3 className="text-[12px] md:text-[18px] font-bold text-slate-300 tracking-[0.2em] mt-0.5 md:mt-1 transition-all duration-500">
             สำนักปฏิบัติการดาวเทียม
           </h3>
 
-          <h3 className="font-mono text-slate-400 tracking-widest font-bold mt-4 md:mt-10 opacity-95 flex items-baseline justify-center flex-wrap gap-x-1.5 gap-y-1">
+          <h3 className="font-mono text-slate-400 tracking-widest font-bold mt-2 md:mt-10 opacity-95 flex items-baseline justify-center flex-wrap gap-x-1.5 gap-y-1">
             <span className="text-[10px] md:text-[14px]">©2026</span>
             <span><span className="text-[14px] md:text-[22px] text-orange-500 font-black drop-shadow-[0_0_10px_rgba(249,115,22,0.8)]">G</span><span className="text-[10px] md:text-[14px]">round</span></span>
             <span><span className="text-[14px] md:text-[22px] text-orange-500 font-black drop-shadow-[0_0_10px_rgba(249,115,22,0.8)]">S</span><span className="text-[10px] md:text-[14px]">ystem</span></span>
@@ -6159,11 +6189,38 @@ const SarabunFontEmbed = () => (
 );
 
 // ==========================================
-// 🚀 ส่วนควบคุมระบบ (App Component)
+// 🚀 ส่วนควบคุมระบบ (App Component) + Splash Screen ระดับโลก
 // ==========================================
 export default function App() {
+
+  // 🌟 ฟันธง: ย้ายสองตัวนี้มาประกาศบนสุด เพื่อแก้ปัญหา Hoisting (จอดำ)
+  const [showSplash, setShowSplash] = useState(true);
+  const [fadeOut, setFadeOut] = useState(false);
+
+  // 🧠 สมองกลช่วยนับเปอร์เซ็นต์ (อัปเดตต่อเนื่องได้อย่างปลอดภัย)
+  const [progress, setProgress] = useState(0);
+
+  useEffect(() => {
+    if (!showSplash) return;
+    const interval = setInterval(() => {
+      setProgress(prev => (prev < 100 ? prev + 1 : 100));
+    }, 30); // ความเร็วในการโหลด 3 วินาทีเป๊ะ
+    return () => clearInterval(interval);
+  }, [showSplash]);
+
   const [hasStarted, setHasStarted] = useState(() => sessionStorage.getItem('hasStarted') === 'true');
   const [role, setRole] = useState(() => sessionStorage.getItem('role') || 'reporter');
+
+  // 🌟 สมองกลนับเวลาเปิด-ปิด Splash Screen 
+  useEffect(() => {
+    if (sessionStorage.getItem('hasStarted') === 'true') {
+      setShowSplash(false);
+      return;
+    }
+    const timer1 = setTimeout(() => setFadeOut(true), 2000);
+    const timer2 = setTimeout(() => setShowSplash(false), 2500);
+    return () => { clearTimeout(timer1); clearTimeout(timer2); };
+  }, []);
 
   const handleStart = (selectedRole) => {
     setRole(selectedRole);
@@ -6180,6 +6237,73 @@ export default function App() {
     sessionStorage.removeItem('role'); 
     // 🌟 ฟันธง: ปลดล็อก! ไม่ต้องลบ localStorage แล้ว เพื่อให้แอปจำเบอร์ไว้ตลอดกาลเหมือนแอปธนาคาร
   };
+
+ // 🌟 หน้าต่าง Splash Screen เรืองแสง Sci-Fi (อัปเกรดบาร์บล็อกระดับโลก ถอดแบบเรฟฯ เป๊ะ)
+ // 🌟 หน้าต่าง Splash Screen เรืองแสง Sci-Fi (เวอร์ชันกรอบเหลี่ยมไซเบอร์ + เฟลอร์ออร่าฟ้าดุดัน)
+ if (showSplash) {
+    
+  // 🧠 สมองกลคำนวณสีตามเปอร์เซ็นต์ (คงเดิมตามสูตรลับของท่านหัวหน้า)
+  let barColor = "from-red-600 to-red-400 shadow-[0_0_10px_rgba(239,68,68,0.7)]"; // 0-29% (แดง)
+  if (progress >= 30 && progress < 50) barColor = "from-orange-600 to-orange-400 shadow-[0_0_10px_rgba(249,115,22,0.7)]"; // 30-49% (ส้ม)
+  else if (progress >= 50 && progress < 70) barColor = "from-yellow-500 to-yellow-400 shadow-[0_0_10px_rgba(234,179,8,0.7)]"; // 50-69% (เหลือง)
+  else if (progress >= 70 && progress < 100) barColor = "from-emerald-500 to-emerald-400 shadow-[0_0_10px_rgba(16,185,129,0.7)]"; // 70-99% (เขียวอ่อน)
+  else if (progress === 100) barColor = "from-green-600 to-green-500 shadow-[0_0_15px_rgba(22,163,74,1)]"; // 100% (เขียวเข้ม)
+
+  return (
+    <div className={`fixed inset-0 z-[99999] flex flex-col items-center justify-center transition-opacity duration-700 ease-in-out ${fadeOut ? 'opacity-0' : 'opacity-100'} overflow-hidden bg-[#0c0a09]`}>
+      
+      {/* พื้นหลัง Deep Space */}
+      <div className="absolute inset-0 bg-gradient-to-br from-orange-900/40 via-[#0c0a09] to-black z-0"></div>
+      <div className="absolute inset-0 z-0 opacity-20 bg-[linear-gradient(rgba(249,115,22,0.2)_1px,transparent_1px),linear-gradient(90deg,rgba(249,115,22,0.2)_1px,transparent_1px)] bg-[size:50px_50px]"></div>
+
+      <div className="relative z-10 flex flex-col items-center justify-center gap-12 w-full">
+        
+        {/* Logo */}
+        <div className="relative flex flex-col items-center justify-center">
+           <div className="absolute w-[250px] h-[250px] md:w-[500px] md:h-[500px] bg-[radial-gradient(circle_at_center,_var(--tw-gradient-stops))] from-orange-500/30 via-orange-900/10 to-transparent blur-[80px] z-0 animate-pulse"></div>
+           <img src="/GSE-logo.webp" alt="GSE Splash Logo" className="relative z-10 w-56 sm:w-64 md:w-80 h-auto drop-shadow-[0_0_20px_rgba(249,115,22,0.5)]" />
+        </div>
+
+        {/* แผงควบคุมบาร์บล็อก */}
+        <div className="w-full max-w-[320px] md:max-w-[420px] px-6 flex flex-col items-center gap-4 z-10">
+           
+           {/* ข้อความ LOADING... ด้านบน */}
+           <span className="text-white font-black tracking-[0.4em] text-[15px] md:text-[18px] uppercase drop-shadow-[0_2px_4px_rgba(0,0,0,0.9)] animate-pulse">
+             LOADING...
+           </span>
+
+           {/* 🛠️ ฟันธงแก้ไขจุดนี้: เปลี่ยนเป็นสี่เหลี่ยมลบมุมพรีเมียม (rounded-xl md:rounded-[1rem]) ขอบสีฟ้าไซเบอร์ พร้อมสาดแสงเฟลอร์ฟ้าเรืองรองกระจายรอบทิศทาง */}
+           <div className="w-full h-9 md:h-11 bg-slate-950 rounded-xl md:rounded-[1rem] border-2 border-solid border-cyan-400 p-1 flex gap-1 md:gap-1.5 items-center relative shadow-[0_0_30px_rgba(34,211,238,0.9)]">
+             
+             {/* 🧬 บล็อกดิจิตอล 10 ช่อง (ปรับองศาความเหลี่ยมให้รับกับขอบนอกอย่างสมบูรณ์แบบ) */}
+             {Array.from({ length: 10 }).map((_, index) => {
+               const blockThreshold = (index + 1) * 10;
+               const isActive = progress >= blockThreshold;
+
+               return (
+                 <div 
+                   key={index}
+                   className={`h-full flex-1 rounded-[2px] md:rounded-[4px] transition-all duration-150 bg-gradient-to-b ${
+                     isActive 
+                       ? barColor // สว่างวาบตามสีเซกเมนต์
+                       : "from-slate-900 to-slate-950 opacity-20 border border-slate-800" // บล็อกมืดสแตนด์บาย
+                   }`}
+                 />
+               );
+             })}
+
+           </div>
+           
+           {/* ตัวเลข % ด้านล่าง */}
+           <span className="text-white font-black text-[26px] md:text-[32px] drop-shadow-[0_2px_6px_rgba(0,0,0,1)] tracking-wide">
+             {progress}%
+           </span>
+
+        </div>
+      </div>
+    </div>
+  );
+}
 
   return (
     <ErrorBoundary>
