@@ -5947,14 +5947,14 @@ const handleStaffPinSubmit = async () => {
 
   return (
     /* 🌟 กล่องหน้าแรกทั้งหมด ฟันธง 1: นอกสุดใช้ h-[100dvh] ในมือถือ และเปิด overflow-y-auto ให้พรีวิวคอมใช้เมาส์ไถได้ */
-    <div className="relative h-[100dvh] md:min-h-screen w-full flex flex-col items-center justify-center md:justify-start p-4 sm:p-6 md:p-12 overflow-y-auto bg-[#020617] font-sans">
+    <div className="relative h-[100dvh] md:min-h-screen w-full flex flex-col items-center justify-center md:justify-start p-4 sm:p-6 md:p-12 overflow-hidden md:overflow-x-hidden md:overflow-y-auto bg-[#020617] font-sans">
       
       
       <div className="absolute inset-0 z-0">
         <div className="absolute inset-0 bg-[url('[https://www.transparenttextures.com/patterns/carbon-fibre.png](https://www.transparenttextures.com/patterns/carbon-fibre.png)')] opacity-20 pointer-events-none"></div>
         <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[800px] h-[800px] bg-cyan-500/10 blur-[100px] rounded-full animate-pulse pointer-events-none"></div>
         <div
-          className="absolute inset-0 bg-cover bg-center bg-no-repeat opacity-40 mix-blend-screen pointer-events-none"
+          className="absolute inset-0 bg-cover bg-top bg-no-repeat opacity-80 mix-blend-screen pointer-events-none"
           style={{ backgroundImage: "url('/bg-earth-new.webp')" }}
         ></div>
         <div className="absolute inset-0 bg-gradient-to-b from-transparent via-[#020617]/50 to-[#020617] pointer-events-none"></div>
