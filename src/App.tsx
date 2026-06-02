@@ -3076,10 +3076,10 @@ const executeRatingSubmit = async () => {
               </div>
               <div className="flex-1">
                 <p className="text-[15px] md:text-[18px] font-bold text-slate-300 leading-tight">
-                  วันนี้ <span className={`${dayColors[dayOfWeek]} font-black tracking-wide mx-0.5`}>{daysThai[dayOfWeek]}</span> ไม่มีเจ้าหน้าที่เวร SSC
+                  วันนี้ <span className={`${dayColors[dayOfWeek]} font-black tracking-wide mx-0.5`}>{daysThai[dayOfWeek]}</span>
                 </p>
                 <p className="text-[13px] md:text-[16px] text-slate-300 font-bold mt-1 leading-snug">
-                  แต่มี <span className="text-orange-400 font-black tracking-wide"> ผู้รับผิดชอบหลัก</span> พร้อมให้บริการค่ะ!
+                  มี <span className="text-orange-400 font-black tracking-wide"> ผู้รับผิดชอบหลัก</span> พร้อมให้บริการค่ะ!
                 </p>
               </div>
             </div>
@@ -4918,19 +4918,19 @@ const renderTracking = () => (
               
               // 🌟 1. สำหรับ หน.ฝวด. (Commander)
               if (currentUserRole === 'Commander') {
-                if (hour >= 5 && hour < 12) greeting = `☀️ อรุณสวัสดิ์ครับท่านหัวหน้า ศูนย์ปฏิบัติการ GSE พร้อมรายงานสถานะเช้านี้ครับ`;
-                else if (hour >= 12 && hour < 17) greeting = `🌤️ สวัสดีตอนบ่ายครับท่านหัวหน้า ระบบแดชบอร์ดพร้อมติดตามงานครับ`;
-                else if (hour >= 17 && hour < 21) greeting = `🌇 สวัสดีตอนเย็นครับท่านหัวหน้า ตรวจสอบภาพรวมงานประจำวันได้เลยครับ`;
+                if (hour >= 5 && hour < 12) greeting = `☀️ อรุณสวัสดิ์ครับท่านหัวหน้า`;
+                else if (hour >= 12 && hour < 17) greeting = `🌤️ สวัสดีตอนบ่ายครับท่านหัวหน้า`;
+                else if (hour >= 17 && hour < 21) greeting = `🌇 สวัสดีตอนเย็นครับท่านหัวหน้า`;
                 else {
                   // 🌙 นอกเวลาทำการ (หลัง 21:00 น.) แยกตามหน้าต่างที่เปิด
-                  if (activeTab === 'dashboard') greeting = `🌙 นอกเวลาทำการ ระบบแผงควบคุมสแตนด์บายสรุปข้อมูลครับท่านหัวหน้า`;
-                  else greeting = `🌙 นอกเวลาทำการ ระบบจัดการงานซ่อมสแตนด์บายอัตโนมัติครับท่านหัวหน้า`;
+                  if (activeTab === 'dashboard') greeting = `🌙 ตอนนี้นอกเวลาทำการครับท่านหัวหน้า`;
+                  else greeting = `🌙 ตอนนี้นอกเวลาทำการครับท่านหัวหน้า`;
                 }
               } 
               // 🌟 2. สำหรับวิศวกร ฝวด. และ ผู้ใช้งานทั่วไป (Technician & Reporter)
               else {
                 // 🔧 กรณีมีงานค้าง (แสดงเฉพาะก่อน 3 ทุ่ม เพื่อไม่ไปทับข้อความแจ้งนอกเวลา)
-                if (hasActiveTicket && hour >= 5 && hour < 21) greeting = `🔧 สวัสดีครับ ${displayName} 👋 มีงานซ่อมของท่านกำลังดำเนินการอยู่ ตรวจสอบสถานะได้เลยครับ`;
+                if (hasActiveTicket && hour >= 5 && hour < 21) greeting = `🔧 สวัสดีครับ ${displayName} 👋 ตรวจสอบสถานะงานซ่อมได้เลยครับ`;
                 else if (hour >= 5 && hour < 12) greeting = `☀️ สวัสดีตอนเช้าครับ ${displayName} ทีม ฝวด. พร้อมสนับสนุนการปฏิบัติงานภาคพื้นดินวันนี้ครับ`;
                 else if (hour >= 12 && hour < 17) greeting = `🌤️ สวัสดีตอนบ่ายครับ ${displayName} ให้ ฝวด. ช่วยดูแลระบบหรืออุปกรณ์ไหน แจ้งได้เลยครับ`;
                 else if (hour >= 17 && hour < 21) greeting = `🌇 สวัสดีตอนเย็นครับ ${displayName} นอกเวลาทำการ วิศวกรเวร ฝวด. ก็พร้อมดูแลระบบให้ท่านครับ`;
@@ -4939,9 +4939,9 @@ const renderTracking = () => (
                   if (activeTab === 'report') {
                     greeting = `🌙 ขณะนี้นอกเวลาทำการ (หลัง 21:00 น.) ท่านสามารถฝากเรื่องแจ้งซ่อมไว้ในระบบได้เลยครับ`;
                   } else if (activeTab === 'tracking') {
-                    greeting = `🌙 ขณะนี้นอกเวลาทำการ ระบบรับเรื่องไว้แล้ว วิศวกร ฝวด. จะเร่งตรวจสอบให้ในวันทำการถัดไปครับ`;
+                    greeting = `🌙 ขณะนี้นอกเวลาทำการ ระบบรับเรื่องไว้แล้ว จะเร่งตรวจสอบให้ในวันทำการถัดไปครับ`;
                   } else {
-                    greeting = `🌙 ขณะนี้นอกเวลาทำการ (หลัง 21:00 น.) ระบบสแตนด์บายอัตโนมัติครับ`;
+                    greeting = `🌙 ขณะนี้นอกเวลาทำการ (หลัง 21:00 น.) ครับ`;
                   }
                 }
               }
@@ -5945,7 +5945,6 @@ const handleStaffPinSubmit = async () => {
   };
 
 
-
    /* 🌟 ฟันธง: เปลี่ยนจาก h-[100dvh] เป็น min-h-[100dvh] และเปิดให้ไถจอได้ (overflow-y-auto) บนมือถือ จะได้ไม่บีบแบน */
    return (
     /* 🌟 ฟันธง 1: คืนชีพโหมด PC! ปรับเป็น min-h-[100dvh] และ overflow-y-auto ให้สกอร์เมาส์ได้ 100% */
@@ -5994,7 +5993,6 @@ const handleStaffPinSubmit = async () => {
         
         <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[120%] h-[120%] bg-orange-500/20 blur-[120px] rounded-full pointer-events-none z-0 animate-pulse"></div>
 
-
       
       {/* 🌟 ฟันธง 2: กรอบสีส้มหน้าแรก คืนชีพโหมดมือถือ! เปลี่ยนเป็น min-h-[90vh] เพื่อให้มือถือยาวสะใจ แต่ PC ยังพอดีตัว! */}
       <div className="pt-6 pb-6 px-4 md:pt-14 md:pb-6 md:px-10 rounded-[1.5rem] md:rounded-[3rem] flex flex-col items-center justify-between md:justify-center text-center w-full min-h-[90vh] md:min-h-0 md:h-auto relative backdrop-blur-xl transition-all duration-500 z-10 overflow-y-auto [&::-webkit-scrollbar]:hidden" 
@@ -6006,7 +6004,7 @@ const handleStaffPinSubmit = async () => {
           {/* ===================================================================== */}
 
           <div className="w-full relative flex items-start justify-center mb-2 md:mb-6 min-h-[70px] md:min-h-[80px]">
-            <div className="absolute -left-3 -top-5 md:fixed md:left-2 md:top-2 w-14 h-14 md:w-24 md:h-24 flex items-center justify-center z-50">
+            <div className="absolute -left-2 -top-4 md:fixed md:left-2 md:top-2 w-14 h-14 md:w-24 md:h-24 flex items-center justify-center z-50">
               <div className="absolute inset-0 bg-orange-500/30 blur-[10px] rounded-full animate-pulse z-0"></div>
               <img src="/GSE-logo.webp" alt="Logo" className="w-full h-full object-contain drop-shadow-[0_5px_10px_rgba(0,0,0,0.8)] relative z-10" />
             </div>
@@ -6024,9 +6022,10 @@ const handleStaffPinSubmit = async () => {
             </div>
           </div>
 
+
           {/* 🌟 โซนกลาง: ภาพน้องมาสคอต (ล็อกความสูงไม่ให้ดันกล่องจนยืด) */}
-          <div className="flex items-center justify-center w-full relative z-30 pointer-events-none drop-shadow-[0_20px_40px_rgba(0,0,0,0.9)] mt-1 -mb-5 md:mt-2 -mb-5 ">
-            <img src="/mascot.webp" alt="Mascot" className="h-[260px] sm:h-[280px] md:h-[320px] w-auto object-contain hover:scale-105 transition-transform duration-500" />
+          <div className="flex-1 flex items-end justify-center w-full relative z-30 pointer-events-none drop-shadow-[0_20px_40px_rgba(0,0,0,0.9)] mt-4 -mb-3 md:mt-2 md:-mb-5">
+            <img src="/mascot.webp" alt="Mascot" className="max-h-[280px] sm:max-h-[300px] md:max-h-[320px] w-auto object-contain object-bottom hover:scale-105 transition-transform duration-500" />
           </div>
 
           {/* ===================================================================== */}
