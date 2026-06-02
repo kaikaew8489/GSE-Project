@@ -5945,14 +5945,13 @@ const handleStaffPinSubmit = async () => {
   };
 
 
-   /* 🌟 ฟันธง: เปลี่ยนจาก h-[100dvh] เป็น min-h-[100dvh] และเปิดให้ไถจอได้ (overflow-y-auto) บนมือถือ จะได้ไม่บีบแบน */
-   return (
-    /* 🌟 ฟันธง 1: คืนชีพโหมด PC! ปรับเป็น min-h-[100dvh] และ overflow-y-auto ให้สกอร์เมาส์ได้ 100% */
-    <div className="relative min-h-[100dvh] w-full flex flex-col items-center justify-center p-4 sm:p-6 md:p-12 overflow-hidden bg-[#020617] font-sans">
+  return (
+    /* 🌟 กล่องหน้าแรกทั้งหมด ฟันธง 1: นอกสุดใช้ h-[100dvh] ในมือถือ และเปิด overflow-y-auto ให้พรีวิวคอมใช้เมาส์ไถได้ */
+    <div className="relative h-[100dvh] md:min-h-screen w-full flex flex-col items-center justify-center md:justify-start p-4 sm:p-6 md:p-12 overflow-y-auto bg-[#020617] font-sans">
       
-      {/* 🌟 Background & Radar Scan */}
+      
       <div className="absolute inset-0 z-0">
-        <div className="absolute inset-0 bg-[url('https://www.transparenttextures.com/patterns/carbon-fibre.png')] opacity-20 pointer-events-none"></div>
+        <div className="absolute inset-0 bg-[url('[https://www.transparenttextures.com/patterns/carbon-fibre.png](https://www.transparenttextures.com/patterns/carbon-fibre.png)')] opacity-20 pointer-events-none"></div>
         <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[800px] h-[800px] bg-cyan-500/10 blur-[100px] rounded-full animate-pulse pointer-events-none"></div>
         <div
           className="absolute inset-0 bg-cover bg-center bg-no-repeat opacity-40 mix-blend-screen pointer-events-none"
@@ -5988,29 +5987,20 @@ const handleStaffPinSubmit = async () => {
       <div className="absolute inset-0 z-0 bg-cyber-grid pointer-events-none fixed"></div>
       <div className="animate-scan absolute inset-0 z-0 pointer-events-none overflow-hidden fixed"></div>
 
-      {/* 🌟 Main Content Box */}
-      <div className="relative z-10 w-full h-full md:h-auto max-w-md md:max-w-xl lg:max-w-2xl flex flex-col items-center justify-center animate-in slide-in-from-bottom-8 fade-in duration-1000 my-auto py-4 md:py-0">
+      {/* 🌟 Main Content Box: บังคับความสูงเต็มพื้นที่ h-full */}
+      <div className="relative z-10 w-full h-full md:h-auto max-w-md md:max-w-xl lg:max-w-2xl flex flex-col items-center justify-center animate-in slide-in-from-bottom-8 fade-in duration-1000 my-auto md:my-0 md:mt-8 md:pb-12">
         
         <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[120%] h-[120%] bg-orange-500/20 blur-[120px] rounded-full pointer-events-none z-0 animate-pulse"></div>
-
       
-      {/* 🌟 ฟันธง 2: กรอบสีส้มหน้าแรก คืนชีพโหมดมือถือ! เปลี่ยนเป็น min-h-[90vh] เพื่อให้มือถือยาวสะใจ แต่ PC ยังพอดีตัว! */}
-      <div className="pt-6 pb-6 px-4 md:pt-14 md:pb-6 md:px-10 rounded-[1.5rem] md:rounded-[3rem] flex flex-col items-center justify-between md:justify-center text-center w-full min-h-[90vh] md:min-h-0 md:h-auto relative backdrop-blur-xl transition-all duration-500 z-10 overflow-y-auto [&::-webkit-scrollbar]:hidden" 
-        style={{ backgroundColor: 'rgba(15, 23, 42, 0.8)', border: '3px solid #FF4500', boxShadow: '0 0 50px rgba(255, 69, 0, 0.8), inset 0 0 30px rgba(255, 69, 0, 0.5)' }}>
+        
+        <div className="pt-4 pb-4 px-4 md:pt-14 md:pb-6 md:px-10 rounded-[1.5rem] md:rounded-[3rem] flex flex-col items-center justify-between text-center w-full h-full md:h-auto relative backdrop-blur-xl transition-all duration-500 z-10 overflow-hidden"
+          style={{ backgroundColor: 'rgba(15, 23, 42, 0.8)', border: '3px solid #FF4500', boxShadow: '0 0 50px rgba(255, 69, 0, 0.8), inset 0 0 30px rgba(255, 69, 0, 0.5)' }}>
 
 
-          {/* ===================================================================== */}
-          {/* 🌟 โซนบน: โลโก้ & กล่องข้อความ */}
-          {/* ===================================================================== */}
+          <div className="w-full relative flex items-start justify-center mb-2 md:mb-6 min-h-[80px]">
 
-          <div className="w-full relative flex items-start justify-center mb-2 md:mb-6 min-h-[70px] md:min-h-[80px]">
-            <div className="absolute -left-2 -top-4 md:fixed md:left-2 md:top-2 w-14 h-14 md:w-24 md:h-24 flex items-center justify-center z-50">
-              <div className="absolute inset-0 bg-orange-500/30 blur-[10px] rounded-full animate-pulse z-0"></div>
-              <img src="/GSE-logo.webp" alt="Logo" className="w-full h-full object-contain drop-shadow-[0_5px_10px_rgba(0,0,0,0.8)] relative z-10" />
-            </div>
-
-
-            <div className="relative z-20 bg-slate-900/90 backdrop-blur-md rounded-2xl md:rounded-[2rem] p-3 md:p-6 shadow-[0_10px_30px_rgba(249,115,22,0.6)] text-center border-[2px] border-solid border-cyan-500 animate-bounce mx-auto max-w-[90%] sm:max-w-[80%] ml-14 md:ml-auto mt-5 md:mt-2">
+            {/* กล่องข้อความ: ดันลงมา (mt-8) เพื่อหนีโลโก้ */}
+            <div className="relative z-20 bg-slate-900/90 backdrop-blur-md rounded-2xl md:rounded-[2rem] p-3 md:p-6 shadow-[0_10px_30px_rgba(249,115,22,0.6)] text-center border-[2px] border-solid border-cyan-500 animate-bounce mx-auto max-w-[95%] sm:max-w-[80%] mt-8 md:mt-2">
               <div className="absolute left-1/2 -translate-x-1/2 -bottom-[11px] w-5 h-5 bg-slate-900 border-b-[2px] border-r-[2px] border-solid border-cyan-500 transform rotate-45 rounded-sm"></div>
               <p className="text-[15px] sm:text-[18px] md:text-[24px] font-bold text-slate-100 leading-tight md:leading-relaxed relative z-20 shadow-none">
                 ระบบ/อุปกรณ์มีปัญหาใช่มั้ยคะ?
@@ -6023,20 +6013,17 @@ const handleStaffPinSubmit = async () => {
           </div>
 
 
-          {/* 🌟 โซนกลาง: ภาพน้องมาสคอต (ล็อกความสูงไม่ให้ดันกล่องจนยืด) */}
-          <div className="flex-1 flex items-end justify-center w-full relative z-30 pointer-events-none drop-shadow-[0_20px_40px_rgba(0,0,0,0.9)] mt-4 -mb-3 md:mt-2 md:-mb-5">
-            <img src="/mascot.webp" alt="Mascot" className="max-h-[280px] sm:max-h-[300px] md:max-h-[320px] w-auto object-contain object-bottom hover:scale-105 transition-transform duration-500" />
+        {/* 🌟 โซนกลาง: สปริง flex-1 ที่หดได้ (min-h-0) + ขยายขนาดมาสคอตให้ใหญ่สะใจ (max-h-[320px]) */}
+        <div className="flex-1 min-h-0 flex items-end justify-center w-full relative z-30 pointer-events-none drop-shadow-[0_20px_40px_rgba(0,0,0,0.9)] mt-4 -mb-2 md:mt-2 md:-mb-5">
+            <img src="/mascot.webp" alt="Mascot" className="h-full max-h-[320px] sm:max-h-[350px] md:max-h-[380px] w-auto object-contain object-bottom hover:scale-105 transition-transform duration-500" />
           </div>
-
-          {/* ===================================================================== */}
-          {/* 🌟 โซนล่าง: ปุ่มกด 3 ปุ่ม */}
-          {/* ===================================================================== */}
+          
           <div className="w-full flex flex-col gap-3 md:gap-5 relative z-10 mt-3 md:mt-6">
             
             <button onClick={() => setShowReporterLogin(true)} className="group relative w-full bg-gradient-to-r from-orange-500 to-amber-500 text-white font-black text-[15px] sm:text-[16px] md:text-[26px] py-3.5 md:py-5 rounded-2xl md:rounded-[1rem] border-[2px] border-solid border-white/40 shadow-[0_0_20px_rgba(249,115,22,0.8)] md:shadow-[0_0_30px_rgba(249,115,22,0.8)] hover:from-orange-400 hover:to-amber-400 hover:border-white hover:shadow-[0_0_60px_rgba(249,115,22,1),inset_0_0_20px_rgba(255,255,255,0.4)] hover:scale-[1.03] active:scale-95 transition-all duration-300 flex items-center justify-center gap-2 md:gap-4 overflow-hidden">
               <div className="absolute inset-0 bg-gradient-to-t from-orange-300/0 via-white/40 to-orange-300/0 opacity-0 group-hover:opacity-100 group-hover:animate-pulse transition-opacity duration-300"></div>
               <div className="bg-orange-900/60 p-1.5 md:p-3 rounded-xl md:rounded-2xl border border-orange-300 shadow-[inset_0_0_10px_rgba(0,0,0,0.5)] group-hover:bg-orange-800 group-hover:border-white group-hover:shadow-[0_0_20px_rgba(255,255,255,0.9)] transition-all z-10">
-                <Wrench className="w-5 h-5 md:w-8 md:h-8 text-white drop-shadow-[0_0_8px_rgba(255,255,255,0.8)]" />
+                <Wrench className="w-5 h-5 md:w-8 md:h-8 text-white drop-shadow-[0_0_8px_rgba(255,255,255,0.8)]"/>
               </div>
               <span className="tracking-widest drop-shadow-[0_2px_5px_rgba(0,0,0,0.6)] z-10 group-hover:drop-shadow-[0_0_15px_rgba(255,255,255,1)]">แจ้งซ่อมระบบ/อุปกรณ์</span>
             </button>
@@ -6044,21 +6031,19 @@ const handleStaffPinSubmit = async () => {
             <button onClick={() => setShowLogin(true)} className="group relative w-full bg-gradient-to-r from-emerald-500 to-teal-500 text-white font-black text-[15px] sm:text-[16px] md:text-[26px] py-3.5 md:py-5 rounded-2xl md:rounded-[1rem] border-[2px] border-solid border-white/40 shadow-[0_0_20px_rgba(16,185,129,0.8)] md:shadow-[0_0_30px_rgba(16,185,129,0.8)] hover:from-emerald-400 hover:to-teal-400 hover:border-white hover:shadow-[0_0_60px_rgba(16,185,129,1),inset_0_0_20px_rgba(255,255,255,0.4)] hover:scale-[1.03] active:scale-95 transition-all duration-300 flex items-center justify-center gap-2 md:gap-4 overflow-hidden">
               <div className="absolute inset-0 bg-gradient-to-t from-emerald-300/0 via-white/40 to-emerald-300/0 opacity-0 group-hover:opacity-100 group-hover:animate-pulse transition-opacity duration-300"></div>
               <div className="bg-emerald-900/60 p-1.5 md:p-3 rounded-xl md:rounded-2xl border border-emerald-300 shadow-[inset_0_0_10px_rgba(0,0,0,0.5)] group-hover:bg-emerald-800 group-hover:border-white group-hover:shadow-[0_0_20px_rgba(255,255,255,0.9)] transition-all z-10">
-                <ShieldCheck className="w-5 h-5 md:w-8 md:h-8 text-white drop-shadow-[0_0_8px_rgba(255,255,255,0.8)]" />
+                <ShieldCheck className="w-5 h-5 md:w-8 md:h-8 text-white drop-shadow-[0_0_8px_rgba(255,255,255,0.8)]"/>
               </div>
               <span className="tracking-widest drop-shadow-[0_2px_5px_rgba(0,0,0,0.6)] z-10 group-hover:drop-shadow-[0_0_15px_rgba(255,255,255,1)]">สำหรับเจ้าหน้าที่ ฝวด.</span>
             </button>
 
-
             <button onClick={() => setShowManual(true)} className="group relative w-full bg-gradient-to-r from-indigo-500 to-purple-500 text-white font-black text-[15px] sm:text-[16px] md:text-[26px] py-3.5 md:py-5 rounded-2xl md:rounded-[1rem] border-[2px] border-solid border-white/40 shadow-[0_0_20px_rgba(99,102,241,0.8)] md:shadow-[0_0_30px_rgba(99,102,241,0.8)] hover:from-indigo-400 hover:to-purple-400 hover:border-white hover:shadow-[0_0_60px_rgba(99,102,241,1),inset_0_0_20px_rgba(255,255,255,0.4)] hover:scale-[1.03] active:scale-95 transition-all duration-300 flex items-center justify-center gap-2 md:gap-4 overflow-hidden">
               <div className="absolute inset-0 bg-gradient-to-t from-indigo-300/0 via-white/40 to-indigo-300/0 opacity-0 group-hover:opacity-100 group-hover:animate-pulse transition-opacity duration-300"></div>
               <div className="bg-indigo-900/60 p-1.5 md:p-3 rounded-xl md:rounded-2xl border border-indigo-300 shadow-[inset_0_0_10px_rgba(0,0,0,0.5)] group-hover:bg-indigo-800 group-hover:border-white group-hover:shadow-[0_0_20px_rgba(255,255,255,0.9)] transition-all z-10">
-                <FileText className="w-5 h-5 md:w-8 md:h-8 text-white drop-shadow-[0_0_8px_rgba(255,255,255,0.8)]" />
+                <FileText className="w-5 h-5 md:w-8 md:h-8 text-white drop-shadow-[0_0_8px_rgba(255,255,255,0.8)]"/>
               </div>
               <span className="tracking-widest drop-shadow-[0_2px_5px_rgba(0,0,0,0.6)] z-10 group-hover:drop-shadow-[0_0_15px_rgba(255,255,255,1)]">คู่มือการใช้งาน</span>
             </button>
           </div>
-
 
           <div className="mt-4 md:mt-6">
             <h2 className="text-[16px] sm:text-[20px] md:text-[24px] font-black text-cyan-400 drop-shadow-[0_0_15px_rgba(34,211,238,0.9)] uppercase mb-0.5 md:mb-1 transition-all duration-500 tracking-wide">
@@ -6076,8 +6061,8 @@ const handleStaffPinSubmit = async () => {
             </h3>
           </div>
         </div>
-
       </div>
+
 
       {/* 🌟 Modals */}
       {showManual && (
