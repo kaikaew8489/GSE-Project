@@ -6272,36 +6272,57 @@ const SarabunFontEmbed = () => (
 // ==========================================
 export default function App() {
 
-  // 🌟 ฟันธง: ย้ายสองตัวนี้มาประกาศบนสุด เพื่อแก้ปัญหา Hoisting (จอดำ)
   const [showSplash, setShowSplash] = useState(true);
   const [fadeOut, setFadeOut] = useState(false);
-
-  // 🧠 สมองกลช่วยนับเปอร์เซ็นต์ (อัปเดตต่อเนื่องได้อย่างปลอดภัย)
   const [progress, setProgress] = useState(0);
 
+  // 🌟 ฟันธง 1: เช็คก่อนว่าเคยเข้าแอปแล้วหรือยัง ถ้าเคยแล้วให้ข้ามหน้าโหลดไปเลย
   useEffect(() => {
-    if (!showSplash) return;
-    const interval = setInterval(() => {
-      setProgress(prev => (prev < 100 ? prev + 1 : 100));
-    }, 30); // ความเร็วในการโหลด 3 วินาทีเป๊ะ
-    return () => clearInterval(interval);
+    if (sessionStorage.getItem('hasStarted') === 'true') {
+      setShowSplash(false);
+    }
+  }, []);
+
+  // 🌟 ฟันธง 2: สมองกลปั่นเปอร์เซ็นต์ (สุ่มวิ่ง 0-100 ให้ดูเหมือนโหลดข้อมูลจริง)
+  useEffect(() => {
+    if (!showSplash || sessionStorage.getItem('hasStarted') === 'true') return;
+    
+    const timer = setInterval(() => {
+      setProgress((oldProgress) => {
+        if (oldProgress >= 100) {
+          clearInterval(timer);
+          return 100;
+        }
+        // สุ่มบวกทีละ 4-12% ให้ดูเนียนๆ 
+        const diff = Math.floor(Math.random() * 8) + 4; 
+        return Math.min(oldProgress + diff, 100);
+      });
+    }, 100); // ความเร็วในการกระดิก (ยิ่งน้อยยิ่งไว)
+
+    return () => clearInterval(timer);
   }, [showSplash]);
+
+  // 🌟 ฟันธง 3: ผู้คุมกฎ! พอเลขแตะ 100% ถึงจะยอมให้เปลี่ยนหน้า
+  useEffect(() => {
+    if (progress === 100) {
+      // 1. รอ 0.4 วินาที ให้คนดูชื่นใจกับเลข 100% แล้วสั่งเฟดจอให้มืดลง (fadeOut)
+      const fadeTimer = setTimeout(() => setFadeOut(true), 400);
+      
+      // 2. รออีก 0.5 วินาที (รวมเป็น 0.9วิ) เพื่อให้แอนิเมชันเฟดทำงานเสร็จ แล้วค่อยปิด Splash Screen จริงๆ
+      const closeTimer = setTimeout(() => setShowSplash(false), 900);
+
+      return () => { 
+        clearTimeout(fadeTimer); 
+        clearTimeout(closeTimer); 
+      };
+    }
+  }, [progress]);
 
   const [hasStarted, setHasStarted] = useState(() => sessionStorage.getItem('hasStarted') === 'true');
   const [role, setRole] = useState(() => sessionStorage.getItem('role') || 'reporter');
 
-  // 🌟 สมองกลนับเวลาเปิด-ปิด Splash Screen 
-  useEffect(() => {
-    if (sessionStorage.getItem('hasStarted') === 'true') {
-      setShowSplash(false);
-      return;
-    }
-    const timer1 = setTimeout(() => setFadeOut(true), 2000);
-    const timer2 = setTimeout(() => setShowSplash(false), 2500);
-    return () => { clearTimeout(timer1); clearTimeout(timer2); };
-  }, []);
-
   const handleStart = (selectedRole) => {
+    // โค้ดเดิมของท่าน...
     setRole(selectedRole);
     setHasStarted(true);
     sessionStorage.setItem('role', selectedRole);
