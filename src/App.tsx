@@ -789,6 +789,9 @@ const technicianList = [
 // ==========================================
 // 🌟 3. Utility Functions
 // ==========================================
+// ==========================================
+// 🌟 3. Utility Functions
+// ==========================================
 const ThaiDateFormatter = (date) => {
   const months = [
     'ม.ค.', 'ก.พ.', 'มี.ค.', 'เม.ย.', 'พ.ค.', 'มิ.ย.',
@@ -797,48 +800,29 @@ const ThaiDateFormatter = (date) => {
   const d = new Date(date);
   const dayOfWeek = d.getDay();
 
-  // 🌟 สมองกลกำหนดสีตามวัน สำหรับตัวหนังสือและไอคอน (พร้อมเอฟเฟกต์เรืองแสง)
+  // 🌟 ฟันธง: ลบแสงเฟลอร์ และ Drop Shadow ออกทั้งหมด ใช้สีทึบคมกริบ
   const dayColors = {
-    0: 'text-rose-400 drop-shadow-[0_0_10px_rgba(244,63,94,0.8)]',    // อาทิตย์ (แดง)
-    1: 'text-yellow-400 drop-shadow-[0_0_10px_rgba(250,204,21,0.8)]', // จันทร์ (เหลือง)
-    2: 'text-pink-400 drop-shadow-[0_0_10px_rgba(244,114,182,0.8)]',  // อังคาร (ชมพู)
-    3: 'text-emerald-400 drop-shadow-[0_0_10px_rgba(52,211,153,0.8)]',// พุธ (เขียว)
-    4: 'text-orange-400 drop-shadow-[0_0_10px_rgba(251,146,60,0.8)]', // พฤหัส (ส้ม)
-    5: 'text-sky-400 drop-shadow-[0_0_10px_rgba(56,189,248,0.8)]',    // ศุกร์ (ฟ้า)
-    6: 'text-purple-400 drop-shadow-[0_0_10px_rgba(168,85,247,0.8)]'  // เสาร์ (ม่วง)
-  };
-
-  // 🌟 สมองกลสร้างแสงเฟลอร์ (Flare) ฟุ้งๆ ด้านหลัง
-  const flareColors = {
-    0: 'bg-rose-500/20',
-    1: 'bg-yellow-500/20',
-    2: 'bg-pink-500/20',
-    3: 'bg-emerald-500/20',
-    4: 'bg-orange-500/20',
-    5: 'bg-sky-500/20',
-    6: 'bg-purple-500/20'
+    0: 'text-rose-500', 1: 'text-yellow-500', 2: 'text-pink-500',
+    3: 'text-emerald-500', 4: 'text-orange-500', 5: 'text-sky-500', 6: 'text-purple-500'
   };
 
   return (
-    <div className="flex items-center justify-center gap-3 sm:gap-5 md:gap-20 text-[15px] sm:text-[17px] md:text-[30px] whitespace-nowrap font-sans py-1 px-2">
+    // 🌟 แก้ล้นกรอบ: ลบ whitespace-nowrap ทิ้ง เปลี่ยนเป็น flex-wrap และลดไซส์ PC ลงเหลือ 20px
+    <div className="flex flex-wrap items-center justify-center gap-2 sm:gap-4 md:gap-6 text-[14px] sm:text-[16px] md:text-[20px] font-sans py-1 px-2">
       
-      {/* 📅 โซนวันที่ หน้าแจ้งซ่อม และ แผงควบคุม (ฟันธง: เปลี่ยนสีตามวัน + มีแสงเฟลอร์เบาๆ ด้านหลัง) */}
-      <div className="relative flex items-center gap-2 md:gap-3 shrink-0">
-        <div className={`absolute inset-0 ${flareColors[dayOfWeek]} blur-[15px] rounded-full pointer-events-none`}></div>
-        <Calendar className={`w-[22px] h-[22px] md:w-[28px] md:h-[28px] relative z-10 ${dayColors[dayOfWeek]}`} />
-        <span className={`font-black tracking-widest relative z-10 ${dayColors[dayOfWeek]}`}>
+      <div className="flex items-center gap-1.5 md:gap-2 shrink-0">
+        <Calendar className={`w-4 h-4 md:w-5 md:h-5 ${dayColors[dayOfWeek]}`} />
+        <span className={`font-black tracking-widest ${dayColors[dayOfWeek]}`}>
           {d.getDate()} {months[d.getMonth()]} {d.getFullYear() + 543}
         </span>
       </div>
 
-      {/* ⏐ เส้นแบ่งคั่นกลาง */}
-      <div className="w-[2px] h-8 md:h-10 bg-cyan-200/80 rounded-full shrink-0"></div>
+      {/* ⏐ เส้นแบ่งคั่นกลาง (ซ่อนในมือถือจอเล็กสุดเพื่อไม่ให้ล้น) */}
+      <div className="hidden sm:block w-[2px] h-5 md:h-6 bg-slate-500/50 rounded-full shrink-0"></div>
 
-      {/* ⏱️ โซนเวลา หน้าแจ้งซ่อม และ แผงควบคุม (ฟันธง: ล็อกสีส้มไว้ตามสั่ง ไม่ให้เปลี่ยนตามวัน พร้อมเฟลอร์สีส้ม) */}
-      <div className="relative flex items-center gap-2 md:gap-3 shrink-0">
-         <div className="absolute inset-0 bg-orange-500/10 blur-[15px] rounded-full pointer-events-none"></div>
-        <Clock className="w-[22px] h-[22px] md:w-[28px] md:h-[28px] text-orange-500 animate-pulse relative z-10 drop-shadow-[0_0_5px_rgba(249,115,22,0.8)]" />
-        <span className="font-mono font-black text-orange-300 tracking-[0.1em] drop-shadow-[0_0_5px_rgba(249,115,22,0.8)] relative z-10">
+      <div className="flex items-center gap-1.5 md:gap-2 shrink-0">
+        <Clock className="w-4 h-4 md:w-5 md:h-5 text-orange-500 animate-pulse" />
+        <span className="font-mono font-black text-orange-500 tracking-wider">
           {d.toLocaleTimeString('th-TH', { hour12: false })} น.
         </span>
       </div>
@@ -2246,8 +2230,8 @@ const executeRatingSubmit = async () => {
           </button>
         </div>
 
-{/* ========================================================= */}
-          {/* 🌟 ฟันธงจุดที่ 1: วิดเจ็ตเจ้าหน้าที่เวร SSC ประจำวัน (แสดงในหน้าแผงควบคุม) */}
+        {/* ========================================================= */}
+          {/* 🌟 ฟันธง: วิดเจ็ตเจ้าหน้าที่เวร SSC ประจำวัน (อัปเกรดสี 7 วัน 7 สี) */}
           {(() => {
             const today = new Date(sysTime);
             const todayStr = `${today.getFullYear()}-${String(today.getMonth() + 1).padStart(2, '0')}-${String(today.getDate()).padStart(2, '0')}`;
@@ -2261,13 +2245,26 @@ const executeRatingSubmit = async () => {
 
             const dutyPerson = sscRosterForDate ? { techName: sscRosterForDate.techName, techPhone: autoSscPhone, isHoliday: sscRosterForDate.isHoliday, holidayName: sscRosterForDate.holidayName } : null;
             const dayOfWeek = today.getDay();
-            const daysThai = ['วันอาทิตย์', 'วันจันทร์', 'วันอังคาร', 'วันพุธ', 'วันพฤหัสบดี', 'วันศุกร์', 'วันเสาร์'];
 
             if (dutyPerson?.techName) {
-              let wTheme = { bg: 'bg-purple-500/20', border: 'border-purple-500/80', textHead: 'text-purple-400', textName: 'text-purple-400', glow: 'shadow-[0_0_30px_rgba(168,85,247,0.3)]', iconGlow: 'shadow-[0_0_10px_rgba(168,85,247,1)]', iconText: 'text-purple-400', dayLabel: daysThai[dayOfWeek] };
-              if (dutyPerson?.isHoliday) wTheme = { bg: 'bg-orange-500/20', border: 'border-orange-500/80', textHead: 'text-orange-400', textName: 'text-orange-400', glow: 'shadow-[0_0_30px_rgba(249,115,22,0.3)]', iconGlow: 'shadow-[0_0_10px_rgba(249,115,22,1)]', iconText: 'text-orange-400', dayLabel: `วันหยุดนักขัตฤกษ์ (${dutyPerson.holidayName})` };
-              else if (dayOfWeek === 0) wTheme = { bg: 'bg-rose-500/20', border: 'border-rose-500/80', textHead: 'text-rose-400', textName: 'text-rose-400', glow: 'shadow-[0_0_30px_rgba(225,29,72,0.3)]', iconGlow: 'shadow-[0_0_10px_rgba(225,29,72,1)]', iconText: 'text-rose-400', dayLabel: 'วันอาทิตย์' };
-              else if (dayOfWeek === 6) wTheme = { bg: 'bg-sky-500/20', border: 'border-sky-500/80', textHead: 'text-sky-400', textName: 'text-sky-400', glow: 'shadow-[0_0_30px_rgba(14,165,233,0.3)]', iconGlow: 'shadow-[0_0_10px_rgba(14,165,233,1)]', iconText: 'text-sky-400', dayLabel: 'วันเสาร์' };
+              let wTheme = {};
+              
+              if (dutyPerson?.isHoliday) {
+                // สีส้มทอง สำหรับวันหยุดพิเศษ
+                wTheme = { bg: 'bg-orange-500/20', border: 'border-orange-500/80', textHead: 'text-orange-400', textName: 'text-orange-400', glow: 'shadow-[0_0_30px_rgba(249,115,22,0.3)]', iconGlow: 'shadow-[0_0_10px_rgba(249,115,22,1)]', iconText: 'text-orange-400', dayLabel: `วันหยุดนักขัตฤกษ์ (${dutyPerson.holidayName})` };
+              } else {
+                // 🌟 สมองกล 7 วัน 7 สี ตามมาตรฐานสากล
+                const dayThemes = {
+                  0: { bg: 'bg-rose-500/20', border: 'border-rose-500/80', textHead: 'text-rose-400', textName: 'text-rose-400', glow: 'shadow-[0_0_30px_rgba(225,29,72,0.3)]', iconGlow: 'shadow-[0_0_10px_rgba(225,29,72,1)]', iconText: 'text-rose-400', dayLabel: 'วันอาทิตย์' }, // แดง
+                  1: { bg: 'bg-yellow-500/20', border: 'border-yellow-500/80', textHead: 'text-yellow-400', textName: 'text-yellow-400', glow: 'shadow-[0_0_30px_rgba(234,179,8,0.3)]', iconGlow: 'shadow-[0_0_10px_rgba(234,179,8,1)]', iconText: 'text-yellow-400', dayLabel: 'วันจันทร์' }, // เหลือง
+                  2: { bg: 'bg-pink-500/20', border: 'border-pink-500/80', textHead: 'text-pink-400', textName: 'text-pink-400', glow: 'shadow-[0_0_30px_rgba(244,114,182,0.3)]', iconGlow: 'shadow-[0_0_10px_rgba(244,114,182,1)]', iconText: 'text-pink-400', dayLabel: 'วันอังคาร' }, // ชมพู
+                  3: { bg: 'bg-emerald-500/20', border: 'border-emerald-500/80', textHead: 'text-emerald-400', textName: 'text-emerald-400', glow: 'shadow-[0_0_30px_rgba(16,185,129,0.3)]', iconGlow: 'shadow-[0_0_10px_rgba(16,185,129,1)]', iconText: 'text-emerald-400', dayLabel: 'วันพุธ' }, // เขียว
+                  4: { bg: 'bg-orange-500/20', border: 'border-orange-500/80', textHead: 'text-orange-400', textName: 'text-orange-400', glow: 'shadow-[0_0_30px_rgba(249,115,22,0.3)]', iconGlow: 'shadow-[0_0_10px_rgba(249,115,22,1)]', iconText: 'text-orange-400', dayLabel: 'วันพฤหัสบดี' }, // ส้ม
+                  5: { bg: 'bg-sky-500/20', border: 'border-sky-500/80', textHead: 'text-sky-400', textName: 'text-sky-400', glow: 'shadow-[0_0_30px_rgba(14,165,233,0.3)]', iconGlow: 'shadow-[0_0_10px_rgba(14,165,233,1)]', iconText: 'text-sky-400', dayLabel: 'วันศุกร์' }, // ฟ้า
+                  6: { bg: 'bg-purple-500/20', border: 'border-purple-500/80', textHead: 'text-purple-400', textName: 'text-purple-400', glow: 'shadow-[0_0_30px_rgba(168,85,247,0.3)]', iconGlow: 'shadow-[0_0_10px_rgba(168,85,247,1)]', iconText: 'text-purple-400', dayLabel: 'วันเสาร์' } // ม่วง
+                };
+                wTheme = dayThemes[dayOfWeek];
+              }
 
               return (
                 <div className={`relative bg-slate-900/80 backdrop-blur-xl border-[2px] border-solid ${wTheme.border} rounded-[1.5rem] p-5 md:p-8 ${wTheme.glow} mt-4 mb-4 overflow-hidden`}>
@@ -2306,7 +2303,7 @@ const executeRatingSubmit = async () => {
                 </div>
               );
             }
-            return null; // วันธรรมดาไม่ต้องโชว์
+            return null; // วันธรรมดา(ที่ไม่ใช่วันหยุด) ไม่ต้องโชว์
           })()}
           {/* ========================================================= */}
 
@@ -3068,22 +3065,39 @@ const executeRatingSubmit = async () => {
         }
 
 
-          // 🌟 3. โหมดวันธรรมดา (ไม่มีเวร)
-          return (
-            <div className="mb-2 mt-4 p-3.5 md:p-5 rounded-2xl border-[2px] border-dashed border-cyan-400/80 bg-slate-900/50 flex items-center gap-3.5 md:gap-5 transition-all shadow-inner">
-              <div className="w-10 h-10 md:w-12 md:h-12 rounded-full bg-slate-800 flex items-center justify-center border border-slate-600 shrink-0 shadow-sm">
-                <AlertCircle className="w-6 h-6 md:w-12 md:h-12 text-orange-400" />
-              </div>
-              <div className="flex-1">
-                <p className="text-[15px] md:text-[18px] font-bold text-slate-300 leading-tight">
-                  วันนี้ <span className={`${dayColors[dayOfWeek]} font-black tracking-wide mx-0.5`}>{daysThai[dayOfWeek]}</span>
-                </p>
-                <p className="text-[13px] md:text-[16px] text-slate-300 font-bold mt-1 leading-snug">
-                  มี <span className="text-orange-400 font-black tracking-wide"> ผู้รับผิดชอบหลัก</span> พร้อมให้บริการค่ะ!
-                </p>
-              </div>
+        // 🌟 3. โหมดวันธรรมดา (ไม่มีเวร) อัปเกรดขอบ+ไอคอน เปลี่ยนสีตามวัน 1,000,000%
+        const normalBorders = {
+          0: 'border-rose-500/80', 1: 'border-yellow-400/80', 2: 'border-pink-500/80',
+          3: 'border-emerald-500/80', 4: 'border-orange-500/80', 5: 'border-sky-400/80', 6: 'border-purple-500/80'
+        };
+        const normalShadows = {
+          0: 'shadow-[0_0_15px_rgba(244,63,94,0.5)]', 1: 'shadow-[0_0_15px_rgba(250,204,21,0.5)]',
+          2: 'shadow-[0_0_15px_rgba(244,114,182,0.5)]', 3: 'shadow-[0_0_15px_rgba(52,211,153,0.5)]',
+          4: 'shadow-[0_0_15px_rgba(251,146,60,0.5)]', 5: 'shadow-[0_0_15px_rgba(56,189,248,0.5)]',
+          6: 'shadow-[0_0_15px_rgba(168,85,247,0.5)]'
+        };
+        const normalIcons = {
+          0: 'text-rose-400', 1: 'text-yellow-400', 2: 'text-pink-400',
+          3: 'text-emerald-400', 4: 'text-orange-400', 5: 'text-sky-400', 6: 'text-purple-400'
+        };
+
+        return (
+          <div className={`mb-2 mt-4 p-3.5 md:p-5 rounded-2xl border-[2px] border-dashed ${normalBorders[dayOfWeek]} ${normalShadows[dayOfWeek]} bg-slate-900/50 flex items-center gap-3.5 md:gap-5 transition-all`}>
+            <div className="w-10 h-10 md:w-12 md:h-12 rounded-full bg-slate-800 flex items-center justify-center border border-slate-600 shrink-0 shadow-sm">
+              <AlertCircle className={`w-6 h-6 md:w-7 md:h-7 ${normalIcons[dayOfWeek]} animate-pulse`} />
             </div>
-          );
+            <div className="flex-1">
+              <p className="text-[15px] md:text-[18px] font-bold text-slate-300 leading-tight">
+                วันนี้ <span className={`${dayColors[dayOfWeek]} font-black tracking-wide mx-0.5`}>{daysThai[dayOfWeek]}</span>
+              </p>
+              <p className="text-[13px] md:text-[16px] text-slate-300 font-bold mt-1 leading-snug">
+                มี <span className="text-orange-400 font-black tracking-wide"> ผู้รับผิดชอบหลัก</span> พร้อมให้บริการค่ะ!
+              </p>
+            </div>
+          </div>
+        );
+
+
         })()}
 
         {/* ================= กรอบที่ 1: ข้อมูลผู้แจ้งซ่อม (ธีม Emerald 🟢) ================= */}
@@ -3935,13 +3949,6 @@ const renderTracking = () => (
                       </div>
                     </div>
 
-
-                    {/* 🌟 โซนดาวประเมิน (อัปเกรด: บรรทัดเดียว ชิดขวา ขนาดใหญ่ขึ้น + ตราประทับ ฝวด.) */}
-                    {/* 🌟 โซนดาวประเมิน (อัปเกรด: Responsive Glow จัดเต็ม 1,000,000%) */}
-                    {/* 🌟 โซนดาวประเมิน (อัปเกรด: เรียงบน-ล่าง เสมอกันทั้ง PC และ Mobile + ปรับแต่งแสงสีได้ 100%) */}
-                   {/* 🌟 โซนดาวประเมิน (อัปเกรด: ยืดกรอบเต็ม 100% เสมอกับข้อมูลด้านล่างเป๊ะ!) */}
-                  {/* 🌟 โซนดาวประเมิน (🌟 ฟันธง: อัปเกรดระบบแสงสีธีมตามคะแนนดาว 100%) */}
-                 {/* 🌟 โซนดาวประเมิน (🌟 ฟันธง: อัปเกรดระบบแสงสีธีมตามคะแนนดาว 100%) */}
                     {/* 🌟 โซนดาวประเมิน (🌟 ฟันธง: โคลนนิ่ง UI ธีมสี/แสง มาจาก Pop-up ให้คะแนนดาว 100%) */}
                     {t.status === 'verified' && t.rating && (() => {
                       // 🎨 ถอดแบบธีมสีมาจากตัวแปรของหน้าต่างประเมิน (Modal) เป๊ะๆ
@@ -3987,8 +3994,8 @@ const renderTracking = () => (
                             <div className={`absolute inset-0 m-auto w-[150%] h-[150%] rounded-full blur-[50px] md:blur-[70px] opacity-20 pointer-events-none z-0 ${rColor.flare}`}></div>
                             
                             <span className={`text-[15px] sm:text-[16px] md:text-[22px] font-black ${rColor.text} uppercase tracking-widest ml-1 relative z-10 drop-shadow-md shrink-0`}>
-                              คุณให้คะแนนงานนี้:
-                            </span>
+                            {currentUserRole === 'reporter' ? 'คุณให้คะแนนงานนี้:' : 'คุณได้คะแนนงานนี้:'}
+                          </span>
                             <div className="flex gap-1.5 md:gap-3 relative z-10 shrink-0">
                               {[1, 2, 3, 4, 5].map((s) => (
                                 <Star 
@@ -4002,27 +4009,43 @@ const renderTracking = () => (
                             </div>
                           </div>
 
-                          {/* 2. ตราประทับขอบคุณจาก ฝวด. (ใช้ธีมเดียวกับกล่องดาวเป๊ะๆ) */}
-                          <div className={`relative bg-slate-900 border-[3px] border-solid ${rColor.border} rounded-xl md:rounded-[1rem] p-5 md:p-6 ${rColor.glow} overflow-hidden flex flex-col items-center justify-center text-center w-full`}>
-                            
-                            {/* แสง Flare ฟุ้งๆ ด้านใน */}
-                            <div className={`absolute inset-0 m-auto w-[150%] h-[150%] rounded-full blur-[60px] md:blur-[80px] opacity-20 pointer-events-none z-0 ${rColor.flare}`}></div>
-                            
-                            <ShieldCheck className={`w-10 h-10 md:w-14 md:h-14 ${rColor.text} shrink-0 drop-shadow-[0_0_12px_rgba(255,255,255,0.3)] mb-3 relative z-10`} />
-                            
-                            <div className="space-y-1 md:space-y-2 relative z-10">
-                              <h4 className={`${rColor.text} font-black text-[16px] md:text-[20px] drop-shadow-sm`}>
-                                ฝ่ายวิศวกรรมระบบปฏิบัติการดาวเทียม (ฝวด.)
-                              </h4>
-                              <p className="text-white text-[12px] md:text-[15px] font-bold leading-relaxed px-2 md:px-6">
-                                ขอบพระคุณสำหรับทุกคะแนนประเมินและเสียงสะท้อน เราจะนำไปพัฒนาและยกระดับมาตรฐานการบริการให้ดียิ่งขึ้นต่อไป
-                               </p>
-                            </div>
-                          </div>
+                          {/* 🌟 ฟันธง: 2. กล่องแสดงข้อเสนอแนะ/คำติชม (อัปเกรดสี/แสงตามคะแนนดาว + ขยายฟอนต์ใหญ่สะใจ) */}
+                          {t.ratingComment && (
+                                            <div className={`relative bg-slate-900 border-[3px] border-dashed ${rColor.border} rounded-xl md:rounded-[1rem] p-5 md:p-6 w-full text-left mb-2 md:mb-4 ${rColor.glow} overflow-hidden mt-2 md:mt-4`}>
+                                              
+                                              {/* 🌟 เพิ่มแสง Flare ฟุ้งๆ ด้านในให้สว่างเรืองรองเหมือนกล่องดาวเป๊ะๆ */}
+                                              <div className={`absolute inset-0 m-auto w-[150%] h-[150%] rounded-full blur-[50px] md:blur-[70px] opacity-20 pointer-events-none z-0 ${rColor.flare}`}></div>
+                                              
+                                              <div className="relative z-10">
+                                                <span className={`block text-[16px] md:text-[24px] font-black uppercase tracking-widest mb-2 md:mb-3 ${rColor.text} drop-shadow-md`}>
+                                                  💬 ข้อเสนอแนะ / คำติชม จากผู้แจ้งซ่อม:
+                                                </span>
+                                                <p className="text-white text-[14px] md:text-[20px] font-bold leading-relaxed drop-shadow-sm">
+                                                  "{String(t.ratingComment)}"
+                                                </p>
+                                              </div>
 
-                        </div>
-                      );
-                    })()}
+                                            </div>
+                                          )}
+
+                                          {/* 🌟 ฟันธง: 3. ตราประทับขอบคุณจาก ฝวด. (ซ่อนจากช่าง โชว์เฉพาะผู้แจ้ง 1,000,000%!) */}
+                                          {currentUserRole === 'reporter' && (
+                                            <div className={`relative bg-slate-900 border-[3px] border-solid ${rColor.border} rounded-xl md:rounded-[1rem] p-5 md:p-6 ${rColor.glow} overflow-hidden flex flex-col items-center justify-center text-center w-full`}>
+                                              <div className={`absolute inset-0 m-auto w-[150%] h-[150%] rounded-full blur-[60px] md:blur-[80px] opacity-20 pointer-events-none z-0 ${rColor.flare}`}></div>
+                                              <ShieldCheck className={`w-10 h-10 md:w-14 md:h-14 ${rColor.text} shrink-0 drop-shadow-[0_0_12px_rgba(255,255,255,0.3)] mb-3 relative z-10`} />
+                                              <div className="space-y-1 md:space-y-2 relative z-10">
+                                                <h4 className={`${rColor.text} font-black text-[16px] md:text-[20px] drop-shadow-sm`}>
+                                                  ฝ่ายวิศวกรรมระบบปฏิบัติการดาวเทียม (ฝวด.)
+                                                </h4>
+                                                <p className="text-white text-[14px] md:text-[18px] font-bold leading-relaxed px-2 md:px-6">
+                                                  ขอบพระคุณสำหรับทุกคะแนนประเมินและเสียงสะท้อน เราจะนำไปพัฒนาและยกระดับมาตรฐานการบริการให้ดียิ่งขึ้นต่อไป
+                                                </p>
+                                              </div>
+                                            </div>
+                                          )}
+                                        </div>
+                                      );
+                                    })()}
 
 
                     <h3
@@ -4436,47 +4459,49 @@ const renderTracking = () => (
                           )}
                         </div>
           
-                        {/* รายละเอียด (เบอร์โทร) */}
-                        <div className="flex flex-col md:flex-row md:items-center justify-between mt-auto pt-3 border-t-[1.5px] border-dashed border-orange-400/50 gap-3">
-                          {t.techPhone && t.techPhone !== '-' && t.techPhone !== 'N/A' ? (
-                            <a href={`tel:${String(t.techPhone).replace(/\D/g, '')}`} className="font-mono text-[16px] md:text-[22px] font-bold bg-orange-100 px-3 py-1.5 rounded-lg text-orange-800 border border-orange-300 shadow-sm hover:bg-orange-200 transition-colors flex items-center gap-1.5 active:scale-95 w-fit md:w-auto self-start md:self-auto">
-                              <Phone className="w-5 h-5 md:w-6 md:h-6 text-orange-600" />
-                              {formatDisplayPhone(t.techPhone)}
-                            </a>
-                          ) : (
-                            <span className="font-mono text-[16px] md:text-[20px] text-slate-400 bg-slate-100 px-3 py-1.5 rounded-lg border border-slate-200 w-fit md:w-auto self-start md:self-auto">
-                              {String(t.techPhone || 'ไม่มีข้อมูลเบอร์โทร')}
-                            </span>
-                          )}
+                       {/* รายละเอียด */}
+                       <div className="flex flex-col md:flex-row md:items-center justify-between mt-auto pt-3 border-t-[1.5px] border-dashed border-emerald-400/50 gap-3">
+                          {/* 🌟 ฟันธง: เพิ่ม flex-wrap และลดขนาดลงนิดนึงไม่ให้ดันทะลุจอ */}
+                          <span className="text-[14px] md:text-[18px] font-bold text-blue-600 flex items-center gap-1.5 flex-wrap">
+                            <Clock className="w-3 h-3 md:w-4 md:h-4 text-emerald-600 shrink-0" />
+                            {formatDateTimeString(t.date)}
+                          </span>
+                          <a href={`tel:${String(t.reporterContact).replace(/\D/g, '')}`} className="font-mono text-[15px] md:text-[20px] font-bold bg-emerald-100 px-3 py-1.5 rounded-lg text-emerald-800 border border-emerald-300 shadow-sm hover:bg-emerald-200 transition-colors flex items-center gap-1.5 active:scale-95 w-fit md:w-auto shrink-0">
+                            <Phone className="w-4 h-4 md:w-5 md:h-5 text-emerald-600" />
+                            {formatDisplayPhone(t.reporterContact)}
+                          </a>
                         </div>
 
-                        {/* 🌟 ฟันธงจุดที่ 2: ป้ายกำกับสถานะการรับงาน พร้อม Timestamp เวลาที่กดรับงาน (มาตรฐานสากล) */}
-                        <div className="mt-4 pt-3 border-t-[1.5px] border-solid border-orange-200/80">
+                        {/* 🌟 ฟันธงจุดที่ 2: ป้ายกำกับสถานะการรับงาน (ปรับเป็น Enterprise UI คมชัด ไร้แสงเฟลอร์) */}
+                        <div className="mt-4 pt-4 border-t-[1.5px] border-solid border-slate-200 flex flex-col gap-2">
+                          
                           {t.status === 'pending' && (
-                            <div className="bg-rose-100/80 border border-rose-300 text-rose-600 font-bold text-[13px] md:text-[16px] px-3 py-2 rounded-lg flex items-center gap-2 w-fit animate-pulse shadow-sm">
-                              <Clock className="w-4 h-4 md:w-5 md:h-5" /> ⏳ รอการกดรับงาน (จากผู้รับผิดชอบหลัก หรือ เวร SSC)
+                            <div className="bg-rose-50 border border-rose-200 text-rose-600 font-bold text-[13px] md:text-[15px] px-3 py-2.5 rounded-lg flex items-center gap-2 w-fit shadow-sm">
+                              <Clock className="w-4 h-4 md:w-5 md:h-5 text-rose-500" /> ⏳ รอการกดรับงาน (จากผู้รับผิดชอบหลัก หรือ เวร SSC)
                             </div>
                           )}
+
                           {['in_progress', 'on_hold', 'acknowledged'].includes(t.status) && (
-                            <div className="flex flex-col gap-1.5">
-                              <div className="bg-emerald-100/80 border border-emerald-300 text-emerald-700 font-bold text-[13px] md:text-[16px] px-3 py-2 rounded-lg flex items-center gap-2 w-fit shadow-sm">
-                                <Wrench className="w-4 h-4 md:w-5 md:h-5" /> 🛠️ มีผู้รับผิดชอบกดรับงานและกำลังดำเนินการซ่อมแล้ว
+                            <div className="flex flex-col gap-2">
+                              <div className="bg-emerald-50 border border-emerald-200 text-emerald-700 font-bold text-[13px] md:text-[15px] px-3 py-2.5 rounded-lg flex items-center gap-2 w-fit shadow-sm">
+                                <Wrench className="w-4 h-4 md:w-5 md:h-5 text-emerald-600" /> 🛠️ มีผู้รับผิดชอบกดรับงานและกำลังดำเนินการซ่อม
                               </div>
                               {t.acceptedAt && (
-                                <div className="text-[12px] md:text-[14px] font-bold text-slate-500 ml-1 flex items-center gap-1.5">
-                                   <Clock className="w-3.5 h-3.5" /> เวลากดรับงาน: {ThaiDateFormatter(t.acceptedAt)}
+                                <div className="bg-slate-50 border border-slate-200 text-[13px] md:text-[14px] font-bold text-slate-600 px-3 py-2 rounded-lg w-fit flex items-center gap-2">
+                                   <Clock className="w-4 h-4 text-slate-400" /> เวลากดรับงาน: {ThaiDateFormatter(t.acceptedAt)}
                                 </div>
                               )}
                             </div>
                           )}
+
                           {['completed', 'verified'].includes(t.status) && (
-                            <div className="flex flex-col gap-1.5">
-                              <div className="bg-blue-100/80 border border-blue-300 text-blue-700 font-bold text-[13px] md:text-[16px] px-3 py-2 rounded-lg flex items-center gap-2 w-fit shadow-sm">
-                                <CheckCircle className="w-4 h-4 md:w-5 md:h-5" /> ✅ ดำเนินการแก้ไขเสร็จสิ้นเรียบร้อย
+                            <div className="flex flex-col gap-2">
+                              <div className="bg-blue-50 border border-blue-200 text-blue-700 font-bold text-[13px] md:text-[15px] px-3 py-2.5 rounded-lg flex items-center gap-2 w-fit shadow-sm">
+                                <CheckCircle className="w-4 h-4 md:w-5 md:h-5 text-blue-600" /> ✅ ดำเนินการแก้ไขเสร็จสิ้นเรียบร้อย
                               </div>
                               {t.completedAt && (
-                                <div className="text-[12px] md:text-[14px] font-bold text-slate-500 ml-1 flex items-center gap-1.5">
-                                   <Clock className="w-3.5 h-3.5" /> เวลาปิดงาน: {ThaiDateFormatter(t.completedAt)}
+                                <div className="bg-slate-50 border border-slate-200 text-[13px] md:text-[14px] font-bold text-slate-600 px-3 py-2 rounded-lg w-fit flex items-center gap-2">
+                                   <Clock className="w-4 h-4 text-slate-400" /> เวลาปิดงาน: {ThaiDateFormatter(t.completedAt)}
                                 </div>
                               )}
                             </div>
@@ -4898,8 +4923,6 @@ const renderTracking = () => (
           
           <div>
 
-
-
           {/* ========================================================= */}
             {/* 🌟 ฟันธง: สมองกลคำทักทายอัจฉริยะฉบับไซไฟอวกาศ (รู้ใจ แยกบริบทตามหน้าจอ 100%) */}
             {(() => {
@@ -4931,9 +4954,9 @@ const renderTracking = () => (
               else {
                 // 🔧 กรณีมีงานค้าง (แสดงเฉพาะก่อน 3 ทุ่ม เพื่อไม่ไปทับข้อความแจ้งนอกเวลา)
                 if (hasActiveTicket && hour >= 5 && hour < 21) greeting = `🔧 สวัสดีครับ ${displayName} 👋 ตรวจสอบสถานะงานซ่อมได้เลยครับ`;
-                else if (hour >= 5 && hour < 12) greeting = `☀️ สวัสดีตอนเช้าครับ ${displayName} ทีม ฝวด. พร้อมสนับสนุนการปฏิบัติงานภาคพื้นดินวันนี้ครับ`;
-                else if (hour >= 12 && hour < 17) greeting = `🌤️ สวัสดีตอนบ่ายครับ ${displayName} ให้ ฝวด. ช่วยดูแลระบบหรืออุปกรณ์ไหน แจ้งได้เลยครับ`;
-                else if (hour >= 17 && hour < 21) greeting = `🌇 สวัสดีตอนเย็นครับ ${displayName} นอกเวลาทำการ วิศวกรเวร ฝวด. ก็พร้อมดูแลระบบให้ท่านครับ`;
+                else if (hour >= 5 && hour < 12) greeting = `☀️ สวัสดีตอนเช้าครับ ${displayName} ทีม ฝวด. พร้อมให้บริการครับ`;
+                else if (hour >= 12 && hour < 17) greeting = `🌤️ สวัสดีตอนบ่ายครับ ${displayName} ระบบมีปัญหาแจ้งได้เลยครับ`;
+                else if (hour >= 17 && hour < 21) greeting = `🌇 สวัสดีตอนเย็นครับ ${displayName} ตอนนี้นอกเวลาทำการ ฝากเรื่องไว้นะครับ`;
                 else {
                   // 🌙 นอกเวลาทำการ (หลัง 21:00 น.) แยกตามหน้าต่างที่เปิด
                   if (activeTab === 'report') {
@@ -4947,15 +4970,16 @@ const renderTracking = () => (
               }
 
               return (
-                <div className="text-orange-300 font-bold text-[16px] md:text-24px] tracking-widest mb-0.5 md:mb-1 animate-in slide-in-from-top-2 flex items-center gap-1.5 opacity-90 drop-shadow-sm">
+                // 🌟 แก้จุดที่ 1 (คำทักทาย): แก้บั๊กวงเล็บหาย, ลดไซส์ลงให้พอดี, และเพิ่ม flex-wrap ให้มันปัดบรรทัดได้ถ้ายาวเกินจอ
+                <div className="text-orange-300 font-bold text-[14px] sm:text-[15px] md:text-[18px] tracking-widest mb-1 md:mb-2 animate-in slide-in-from-top-2 flex flex-wrap items-center gap-1.5 opacity-90 drop-shadow-sm leading-relaxed">
                    {greeting}
                 </div>
               );
             })()}
             {/* ========================================================= */}
          
-
-            <h1 className="font-black text-white text-3xl md:text-5xl tracking-widest leading-none drop-shadow-[0_4px_4px_rgba(0,0,0,0.5)] md:py-1 whitespace-nowrap">
+            {/* 🌟 แก้จุดที่ 2 (หัวข้อใหญ่): ลบคำว่า whitespace-nowrap ทิ้ง! และลดขนาด md:text-5xl ลงเหลือแค่ 4xl เพื่อความสบายตาใน PC */}
+            <h1 className="font-black text-white text-2xl sm:text-3xl md:text-4xl tracking-widest leading-tight drop-shadow-[0_4px_4px_rgba(0,0,0,0.5)] md:py-1">
               {activeTab === 'dashboard' ? 'แผงควบคุม' : activeTab === 'report' ? 'แจ้งซ่อม' : currentUserRole !== 'reporter' ? 'จัดการงานซ่อม' : 'ติดตามสถานะ'}
             </h1>
           </div>
@@ -5994,18 +6018,19 @@ const handleStaffPinSubmit = async () => {
       
         
         <div className="pt-4 pb-4 px-4 md:pt-14 md:pb-6 md:px-10 rounded-[1.5rem] md:rounded-[3rem] flex flex-col items-center justify-between text-center w-full h-full md:h-auto relative backdrop-blur-xl transition-all duration-500 z-10 overflow-hidden"
-          style={{ backgroundColor: 'rgba(15, 23, 42, 0.8)', border: '3px solid #FF4500', boxShadow: '0 0 50px rgba(255, 69, 0, 0.8), inset 0 0 30px rgba(255, 69, 0, 0.5)' }}>
+
+          style={{ backgroundColor: 'rgba(15, 23, 42, 0.4)', border: '3px solid #FF4500', boxShadow: '0 0 50px rgba(255, 69, 0, 0.8), inset 0 0 30px rgba(255, 69, 0, 0.5)' }}>
 
 
           <div className="w-full relative flex items-start justify-center mb-2 md:mb-6 min-h-[80px]">
 
             {/* กล่องข้อความ: ดันลงมา (mt-8) เพื่อหนีโลโก้ */}
-            <div className="relative z-20 bg-slate-900/90 backdrop-blur-md rounded-2xl md:rounded-[2rem] p-3 md:p-6 shadow-[0_10px_30px_rgba(249,115,22,0.6)] text-center border-[2px] border-solid border-cyan-500 animate-bounce mx-auto max-w-[95%] sm:max-w-[80%] mt-8 md:mt-2">
+            <div className="relative z-20 bg-slate-900/90 backdrop-blur-md rounded-2xl md:rounded-[2rem] p-3 md:p-6 shadow-[0_10px_30px_rgba(34,211,238,0.6)] text-center border-[2px] border-solid border-cyan-500 animate-bounce mx-auto max-w-[95%] sm:max-w-[80%] mt-4 md:mt-2">
               <div className="absolute left-1/2 -translate-x-1/2 -bottom-[11px] w-5 h-5 bg-slate-900 border-b-[2px] border-r-[2px] border-solid border-cyan-500 transform rotate-45 rounded-sm"></div>
-              <p className="text-[15px] sm:text-[18px] md:text-[24px] font-bold text-slate-100 leading-tight md:leading-relaxed relative z-20 shadow-none">
+              <p className="text-[17px] sm:text-[20px] md:text-[24px] font-bold text-slate-100 leading-tight md:leading-relaxed relative z-20 shadow-none">
                 ระบบ/อุปกรณ์มีปัญหาใช่มั้ยคะ?
                 <br className="hidden md:block"/>
-                <span className="text-orange-400 font-black text-[15px] md:text-[24px] mt-0.5 md:mt-1 inline-flex items-center justify-center gap-1.5 drop-shadow-[0_0_12px_rgba(249,115,22,1)] whitespace-nowrap">
+                <span className="text-orange-400 font-black text-[17px] md:text-[24px] mt-0.5 md:mt-1 inline-flex items-center justify-center gap-1.5 drop-shadow-[0_0_12px_rgba(249,115,22,1)] whitespace-nowrap">
                   กดแจ้งซ่อมได้เลยค่ะ! <span className="text-[20px] md:text-[45px] leading-[0] transform translate-y-1">👇</span>
                 </span>
               </p>
@@ -6014,34 +6039,44 @@ const handleStaffPinSubmit = async () => {
 
 
         {/* 🌟 โซนกลาง: สปริง flex-1 ที่หดได้ (min-h-0) + ขยายขนาดมาสคอตให้ใหญ่สะใจ (max-h-[320px]) */}
+
         <div className="flex-1 min-h-0 flex items-end justify-center w-full relative z-30 pointer-events-none drop-shadow-[0_20px_40px_rgba(0,0,0,0.9)] mt-4 -mb-2 md:mt-2 md:-mb-5">
             <img src="/mascot.webp" alt="Mascot" className="h-full max-h-[320px] sm:max-h-[350px] md:max-h-[380px] w-auto object-contain object-bottom hover:scale-105 transition-transform duration-500" />
           </div>
           
           <div className="w-full flex flex-col gap-3 md:gap-5 relative z-10 mt-3 md:mt-6">
             
-            <button onClick={() => setShowReporterLogin(true)} className="group relative w-full bg-gradient-to-r from-orange-500 to-amber-500 text-white font-black text-[15px] sm:text-[16px] md:text-[26px] py-3.5 md:py-5 rounded-2xl md:rounded-[1rem] border-[2px] border-solid border-white/40 shadow-[0_0_20px_rgba(249,115,22,0.8)] md:shadow-[0_0_30px_rgba(249,115,22,0.8)] hover:from-orange-400 hover:to-amber-400 hover:border-white hover:shadow-[0_0_60px_rgba(249,115,22,1),inset_0_0_20px_rgba(255,255,255,0.4)] hover:scale-[1.03] active:scale-95 transition-all duration-300 flex items-center justify-center gap-2 md:gap-4 overflow-hidden">
-              <div className="absolute inset-0 bg-gradient-to-t from-orange-300/0 via-white/40 to-orange-300/0 opacity-0 group-hover:opacity-100 group-hover:animate-pulse transition-opacity duration-300"></div>
-              <div className="bg-orange-900/60 p-1.5 md:p-3 rounded-xl md:rounded-2xl border border-orange-300 shadow-[inset_0_0_10px_rgba(0,0,0,0.5)] group-hover:bg-orange-800 group-hover:border-white group-hover:shadow-[0_0_20px_rgba(255,255,255,0.9)] transition-all z-10">
-                <Wrench className="w-5 h-5 md:w-8 md:h-8 text-white drop-shadow-[0_0_8px_rgba(255,255,255,0.8)]"/>
+            {/* 🚀 ปุ่มที่ 1: แจ้งซ่อม (ส้ม Standby Glow) */}
+            <button onClick={() => setShowReporterLogin(true)} className="group relative w-full bg-gradient-to-r from-orange-900 to-orange-600 text-slate-100 font-black text-[17px] sm:text-[19px] md:text-[26px] py-3.5 md:py-5 rounded-2xl md:rounded-[1rem] border-[2px] border-solid border-orange-500/50 shadow-[0_0_25px_rgba(249,115,22,0.6)] md:shadow-[0_0_35px_rgba(249,115,22,0.6)] hover:from-orange-800 hover:to-orange-500 hover:border-orange-400 hover:shadow-[0_0_50px_rgba(249,115,22,0.9),inset_0_0_20px_rgba(249,115,22,0.6)] hover:scale-[1.03] active:scale-95 transition-all duration-300 flex items-center justify-center gap-2 md:gap-4 overflow-hidden">
+              <div className="absolute inset-0 bg-gradient-to-t from-orange-500/0 via-orange-500/30 to-orange-500/0 opacity-0 group-hover:opacity-100 group-hover:animate-pulse transition-opacity duration-300"></div>
+
+              {/* ปรับกล่องไอคอนให้มีเรืองแสงส้มอ่อนๆ ด้านใน */}
+              <div className="bg-orange-900/70 p-1.5 md:p-3 rounded-xl md:rounded-2xl border border-orange-500/50 shadow-[inset_0_0_15px_rgba(249,115,22,0.4)] group-hover:bg-orange-800 group-hover:border-orange-400 group-hover:shadow-[0_0_20px_rgba(249,115,22,0.9)] transition-all z-10">
+                <Wrench className="w-5 h-5 md:w-8 md:h-8 text-orange-200 group-hover:text-white drop-shadow-[0_0_8px_rgba(249,115,22,0.8)]"/>
               </div>
-              <span className="tracking-widest drop-shadow-[0_2px_5px_rgba(0,0,0,0.6)] z-10 group-hover:drop-shadow-[0_0_15px_rgba(255,255,255,1)]">แจ้งซ่อมระบบ/อุปกรณ์</span>
+              <span className="tracking-widest drop-shadow-[0_2px_5px_rgba(0,0,0,0.9)] z-10 group-hover:text-white group-hover:drop-shadow-[0_0_15px_rgba(249,115,22,1)]">แจ้งซ่อมระบบ/อุปกรณ์</span>
             </button>
 
-            <button onClick={() => setShowLogin(true)} className="group relative w-full bg-gradient-to-r from-emerald-500 to-teal-500 text-white font-black text-[15px] sm:text-[16px] md:text-[26px] py-3.5 md:py-5 rounded-2xl md:rounded-[1rem] border-[2px] border-solid border-white/40 shadow-[0_0_20px_rgba(16,185,129,0.8)] md:shadow-[0_0_30px_rgba(16,185,129,0.8)] hover:from-emerald-400 hover:to-teal-400 hover:border-white hover:shadow-[0_0_60px_rgba(16,185,129,1),inset_0_0_20px_rgba(255,255,255,0.4)] hover:scale-[1.03] active:scale-95 transition-all duration-300 flex items-center justify-center gap-2 md:gap-4 overflow-hidden">
-              <div className="absolute inset-0 bg-gradient-to-t from-emerald-300/0 via-white/40 to-emerald-300/0 opacity-0 group-hover:opacity-100 group-hover:animate-pulse transition-opacity duration-300"></div>
-              <div className="bg-emerald-900/60 p-1.5 md:p-3 rounded-xl md:rounded-2xl border border-emerald-300 shadow-[inset_0_0_10px_rgba(0,0,0,0.5)] group-hover:bg-emerald-800 group-hover:border-white group-hover:shadow-[0_0_20px_rgba(255,255,255,0.9)] transition-all z-10">
-                <ShieldCheck className="w-5 h-5 md:w-8 md:h-8 text-white drop-shadow-[0_0_8px_rgba(255,255,255,0.8)]"/>
+
+            {/* 🚀 ปุ่มที่ 2: ฝวด. (ฟ้า/เขียว Standby Glow) */}
+            <button onClick={() => setShowLogin(true)} className="group relative w-full bg-gradient-to-r from-emerald-900 to-teal-600 text-slate-100 font-black text-[17px] sm:text-[19px] md:text-[26px] py-3.5 md:py-5 rounded-2xl md:rounded-[1rem] border-[2px] border-solid border-cyan-500/50 shadow-[0_0_25px_rgba(6,182,212,0.6)] md:shadow-[0_0_35px_rgba(6,182,212,0.6)] hover:from-emerald-800 hover:to-cyan-500 hover:border-cyan-400 hover:shadow-[0_0_50px_rgba(34,211,238,0.9),inset_0_0_20px_rgba(34,211,238,0.6)] hover:scale-[1.03] active:scale-95 transition-all duration-300 flex items-center justify-center gap-2 md:gap-4 overflow-hidden">
+              <div className="absolute inset-0 bg-gradient-to-t from-cyan-500/0 via-cyan-400/30 to-cyan-500/0 opacity-0 group-hover:opacity-100 group-hover:animate-pulse transition-opacity duration-300"></div>
+
+              <div className="bg-cyan-900/70 p-1.5 md:p-3 rounded-xl md:rounded-2xl border border-cyan-500/50 shadow-[inset_0_0_15px_rgba(6,182,212,0.4)] group-hover:bg-cyan-900 group-hover:border-cyan-400 group-hover:shadow-[0_0_20px_rgba(34,211,238,0.9)] transition-all z-10">
+                <ShieldCheck className="w-5 h-5 md:w-8 md:h-8 text-cyan-200 group-hover:text-white drop-shadow-[0_0_8px_rgba(34,211,238,0.8)]"/>
               </div>
-              <span className="tracking-widest drop-shadow-[0_2px_5px_rgba(0,0,0,0.6)] z-10 group-hover:drop-shadow-[0_0_15px_rgba(255,255,255,1)]">สำหรับเจ้าหน้าที่ ฝวด.</span>
+              <span className="tracking-widest drop-shadow-[0_2px_5px_rgba(0,0,0,0.9)] z-10 group-hover:text-white group-hover:drop-shadow-[0_0_15px_rgba(34,211,238,1)]">สำหรับเจ้าหน้าที่ ฝวด.</span>
             </button>
 
-            <button onClick={() => setShowManual(true)} className="group relative w-full bg-gradient-to-r from-indigo-500 to-purple-500 text-white font-black text-[15px] sm:text-[16px] md:text-[26px] py-3.5 md:py-5 rounded-2xl md:rounded-[1rem] border-[2px] border-solid border-white/40 shadow-[0_0_20px_rgba(99,102,241,0.8)] md:shadow-[0_0_30px_rgba(99,102,241,0.8)] hover:from-indigo-400 hover:to-purple-400 hover:border-white hover:shadow-[0_0_60px_rgba(99,102,241,1),inset_0_0_20px_rgba(255,255,255,0.4)] hover:scale-[1.03] active:scale-95 transition-all duration-300 flex items-center justify-center gap-2 md:gap-4 overflow-hidden">
-              <div className="absolute inset-0 bg-gradient-to-t from-indigo-300/0 via-white/40 to-indigo-300/0 opacity-0 group-hover:opacity-100 group-hover:animate-pulse transition-opacity duration-300"></div>
-              <div className="bg-indigo-900/60 p-1.5 md:p-3 rounded-xl md:rounded-2xl border border-indigo-300 shadow-[inset_0_0_10px_rgba(0,0,0,0.5)] group-hover:bg-indigo-800 group-hover:border-white group-hover:shadow-[0_0_20px_rgba(255,255,255,0.9)] transition-all z-10">
-                <FileText className="w-5 h-5 md:w-8 md:h-8 text-white drop-shadow-[0_0_8px_rgba(255,255,255,0.8)]"/>
+
+            {/* 🚀 ปุ่มที่ 3: คู่มือ (ม่วง Standby Glow) */}
+            <button onClick={() => setShowManual(true)} className="group relative w-full bg-gradient-to-r from-indigo-900 to-purple-600 text-slate-100 font-black text-[17px] sm:text-[19px] md:text-[26px] py-3.5 md:py-5 rounded-2xl md:rounded-[1rem] border-[2px] border-solid border-purple-500/50 shadow-[0_0_25px_rgba(168,85,247,0.6)] md:shadow-[0_0_35px_rgba(168,85,247,0.6)] hover:from-indigo-800 hover:to-purple-500 hover:border-fuchsia-400 hover:shadow-[0_0_50px_rgba(192,38,211,0.9),inset_0_0_20px_rgba(192,38,211,0.6)] hover:scale-[1.03] active:scale-95 transition-all duration-300 flex items-center justify-center gap-2 md:gap-4 overflow-hidden">
+              <div className="absolute inset-0 bg-gradient-to-t from-fuchsia-500/0 via-fuchsia-500/30 to-fuchsia-500/0 opacity-0 group-hover:opacity-100 group-hover:animate-pulse transition-opacity duration-300"></div>
+              
+              <div className="bg-purple-900/70 p-1.5 md:p-3 rounded-xl md:rounded-2xl border border-purple-500/50 shadow-[inset_0_0_15px_rgba(168,85,247,0.4)] group-hover:bg-purple-900 group-hover:border-fuchsia-400 group-hover:shadow-[0_0_20px_rgba(192,38,211,0.9)] transition-all z-10">
+                <FileText className="w-5 h-5 md:w-8 md:h-8 text-purple-200 group-hover:text-white drop-shadow-[0_0_8px_rgba(192,38,211,0.8)]"/>
               </div>
-              <span className="tracking-widest drop-shadow-[0_2px_5px_rgba(0,0,0,0.6)] z-10 group-hover:drop-shadow-[0_0_15px_rgba(255,255,255,1)]">คู่มือการใช้งาน</span>
+              <span className="tracking-widest drop-shadow-[0_2px_5px_rgba(0,0,0,0.9)] z-10 group-hover:text-white group-hover:drop-shadow-[0_0_15px_rgba(192,38,211,1)]">คู่มือการใช้งาน</span>
             </button>
           </div>
 
@@ -6078,7 +6113,7 @@ const handleStaffPinSubmit = async () => {
                 <div className="relative pointer-events-auto">
                   <div className="absolute -inset-1 bg-orange-500/30 blur-[10px] rounded-full animate-pulse z-0"></div>
                   <div className="relative z-10 bg-slate-800 border-[2px] md:border-[3px] border-solid border-orange-400 rounded-lg md:rounded-xl px-3 md:px-8 py-2 md:py-2.5 shadow-[0_0_10px_rgba(249,115,22,0.8)]">
-                    <h3 className="text-white font-black tracking-widest text-[14px] sm:text-[15px] md:text-2xl drop-shadow-[0_0_5px_rgba(255,255,255,0.8)] whitespace-nowrap">
+                    <h3 className="text-white font-black tracking-widest text-[16px] sm:text-[18px] md:text-2xl drop-shadow-[0_0_5px_rgba(255,255,255,0.8)] whitespace-nowrap">
                       คู่มือการใช้งานโปรแกรม
                     </h3>
                   </div>
