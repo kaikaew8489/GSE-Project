@@ -1171,6 +1171,38 @@ function SciFiSelectModal({
   );
 }
 
+function EvidenceUploader({ attachments, setAttachments, label = "แนบหลักฐาน" }) {
+  return (
+    <div className="w-full mt-2">
+      <label className="text-[13px] font-black text-slate-300 mb-2 block flex items-center gap-2">
+        <Camera size={16} /> {label}
+      </label>
+      <div className="flex gap-2 overflow-x-auto pb-2">
+        {attachments.map((file, idx) => (
+          <div key={idx} className="relative w-20 h-20 shrink-0 rounded-xl overflow-hidden border-2 border-cyan-500 shadow-lg">
+            {file.includes('video') ? <video src={file} className="w-full h-full object-cover" /> : <img src={file} className="w-full h-full object-cover" />}
+            <button type="button" onClick={() => setAttachments(prev => prev.filter((_, i) => i !== idx))} className="absolute top-1 right-1 bg-rose-500 text-white rounded-full p-1"><X size={12} /></button>
+          </div>
+        ))}
+        {attachments.length < 3 && (
+          <label className="w-20 h-20 shrink-0 rounded-xl border-2 border-dashed border-cyan-500 flex flex-col items-center justify-center cursor-pointer hover:bg-cyan-900/40 text-cyan-400">
+            <PlusCircle size={24} />
+            <span className="text-[10px] font-bold mt-1 text-center">เพิ่มไฟล์</span>
+            <input type="file" accept="image/*, video/*" className="hidden" onChange={async (e) => {
+              const file = e.target.files[0];
+              if(!file) return;
+              if(file.size > 20 * 1024 * 1024) return alert('⚠️ ไฟล์ใหญ่เกิน 20MB');
+              const reader = new FileReader();
+              reader.readAsDataURL(file);
+              reader.onload = (ev) => setAttachments(prev => [...prev, ev.target.result]);
+            }} />
+          </label>
+        )}
+      </div>
+    </div>
+  );
+}
+
 // ==========================================
 // 🌟 5. Main App Logic
 // ==========================================
@@ -1553,44 +1585,69 @@ const [selectedTech, setSelectedTech] = useState('');
     if (formErrors[name]) setFormErrors((prev) => ({ ...prev, [name]: null }));
   };
 
-  const handleImageUpload = async (e) => {
+  // 🌟 ฟันธง: สมองกล Unified Media (รับได้ทั้งรูปและวิดีโอ บีบอัดอัตโนมัติ)
+  const handleMediaUpload = async (e) => {
     const files = Array.from(e.target.files);
     if (files.length === 0) return;
-    const remainingSlots = 6 - formData.images.length;
-    const filesToProcess = files.slice(0, remainingSlots);
 
-    const promises = filesToProcess.map((file) => {
-      return new Promise((resolve) => {
-        const reader = new FileReader();
-        reader.readAsDataURL(file);
-        reader.onload = (event) => {
-          // --- ระบบย่อขนาดรูปภาพ (Image Compression) ---
-          const img = new Image();
-          img.src = event.target.result;
-          img.onload = () => {
-            const canvas = document.createElement('canvas');
-            const MAX_WIDTH = 800; // กำหนดความกว้างสูงสุด
-            const scaleSize = MAX_WIDTH / img.width;
-            canvas.width = MAX_WIDTH;
-            canvas.height = img.height * scaleSize;
+    let newImages = [];
+    let newVideos = [];
 
-            const ctx = canvas.getContext('2d');
-            ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+    for (let i = 0; i < files.length; i++) {
+      const file = files[i];
 
-            // บีบอัดเป็น JPEG คุณภาพ 60% (ลดขนาดไฟล์ได้มหาศาล)
-            const compressedBase64 = canvas.toDataURL('image/jpeg', 0.6);
-            resolve(compressedBase64);
+      // 🎥 กรณีเป็นไฟล์วิดีโอ
+      if (file.type.startsWith('video/')) {
+        if (formData.videos.length + newVideos.length >= 1) {
+          alert('⚠️ ระบบจำกัดการแนบวิดีโอสูงสุด 1 คลิปเท่านั้นครับ');
+          continue;
+        }
+        if (file.size / (1024 * 1024) > 20) {
+          alert("⚠️ วิดีโอใหญ่เกิน 20MB! กรุณาถ่ายคลิปให้สั้นลง (แนะนำ 10-15 วินาที)");
+          continue;
+        }
+        const videoData = await new Promise((resolve) => {
+          const reader = new FileReader();
+          reader.readAsDataURL(file);
+          reader.onload = (event) => resolve(event.target.result);
+        });
+        newVideos.push(videoData);
+      } 
+      // 📸 กรณีเป็นไฟล์รูปภาพ
+      else if (file.type.startsWith('image/')) {
+        if (formData.images.length + newImages.length >= 6) {
+          alert('⚠️ ระบบจำกัดการแนบรูปภาพรวมสูงสุด 6 รูปเท่านั้นครับ');
+          continue;
+        }
+        const imgData = await new Promise((resolve) => {
+          const reader = new FileReader();
+          reader.readAsDataURL(file);
+          reader.onload = (event) => {
+            const img = new Image();
+            img.src = event.target.result;
+            img.onload = () => {
+              const canvas = document.createElement('canvas');
+              const scaleSize = 800 / img.width;
+              canvas.width = 800;
+              canvas.height = img.height * scaleSize;
+              const ctx = canvas.getContext('2d');
+              ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+              resolve(canvas.toDataURL('image/jpeg', 0.6));
+            };
           };
-        };
-      });
-    });
+        });
+        newImages.push(imgData);
+      }
+    }
 
-    Promise.all(promises).then((imgs) => {
-      setFormData((prev) => ({ ...prev, images: [...prev.images, ...imgs] }));
-      if (formErrors.images)
-        setFormErrors((prev) => ({ ...prev, images: null }));
-    });
-    e.target.value = null;
+    setFormData(prev => ({
+      ...prev,
+      images: [...prev.images, ...newImages].slice(0, 6),
+      videos: [...prev.videos, ...newVideos].slice(0, 1)
+    }));
+    
+    if (formErrors.images) setFormErrors(prev => ({ ...prev, images: null }));
+    e.target.value = null; // เคลียร์ค่า input
   };
 
   // 🌟 ฟันธง: สมองกลตรวจสอบและอัปโหลดวิดีโอ (ล็อก 15 วินาที + ไม่เกิน 20MB)
@@ -3249,7 +3306,7 @@ const executeRatingSubmit = async () => {
                  <Briefcase className="text-emerald-400 w-5 h-5 md:w-6 md:h-6" />
               </div>
               <div className="overflow-hidden">
-                <p className="text-[11px] md:text-[13px] font-bold text-emerald-200/70 uppercase tracking-widest mb-0.5">หน่วยงาน (อัตโนมัติ)</p>
+                <p className="text-[11px] md:text-[13px] font-bold text-emerald-200/70 uppercase tracking-widest mb-0.5">หน่วยงาน</p>
                 <p className="text-[14px] md:text-[18px] font-black text-emerald-300 drop-shadow-sm truncate">
                   {formData.position ? `${formData.position} | ` : ''} {formData.department || 'ไม่ระบุฝ่าย'} | {formData.bureau}
                 </p>
@@ -3395,7 +3452,6 @@ const executeRatingSubmit = async () => {
                 )}
               </div>
 
-              {/* ❌ สไนเปอร์ลบก้อนป้ายเตือน SSC ออกให้หมดแล้วครับ! คลีนสุดๆ ประหยัดไปอีก 1 บรรทัด! */}
 
             {/* ================= โซนอัปโหลดภาพ (Sci-Fi เรืองแสง) ================= */}
             <div className="space-y-4 pt-6 border-t-[2px] border-dashed border-orange-500/30" id="field-images">
@@ -3445,7 +3501,7 @@ const executeRatingSubmit = async () => {
             </div> {/* ปิด div ของตารางรูปภาพ */}
 
 
-{/* ======================================================= */}
+            {/* ======================================================= */}
             {/* 🌟 ฟันธง: โซนอัปโหลดวิดีโอสั้นระดับพรีเมียม (กรอบม่วงเรืองแสง แสงเฟลอร์เด่นชัด) */}
             {/* ======================================================= */}
             <div className="space-y-4 pt-6 mt-6 border-t-[2px] border-dashed border-purple-500/30 text-left relative overflow-hidden" id="field-videos">
@@ -4745,6 +4801,7 @@ const renderTracking = () => (
                                 )}
                               </div>
           
+
                              {/* 🌟 บันทึกของเวร SSC */}
                              {t.sscNote && (
                                 <div className={`mt-3 pt-3 border-t-[1.5px] border-dashed ${theme.border.replace('border-', 'border-').replace('400', '300')}`}>
@@ -4783,6 +4840,7 @@ const renderTracking = () => (
           
                       {/* ============================================ */}
                       </div>
+
 
                      {/* 🌟 โซนปุ่มกด Action (ขนาดบิ๊กเบิ้ม สำหรับช่าง) */}
                      {(currentUserRole !== 'reporter') && !isCancelled && (
@@ -5298,11 +5356,12 @@ const renderTracking = () => (
                 else if (hour >= 12 && hour < 17) greeting = <><span>🌤️ สวัสดีตอนบ่ายครับ {displayName}</span><span className="text-[12px] md:text-[14px] text-orange-200 mt-0.5">ระบบมีปัญหาแจ้งได้เลยครับ</span></>;
                 else if (hour >= 17 && hour < 21) greeting = <><span>🌇 สวัสดีตอนเย็นครับ {displayName}</span><span className="text-[12px] md:text-[14px] text-orange-200 mt-0.5">ตอนนี้นอกเวลาทำการ ฝากเรื่องไว้นะครับ</span></>;
                 else {
+
                   // 🌙 นอกเวลาทำการ (หลัง 21:00 น.) แยกตามหน้าต่างที่เปิด
                   if (activeTab === 'report') {
-                    greeting = <><span>🌙 ขณะนี้นอกเวลาทำการ (หลัง 21:00 น.)</span><span className="text-[12px] md:text-[14px] text-orange-200 mt-0.5">ท่านสามารถฝากเรื่องแจ้งซ่อมไว้ในระบบได้เลยครับ</span></>;
+                    greeting = <><span>🌙 ขณะนี้นอกเวลาทำการ (หลัง 21:00 น.)</span><span className="text-[12px] md:text-[14px] text-orange-200 mt-0.5">ฝากเรื่องแจ้งซ่อมไว้ในระบบได้เลยครับ</span></>;
                   } else if (activeTab === 'tracking') {
-                    greeting = <><span>🌙 ขณะนี้นอกเวลาทำการ</span><span className="text-[12px] md:text-[14px] text-orange-200 mt-0.5">ระบบรับเรื่องไว้แล้ว จะเร่งตรวจสอบให้ในวันทำการถัดไปครับ</span></>;
+                    greeting = <><span>🌙 ขณะนี้นอกเวลาทำการ</span><span className="text-[12px] md:text-[14px] text-orange-200 mt-0.5"></span></>;
                   } else {
                     greeting = <><span>🌙 ขณะนี้นอกเวลาทำการ</span><span className="text-[12px] md:text-[14px] text-orange-200 mt-0.5">(หลัง 21:00 น.) ครับ</span></>;
                   }
