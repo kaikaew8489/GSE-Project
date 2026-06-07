@@ -4585,26 +4585,41 @@ const renderTracking = () => (
 
     
         {/* ==================== โซนภาพประกอบ (แบบมีกรอบ Card แยกชัดเจน) ==================== */}
-        {t.images && t.images.length > 0 && (
+        {/* ==================== โซนภาพประกอบและวิดีโอ (แบบมีกรอบ Card แยกชัดเจน) ==================== */}
+        {/* 🌟 ฟันธง: แก้ไขเงื่อนไขให้แสดงกรอบนี้ เมื่อมีรูปภาพ "หรือ" มีวิดีโอ อย่างใดอย่างหนึ่ง */}
+        {( (t.images && t.images.length > 0) || (t.videos && t.videos.length > 0) ) && (
           <div className="bg-slate-100 border-2 border-solid border-emerald-500 p-4 md:p-6 rounded-2xl md:rounded-[1.5rem] shadow-sm w-full mt-4 md:mt-6">
             <span className="text-[14px] md:text-[22px] font-black text-rose-700 mb-3 md:mb-4 flex items-center gap-2">
-                📸 ภาพประกอบการแจ้งซ่อม:
+                📸 ภาพประกอบและวิดีโอการแจ้งซ่อม:
             </span>
-            {/* 🌟 ฟันธง: ย่อขนาดรูปภาพโดยปรับ Grid เป็น 4-6 คอลัมน์ ประหยัดพื้นที่แบบ 1,000,000% */}
+            {/* 🌟 ฟันธง: ย่อขนาดรูปภาพ/วิดีโอโดยปรับ Grid เป็น 4-6 คอลัมน์ ประหยัดพื้นที่แบบ 1,000,000% */}
             <div className="grid grid-cols-4 sm:grid-cols-5 md:grid-cols-6 gap-2 md:gap-3 mt-2">
-              {t.images.map((img, i) => (
+              
+              {/* 📸 ส่วนของรูปภาพ (ของเดิมของท่าน) */}
+              {t.images && t.images.map((img, i) => (
                 <img 
-                  key={i} 
+                  key={`img-${i}`} 
                   src={img} 
                   alt={`ภาพประกอบ ${i+1}`} 
                   className="rounded-lg md:rounded-xl w-full aspect-square object-cover border border-slate-300 shadow-sm hover:scale-110 transition-transform cursor-pointer" 
                   onClick={() => setLightboxImg(img)} 
                 />
               ))}
+
+              {/* 🎥 ส่วนของวิดีโอ (แทรกเข้ามาใน Grid เดียวกัน) */}
+              {t.videos && t.videos.map((vid, i) => (
+                <video 
+                  key={`vid-${i}`} 
+                  src={vid} 
+                  controls 
+                  className="rounded-lg md:rounded-xl w-full aspect-square object-cover border-[2px] border-purple-400/50 bg-black shadow-sm"
+                />
+              ))}
+
             </div>
           </div>
         )}
-
+        
         {/* ============================================================================== */}
                         
                        {/* 🌟 ฟันธง: สร้างกล่องแม่ครอบโซนอาการเสียและ Asset No ทั้งหมด พร้อมหดความกว้างให้เท่ากรอบส้มด้านบน */}
