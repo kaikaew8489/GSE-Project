@@ -53,6 +53,7 @@ import {
   LogOut,
   Eye,
   EyeOff,
+  Video,
 } from 'lucide-react';
 
 
@@ -2408,12 +2409,12 @@ const executeRatingSubmit = async () => {
                         <p className={`text-[16px] md:text-[20px] font-black ${wTheme.textName} drop-shadow-sm truncate`}>{dutyPerson.techName}</p>
                       </div>
                     </div>
-                    <div className={`bg-slate-950/50 border ${wTheme.border.replace('80', '30')} rounded-2xl p-4 flex items-center gap-4 shadow-inner`}>
+                    <div className={`bg-slate-950/50 border ${wTheme.border.repl4ace('80', '30')} rounded-2xl p-4 flex items-center gap-4 shadow-inner`}>
                       <div className={`w-10 h-10 md:w-12 md:h-12 rounded-full ${wTheme.bg} flex items-center justify-center border ${wTheme.border.replace('80', '50')} shrink-0`}>
                          <Phone className={`${wTheme.iconText} w-5 h-5 md:w-6 md:h-6`} />
                       </div>
                       <div className="overflow-hidden flex-1">
-                        <p className={`text-[13px] md:text-[13px] font-bold ${wTheme.textHead} opacity-70 uppercase tracking-widest mb-0.5`}>เบอร์โทรศัพท์</p>
+                        <p className={`text-[13px] md:text-[16px] font-bold ${wTheme.textHead} opacity-70 uppercase tracking-widest mb-0.5`}>เบอร์โทรศัพท์</p>
                         {dutyPerson.techPhone && dutyPerson.techPhone !== '-' ? (
                            <a href={`tel:${dutyPerson.techPhone.replace(/\D/g, '')}`} className={`text-[16px] md:text-[20px] font-black font-mono tracking-wider ${wTheme.textName} drop-shadow-sm truncate hover:opacity-80 transition-opacity block`}>{formatDisplayPhone(dutyPerson.techPhone)}</a>
                         ) : ( <p className={`text-[16px] md:text-[20px] font-black font-mono tracking-wider text-slate-500 drop-shadow-sm truncate`}>ไม่มีข้อมูล</p> )}
@@ -3453,180 +3454,156 @@ const executeRatingSubmit = async () => {
               </div>
 
 
-            {/* ================= โซนอัปโหลดภาพ (Sci-Fi เรืองแสง) ================= */}
-            <div className="space-y-4 pt-6 border-t-[2px] border-dashed border-orange-500/30" id="field-images">
+           {/* ================= โซนอัปโหลดสื่อแบบรวม (Unified Media Picker สไตล์ Shopee) ================= */}
+            <div className="space-y-4 pt-6 mt-6 border-t-[2px] border-dashed border-orange-500/30" id="field-media">
+              
               <div className="flex justify-between items-center ml-1 mb-2">
                 <label className="text-[16px] md:text-[20px] font-black text-orange-300 uppercase tracking-wide flex items-center gap-1.5 md:gap-2">
                   <Camera className="md:w-5 md:h-5" /> 
-                  แนบรูปภาพประกอบ <span className="text-rose-500">*</span>
+                  แนบรูปและวิดีโอ <span className="text-rose-500">*</span>
                 </label>
-
-
-                <div className="bg-orange-950 border border-orange-500/80 text-orange-400 text-[16px] md:text-[20px] font-black px-3 py-1 rounded-lg shadow-[0_0_10px_rgba(249,115,22,0.8)] backdrop-blur-sm">
-                  {formData.images.length} / 6 รูป
+                
+                {/* 🌟 ป้ายนับจำนวนสื่อ */}
+                <div className="flex gap-2">
+                  <div className="bg-orange-950 border border-orange-500/80 text-orange-400 text-[12px] md:text-[14px] font-black px-2 py-1 rounded-lg shadow-[0_0_10px_rgba(249,115,22,0.8)] backdrop-blur-sm">
+                    รูป {formData.images.length}/6
+                  </div>
+                  <div className="bg-purple-950 border border-purple-500/80 text-purple-400 text-[12px] md:text-[14px] font-black px-2 py-1 rounded-lg shadow-[0_0_10px_rgba(168,85,247,0.8)] backdrop-blur-sm">
+                    คลิป {(formData.videos || []).length}/1
+                  </div>
                 </div>
               </div>
 
-
-              {/* 🌟 ฟันธง: ปรับลดขนาดรูปภาพให้เล็กลง ประหยัดพื้นที่ โดยใช้ grid-cols-5 md:grid-cols-7 */}
-              <div className={formData.images.length === 0 ? "flex w-full" : "grid grid-cols-5 sm:grid-cols-6 md:grid-cols-7 gap-2 md:gap-3"}>
-                
-                {formData.images.map((img, i) => (
-                  <div 
-                    key={i} 
-                    className="relative aspect-square rounded-xl overflow-hidden border-[2px] border-orange-400/80 shadow-[0_0_15px_rgba(249,115,22,0.3)] group cursor-pointer"
-                    onClick={() => setLightboxImg(img)} 
-                  >
-                    <img src={img} className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500" alt="รูปประกอบ" />
-                    <button
-                      type="button"
-                      onClick={(e) => {
-                        e.stopPropagation(); 
-                        setFormData({ ...formData, images: formData.images.filter((_, idx) => idx !== i) });
-                      }}
-                      className="absolute top-1 right-1 bg-rose-500/90 backdrop-blur-sm text-white p-1 rounded-full shadow-lg transition-all active:scale-75 hover:bg-rose-600 border border-rose-400 z-10"
+              {/* 🌟 ตารางแสดงผลสื่อที่เลือก (รูปและวิดีโอ) - จะโชว์ก็ต่อเมื่อมีการเลือกสื่อแล้ว */}
+              {((formData.images && formData.images.length > 0) || ((formData.videos || []).length > 0)) && (
+                <div className="grid grid-cols-4 sm:grid-cols-5 md:grid-cols-6 gap-2 md:gap-3 mb-3">
+                  
+                  {/* 📸 1. แสดงรูปภาพ */}
+                  {formData.images.map((img, i) => (
+                    <div 
+                      key={`img-${i}`} 
+                      className="relative aspect-square rounded-xl overflow-hidden border-[2px] border-orange-400/80 shadow-[0_0_15px_rgba(249,115,22,0.3)] group cursor-pointer"
+                      onClick={() => setLightboxImg(img)} 
                     >
-                      <X size={12} className="w-3 h-3 md:w-3.5 md:h-3.5 stroke-[3px]" />
-                    </button>
-                  </div>
-                ))}
-                
-              {/* 🎯 ปุ่มเรียกเมนูเลือกรูป (ปรับให้ขนาดเล็กลงเข้ากับตาราง) */}
-              <div onClick={() => setShowImagePicker(true)} className={`border-2 border-dashed border-cyan-300/80 bg-cyan-950/20 hover:bg-orange-900/40 hover:border-orange-400 rounded-xl flex flex-col items-center justify-center transition-all duration-300 cursor-pointer shadow-[inset_0_0_20px_rgba(6,182,212,0.8)] hover:shadow-[0_0_25px_rgba(249,115,22,0.5)] group ${formData.images.length === 0 ? 'w-full h-24 md:h-32' : 'aspect-square'}`}>
-                <Camera size={formData.images.length === 0 ? 32 : 20} className="text-white-300/70 group-hover:text-orange-400 mb-1 transition-all" />
-                <span className="font-black tracking-widest text-cyan-300/80 group-hover:text-cyan-300 text-[16px] md:text-[20px]">
-                  {formData.images.length === 0 ? 'คลิกแนบรูปภาพ' : 'เพิ่มรูป'}
-                </span>
-              </div>
-            </div> {/* ปิด div ของตารางรูปภาพ */}
+                      <img src={img} className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500" alt="รูปประกอบ" />
+                      <button
+                        type="button"
+                        onClick={(e) => {
+                          e.stopPropagation(); 
+                          setFormData({ ...formData, images: formData.images.filter((_, idx) => idx !== i) });
+                        }}
+                        className="absolute top-1 right-1 bg-rose-500/90 backdrop-blur-sm text-white p-1 rounded-full shadow-lg transition-all active:scale-75 hover:bg-rose-600 border border-rose-400 z-10"
+                      >
+                        <X size={12} className="w-3 h-3 md:w-3.5 md:h-3.5 stroke-[3px]" />
+                      </button>
+                    </div>
+                  ))}
 
-
-            {/* ======================================================= */}
-            {/* 🌟 ฟันธง: โซนอัปโหลดวิดีโอสั้นระดับพรีเมียม (กรอบม่วงเรืองแสง แสงเฟลอร์เด่นชัด) */}
-            {/* ======================================================= */}
-            <div className="space-y-4 pt-6 mt-6 border-t-[2px] border-dashed border-purple-500/30 text-left relative overflow-hidden" id="field-videos">
-              
-              {/* แสงออร่าเฟลอร์ฟุ้งกระจายอยู่หลังกรอบวิดีโอ */}
-              <div className="absolute top-0 right-0 w-32 h-32 bg-purple-500/10 blur-[40px] pointer-events-none rounded-full"></div>
-              
-              <div className="flex justify-between items-center ml-1 mb-2 relative z-10">
-                <label className="text-[16px] md:text-[20px] font-black text-purple-400 uppercase tracking-wide flex items-center gap-1.5 md:gap-2 drop-shadow-[0_0_8px_rgba(168,85,247,0.4)]">
-                <svg className="w-7 h-7 md:w-8 md:h-8 text-purple-400 group-hover:text-purple-300 mb-1.5 transition-all drop-shadow-[0_0_8px_rgba(168,85,247,0.7)] group-hover:scale-110" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="2.5">
-                      <path strokeLinecap="round" strokeLinejoin="round" d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z" />
-                    </svg>
-                  แนบวิดีโอประกอบ
-                </label>
-                <div className="bg-purple-950 border border-purple-500/80 text-purple-400 text-[14px] md:text-[18px] font-black px-3 py-1 rounded-lg shadow-[0_0_10px_rgba(168,85,247,0.8)] backdrop-blur-sm font-mono">
-                  {(formData.videos || []).length} / 1 คลิป
+                  {/* 🎥 2. แสดงวิดีโอ */}
+                  {(formData.videos || []).map((vid, i) => (
+                    <div 
+                      key={`vid-${i}`} 
+                      className="relative aspect-square rounded-xl overflow-hidden border-[2px] border-purple-400/80 shadow-[0_0_15px_rgba(168,85,247,0.3)] bg-slate-950 group"
+                    >
+                      <video src={vid} className="w-full h-full object-cover" />
+                      {/* ไอคอน Play ทับตรงกลางให้รู้ว่าเป็นวิดีโอ */}
+                      <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
+                         <div className="bg-black/50 p-1.5 rounded-full backdrop-blur-sm">
+                           <svg className="w-5 h-5 md:w-6 md:h-6 text-white pl-0.5" fill="currentColor" viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>
+                         </div>
+                      </div>
+                      <button
+                        type="button"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          setFormData({ ...formData, videos: [] });
+                        }}
+                        className="absolute top-1 right-1 bg-rose-500/90 backdrop-blur-sm text-white p-1 rounded-full shadow-lg transition-all active:scale-75 hover:bg-rose-600 border border-rose-400 z-20 cursor-pointer"
+                      >
+                        <X size={12} className="w-3 h-3 md:w-3.5 md:h-3.5 stroke-[3px]" />
+                      </button>
+                    </div>
+                  ))}
                 </div>
-              </div>
-
-              <div className="w-full relative z-10">
-                {(formData.videos || []).length > 0 ? (
-                  /* หน้าตาตอนแนบคลิปสำเร็จ: โชว์เครื่องเล่นวิดีโอพรีวิวล้ำๆ */
-                  <div className="relative w-full aspect-video rounded-2xl overflow-hidden border-2 border-solid border-purple-500 shadow-[0_0_20px_rgba(168,85,247,0.5)] bg-slate-950">
-                    <video src={formData.videos[0]} controls className="w-full h-full object-contain" />
-                    <button
-                      type="button"
-                      onClick={() => setFormData({ ...formData, videos: [] })}
-                      className="absolute top-3 right-3 bg-rose-500/90 backdrop-blur-sm text-white p-2 rounded-full shadow-lg transition-all active:scale-75 hover:bg-rose-600 border border-rose-400 z-10 cursor-pointer"
-                    >
-                      <X size={16} className="stroke-[3px]" />
-                    </button>
-                  </div>
-                ) : (
-                  /* หน้าตาปุ่มกด: กรอบม่วงดิจิตอล เมาส์ชี้แล้วจะระเบิดแสงระยิบระยับไฮเทค */
-                  <label className="w-full h-28 md:h-36 border-2 border-dashed border-purple-400/80 bg-purple-950/20 hover:bg-purple-900/40 hover:border-purple-300 rounded-2xl flex flex-col items-center justify-center transition-all duration-300 cursor-pointer shadow-[inset_0_0_20px_rgba(168,85,247,0.4)] hover:shadow-[0_0_30px_rgba(168,85,247,0.8)] group text-center py-4 px-4 hover:-translate-y-0.5">
-                    <input 
-                      type="file" 
-                      accept="video/*" 
-                      capture="environment"
-                      className="hidden" 
-                      onChange={handleVideoUpload} 
-                    />
-                    <svg className="w-12 h-12 md:w-12 md:h-12 text-purple-400 group-hover:text-purple-300 mb-1.5 transition-all drop-shadow-[0_0_8px_rgba(168,85,247,0.7)] group-hover:scale-110" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="2.5">
-                      <path strokeLinecap="round" strokeLinejoin="round" d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z" />
-                    </svg>
-                    <span className="font-black tracking-widest text-purple-400 group-hover:text-white text-[16px] md:text-[20px] transition-colors drop-shadow-sm">
-                      คลิกแนบวิดีโอ
-                    </span>
-                    <span className="text-[14px] md:text-[18px] text-purple-600/60 font-bold mt-1 tracking-wide group-hover:text-purple-300/80">
-                    ความยาวไม่เกิน 8 วินาที
-                    </span>
-                  </label>
-                )}
-              </div>
-              
-              {formErrors.videos && (
-                <div className="text-rose-500 text-[13px] md:text-[15px] font-bold mt-1.5 ml-1 animate-in fade-in">⚠️ {formErrors.videos}</div>
               )}
+              
+              {/* ➕ 3. ปุ่มเพิ่มสื่อครอบจักรวาล (ปรับเป็นปุ่มยาวเต็มจอ 100% แบบเดิม) */}
+              {/* 🌟 ปุ่มกดเรียกป๊อปอัป (ยาวเต็มจอ) */}
+              {(formData.images.length < 6 || (formData.videos || []).length < 1) && (
+                  <button 
+                    type="button"
+                    onClick={() => setShowImagePicker(true)}
+                    className="w-full h-24 md:h-32 border-2 border-dashed border-cyan-300/80 bg-cyan-950/20 hover:bg-orange-900/40 hover:border-orange-400 rounded-xl flex flex-col items-center justify-center transition-all duration-300 cursor-pointer shadow-[inset_0_0_20px_rgba(6,182,212,0.1)] hover:shadow-[0_0_25px_rgba(249,115,22,0.5)] group"
+                  >
+                    <div className="flex items-center gap-3 mb-1 transition-all">
+                      <Camera size={32} className="text-cyan-300/70 group-hover:text-orange-400 transition-all md:w-10 md:h-10" />
+                      <Video size={32} className="text-purple-300/70 group-hover:text-purple-300 transition-all md:w-10 md:h-10" />
+                    </div>
+                    <span className="font-black tracking-widest text-cyan-300/80 group-hover:text-cyan-300 text-[14px] md:text-[18px]">
+                      คลิกแนบรูป/วิดีโอ (วิดีโอยาวไม่เกิน 8 วินาที)
+                    </span>
+                  </button>
+                )}
+
+
+              
+{/* 🌟 ป๊อปอัปเลือกแหล่งที่มา (ถ่ายรูป/คลังภาพ) */}
+{showImagePicker && typeof document !== 'undefined' ? createPortal(
+        <div className="fixed inset-0 z-[999999] flex items-center justify-center p-4 bg-slate-950/90 backdrop-blur-md animate-in fade-in duration-300" onClick={() => setShowImagePicker(false)}>
+          <div className="absolute w-[300px] h-[300px] bg-cyan-500/30 rounded-full blur-[100px] animate-pulse pointer-events-none z-0"></div>
+          
+          <div className="relative z-10 bg-slate-900 border-[3px] border-cyan-500 rounded-[2.5rem] p-8 w-full max-w-sm shadow-[0_0_50px_rgba(34,211,238,0.3)] text-center animate-in zoom-in-95 duration-300" onClick={e => e.stopPropagation()}>
+            <h3 className="text-xl font-black text-cyan-200 mb-6 tracking-widest flex items-center justify-center gap-2">
+              <Monitor size={22} className="text-cyan-400" /> เลือกภาพ/วิดีโอ
+            </h3>
+            
+            <div className="grid grid-cols-2 gap-4">
+              {/* 📸 ถ่ายรูป/วิดีโอ */}
+              <label className="flex flex-col items-center justify-center bg-gradient-to-b from-orange-500 to-orange-700 p-6 rounded-2xl cursor-pointer border-2 border-orange-300 hover:scale-105 transition-all shadow-lg active:scale-95">
+                <input type="file" accept="image/*, video/*" capture="environment" className="hidden" onChange={(e) => { handleMediaUpload(e); setShowImagePicker(false); }} />
+                <Camera size={40} className="text-white mb-2" />
+                <span className="text-white font-black">ถ่ายรูป/วิดีโอ</span>
+              </label>
+
+              {/* 🖼️ เลือกจากคลัง */}
+              <label className="flex flex-col items-center justify-center bg-gradient-to-b from-emerald-500 to-emerald-700 p-6 rounded-2xl cursor-pointer border-2 border-emerald-300 hover:scale-105 transition-all shadow-lg active:scale-95">
+                <input type="file" accept="image/*, video/*" multiple className="hidden" onChange={(e) => { handleMediaUpload(e); setShowImagePicker(false); }} />
+                <Monitor size={40} className="text-white mb-2" />
+                <span className="text-white font-black">คลังภาพ</span>
+              </label>
             </div>
 
-      {/* ======================================================= */}
-      {/* 🌟 จุดเริ่มต้น: หน้าต่างป๊อบอัพเลือกรูปภาพ (Hybrid: Mobile เรืองแสง + PC วูบวาบ 1,000,000%) */}
-      {/* ======================================================= */}
-      {showImagePicker && typeof document !== 'undefined' ? createPortal(
-        <div 
-          className="fixed inset-0 w-screen h-screen z-[999999] flex items-center justify-center bg-slate-950/90 backdrop-blur-md overscroll-none touch-none" 
-          onClick={() => setShowImagePicker(false)}
-  >
-    {/* 🔥 เอฟเฟกต์ดวงไฟพลาสม่า สว่างวาบอยู่ด้านหลังกล่อง */}
-    <div className="absolute w-[250px] h-[250px] md:w-[350px] md:h-[350px] bg-cyan-500/50 rounded-full blur-[80px] animate-pulse pointer-events-none z-0"></div>
+            <button onClick={() => setShowImagePicker(false)} className="w-full mt-6 py-4 bg-slate-800 text-slate-300 font-bold rounded-xl border border-slate-600 hover:bg-rose-900 hover:text-white transition-all uppercase tracking-widest">
+              ยกเลิก
+            </button>
+          </div>
+        </div>,
+        document.body
+      ) : null}
 
-    {/* 🎯 กล่องหลัก: ขอบหนา แสง Cyan พื้นฐาน และจะสว่างขึ้นอีกถ้าเอาเมาส์ไปชี้ใน PC */}
-    <div 
-      className="bg-slate-900 border-[3px] border-cyan-400 rounded-[2.5rem] p-6 sm:p-8 w-11/12 max-w-sm text-center shadow-[0_0_40px_rgba(34,211,238,0.6),inset_0_0_15px_rgba(34,211,238,0.3)] hover:shadow-[0_0_60px_rgba(34,211,238,0.9),inset_0_0_25px_rgba(34,211,238,0.5)] transition-all duration-500 animate-in zoom-in-95 relative z-10"
-      onClick={(e) => e.stopPropagation()} 
-    >
-      <h3 className="text-[18px] md:text-2xl font-black text-cyan-200 mb-6 tracking-widest drop-shadow-[0_0_15px_rgba(34,211,238,1)] flex items-center justify-center gap-2">
-        <Monitor size={22} className="text-cyan-400 animate-pulse" /> เลือกรูปภาพ
-      </h3>
-      
-      <div className="grid grid-cols-2 gap-3 sm:gap-4">
-        {/* 📸 ปุ่มถ่ายรูป (สีส้ม): เรืองแสงในมือถือ และระเบิดแสง+เด้งขึ้น เมื่อชี้เมาส์ใน PC */}
-        <label className="flex flex-col items-center justify-center bg-gradient-to-b from-orange-500 to-orange-700 p-5 rounded-2xl cursor-pointer transition-all duration-300 border-[2px] border-orange-300 shadow-[0_0_20px_rgba(249,115,22,0.6),inset_0_0_10px_rgba(255,255,255,0.2)] md:hover:scale-105 md:hover:shadow-[0_0_45px_rgba(249,115,22,1),inset_0_0_20px_rgba(255,255,255,0.4)] md:hover:brightness-125 active:scale-90 group">
-          <input 
-            type="file" accept="image/*" capture="environment" multiple 
-            onChange={(e) => { handleImageUpload(e); setShowImagePicker(false); }} className="hidden" 
-          />
-          <Camera size={42} className="text-white mb-2 drop-shadow-[0_0_8px_rgba(255,255,255,0.8)] group-hover:animate-pulse group-hover:drop-shadow-[0_0_15px_rgba(255,255,255,1)]" />
-          <span className="text-white font-black tracking-widest drop-shadow-md text-[15px] sm:text-[16px]">ถ่ายรูป</span>
-        </label>
 
-        {/* 🖼️ ปุ่มคลังรูปภาพ (สีเขียว): เรืองแสงในมือถือ และระเบิดแสง+เด้งขึ้น เมื่อชี้เมาส์ใน PC */}
-        <label className="flex flex-col items-center justify-center bg-gradient-to-b from-emerald-500 to-emerald-700 p-5 rounded-2xl cursor-pointer transition-all duration-300 border-[2px] border-emerald-300 shadow-[0_0_20px_rgba(16,185,129,0.6),inset_0_0_10px_rgba(255,255,255,0.2)] md:hover:scale-105 md:hover:shadow-[0_0_45px_rgba(16,185,129,1),inset_0_0_20px_rgba(255,255,255,0.4)] md:hover:brightness-125 active:scale-90 group">
-          <input 
-            type="file" accept="image/*" multiple 
-            onChange={(e) => { handleImageUpload(e); setShowImagePicker(false); }} className="hidden" 
-          />
-          <Monitor size={42} className="text-white mb-2 drop-shadow-[0_0_8px_rgba(255,255,255,0.8)] group-hover:animate-pulse group-hover:drop-shadow-[0_0_15px_rgba(255,255,255,1)]" />
-          <span className="text-white font-black tracking-widest drop-shadow-md text-[15px] sm:text-[16px]">คลังภาพ</span>
-        </label>
-      </div>
 
-      {/* ❌ ปุ่มยกเลิก: สีแดง Sci-Fi เอาเมาส์ชี้แล้วไฟลุก */}
-      <button 
-        type="button"
-        onClick={() => setShowImagePicker(false)} 
-        className="w-full mt-6 py-3.5 sm:py-4 rounded-xl font-black text-rose-100 bg-rose-900/60 border-[2px] border-rose-500 shadow-[0_0_15px_rgba(225,29,72,0.4),inset_0_0_10px_rgba(225,29,72,0.2)] active:scale-90 transition-all duration-300 tracking-widest uppercase text-[15px] sm:text-[16px] md:hover:bg-rose-600 md:hover:text-white md:hover:shadow-[0_0_35px_rgba(225,29,72,0.9),inset_0_0_15px_rgba(225,29,72,0.5)] md:hover:-translate-y-1"
-      >
-        ยกเลิก
-      </button>
-    </div>
-  </div>,
-  document.body
-  ) : null}
-</div>
-</div>
-</div>
+              {/* ⚠️ แจ้งเตือน Error ถ้าไม่ได้แนบรูป */}
+              {(formErrors.images || formErrors.videos) && (
+                <div className="text-rose-500 text-[13px] md:text-[15px] font-bold mt-1.5 ml-1 animate-in fade-in">
+                  ⚠️ {formErrors.images || formErrors.videos}
+                </div>
+              )}
 
-{/* ======================================================= */}
-{/* 🌟 จุดสิ้นสุด: หน้าต่างป๊อบอัพเลือกรูปภาพ (Hybrid: Mobile เรืองแสง + PC วูบวาบ) */}
-{/* ======================================================= */}
-          
-          <div className="pt-6 px-2 md:px-0 flex flex-col md:flex-row items-center gap-4 text-center">
-            <button
-              type="submit"
+            </div>
+
+            {/* ================= สิ้นสุดโซนอัปโหลดสื่อแบบรวม ================= */} 
+
+        </div> {/* 🌟 ฟันธง: เติมปิดกล่องจัดช่องไฟ (space-y-5) */}
+        </div>   {/* 🌟 ฟันธง: เติมปิดกรอบที่ 2 สีส้ม (bg-slate-900/80) */}
+
+        {/* ======================================================= */}
+        {/* 🌟 จุดสิ้นสุด: หน้าต่างป๊อบอัพเลือกรูปภาพ (Hybrid: Mobile เรืองแสง + PC วูบวาบ) */}
+        {/* ======================================================= */}
+
+        <div className="pt-6 px-2 md:px-0 flex flex-col md:flex-row items-center gap-4 text-center">
+          <button
+            type="submit"
               disabled={isSubmitting}
               className="group w-full md:flex-[2] bg-gradient-to-r from-orange-500 to-amber-500 hover:from-orange-400 hover:to-yellow-400 hover:shadow-[0_0_25px_rgba(249,115,22,0.8)] hover:-translate-y-1 text-white font-black text-[20px] md:text-[30px] py-4 md:py-5 rounded-[1rem] md:rounded-2xl shadow-xl shadow-orange-500/30 active:scale-95 transition-all duration-300 flex justify-center items-center gap-3 disabled:grayscale disabled:opacity-50 border-2 border-solid border-white/80"
             >
@@ -3808,7 +3785,6 @@ const executeRatingSubmit = async () => {
 
       )}
 
-     {/* 🌟 หน้าต่าง Popup ยืนยันข้อมูล (เวอร์ชันแก้ Error หน้าจอแดงถาวร - ผูกคีย์บอร์ด PC คลีน 100% ตามกฎ React) */}
 {/* 🌟 หน้าต่าง Popup ยืนยันข้อมูล (อัปเกรด: กลางวัน/กลางคืน แบบโค้ดเซฟ 100%) */}
 {confirmSubmitModal && (
         <div 
@@ -5412,6 +5388,7 @@ const renderTracking = () => (
       </div>
 
       </div>
+
 
       {/* 🌟 ปิดกรอบเนื้อหาหลักของแอป */}
 
