@@ -1597,16 +1597,36 @@ const [selectedTech, setSelectedTech] = useState('');
     for (let i = 0; i < files.length; i++) {
       const file = files[i];
 
-      // 🎥 กรณีเป็นไฟล์วิดีโอ
+      // 🎥 กรณีเป็นไฟล์วิดีโอ (ตรวจสอบขนาด + ความยาว)
       if (file.type.startsWith('video/')) {
+        // 1. เช็คจำนวน
         if (formData.videos.length + newVideos.length >= 1) {
           alert('⚠️ ระบบจำกัดการแนบวิดีโอสูงสุด 1 คลิปเท่านั้นครับ');
           continue;
         }
+        // 2. เช็คขนาดไฟล์ (20MB)
         if (file.size / (1024 * 1024) > 20) {
-          alert("⚠️ วิดีโอใหญ่เกิน 20MB! กรุณาถ่ายคลิปให้สั้นลง (แนะนำ 10-15 วินาที)");
+          alert(`⚠️ วิดีโอ "${file.name}" ใหญ่เกิน 20MB! กรุณาเลือกไฟล์ที่เล็กลง`);
           continue;
         }
+
+        // 3. เช็คความยาววิดีโอ (ต้องรอ Promise)
+        const duration = await new Promise((resolve) => {
+          const videoEl = document.createElement('video');
+          videoEl.preload = 'metadata';
+          videoEl.src = URL.createObjectURL(file);
+          videoEl.onloadedmetadata = () => {
+            window.URL.revokeObjectURL(videoEl.src);
+            resolve(videoEl.duration);
+          };
+        });
+
+        if (duration > 15.5) {
+          alert(`⚠️ วิดีโอ "${file.name}" ยาวเกินกำหนด! (ความยาว: ${Math.round(duration)} วินาที)\nกรุณาเลือกคลิปที่ไม่เกิน 15 วินาทีครับ`);
+          continue;
+        }
+
+        // ถ้าผ่านทุกด่าน -> แปลงเป็น Base64
         const videoData = await new Promise((resolve) => {
           const reader = new FileReader();
           reader.readAsDataURL(file);
@@ -1649,45 +1669,6 @@ const [selectedTech, setSelectedTech] = useState('');
     
     if (formErrors.images) setFormErrors(prev => ({ ...prev, images: null }));
     e.target.value = null; // เคลียร์ค่า input
-  };
-
-  // 🌟 ฟันธง: สมองกลตรวจสอบและอัปโหลดวิดีโอ (ล็อก 15 วินาที + ไม่เกิน 20MB)
-  const handleVideoUpload = async (e) => {
-    const file = e.target.files[0];
-    if (!file) return;
-
-    setFormErrors((prev) => ({ ...prev, videos: null }));
-
-    // 1. ตรวจสอบขนาดไฟล์ตามมาตรฐาน UX (ไม่เกิน 20MB)
-    const fileSizeMB = file.size / (1024 * 1024);
-    if (fileSizeMB > 20) {
-      alert("⚠️ ขนาดไฟล์วิดีโอใหญ่เกิน 20MB! กรุณาถ่ายใหม่ให้สั้นลงครับ");
-      e.target.value = null;
-      return;
-    }
-
-    // 2. ตรวจสอบความยาววิดีโอด้วย HTML5 Video Element (ไม่เกิน 15 วินาที)
-    const videoEl = document.createElement('video');
-    videoEl.preload = 'metadata';
-    videoEl.src = URL.createObjectURL(file);
-
-    videoEl.onloadedmetadata = () => {
-      window.URL.revokeObjectURL(videoEl.src);
-      const duration = videoEl.duration;
-
-      if (duration > 15.5) { // เผื่อเศษวินาทีนิดหน่อย
-        alert(`⚠️ วิดีโอยาวเกินกำหนด! (ความยาวจริง: ${Math.round(duration)} วินาที)\nกรุณาถ่ายคลิปสั้นความยาว 10 - 15 วินาที ตามมาตรฐานครับท่านหัวหน้า`);
-        e.target.value = null;
-        return;
-      }
-
-      // 3. ผ่านเกณฑ์ -> แปลงไฟล์เป็น Base64 ยัดใส่ฟอร์มเตรียมยิงขึ้นคลาวด์
-      const reader = new FileReader();
-      reader.readAsDataURL(file);
-      reader.onload = (event) => {
-        setFormData((prev) => ({ ...prev, videos: [event.target.result] }));
-      };
-    };
   };
 
 
@@ -3556,18 +3537,41 @@ const executeRatingSubmit = async () => {
             <h3 className="text-xl font-black text-cyan-200 mb-6 tracking-widest flex items-center justify-center gap-2">
               <Monitor size={22} className="text-cyan-400" /> เลือกภาพ/วิดีโอ
             </h3>
+
+
             
+            {/* 🌟 ป๊อปอัปเลือกแหล่งที่มา (ฉบับแยกคำสั่งเด็ดขาด) */}
             <div className="grid grid-cols-2 gap-4">
-              {/* 📸 ถ่ายรูป/วิดีโอ */}
+              {/* 📸 ปุ่มถ่ายรูป/วิดีโอ (เน้นเปิดกล้องสด) */}
               <label className="flex flex-col items-center justify-center bg-gradient-to-b from-orange-500 to-orange-700 p-6 rounded-2xl cursor-pointer border-2 border-orange-300 hover:scale-105 transition-all shadow-lg active:scale-95">
-                <input type="file" accept="image/*, video/*" capture="environment" className="hidden" onChange={(e) => { handleMediaUpload(e); setShowImagePicker(false); }} />
+                {/* 🌟 ฟันธง: เพิ่ม capture และใส่ accept ให้กว้างขึ้นเพื่อรองรับกล้อง */}
+                <input 
+                  type="file" 
+                  accept="image/*, video/*" 
+                  capture="environment" 
+                  className="hidden" 
+                  onChange={(e) => { 
+                    handleMediaUpload(e); 
+                    setShowImagePicker(false); 
+                  }} 
+                />
                 <Camera size={40} className="text-white mb-2" />
                 <span className="text-white font-black">ถ่ายรูป/วิดีโอ</span>
               </label>
 
-              {/* 🖼️ เลือกจากคลัง */}
+              {/* 🖼️ ปุ่มคลังภาพ (เน้นเลือกไฟล์หลายไฟล์ได้) */}
               <label className="flex flex-col items-center justify-center bg-gradient-to-b from-emerald-500 to-emerald-700 p-6 rounded-2xl cursor-pointer border-2 border-emerald-300 hover:scale-105 transition-all shadow-lg active:scale-95">
-                <input type="file" accept="image/*, video/*" multiple className="hidden" onChange={(e) => { handleMediaUpload(e); setShowImagePicker(false); }} />
+                {/* 🌟 ฟันธง: เอา capture ออก เพื่อให้ Browser เปิด File Picker ของเครื่องทันที */}
+                <input 
+                  type="file" 
+                  accept="image/*, video/*" 
+                  multiple 
+                  className="hidden" 
+                  onChange={(e) => { 
+                    handleMediaUpload(e); 
+                    setShowImagePicker(false); 
+                  }} 
+                />
                 <Monitor size={40} className="text-white mb-2" />
                 <span className="text-white font-black">คลังภาพ</span>
               </label>
@@ -3596,6 +3600,7 @@ const executeRatingSubmit = async () => {
 
         </div> {/* 🌟 ฟันธง: เติมปิดกล่องจัดช่องไฟ (space-y-5) */}
         </div>   {/* 🌟 ฟันธง: เติมปิดกรอบที่ 2 สีส้ม (bg-slate-900/80) */}
+
 
         {/* ======================================================= */}
         {/* 🌟 จุดสิ้นสุด: หน้าต่างป๊อบอัพเลือกรูปภาพ (Hybrid: Mobile เรืองแสง + PC วูบวาบ) */}
