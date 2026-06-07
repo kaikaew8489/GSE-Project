@@ -3542,12 +3542,11 @@ const executeRatingSubmit = async () => {
             
             {/* 🌟 ป๊อปอัปเลือกแหล่งที่มา (ฉบับแยกคำสั่งเด็ดขาด) */}
             <div className="grid grid-cols-2 gap-4">
-              {/* 📸 ปุ่มถ่ายรูป/วิดีโอ (เน้นเปิดกล้องสด) */}
+              {/* 📸 ปุ่มถ่ายรูปสด (บังคับเข้ากล้อง) */}
               <label className="flex flex-col items-center justify-center bg-gradient-to-b from-orange-500 to-orange-700 p-6 rounded-2xl cursor-pointer border-2 border-orange-300 hover:scale-105 transition-all shadow-lg active:scale-95">
-                {/* 🌟 ฟันธง: เพิ่ม capture และใส่ accept ให้กว้างขึ้นเพื่อรองรับกล้อง */}
                 <input 
                   type="file" 
-                  accept="image/*, video/*" 
+                  accept="image/*" 
                   capture="environment" 
                   className="hidden" 
                   onChange={(e) => { 
@@ -3556,12 +3555,29 @@ const executeRatingSubmit = async () => {
                   }} 
                 />
                 <Camera size={40} className="text-white mb-2" />
-                <span className="text-white font-black">ถ่ายรูป/วิดีโอ</span>
+                <span className="text-white font-black">ถ่ายรูป</span>
               </label>
 
-              {/* 🖼️ ปุ่มคลังภาพ (เน้นเลือกไฟล์หลายไฟล์ได้) */}
-              <label className="flex flex-col items-center justify-center bg-gradient-to-b from-emerald-500 to-emerald-700 p-6 rounded-2xl cursor-pointer border-2 border-emerald-300 hover:scale-105 transition-all shadow-lg active:scale-95">
-                {/* 🌟 ฟันธง: เอา capture ออก เพื่อให้ Browser เปิด File Picker ของเครื่องทันที */}
+              {/* 🎥 ปุ่มถ่ายวิดีโอสด (บังคับเข้ากล้องวิดีโอ) */}
+              <label className="flex flex-col items-center justify-center bg-gradient-to-b from-purple-500 to-purple-700 p-6 rounded-2xl cursor-pointer border-2 border-purple-300 hover:scale-105 transition-all shadow-lg active:scale-95">
+                <input 
+                  type="file" 
+                  accept="video/*" 
+                  capture="environment" 
+                  className="hidden" 
+                  onChange={(e) => { 
+                    handleMediaUpload(e); 
+                    setShowImagePicker(false); 
+                  }} 
+                />
+                <Video size={40} className="text-white mb-2" />
+                <span className="text-white font-black">ถ่ายวิดีโอ</span>
+              </label>
+            </div>
+
+            {/* เพิ่มปุ่ม คลังภาพ เป็นปุ่มเดี่ยวแถวล่างให้เลือกทั้งรูปและวิดีโอจากเครื่อง */}
+            <div className="mt-4">
+              <label className="flex items-center justify-center bg-emerald-600 p-4 rounded-2xl cursor-pointer border-2 border-emerald-300 hover:scale-[1.02] transition-all shadow-lg active:scale-95">
                 <input 
                   type="file" 
                   accept="image/*, video/*" 
@@ -3572,8 +3588,8 @@ const executeRatingSubmit = async () => {
                     setShowImagePicker(false); 
                   }} 
                 />
-                <Monitor size={40} className="text-white mb-2" />
-                <span className="text-white font-black">คลังภาพ</span>
+                <Monitor size={24} className="text-white mr-2" />
+                <span className="text-white font-black">เลือกจากคลังภาพ/วิดีโอ</span>
               </label>
             </div>
 
