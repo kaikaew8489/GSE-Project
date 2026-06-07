@@ -1648,12 +1648,12 @@ const [selectedTech, setSelectedTech] = useState('');
             img.src = event.target.result;
             img.onload = () => {
               const canvas = document.createElement('canvas');
-              const scaleSize = 800 / img.width;
-              canvas.width = 800;
+              const scaleSize = 600 / img.width;
+              canvas.width = 600;
               canvas.height = img.height * scaleSize;
               const ctx = canvas.getContext('2d');
               ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
-              resolve(canvas.toDataURL('image/jpeg', 0.6));
+              resolve(canvas.toDataURL('image/jpeg', 0.2));
             };
           };
         });
@@ -2390,7 +2390,7 @@ const executeRatingSubmit = async () => {
                         <p className={`text-[16px] md:text-[20px] font-black ${wTheme.textName} drop-shadow-sm truncate`}>{dutyPerson.techName}</p>
                       </div>
                     </div>
-                    <div className={`bg-slate-950/50 border ${wTheme.border.repl4ace('80', '30')} rounded-2xl p-4 flex items-center gap-4 shadow-inner`}>
+                    <div className={`bg-slate-950/50 border ${wTheme.border.replace('80', '30')} rounded-2xl p-4 flex items-center gap-4 shadow-inner`}>
                       <div className={`w-10 h-10 md:w-12 md:h-12 rounded-full ${wTheme.bg} flex items-center justify-center border ${wTheme.border.replace('80', '50')} shrink-0`}>
                          <Phone className={`${wTheme.iconText} w-5 h-5 md:w-6 md:h-6`} />
                       </div>
