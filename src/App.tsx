@@ -1236,6 +1236,8 @@ function MainApp({ onGoHome, initialRole }) {
 
     const container = document.querySelector('.overflow-y-auto');
     if (container) container.addEventListener('scroll', handleScroll);
+
+    
     return () => container?.removeEventListener('scroll', handleScroll);
   }, []);
   // =========================================================================
@@ -4613,8 +4615,7 @@ const renderTracking = () => (
     )}
 
 
-    
-        {/* ==================== โซนภาพประกอบ (แบบมีกรอบ Card แยกชัดเจน) ==================== */}
+  
         {/* ==================== โซนภาพประกอบและวิดีโอ (แบบมีกรอบ Card แยกชัดเจน) ==================== */}
         {/* 🌟 ฟันธง: แก้ไขเงื่อนไขให้แสดงกรอบนี้ เมื่อมีรูปภาพ "หรือ" มีวิดีโอ อย่างใดอย่างหนึ่ง */}
         {( (t.images && t.images.length > 0) || (t.videos && t.videos.length > 0) ) && (
@@ -4636,21 +4637,33 @@ const renderTracking = () => (
                 />
               ))}
 
-              {/* 🎥 ส่วนของวิดีโอ (แทรกเข้ามาใน Grid เดียวกัน) */}
+          
+              {/* 🎥 ส่วนของวิดีโอ (แทรกเข้ามาใน Grid เดียวกัน - ผ่าตัดใหม่ให้เหมือน SSC เป๊ะ 1,000,000%) */}
               {t.videos && t.videos.map((vid, i) => (
-                <video 
-                  key={`vid-${i}`} 
-                  src={vid} 
-                  controls 
-                  className="rounded-lg md:rounded-xl w-full aspect-square object-cover border-[2px] border-purple-400/50 bg-black shadow-sm"
-                />
+                <div key={`main-vid-${i}`} className="relative rounded-lg md:rounded-xl w-full aspect-square overflow-hidden border border-slate-300 shadow-sm bg-slate-900 group">
+                  
+                  {/* วิดีโอพื้นหลัง (ไม่มีคำว่า controls แล้ว) */}
+                  <video src={vid} className="w-full h-full object-cover opacity-90 transition-opacity group-hover:opacity-100" />
+                  
+                  {/* เลเยอร์ปุ่ม Play สามเหลี่ยมเพียวๆ และคำสั่งเด้งเปิด Lightbox */}
+                  <div 
+                    className="absolute inset-0 flex items-center justify-center bg-black/40 hover:bg-black/20 transition-colors z-10 cursor-pointer" 
+                    onClick={() => setLightboxImg(vid)}
+                  >
+                     {/* 🌟 ฟันธงข้อ 2: สามเหลี่ยมเพียวๆ ชัดเจน 100% */}
+                    {/* 🌟 ฟันธงข้อ 2: สามเหลี่ยมเพียวๆ ชัดเจน 100% ด้วย SVG */}
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="white" className="w-12 h-12 md:w-16 md:h-16 drop-shadow-[0_2px_10px_rgba(0,0,0,0.8)] hover:scale-110 transition-transform ml-1 md:ml-1.5">
+                      <path d="M5 3l14 9-14 9V3z" />
+                    </svg>
+                  </div>
+                  
+                </div>
               ))}
 
             </div>
           </div>
         )}
-        
-        {/* ============================================================================== */}
+
                         
                        {/* 🌟 ฟันธง: สร้างกล่องแม่ครอบโซนอาการเสียและ Asset No ทั้งหมด พร้อมหดความกว้างให้เท่ากรอบส้มด้านบน */}
                        <div className="bg-orange-100/70 border-l-[4px] border-2 border-solid border-indigo-600 rounded-xl md:rounded-2xl p-3 md:p-5 flex gap-3 md:gap-4 w-full mt-4 md:mt-6">
@@ -4843,9 +4856,19 @@ const renderTracking = () => (
                              {t.sscNote && (
                                 <div className={`mt-3 pt-3 border-t-[1.5px] border-dashed ${theme.border.replace('border-', 'border-').replace('400', '300')}`}>
                                   <div className="flex flex-col w-full">
-                                    <span className={`block mb-1 text-[11px] md:text-[14px] font-bold uppercase ${theme.textHead} opacity-80`}>
-                                      บันทึกการแก้ไขเบื้องต้น (เวร SSC):
-                                    </span>
+                                    
+                                    {/* 🌟 ฟันธงข้อ 1: เพิ่มเวลาที่บันทึกกำกับไว้ด้านหลังหัวข้อ */}
+                                    <div className="flex items-center gap-2 mb-1 flex-wrap">
+                                      <span className={`text-[11px] md:text-[14px] font-bold uppercase ${theme.textHead} opacity-80`}>
+                                        บันทึกการแก้ไขเบื้องต้น (เวร SSC):
+                                      </span>
+                                      {t.updatedAt && (
+                                        <span className={`text-[10px] md:text-[12px] font-bold bg-white/60 px-2 py-0.5 rounded-md ${theme.textHead}`}>
+                                          ⏱️ {new Date(t.updatedAt).toLocaleString('th-TH', { dateStyle: 'short', timeStyle: 'short' })} น.
+                                        </span>
+                                      )}
+                                    </div>
+
                                     <span className={`text-[13px] md:text-[18px] font-bold ${theme.textName}`}>
                                       {String(t.sscNote)}
                                     </span>
@@ -4854,12 +4877,25 @@ const renderTracking = () => (
                                     {t.sscAttachments && t.sscAttachments.length > 0 && (
                                       <div className="flex gap-2 mt-3 overflow-x-auto pb-2 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
                                         {t.sscAttachments.map((file, idx) => (
-                                          <div key={idx} className={`relative w-20 h-20 md:w-24 md:h-24 shrink-0 rounded-xl overflow-hidden border-2 border-solid ${theme.border} cursor-pointer hover:scale-105 transition-transform shadow-sm`} onClick={() => file.includes('video') ? null : setLightboxImg(file)}>
-                                            {file.includes('video') ? (
-                                              <video src={file} controls className="w-full h-full object-cover" />
+                                          <div key={`ssc-media-${idx}`} className={`relative w-20 h-20 md:w-24 md:h-24 shrink-0 rounded-xl overflow-hidden border-2 border-solid ${theme.border} cursor-pointer hover:scale-105 transition-transform shadow-sm bg-slate-900`}>
+                                            
+                                            {file.includes('video') || file.includes('.mp4') ? (
+                                              <>
+                                                <video src={file} className="w-full h-full object-cover opacity-80" />
+                                                <div 
+                                                  className="absolute inset-0 flex items-center justify-center bg-black/40 hover:bg-black/20 transition-colors z-10"
+                                                  onClick={() => setLightboxImg(file)}
+                                                >
+                                                  {/* 🌟 ฟันธงข้อ 2: ลบวงกลมทิ้ง เปลี่ยนเป็น SVG สามเหลี่ยมเพียวๆ มาตรฐานสากล โผล่ชัวร์ 100% */}
+                                                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="white" className="w-10 h-10 md:w-14 md:h-14 drop-shadow-[0_2px_8px_rgba(0,0,0,0.8)] hover:scale-110 transition-transform ml-1">
+                                                      <path d="M5 3l14 9-14 9V3z" />
+                                                    </svg>
+                                                </div>
+                                              </>
                                             ) : (
-                                              <img src={file} className="w-full h-full object-cover" />
+                                              <img src={file} onClick={() => setLightboxImg(file)} className="w-full h-full object-cover" />
                                             )}
+                                            
                                           </div>
                                         ))}
                                       </div>
@@ -5003,27 +5039,33 @@ const renderTracking = () => (
                             </button>
                           )}
 
-                          {(t.status === 'in_progress' || t.status === 'on_hold') && (
-                            <div className="flex gap-2.5 md:gap-6">
-                              <button
-                                onClick={() => {
-                                  if (t.status === 'on_hold') {
-                                    setActionModal({ isOpen: true, ticketId: t.id, type: 'resume' });
-                                  } else {
-                                    setActionModal({ isOpen: true, ticketId: t.id, type: 'hold' });
-                                  }
-                                }}
-                                className="flex-1 bg-gradient-to-r from-orange-400 to-orange-500 text-white border border-orange-300 font-bold py-3.5 md:py-6 rounded-xl md:rounded-3xl shadow-[0_0_15px_rgba(249,115,22,0.4)] active:scale-95 transition-all text-[18px] md:text-[30px] hover:shadow-[0_0_25px_rgba(249,115,22,0.8)] hover:brightness-110 hover:-translate-y-1"
-                              >
-                                {t.status === 'on_hold' ? 'ดำเนินการต่อ' : 'แจ้งขัดข้อง'}
-                              </button>
+                          {/* 🌟 ฟันธง: รวมเงื่อนไข in_progress, on_hold และ รอผู้รับผิดชอบยืนยัน ให้อยู่ในกรอบเดียวกัน */}
+                          {(t.status === 'in_progress' || t.status === 'on_hold' || t.status === 'รอผู้รับผิดชอบยืนยัน') && (
+                            <div className="flex gap-2.5 md:gap-6 w-full flex-col sm:flex-row">
                               
+                              {/* 🌟 ปุ่มแจ้งขัดข้อง/ดำเนินการต่อ (โชว์เฉพาะตอน in_progress หรือ on_hold) */}
+                              {(t.status === 'in_progress' || t.status === 'on_hold') && (
+                                <button
+                                  onClick={() => {
+                                    if (t.status === 'on_hold') {
+                                      setActionModal({ isOpen: true, ticketId: t.id, type: 'resume' });
+                                    } else {
+                                      setActionModal({ isOpen: true, ticketId: t.id, type: 'hold' });
+                                    }
+                                  }}
+                                  className="flex-1 bg-gradient-to-r from-orange-400 to-orange-500 text-white border border-orange-300 font-bold py-3.5 md:py-6 rounded-xl md:rounded-3xl shadow-[0_0_15px_rgba(249,115,22,0.4)] active:scale-95 transition-all text-[18px] md:text-[30px] hover:shadow-[0_0_25px_rgba(249,115,22,0.8)] hover:brightness-110 hover:-translate-y-1"
+                                >
+                                  {t.status === 'on_hold' ? 'ดำเนินการต่อ' : 'แจ้งขัดข้อง'}
+                                </button>
+                              )}
+                              
+                              {/* 🌟 ปุ่มปิดงานซ่อม (โชว์ตอน in_progress และ รอผู้รับผิดชอบยืนยัน) */}
                               {t.status !== 'on_hold' && (
                                 <button
                                   onClick={() => setActionModal({ isOpen: true, ticketId: t.id, type: 'finish' })}
-                                  className="flex-[1.5] bg-gradient-to-r from-emerald-500 to-emerald-600 text-white border border-emerald-400 font-bold py-3.5 md:py-6 rounded-xl md:rounded-3xl shadow-[0_0_15px_rgba(16,185,129,0.4)] active:scale-95 transition-all text-[15px] md:text-[26px] hover:shadow-[0_0_25px_rgba(16,185,129,0.8)] hover:brightness-110 hover:-translate-y-1"
+                                  className="flex-[1.5] w-full bg-gradient-to-r from-emerald-500 to-emerald-600 text-white border border-emerald-400 font-bold py-3.5 md:py-6 rounded-xl md:rounded-3xl shadow-[0_0_15px_rgba(16,185,129,0.4)] active:scale-95 transition-all text-[15px] md:text-[26px] hover:shadow-[0_0_25px_rgba(16,185,129,0.8)] hover:brightness-110 hover:-translate-y-1"
                                 >
-                                  ปิดงานซ่อม
+                                  {t.status === 'รอผู้รับผิดชอบยืนยัน' ? '✅ ยืนยันการปิดงาน' : 'ปิดงานซ่อม'}
                                 </button>
                               )}
                             </div>
@@ -5129,18 +5171,20 @@ const renderTracking = () => (
             )}
           </div>
           
-
-      {/* 🛠️ Action Modals (ฟันธง: เพิ่มรูปแบบที่ 6 ดำเนินการซ่อมต่อ 'resume' สีส้มหล่อเท่ ไม่เอ๋อเป็น SSC แน่นอน 1,000,000%) */}
-     {/* 🛠️ Action Modals (ฟันธง: เพิ่มรูปแบบที่ 6 ดำเนินการซ่อมต่อ 'resume' สีส้มหล่อเท่ ไม่เอ๋อเป็น SSC แน่นอน 1,000,000%) */}
-     {actionModal.isOpen && (
-        <div className="fixed inset-0 z-[999999] flex items-center justify-center p-4 bg-slate-900/80 backdrop-blur-md animate-in fade-in" onClick={() => setActionModal({ isOpen: false, ticketId: null, type: null })}>
+    
+     {/* 🛠️ Action Modals (ฟันธง: อัปเกรด Overlay ให้ทึบ 100% ปิดทับทุกเมนู และจัดการ Scroll ระดับ World-Class) */}
+      {/* 🌟 ฟันธง 1: ดัน z-index เป็น 9999999 (สูงทะลุเพดาน) ทับเมนูด้านล่าง 100% และปรับพื้นหลังให้ทึบเกือบสนิท (bg-slate-950/95) เพื่อบัง Header ด้านหลังให้มิดชิด โล่งสบายตา */}
+     {/* 🛠️ Action Modals (ฟันธง: อัปเกรด Overlay ให้ทึบ 100% ปิดทับทุกเมนู และจัดการ Scroll ระดับ World-Class) */}
+      {actionModal.isOpen && (
+      
+        <div className="fixed inset-0 z-[9999999] flex items-center justify-center p-4 bg-slate-950/95 backdrop-blur-lg animate-in fade-in" onClick={() => setActionModal({ isOpen: false, ticketId: null, type: null })}>
           
-        <div className={`absolute w-[300px] h-[300px] rounded-full blur-[80px] animate-pulse pointer-events-none z-0 ${actionModal.type === 'finish' ? 'bg-emerald-500/40' : actionModal.type === 'hold' || actionModal.type === 'cancel' ? 'bg-rose-500/40' : 'bg-orange-500/40'}`}></div>
+        <div className={`absolute w-[300px] h-[300px] rounded-full blur-[80px] animate-pulse pointer-events-none z-0 ${actionModal.type === 'finish' ? 'bg-emerald-500/20' : actionModal.type === 'hold' || actionModal.type === 'cancel' ? 'bg-rose-500/20' : 'bg-orange-500/20'}`}></div>
 
-        {/* 🌟 ฟันธง 2: เปลี่ยน max-h เป็น 85dvh เพื่อให้กล่องมีความสูงพอดีจอ และเว้นพื้นที่ด้านล่างหลบแผงเมนูมือถือเสมอ */}
+        {/* 🌟 ฟันธง 2: กรอบ Modal คงมาตรฐานสากล (มี max-h-[85dvh] และ overflow-y-auto ให้สกอร์เฉพาะข้างในกรอบ) */}
         <div className={`relative m-auto z-10 bg-slate-900 border-[2px] border-solid rounded-[2rem] w-[95%] max-w-[320px] sm:max-w-sm md:max-w-md h-auto max-h-[85dvh] overflow-y-auto overscroll-contain [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none] p-5 sm:p-8 md:p-10 pb-12 text-center space-y-4 sm:space-y-7 ${actionModal.type === 'finish' ? 'border-emerald-500 shadow-[0_0_50px_rgba(16,185,129,0.5)]' : actionModal.type === 'hold' || actionModal.type === 'cancel' ? 'border-rose-500 shadow-[0_0_50px_rgba(225,29,72,0.5)]' : 'border-orange-500 shadow-[0_0_50px_rgba(249,115,22,0.6)]'}`} onClick={(e) => e.stopPropagation()}>
             
-            {/* 🌟 จุดที่ 3: ไอคอนเรืองแสงด้านบน (โค้ดของท่านต่อจากนี้เหมือนเดิม 100% ครับ) */}
+            {/* 🌟 จุดที่ 3: ไอคอนเรืองแสงด้านบน (ของเดิมของท่านต่อจากนี้ปล่อยไว้เหมือนเดิมเป๊ะๆ ครับ) */}
             <div className={`w-24 h-24 rounded-full flex items-center justify-center mx-auto border-[3px] border-solid bg-slate-950 transition-all duration-300 ${
               actionModal.type === 'finish' ? 'text-emerald-500 border-emerald-500 shadow-[0_0_25px_rgba(16,185,129,0.8)]' :
               actionModal.type === 'hold' || actionModal.type === 'cancel' ? 'text-rose-500 border-rose-500 shadow-[0_0_25px_rgba(225,29,72,0.8)]' : 
@@ -5349,10 +5393,33 @@ const renderTracking = () => (
         'shadow-[0_0_60px_-5px_rgba(244,63,94,1)] border-rose-500/50')
       }`}>
 
+      {/* 🌟 ฟันธง: Smart Media Lightbox (รองรับทั้งรูปและคลิป ดูจบกด X ปิดได้ทันที) */}
       {lightboxImg && (
-        <div className="fixed inset-0 z-[200] bg-slate-900/90 flex items-center justify-center p-4 backdrop-blur-sm animate-in fade-in" onClick={() => setLightboxImg(null)}>
-          <button className="absolute top-6 right-6 text-white bg-white/10 p-2 rounded-full active:bg-white/20"><X size={24} /></button>
-          <img src={lightboxImg} alt="Zoomed" className="max-w-full max-h-full object-contain rounded-2xl shadow-2xl border-2 border-white/20" />
+        <div className="fixed inset-0 z-[999999] bg-slate-950/95 flex items-center justify-center p-4 backdrop-blur-md animate-in fade-in" onClick={() => setLightboxImg(null)}>
+          
+          {/* ปุ่ม X ปิดหน้าต่าง */}
+          <button className="absolute top-6 right-6 md:top-8 md:right-8 text-white bg-slate-800/50 hover:bg-rose-600 p-2.5 rounded-full transition-all z-50 border border-white/20 shadow-lg active:scale-90">
+            <X size={28} />
+          </button>
+
+          {/* กล่องแสดงผลตรงกลาง (คลิกที่รูป/คลิปจะไม่ปิด แต่คลิกขอบดำจะปิด) */}
+          <div className="relative w-full max-w-4xl max-h-full flex items-center justify-center" onClick={(e) => e.stopPropagation()}>
+            {lightboxImg.includes('video') || lightboxImg.includes('.mp4') ? (
+              <video 
+                src={lightboxImg} 
+                controls 
+                autoPlay 
+                className="max-w-full max-h-[85vh] object-contain rounded-2xl shadow-[0_0_50px_rgba(0,0,0,0.5)] border-2 border-white/10 bg-black" 
+              />
+            ) : (
+              <img 
+                src={lightboxImg} 
+                alt="Zoomed Evidence" 
+                className="max-w-full max-h-[85vh] object-contain rounded-2xl shadow-[0_0_50px_rgba(0,0,0,0.5)] border-2 border-white/10" 
+              />
+            )}
+          </div>
+
         </div>
       )}
 
@@ -5410,11 +5477,12 @@ const renderTracking = () => (
 
                   // 🌙 นอกเวลาทำการ (หลัง 21:00 น.) แยกตามหน้าต่างที่เปิด
                   if (activeTab === 'report') {
-                    greeting = <><span>🌙 ขณะนี้นอกเวลาทำการ (หลัง 21:00 น.)</span><span className="text-[12px] md:text-[14px] text-orange-200 mt-0.5">ฝากเรื่องแจ้งซ่อมไว้ในระบบได้เลยครับ</span></>;
+                    // 🌟 ฟันธง: เติมชื่อ {displayName} แทรกเข้าไปในคำทักทายหลัง 3 ทุ่ม
+                    greeting = <><span>🌙 นอกเวลาทำการครับ {displayName}</span><span className="text-[12px] md:text-[14px] text-orange-200 mt-0.5">ฝากเรื่องแจ้งซ่อมไว้ในระบบได้เลยครับ</span></>;
                   } else if (activeTab === 'tracking') {
-                    greeting = <><span>🌙 ขณะนี้นอกเวลาทำการ</span><span className="text-[12px] md:text-[14px] text-orange-200 mt-0.5"></span></>;
+                    greeting = <><span>🌙 นอกเวลาทำการครับ {displayName}</span><span className="text-[12px] md:text-[14px] text-orange-200 mt-0.5"></span></>;
                   } else {
-                    greeting = <><span>🌙 ขณะนี้นอกเวลาทำการ</span><span className="text-[12px] md:text-[14px] text-orange-200 mt-0.5">(หลัง 21:00 น.) ครับ</span></>;
+                    greeting = <><span>🌙 นอกเวลาทำการครับ {displayName}</span><span className="text-[12px] md:text-[14px] text-orange-200 mt-0.5"></span></>;
                   }
                 }
               }
@@ -5463,9 +5531,6 @@ const renderTracking = () => (
       </div>
 
       </div>
-
-
-      {/* 🌟 ปิดกรอบเนื้อหาหลักของแอป */}
 
 
 {/* ======================================================================= */}
@@ -5654,7 +5719,6 @@ const renderTracking = () => (
                                       );
                                     })()}
 
-{/* 🌟 หน้าต่าง Popup กราบขอบพระคุณ (Thank You Modal) - คงไว้สมบูรณ์แบบปลอดภัย 100% */}
 {/* 🌟 หน้าต่าง Popup กราบขอบพระคุณ (Thank You Modal) - คงไว้สมบูรณ์แบบปลอดภัย 100% */}
 {showThanksModal && (() => {
         const rating = ratingModal.rating;
@@ -6787,6 +6851,7 @@ export default function App() {
 
     return () => clearInterval(timer);
   }, [showSplash]);
+
 
   // 🌟 ฟันธง 3: ผู้คุมกฎ! พอเลขแตะ 100% ถึงจะยอมให้เปลี่ยนหน้า
   useEffect(() => {
