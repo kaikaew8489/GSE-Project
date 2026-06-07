@@ -67,6 +67,9 @@ import { getAuth, signInAnonymously, onAuthStateChanged, signInWithEmailAndPassw
 // 🌟 ฟันธง: คำสั่งฐานข้อมูลครบทุกตัวเหมือนเดิม 100% แค่รวบให้อยู่ในบรรทัดเดียวกันเฉยๆ ครับ
 import { getFirestore, collection, addDoc, onSnapshot, doc, updateDoc, query, orderBy, limit, writeBatch, getDocs, where, getDoc } from 'firebase/firestore';
 
+// 🌟 ฟันธง: เพิ่มบรรทัดนี้เพื่อดึงคำสั่งจัดการ Storage จาก Firebase
+import { getStorage, ref, uploadBytes, getDownloadURL } from 'firebase/storage';
+
 // ✅ เปลี่ยนมาใช้ฐานข้อมูลตัวทดสอบ (UAT Phase 2)
 const firebaseConfig = {
   apiKey: "AIzaSyD3440oEO-8MvilWbHd5DUHVnlHSjiH1rk",
@@ -80,7 +83,8 @@ const firebaseConfig = {
 
 const appInstance = getApps().length === 0 ? initializeApp(firebaseConfig) : getApp();
 const auth = getAuth(appInstance);
-const db = getFirestore(appInstance);
+const db = getFirestore(appInstance); // ของเดิมของท่าน
+const storage = getStorage(appInstance); // 🌟 ฟันธง: เพิ่มบรรทัดนี้ลงไป เพื่อสร้างท่อส่งไฟล์
 
 // ==========================================
 // 🌟 คลังข้อมูลวันหยุด GISTDA (สมองกลอัตโนมัติ)
@@ -1586,7 +1590,8 @@ const [selectedTech, setSelectedTech] = useState('');
     if (formErrors[name]) setFormErrors((prev) => ({ ...prev, [name]: null }));
   };
 
-  // 🌟 ฟันธง: สมองกล Unified Media (รับได้ทั้งรูปและวิดีโอ บีบอัดอัตโนมัติ)
+
+  // 🌟 ฟันธง: สมองกล Unified Media (อัปโหลดไฟล์จริงขึ้น Firebase Storage อัตโนมัติ)
   const handleMediaUpload = async (e) => {
     const files = Array.from(e.target.files);
     if (files.length === 0) return;
@@ -1594,23 +1599,23 @@ const [selectedTech, setSelectedTech] = useState('');
     let newImages = [];
     let newVideos = [];
 
+    // 💡 หากท่านมีตัวแปร Loading (เช่น setIsSubmitting) แนะนำให้เปิดใช้ตรงนี้ เพื่อไม่ให้ผู้ใช้กดส่งก่อนไฟล์อัปโหลดเสร็จ
+    // setIsSubmitting(true); 
+
     for (let i = 0; i < files.length; i++) {
       const file = files[i];
 
       // 🎥 กรณีเป็นไฟล์วิดีโอ (ตรวจสอบขนาด + ความยาว)
       if (file.type.startsWith('video/')) {
-        // 1. เช็คจำนวน
         if (formData.videos.length + newVideos.length >= 1) {
           alert('⚠️ ระบบจำกัดการแนบวิดีโอสูงสุด 1 คลิปเท่านั้นครับ');
           continue;
         }
-        // 2. เช็คขนาดไฟล์ (20MB)
         if (file.size / (1024 * 1024) > 20) {
           alert(`⚠️ วิดีโอ "${file.name}" ใหญ่เกิน 20MB! กรุณาเลือกไฟล์ที่เล็กลง`);
           continue;
         }
 
-        // 3. เช็คความยาววิดีโอ (ต้องรอ Promise)
         const duration = await new Promise((resolve) => {
           const videoEl = document.createElement('video');
           videoEl.preload = 'metadata';
@@ -1626,13 +1631,16 @@ const [selectedTech, setSelectedTech] = useState('');
           continue;
         }
 
-        // ถ้าผ่านทุกด่าน -> แปลงเป็น Base64
-        const videoData = await new Promise((resolve) => {
-          const reader = new FileReader();
-          reader.readAsDataURL(file);
-          reader.onload = (event) => resolve(event.target.result);
-        });
-        newVideos.push(videoData);
+        // 🚀 ฟันธง: โยนไฟล์วิดีโอขึ้น Firebase Storage แทนการทำ Base64
+        try {
+          const fileRef = ref(storage, `gse_reports/videos/${Date.now()}_${file.name}`);
+          const snapshot = await uploadBytes(fileRef, file);
+          const downloadUrl = await getDownloadURL(snapshot.ref);
+          newVideos.push(downloadUrl);
+        } catch (error) {
+          console.error("Video Upload Error:", error);
+          alert("เกิดข้อผิดพลาดในการอัปโหลดวิดีโอครับ");
+        }
       } 
       // 📸 กรณีเป็นไฟล์รูปภาพ
       else if (file.type.startsWith('image/')) {
@@ -1640,24 +1648,17 @@ const [selectedTech, setSelectedTech] = useState('');
           alert('⚠️ ระบบจำกัดการแนบรูปภาพรวมสูงสุด 6 รูปเท่านั้นครับ');
           continue;
         }
-        const imgData = await new Promise((resolve) => {
-          const reader = new FileReader();
-          reader.readAsDataURL(file);
-          reader.onload = (event) => {
-            const img = new Image();
-            img.src = event.target.result;
-            img.onload = () => {
-              const canvas = document.createElement('canvas');
-              const scaleSize = 600 / img.width;
-              canvas.width = 600;
-              canvas.height = img.height * scaleSize;
-              const ctx = canvas.getContext('2d');
-              ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
-              resolve(canvas.toDataURL('image/jpeg', 0.2));
-            };
-          };
-        });
-        newImages.push(imgData);
+        
+        // 🚀 ฟันธง: โยนไฟล์รูปขึ้น Firebase Storage (ไม่ต้องบีบอัดวาดลง Canvas ให้เหนื่อยเครื่องแล้ว)
+        try {
+          const fileRef = ref(storage, `gse_reports/images/${Date.now()}_${file.name}`);
+          const snapshot = await uploadBytes(fileRef, file);
+          const downloadUrl = await getDownloadURL(snapshot.ref);
+          newImages.push(downloadUrl);
+        } catch (error) {
+          console.error("Image Upload Error:", error);
+          alert("เกิดข้อผิดพลาดในการอัปโหลดรูปภาพครับ");
+        }
       }
     }
 
@@ -1669,6 +1670,8 @@ const [selectedTech, setSelectedTech] = useState('');
     
     if (formErrors.images) setFormErrors(prev => ({ ...prev, images: null }));
     e.target.value = null; // เคลียร์ค่า input
+    
+    // setIsSubmitting(false); // ปิด Loading เมื่อทำงานเสร็จ
   };
 
 
@@ -3481,27 +3484,24 @@ const executeRatingSubmit = async () => {
                   ))}
 
                   {/* 🎥 2. แสดงวิดีโอ */}
-                  {(formData.videos || []).map((vid, i) => (
-                    <div 
-                      key={`vid-${i}`} 
-                      className="relative aspect-square rounded-xl overflow-hidden border-[2px] border-purple-400/80 shadow-[0_0_15px_rgba(168,85,247,0.3)] bg-slate-950 group"
-                    >
-                      <video src={vid} className="w-full h-full object-cover" />
-                      {/* ไอคอน Play ทับตรงกลางให้รู้ว่าเป็นวิดีโอ */}
-                      <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
-                         <div className="bg-black/50 p-1.5 rounded-full backdrop-blur-sm">
-                           <svg className="w-5 h-5 md:w-6 md:h-6 text-white pl-0.5" fill="currentColor" viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>
-                         </div>
-                      </div>
+                  {/* โซนแสดงผลวิดีโอ */}
+                  {formData.videos.map((vid, i) => (
+                    <div key={`vid-${i}`} className="relative aspect-square rounded-xl overflow-hidden border-[2px] border-purple-400/80 bg-slate-950 group">
+                      
+                      {/* 🌟 ฟันธง: เพิ่ม controls ลงไปตรงนี้ เพื่อให้มีปุ่ม Play/Pause จากระบบมือถือ */}
+                      <video 
+                        src={vid} 
+                        controls 
+                        className="w-full h-full object-cover relative z-10" 
+                      />
+                      
+                      {/* ปุ่มกากบาทลบวิดีโอ (ต้องมี z-20 เพื่อให้อยู่เหนือวิดีโอ) */}
                       <button
                         type="button"
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          setFormData({ ...formData, videos: [] });
-                        }}
-                        className="absolute top-1 right-1 bg-rose-500/90 backdrop-blur-sm text-white p-1 rounded-full shadow-lg transition-all active:scale-75 hover:bg-rose-600 border border-rose-400 z-20 cursor-pointer"
+                        onClick={(e) => { e.stopPropagation(); setFormData({ ...formData, videos: [] }); }}
+                        className="absolute top-1 right-1 bg-rose-500 text-white p-1 rounded-full z-20 shadow-lg"
                       >
-                        <X size={12} className="w-3 h-3 md:w-3.5 md:h-3.5 stroke-[3px]" />
+                        <X size={14} className="stroke-[3px]" />
                       </button>
                     </div>
                   ))}
