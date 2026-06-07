@@ -3508,100 +3508,95 @@ const executeRatingSubmit = async () => {
                 </div>
               )}
               
-              {/* ➕ 3. ปุ่มเพิ่มสื่อครอบจักรวาล (ปรับเป็นปุ่มยาวเต็มจอ 100% แบบเดิม) */}
-              {/* 🌟 ปุ่มกดเรียกป๊อปอัป (ยาวเต็มจอ) */}
+       
+              {/* ➕ 3. ปุ่มเพิ่มสื่อครอบจักรวาล (เพิ่มเครื่องหมาย / คั่นกลางไอคอน) */}
               {(formData.images.length < 6 || (formData.videos || []).length < 1) && (
-                  <button 
-                    type="button"
-                    onClick={() => setShowImagePicker(true)}
-                    className="w-full h-24 md:h-32 border-2 border-dashed border-cyan-300/80 bg-cyan-950/20 hover:bg-orange-900/40 hover:border-orange-400 rounded-xl flex flex-col items-center justify-center transition-all duration-300 cursor-pointer shadow-[inset_0_0_20px_rgba(6,182,212,0.1)] hover:shadow-[0_0_25px_rgba(249,115,22,0.5)] group"
-                  >
-                    <div className="flex items-center gap-3 mb-1 transition-all">
-                      <Camera size={32} className="text-cyan-300/70 group-hover:text-orange-400 transition-all md:w-10 md:h-10" />
-                      <Video size={32} className="text-purple-300/70 group-hover:text-purple-300 transition-all md:w-10 md:h-10" />
-                    </div>
-                    <span className="font-black tracking-widest text-cyan-300/80 group-hover:text-cyan-300 text-[14px] md:text-[18px]">
-                      คลิกแนบรูป/วิดีโอ (วิดีโอยาวไม่เกิน 8 วินาที)
+                <button 
+                  type="button"
+                  onClick={() => setShowImagePicker(true)}
+                  className="w-full h-24 md:h-32 border-2 border-dashed border-cyan-300/80 bg-cyan-950/20 hover:bg-orange-900/40 hover:border-orange-400 rounded-xl flex flex-col items-center justify-center transition-all duration-300 cursor-pointer shadow-[inset_0_0_20px_rgba(6,182,212,0.1)] hover:shadow-[0_0_25px_rgba(249,115,22,0.5)] group"
+                >
+                  {/* 🌟 ฟันธง: ปรับช่องไฟ (gap-2) และแทรกเครื่องหมาย / ไว้ตรงกลาง */}
+                  <div className="flex items-center gap-2 mb-1 transition-all">
+                    <Camera size={32} className="text-cyan-300/70 group-hover:text-orange-400 transition-all md:w-10 md:h-10" />
+                    
+                    <span className="text-cyan-300/50 group-hover:text-white text-[24px] md:text-[30px] font-light font-mono mx-1 transition-colors">
+                      /
                     </span>
-                  </button>
-                )}
-
-
-              
-{/* 🌟 ป๊อปอัปเลือกแหล่งที่มา (ถ่ายรูป/คลังภาพ) */}
-{showImagePicker && typeof document !== 'undefined' ? createPortal(
-        <div className="fixed inset-0 z-[999999] flex items-center justify-center p-4 bg-slate-950/90 backdrop-blur-md animate-in fade-in duration-300" onClick={() => setShowImagePicker(false)}>
-          <div className="absolute w-[300px] h-[300px] bg-cyan-500/30 rounded-full blur-[100px] animate-pulse pointer-events-none z-0"></div>
-          
-          <div className="relative z-10 bg-slate-900 border-[3px] border-cyan-500 rounded-[2.5rem] p-8 w-full max-w-sm shadow-[0_0_50px_rgba(34,211,238,0.3)] text-center animate-in zoom-in-95 duration-300" onClick={e => e.stopPropagation()}>
-            <h3 className="text-xl font-black text-cyan-200 mb-6 tracking-widest flex items-center justify-center gap-2">
-              <Monitor size={22} className="text-cyan-400" /> เลือกภาพ/วิดีโอ
-            </h3>
+                    
+                    <Video size={32} className="text-purple-300/70 group-hover:text-purple-300 transition-all md:w-10 md:h-10" />
+                  </div>
+                  
+                  <span className="font-black tracking-widest text-cyan-300/80 group-hover:text-cyan-300 text-[14px] md:text-[18px]">
+                    คลิกแนบรูป/วิดีโอ (วิดีโอยาวไม่เกิน 8 วินาที)
+                  </span>
+                </button>
+              )}
 
 
             
-            {/* 🌟 ป๊อปอัปเลือกแหล่งที่มา (ฉบับแยกคำสั่งเด็ดขาด) */}
-            <div className="grid grid-cols-2 gap-4">
-              {/* 📸 ปุ่มถ่ายรูปสด (บังคับเข้ากล้อง) */}
-              <label className="flex flex-col items-center justify-center bg-gradient-to-b from-orange-500 to-orange-700 p-6 rounded-2xl cursor-pointer border-2 border-orange-300 hover:scale-105 transition-all shadow-lg active:scale-95">
-                <input 
-                  type="file" 
-                  accept="image/*" 
-                  capture="environment" 
-                  className="hidden" 
-                  onChange={(e) => { 
-                    handleMediaUpload(e); 
-                    setShowImagePicker(false); 
-                  }} 
-                />
-                <Camera size={40} className="text-white mb-2" />
-                <span className="text-white font-black">ถ่ายรูป</span>
-              </label>
+{/* 🌟 ป๊อปอัปเลือกแหล่งที่มา (อัปเกรด ธีมส้ม-แดง + ขอบขาว + แก้จอดำ) */}
+{showImagePicker && typeof document !== 'undefined' ? createPortal(
+        /* 🛠️ แก้จอดำ: ลดความทึบเป็น 90/80 ให้โปร่งแสงเห็นแอปด้านหลัง */
+        <div className="fixed inset-0 z-[999999] flex items-center justify-center p-4 bg-slate-800/80 backdrop-blur-md animate-in fade-in duration-300" onClick={() => setShowImagePicker(false)}>
+          
+          {/* 🎆 แสงเฟลอร์ด้านหลังกรอบ (ส้ม-แดง ร้อนแรง) */}
+          <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[450px] h-[450px] bg-orange-600/30 rounded-full blur-[100px] animate-pulse pointer-events-none z-0"></div>
+          <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[350px] h-[350px] bg-rose-600/30 rounded-full blur-[80px] animate-pulse pointer-events-none z-0 delay-700"></div>
+          
+          {/* 🖼️ กรอบป๊อบอัพ (กรอบใหญ่สีส้ม) */}
+          <div className="relative z-10 bg-slate-900/90 backdrop-blur-sm border-[3px] border-solid border-orange-500 rounded-[1.5rem] p-6 md:p-8 w-full max-w-sm shadow-[0_0_60px_rgba(249,115,22,0.5),_inset_0_0_20px_rgba(249,115,22,0.5)] text-center animate-in zoom-in-95 duration-300" onClick={e => e.stopPropagation()}>
+            <h3 className="text-xl font-black text-orange-100 mb-6 tracking-widest flex items-center justify-center gap-2 drop-shadow-[0_0_10px_rgba(249,115,22,1)]">
+              <Monitor size={22} className="text-orange-400" /> เลือกรูปภาพ/วิดีโอ
+            </h3>
+            
+            {/* 📱 โหมดมือถือ */}
+            <div className="md:hidden flex flex-col gap-3">
+              <div className="grid grid-cols-2 gap-3">
+                {/* 📸 ถ่ายรูปสด (ขอบขาว) */}
+                <label className="flex flex-col items-center justify-center bg-gradient-to-b from-orange-500 to-orange-700 p-4 rounded-[1rem] cursor-pointer border-[2px] border-solid border-white/60 transition-all duration-300 shadow-[0_0_15px_rgba(249,115,22,0.5)] hover:scale-105 hover:shadow-[0_0_30px_rgba(249,115,22,1)] hover:border-white active:scale-95 active:brightness-125">
+                  <input type="file" accept="image/*" capture="environment" className="hidden" onChange={(e) => { handleMediaUpload(e); setShowImagePicker(false); }} />
+                  <Camera size={32} className="text-white mb-2 drop-shadow-md" />
+                  <span className="text-white font-black text-sm drop-shadow-md">ถ่ายรูป</span>
+                </label>
 
-              {/* 🎥 ปุ่มถ่ายวิดีโอสด (บังคับเข้ากล้องวิดีโอ) */}
-              <label className="flex flex-col items-center justify-center bg-gradient-to-b from-purple-500 to-purple-700 p-6 rounded-2xl cursor-pointer border-2 border-purple-300 hover:scale-105 transition-all shadow-lg active:scale-95">
-                <input 
-                  type="file" 
-                  accept="video/*" 
-                  capture="environment" 
-                  className="hidden" 
-                  onChange={(e) => { 
-                    handleMediaUpload(e); 
-                    setShowImagePicker(false); 
-                  }} 
-                />
-                <Video size={40} className="text-white mb-2" />
-                <span className="text-white font-black">ถ่ายวิดีโอ</span>
-              </label>
-            </div>
+                {/* 🎥 ถ่ายวิดีโอสด (ขอบขาว) */}
+                <label className="flex flex-col items-center justify-center bg-gradient-to-b from-purple-500 to-purple-700 p-4 rounded-[1rem] cursor-pointer border-[2px] border-solid border-white/60 transition-all duration-300 shadow-[0_0_15px_rgba(168,85,247,0.5)] hover:scale-105 hover:shadow-[0_0_30px_rgba(168,85,247,1)] hover:border-white active:scale-95 active:brightness-125">
+                  <input type="file" accept="video/*" capture="environment" className="hidden" onChange={(e) => { handleMediaUpload(e); setShowImagePicker(false); }} />
+                  <Video size={32} className="text-white mb-2 drop-shadow-md" />
+                  <span className="text-white font-black text-sm drop-shadow-md">ถ่ายวิดีโอ</span>
+                </label>
+              </div>
 
-            {/* เพิ่มปุ่ม คลังภาพ เป็นปุ่มเดี่ยวแถวล่างให้เลือกทั้งรูปและวิดีโอจากเครื่อง */}
-            <div className="mt-4">
-              <label className="flex items-center justify-center bg-emerald-600 p-4 rounded-2xl cursor-pointer border-2 border-emerald-300 hover:scale-[1.02] transition-all shadow-lg active:scale-95">
-                <input 
-                  type="file" 
-                  accept="image/*, video/*" 
-                  multiple 
-                  className="hidden" 
-                  onChange={(e) => { 
-                    handleMediaUpload(e); 
-                    setShowImagePicker(false); 
-                  }} 
-                />
-                <Monitor size={24} className="text-white mr-2" />
-                <span className="text-white font-black">เลือกจากคลังภาพ/วิดีโอ</span>
+              {/* 🖼️ เลือกจากคลัง (ขอบขาว) */}
+              <label className="flex items-center justify-center bg-gradient-to-b from-emerald-500 to-emerald-700 p-4 rounded-[1rem] cursor-pointer border-[2px] border-solid border-white/60 transition-all duration-300 shadow-[0_0_15px_rgba(16,185,129,0.5)] hover:scale-[1.02] hover:shadow-[0_0_30px_rgba(16,185,129,1)] hover:border-white active:scale-95 active:brightness-110">
+                <input type="file" accept="image/*, video/*" multiple className="hidden" onChange={(e) => { handleMediaUpload(e); setShowImagePicker(false); }} />
+                <Monitor size={24} className="text-white mr-2 drop-shadow-md" />
+                <span className="text-white font-black text-[14px] drop-shadow-md">เลือกคลังภาพ/วิดีโอ</span>
               </label>
             </div>
 
-            <button onClick={() => setShowImagePicker(false)} className="w-full mt-6 py-4 bg-slate-800 text-slate-300 font-bold rounded-xl border border-slate-600 hover:bg-rose-900 hover:text-white transition-all uppercase tracking-widest">
+            {/* 💻 โหมดคอมพิวเตอร์ (ขอบขาว) */}
+            <div className="hidden md:flex flex-col gap-4">
+              <label className="flex flex-col items-center justify-center bg-gradient-to-b from-emerald-500 to-emerald-700 p-8 rounded-xl cursor-pointer border-[2px] border-solid border-white/60 transition-all duration-300 shadow-[0_0_20px_rgba(16,185,129,0.4)] hover:scale-105 hover:shadow-[0_0_40px_rgba(16,185,129,0.8)] hover:border-white active:scale-95 active:brightness-125 group">
+                <input type="file" accept="image/*, video/*" multiple className="hidden" onChange={(e) => { handleMediaUpload(e); setShowImagePicker(false); }} />
+                <div className="flex gap-4 mb-3">
+                  <Camera size={40} className="text-white drop-shadow-md transition-all group-hover:scale-110 group-hover:drop-shadow-[0_0_10px_white]" />
+                  <Video size={40} className="text-white drop-shadow-md transition-all group-hover:scale-110 group-hover:drop-shadow-[0_0_10px_white]" />
+                </div>
+                <span className="text-white font-black text-lg drop-shadow-lg group-hover:scale-105 transition-all">เลือกรูปภาพ/วิดีโอ</span>
+                <span className="text-emerald-100 text-sm mt-1 font-bold group-hover:text-white">วิดีโอความยาวไม่เกิน 8 วินาที</span>
+              </label>
+            </div>
+
+            {/* ❌ ปุ่มยกเลิก (ขอบขาวจางๆ) */}
+            <button onClick={() => setShowImagePicker(false)} className="w-full mt-6 py-4 bg-slate-800 text-slate-200 font-bold rounded-xl border-[2px] border-white/40 transition-all duration-300 shadow-[0_0_10px_rgba(244,63,94,0.3)] hover:bg-rose-700 hover:text-white hover:border-white hover:shadow-[0_0_25px_rgba(244,63,94,0.8)] hover:scale-105 active:scale-95 uppercase tracking-widest">
               ยกเลิก
             </button>
           </div>
         </div>,
         document.body
       ) : null}
-
-
 
               {/* ⚠️ แจ้งเตือน Error ถ้าไม่ได้แนบรูป */}
               {(formErrors.images || formErrors.videos) && (
