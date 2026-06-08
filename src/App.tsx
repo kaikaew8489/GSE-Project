@@ -2246,7 +2246,7 @@ const executeRatingSubmit = async () => {
       // =========================================================
       if (filterStatus === 'all') return true;
       if (filterStatus === 'pending') return ['pending', 'รอช่างเข้าดำเนินการ'].includes(t.status);
-      if (filterStatus === 'fixing') return ['acknowledged', 'in_progress', 'on_hold'].includes(t.status);
+      if (filterStatus === 'fixing') return ['acknowledged', 'in_progress'].includes(t.status);
       if (filterStatus === 'completed') return t.status === 'verified';
       if (filterStatus === 'on_hold') return t.status === 'on_hold';
       if (filterStatus === 'verify') return ['completed', 'รอผู้รับผิดชอบยืนยัน'].includes(t.status);
@@ -4791,14 +4791,11 @@ const renderTracking = () => (
                           )}
 
                           {['in_progress', 'on_hold', 'acknowledged'].includes(t.status) && (
-                            // ... โค้ดกล่องสีเขียว in_progress เดิม ปล่อยไว้เหมือนเดิมครับ ...
-                            <div className="flex flex-col gap-2">
-                              <div className="bg-emerald-50 border border-emerald-200 text-emerald-700 font-bold text-[14px] md:text-[20px] px-3 py-2.5 rounded-lg flex items-center gap-2 w-fit shadow-sm">
-                                <Wrench className="w-4 h-4 md:w-5 md:h-5 text-emerald-600" /> 🛠️ มีผู้รับผิดชอบกดรับงานและกำลังดำเนินการซ่อม
-                              </div>
+                            <div className="flex flex-col gap-2 mt-2">
+                              {/* 🌟 ฟันธง: ลบกล่องข้อความสีเขียวเยิ่นเย้อทิ้งไปเลย โชว์แค่เวลาพอครับ! */}
                               {t.acceptedAt && (
-                                <div className="bg-slate-50 border border-slate-200 text-[14px] md:text-[20px] font-bold text-slate-600 px-3 py-2 rounded-lg w-fit flex items-center gap-2">
-                                   <Clock className="w-4 h-4 text-slate-500" /> เวลากดรับงาน: {ThaiDateFormatter(t.acceptedAt)}
+                                <div className="bg-slate-50 border border-slate-200 text-[14px] md:text-[20px] font-bold text-slate-600 px-3 py-2 rounded-lg w-fit flex items-center gap-2 shadow-sm">
+                                   <Clock className="w-4 h-4 md:w-5 md:h-5 text-slate-500" /> เวลากดรับงาน: {ThaiDateFormatter(t.acceptedAt)}
                                 </div>
                               )}
                             </div>
@@ -5078,28 +5075,40 @@ const renderTracking = () => (
                               
                               {/* 🌟 ปุ่มปิดงานซ่อม (โชว์ตอน in_progress และ รอผู้รับผิดชอบยืนยัน) */}
                               {t.status !== 'on_hold' && (
-                                <button
-                                  onClick={() => setActionModal({ isOpen: true, ticketId: t.id, type: 'finish' })}
-                                  className="flex-[1.5] w-full bg-gradient-to-r from-emerald-500 to-emerald-600 text-white border border-emerald-400 font-bold py-3.5 md:py-6 rounded-xl md:rounded-3xl shadow-[0_0_15px_rgba(16,185,129,0.4)] active:scale-95 transition-all text-[15px] md:text-[26px] hover:shadow-[0_0_25px_rgba(16,185,129,0.8)] hover:brightness-110 hover:-translate-y-1"
-                                >
-                                  {t.status === 'รอผู้รับผิดชอบยืนยัน' ? '✅ ยืนยันการปิดงาน' : 'ปิดงานซ่อม'}
-                                </button>
+                                // 🌟 ฟันธง: ถ้าสถานะเป็น 'รอผู้รับผิดชอบยืนยัน' ต้องเป็นช่างหลักหรือหัวหน้าเท่านั้น ถึงจะเห็นปุ่มกดปิดงาน!
+                                (t.status !== 'รอผู้รับผิดชอบยืนยัน' || currentUserName === t.techName || currentUserRole === 'Commander') ? (
+                                  <button
+                                    onClick={() => setActionModal({ isOpen: true, ticketId: t.id, type: 'finish' })}
+                                    className="flex-[1.5] w-full bg-gradient-to-r from-emerald-500 to-emerald-600 text-white border border-emerald-400 font-bold py-3.5 md:py-6 rounded-xl md:rounded-3xl shadow-[0_0_15px_rgba(16,185,129,0.4)] active:scale-95 transition-all text-[15px] md:text-[26px] hover:shadow-[0_0_25px_rgba(16,185,129,0.8)] hover:brightness-110 hover:-translate-y-1"
+                                  >
+                                    {t.status === 'รอผู้รับผิดชอบยืนยัน' ? '✅ ยืนยันการปิดงาน' : 'ปิดงานซ่อม'}
+                                  </button>
+                                ) : (
+                                  // ถ้าเป็นเวร SSC เปิดมาดู จะเห็นเป็นแม่กุญแจแทนปุ่มกด
+                                  <div className="flex-[1.5] w-full bg-slate-800/80 text-emerald-400/50 font-bold text-[14px] md:text-[20px] text-center py-3.5 md:py-6 rounded-xl md:rounded-3xl border border-dashed border-emerald-900/50 shadow-inner flex items-center justify-center">
+                                    🔒 รอช่างหลักยืนยันปิดงาน
+                                  </div>
+                                )
                               )}
+
+
+
                             </div>
                           )}
 
-                          {t.status === 'completed' && (
-                            <button
-                              onClick={() => updateTicketStatus(t.id, { 
-                                status: 'in_progress', 
-                                completedAt: null, 
-                                cause: null 
-                              })}
-                              className="w-full bg-orange-100 text-orange-800 border-2 border-orange-400 font-bold py-3.5 md:py-6 rounded-xl md:rounded-3xl hover:bg-orange-200 hover:text-orange-900 active:scale-95 transition-all text-[15px] md:text-[24px] shadow-sm flex justify-center items-center gap-2 md:gap-4 mt-3 md:mt-6 hover:shadow-[0_0_15px_rgba(249,115,22,0.4)]"
-                            >
-                              <RotateCcw className="w-[18px] h-[18px] md:w-8 md:h-8 animate-spin-slow" /> ดึงงานกลับมาแก้ไขผลการซ่อม
-                            </button>
-                          )}
+                         {/* 🌟 ฟันธง: จำกัดสิทธิ์เฉพาะช่างหลักหรือหัวหน้าเท่านั้นถึงจะเห็นปุ่มดึงงานกลับมาแก้! */}
+                            {(t.status === 'completed' || t.status === 'verified') && (currentUserRole !== 'reporter' && currentUserRole !== 'ssc_duty') && (
+                              <button
+                                onClick={() => updateTicketStatus(t.id, { 
+                                  status: 'in_progress', 
+                                  completedAt: null, 
+                                  cause: null 
+                                })}
+                                className="w-full bg-orange-100 text-orange-800 border-2 border-solid border-orange-400 font-bold py-3.5 md:py-6 rounded-xl md:rounded-3xl hover:bg-orange-200 hover:text-orange-900 active:scale-95 transition-all text-[15px] md:text-[24px] shadow-sm flex justify-center items-center gap-2 md:gap-4 mt-3 md:mt-6 hover:shadow-[0_0_15px_rgba(249,115,22,0.4)]"
+                              >
+                                <RotateCcw className="w-[18px] h-[18px] md:w-8 md:h-8 animate-spin-slow" /> ดึงงานกลับมาแก้ไข
+                              </button>
+                            )}
                         </div>
                       )}
 
@@ -5291,7 +5300,7 @@ const renderTracking = () => (
               {actionModal.type === 'ssc' && (
                 <div className="mt-4 flex flex-col gap-4 text-left">
                   
-                  {/* 📸 โซนแนบหลักฐาน (รูป/วิดีโอ) */}
+               
                   {/* 📸 โซนแนบหลักฐาน (รูป/วิดีโอ) */}
                   <div className="flex flex-col gap-2">
                     <label className="text-[13px] md:text-sm font-black tracking-wider text-cyan-400 flex items-center gap-1.5">
@@ -5300,13 +5309,28 @@ const renderTracking = () => (
                     <div className="flex gap-2 overflow-x-auto pb-2 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
                       {actionAttachments.map((file, idx) => (
                         <div key={idx} className="relative w-24 h-24 shrink-0 rounded-xl overflow-hidden border-2 border-cyan-500/50 shadow-[0_0_10px_rgba(34,211,238,0.3)]">
-                          {file.includes('video') ? (
-                            /* 🌟 ฟันธง 1.1: เติม controls ให้วิดีโอเล่นได้ */
-                            <video src={file} controls className="w-full h-full object-cover" />
+
+
+                            {file.includes('video') || file.includes('.mp4') ? (
+                            /* 🌟 ฟันธง: ถอด controls ออก ใส่สามเหลี่ยม และสั่งเด้ง Lightbox แทน */
+                            <>
+                              <video src={file} className="w-full h-full object-cover opacity-80" />
+                              <div 
+                                className="absolute inset-0 flex items-center justify-center bg-black/40 hover:bg-black/20 transition-colors z-10 cursor-pointer"
+                                onClick={(e) => { e.stopPropagation(); setLightboxImg(file); }}
+                              >
+                                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="white" className="w-8 h-8 md:w-10 md:h-10 drop-shadow-[0_2px_8px_rgba(0,0,0,0.8)] hover:scale-110 transition-transform ml-1">
+                                  <path d="M5 3l14 9-14 9V3z" />
+                                </svg>
+                              </div>
+                            </>
                           ) : (
-                            /* 🌟 ฟันธง 1.2: เติม onClick ให้คลิกขยายรูปได้ */
-                            <img src={file} onClick={() => setLightboxImg(file)} className="w-full h-full object-cover cursor-pointer hover:scale-110 transition-all" />
+                            /* 🌟 เติม onClick ให้คลิกขยายรูปได้ พร้อมหยุด Event ไม่ให้ทะลุ */
+                            <img src={file} onClick={(e) => { e.stopPropagation(); setLightboxImg(file); }} className="w-full h-full object-cover cursor-pointer hover:scale-110 transition-all" />
                           )}
+
+
+
                           <button type="button" onClick={() => setActionAttachments(prev => prev.filter((_, i) => i !== idx))} className="absolute top-1 right-1 bg-rose-500 text-white rounded-full p-1 active:scale-90 shadow-md z-10">
                             <X size={12} className="stroke-[3px]" />
                           </button>
