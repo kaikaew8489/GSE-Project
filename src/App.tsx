@@ -3515,28 +3515,37 @@ const executeRatingSubmit = async () => {
                     </div>
                   ))}
 
-                  {/* 🎥 2. แสดงวิดีโอ */}
-                  {/* โซนแสดงผลวิดีโอ */}
-                  {formData.videos.map((vid, i) => (
+                 {/* 🎥 2. แสดงวิดีโอ (ผ่าตัดใหม่ให้เป็นสามเหลี่ยมเพียวๆ กดแล้วเด้ง Lightbox เต็มจอ) */}
+                 {formData.videos.map((vid, i) => (
                     <div key={`vid-${i}`} className="relative aspect-square rounded-xl overflow-hidden border-[2px] border-purple-400/80 bg-slate-950 group">
                       
-                      {/* 🌟 ฟันธง: เพิ่ม controls ลงไปตรงนี้ เพื่อให้มีปุ่ม Play/Pause จากระบบมือถือ */}
+                      {/* วิดีโอพื้นหลัง (🌟 ฟันธง: เอาคำว่า controls ออกเด็ดขาด เมนูประหลาดจะได้ไม่เด้ง) */}
                       <video 
                         src={vid} 
-                        controls 
-                        className="w-full h-full object-cover relative z-10" 
+                        className="w-full h-full object-cover opacity-80 group-hover:opacity-100 transition-opacity" 
                       />
+                      
+                      {/* 🌟 ฟันธง: เลเยอร์ปุ่ม Play สามเหลี่ยมเพียวๆ และคำสั่งเด้งเปิด Lightbox */}
+                      <div 
+                        className="absolute inset-0 flex items-center justify-center bg-black/40 hover:bg-black/20 transition-colors z-10 cursor-pointer" 
+                        onClick={(e) => { e.stopPropagation(); setLightboxImg(vid); }}
+                      >
+                         <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="white" className="w-10 h-10 md:w-14 md:h-14 drop-shadow-[0_2px_8px_rgba(0,0,0,0.8)] hover:scale-110 transition-transform ml-1">
+                           <path d="M5 3l14 9-14 9V3z" />
+                         </svg>
+                      </div>
                       
                       {/* ปุ่มกากบาทลบวิดีโอ (ต้องมี z-20 เพื่อให้อยู่เหนือวิดีโอ) */}
                       <button
                         type="button"
-                        onClick={(e) => { e.stopPropagation(); setFormData({ ...formData, videos: [] }); }}
-                        className="absolute top-1 right-1 bg-rose-500 text-white p-1 rounded-full z-20 shadow-lg"
+                        onClick={(e) => { e.stopPropagation(); setFormData({ ...formData, videos: formData.videos.filter((_, idx) => idx !== i) }); }}
+                        className="absolute top-1 right-1 bg-rose-500 text-white p-1 rounded-full z-20 shadow-lg active:scale-90 hover:bg-rose-600 transition-all border border-rose-400"
                       >
                         <X size={14} className="stroke-[3px]" />
                       </button>
                     </div>
                   ))}
+
                 </div>
               )}
               
@@ -6342,10 +6351,9 @@ const handleStaffPhoneNext = async () => {
       setStaffEmail(data.email);
       setStaffRole(data.role); // 🌟 จำยศที่แท้จริงของช่าง
       
-      const qCheck = query(collection(db, 'users'), where('phone', '==', cleanPhone));
-      const snapCheck = await getDocs(qCheck);
-      
-      setIsNewStaff(snapCheck.empty);
+      {/* 🌟 ฟันธง: เช็คฟิลด์ pin ภายในคอลเลกชัน staff_roles ตรงๆ ไม่วิ่งไปปนกับ users อีกต่อไป */}
+      const SkinnerPin = data.pin !== undefined && data.pin !== null && String(data.pin).trim() !== '';
+      setIsNewStaff(!SkinnerPin);
       setStaffStep(2);
     } else {
       setLoginError('เฉพาะเจ้าหน้าที่ ฝวด. เท่านั้น'); 
@@ -6358,6 +6366,9 @@ const handleStaffPhoneNext = async () => {
 };
 
 const handleStaffPinSubmit = async () => {
+  const cleanPhone = staffPhone.replace(/-/g, '');
+
+  {/* 🆕 สเต็ปที่ 1: ช่างเข้าใช้ครั้งแรก (ยังไม่มี PIN ใน staff_roles) */}
   if (isNewStaff) {
     if (!isConfirmingStaffPin) {
       if (staffPin.length !== 6) { setLoginError('กรุณาตั้งรหัส PIN ให้ครบ 6 หลักค่ะ'); return; }
@@ -6372,14 +6383,19 @@ const handleStaffPinSubmit = async () => {
       }
       setIsLoggingIn(true); setLoginError('');
       try {
-        const cleanPhone = staffPhone.replace(/-/g, '');
-        await addDoc(collection(db, 'users'), { 
-          phone: cleanPhone, email: staffEmail, role: staffRole, pin: staffPin, isStaff: true, createdAt: new Date().toISOString() 
-        });
+        const qRole = query(collection(db, 'staff_roles'), where('phone', '==', cleanPhone));
+        const snapRole = await getDocs(qRole);
+        if (!snapRole.empty) {
+          const docId = snapRole.docs[0].id;
+          await updateDoc(doc(db, 'staff_roles', docId), {
+            pin: staffPin,
+            updatedAt: new Date().toISOString()
+          });
+        }
         localStorage.setItem('gse_staff_phone', cleanPhone);
         setAttemptCount(0);
         closeStaffLogin();
-        onStart(staffRole); // 🌟 บังคับใช้ยศช่าง 1,000,000%
+        onStart(staffRole); 
       } catch (err) {
         setLoginError('เกิดข้อผิดพลาดในการลงทะเบียน');
         setStaffPin(''); setConfirmStaffPin(''); setIsConfirmingStaffPin(false);
@@ -6388,18 +6404,17 @@ const handleStaffPinSubmit = async () => {
     return;
   }
 
+  {/* 🔒 สเต็ปที่ 2: ช่างเก่ามี PIN แล้ว -> ตรวจสอบเบอร์และ PIN จากคอลเลกชัน staff_roles โดนตรง */}
   if (staffPin.length !== 6) { setLoginError('กรุณากรอกรหัส PIN ให้ครบ 6 หลักค่ะ'); return; }
   setIsLoggingIn(true); setLoginError('');
   try {
-    const cleanPhone = staffPhone.replace(/-/g, '');
-    const q = query(collection(db, 'users'), where('phone', '==', cleanPhone), where('pin', '==', staffPin));
+    const q = query(collection(db, 'staff_roles'), where('phone', '==', cleanPhone), where('pin', '==', staffPin));
     const snap = await getDocs(q);
 
     if (!snap.empty) {
       localStorage.setItem('gse_staff_phone', cleanPhone);
       setAttemptCount(0);
       closeStaffLogin();
-      // 🌟 บังคับใช้ยศช่างจากฐานข้อมูล staff_roles เพื่อกันหลงไปโหมดผู้แจ้ง!
       onStart(staffRole || 'Commander'); 
     } else {
       const newCount = attemptCount + 1;
