@@ -1969,18 +1969,22 @@ useEffect(() => {
         }
       }
 
+
       // 🌟 ฟันธง: แยกสถานะให้ตรง Logic (นำ URL ที่ได้มาใช้งานแทน Base64)
+      // 🌟 ฟันธง 1: แยกสถานะให้ตรง Logic และสั่งบันทึกเวลาลง Database!
       if (sscSuccess) {
         updates = {
-          status: 'รอผู้รับผิดชอบยืนยัน', // เปลี่ยนจาก completed เพื่อไม่ให้ปิดงานถาวร
+          status: 'รอผู้รับผิดชอบยืนยัน', 
           sscNote: actionText,
-          sscAttachments: uploadedUrls, // 📸 เปลี่ยนมาใช้ URL ที่เบาหวิวแทน!
+          sscAttachments: uploadedUrls, 
+          updatedAt: new Date().toISOString() // <-- เพิ่มตัวจำเวลาตรงนี้!
         };
       } else {
         updates = { 
-          status: 'รอช่างเข้าดำเนินการ', // เปลี่ยนจาก pending เพื่อให้ช่างรู้ว่าต้องเข้าทำต่อ
+          status: 'รอช่างเข้าดำเนินการ', 
           sscNote: actionText,
-          sscAttachments: uploadedUrls, // 📸 เปลี่ยนมาใช้ URL ที่เบาหวิวแทน!
+          sscAttachments: uploadedUrls, 
+          updatedAt: new Date().toISOString() // <-- เพิ่มตัวจำเวลาตรงนี้!
         };
       }
       
@@ -2236,14 +2240,16 @@ const executeRatingSubmit = async () => {
         if (!matchSearch) return false;
       }
       
+      
       // =========================================================
-      // 🌟 4. ด่านกรองสถานะ (Tab)
+      // 🌟 4. ด่านกรองสถานะ (Tab) (อัปเดตให้รองรับสถานะของ SSC งานจะได้ไม่ล่องหน)
       // =========================================================
       if (filterStatus === 'all') return true;
+      if (filterStatus === 'pending') return ['pending', 'รอช่างเข้าดำเนินการ'].includes(t.status);
       if (filterStatus === 'fixing') return ['acknowledged', 'in_progress', 'on_hold'].includes(t.status);
       if (filterStatus === 'completed') return t.status === 'verified';
       if (filterStatus === 'on_hold') return t.status === 'on_hold';
-      if (filterStatus === 'verify') return t.status === 'completed';
+      if (filterStatus === 'verify') return ['completed', 'รอผู้รับผิดชอบยืนยัน'].includes(t.status);
         
       return t.status === filterStatus;
       
@@ -2257,6 +2263,7 @@ const executeRatingSubmit = async () => {
     setFilterStatus(status);
     setSearchTerm('');
     
+
     const d = new Date(sysTime); // ดึงเวลาปัจจุบันมาเตรียมไว้
     const todayStr = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
     const monthStr = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}`;
@@ -4132,39 +4139,42 @@ const renderTracking = () => (
             const sscName = sscRosterForDate ? sscRosterForDate.techName : null;
             const sscPhone = sscRosterForDate ? sscRosterForDate.techPhone : null; // 🌟 เติมบรรทัดนี้!
             
+
             // ... (โค้ด const isPending ... ที่เหลือของท่าน) ...
-              const isPending = t.status === 'pending';
-              const isFixing = [
-                'acknowledged',
-                'in_progress',
-                'on_hold',
-              ].includes(t.status);
-              const isDone = t.status === 'completed' || t.status === 'verified';
-              const isCancelled = t.status === 'cancelled';
-              const fixingMin = getMinutesDiff(t.startedAt || t.date, sysTime);
-              const waitingMin = getMinutesDiff(t.date, sysTime);
-              const styleColor = isPending
-                ? 'border-rose-500 text-rose-600 bg-rose-50'
-                : isDone
-                ? 'border-emerald-500 text-emerald-600 bg-emerald-50'
-                : isCancelled
-                ? 'border-slate-400 text-slate-500 bg-slate-50'
-                : t.status === 'on_hold'
-                ? 'border-purple-500 text-purple-600 bg-purple-50'
-                : 'border-orange-500 text-orange-600 bg-orange-50';
-                const statusLabel = isPending
-                ? 'รอดำเนินการ'
-                : t.status === 'acknowledged'
-                ? 'รับทราบแล้ว'
-                : t.status === 'in_progress'
-                ? 'กำลังซ่อม'
-                : t.status === 'on_hold'
-                ? 'แจ้งขัดข้อง'
-                : isCancelled
-                ? 'ยกเลิกแล้ว'
-                : t.status === 'verified'
-                ? '✅ เสร็จสิ้นสมบูรณ์'
-                : '⏳ รอผู้แจ้งยืนยัน';
+             // 🌟 ฟันธง 3: อัปเดตสถานะป้ายสีให้รู้จักงานที่มาจาก SSC
+             const isPending = t.status === 'pending' || t.status === 'รอช่างเข้าดำเนินการ';
+             const isFixing = ['acknowledged', 'in_progress', 'on_hold'].includes(t.status);
+             const isDone = t.status === 'completed' || t.status === 'verified';
+             const isCancelled = t.status === 'cancelled';
+             const fixingMin = getMinutesDiff(t.startedAt || t.date, sysTime);
+             const waitingMin = getMinutesDiff(t.date, sysTime);
+             const styleColor = isPending
+               ? 'border-rose-500 text-rose-600 bg-rose-50'
+               : isDone
+               ? 'border-emerald-500 text-emerald-600 bg-emerald-50'
+               : isCancelled
+               ? 'border-slate-400 text-slate-500 bg-slate-50'
+               : t.status === 'on_hold'
+               ? 'border-purple-500 text-purple-600 bg-purple-50'
+               : 'border-orange-500 text-orange-600 bg-orange-50';
+               
+             const statusLabel = isPending
+               ? (t.status === 'รอช่างเข้าดำเนินการ' ? 'รอช่างหลักเข้าซ่อม' : 'รอดำเนินการ')
+               : t.status === 'acknowledged'
+               ? 'รับทราบแล้ว'
+               : t.status === 'in_progress'
+               ? 'กำลังซ่อม'
+               : t.status === 'on_hold'
+               ? 'แจ้งขัดข้อง'
+               : isCancelled
+               ? 'ยกเลิกแล้ว'
+               : t.status === 'verified'
+               ? '✅ เสร็จสิ้นสมบูรณ์'
+               : t.status === 'รอผู้รับผิดชอบยืนยัน'
+               ? '✅ รอช่างหลักยืนยัน'
+               : '⏳ รอผู้แจ้งยืนยัน';
+
+
 
               return (
                 <div
@@ -5032,7 +5042,23 @@ const renderTracking = () => (
                             </div>
                           )}
 
-                          
+
+                         {/* 🌟 ฟันธง 4: ปุ่มสำหรับให้ช่างหลักกดรับงานต่อจากเวร SSC */}
+                         {t.status === 'รอช่างเข้าดำเนินการ' && (
+                            <div className="flex flex-col gap-2 w-full animate-in slide-in-from-bottom-2 fade-in">
+                              <button
+                                onClick={() => {
+                                  // เปิด Popup ยืนยันรับงาน (ดึง Popup เดิมมาใช้ต่อได้เลย)
+                                  setActionModal({ isOpen: true, ticketId: t.id, type: 'accept' });
+                                  setSelectedTech(t.techName && t.techName !== 'รอเจ้าหน้าที่รับงาน' ? t.techName : currentUserName);
+                                }}
+                                className="w-full bg-gradient-to-r from-emerald-500 to-teal-500 text-white border-2 border-solid border-emerald-300 font-black py-3.5 md:py-6 rounded-xl md:rounded-3xl shadow-[0_0_20px_rgba(16,185,129,0.6)] active:scale-95 transition-all text-[16px] md:text-[24px] hover:shadow-[0_0_30px_rgba(16,185,129,0.9)] hover:scale-[1.02]"
+                              >
+                                ✅ รับงานต่อจากเวร SSC (เริ่มปฏิบัติงาน)
+                              </button>
+                            </div>
+                          )}
+
 
                           {t.status === 'acknowledged' && (
                             <button
@@ -6385,17 +6411,23 @@ const handleStaffPinSubmit = async () => {
       try {
         const qRole = query(collection(db, 'staff_roles'), where('phone', '==', cleanPhone));
         const snapRole = await getDocs(qRole);
+        
         if (!snapRole.empty) {
+          const docData = snapRole.docs[0].data(); // 🌟 ดึงข้อมูลสดจาก Database
           const docId = snapRole.docs[0].id;
+          
           await updateDoc(doc(db, 'staff_roles', docId), {
             pin: staffPin,
             updatedAt: new Date().toISOString()
           });
+
+          localStorage.setItem('gse_staff_phone', cleanPhone);
+          setAttemptCount(0);
+          closeStaffLogin();
+          
+          // 🌟 ฟันธง: สั่งงานโดยใช้ docData.role ตรงๆ แทน staffRole ที่อาจจะยังไม่พร้อม
+          onStart(docData.role || 'Commander'); 
         }
-        localStorage.setItem('gse_staff_phone', cleanPhone);
-        setAttemptCount(0);
-        closeStaffLogin();
-        onStart(staffRole); 
       } catch (err) {
         setLoginError('เกิดข้อผิดพลาดในการลงทะเบียน');
         setStaffPin(''); setConfirmStaffPin(''); setIsConfirmingStaffPin(false);
