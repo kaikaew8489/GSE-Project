@@ -4984,7 +4984,7 @@ const renderTracking = () => (
                                     if (isPrimary || isCommander) {
                                       showGreen = true;
                                       enableGreen = true;
-                                      greenText = "รับงานซ่อม (SSC ดำเนินการไม่สำเร็จ)";
+                                      greenText = "รับงานต่อจากเวร SSC (เริ่มปฏิบัติงาน)";
                                     }
                                   }
                                 } else {
@@ -5041,24 +5041,6 @@ const renderTracking = () => (
                               })()}
                             </div>
                           )}
-
-
-                         {/* 🌟 ฟันธง 4: ปุ่มสำหรับให้ช่างหลักกดรับงานต่อจากเวร SSC */}
-                         {t.status === 'รอช่างเข้าดำเนินการ' && (
-                            <div className="flex flex-col gap-2 w-full animate-in slide-in-from-bottom-2 fade-in">
-                              <button
-                                onClick={() => {
-                                  // เปิด Popup ยืนยันรับงาน (ดึง Popup เดิมมาใช้ต่อได้เลย)
-                                  setActionModal({ isOpen: true, ticketId: t.id, type: 'accept' });
-                                  setSelectedTech(t.techName && t.techName !== 'รอเจ้าหน้าที่รับงาน' ? t.techName : currentUserName);
-                                }}
-                                className="w-full bg-gradient-to-r from-emerald-500 to-teal-500 text-white border-2 border-solid border-emerald-300 font-black py-3.5 md:py-6 rounded-xl md:rounded-3xl shadow-[0_0_20px_rgba(16,185,129,0.6)] active:scale-95 transition-all text-[16px] md:text-[24px] hover:shadow-[0_0_30px_rgba(16,185,129,0.9)] hover:scale-[1.02]"
-                              >
-                                ✅ รับงานต่อจากเวร SSC (เริ่มปฏิบัติงาน)
-                              </button>
-                            </div>
-                          )}
-
 
                           {t.status === 'acknowledged' && (
                             <button
