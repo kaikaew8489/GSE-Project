@@ -6184,14 +6184,23 @@ useEffect(() => {
     setIsLoading(false);
   };
 
+
   const confirmPhoneNext = () => {
     setShowPhoneConfirm(false);
     setStep(2);
   };
 
-  // 🌟 สมองกล 2: Auto-Submit เมื่อกรอก PIN ครบ 6 หลัก (ไม่ต้องกดปุ่มยืนยัน)
+  // 🌟 สมองกล 2: Auto-Submit ทั้งเบอร์โทร 10 หลัก และ PIN 6 หลัก (ฉบับเสถียร 1,000,000%)
   useEffect(() => {
-    if (step === 2 && !isLoading) {
+    if (isLoading) return;
+
+    // 🎯 ฟันธงจุดแก้: เติม && !showPhoneConfirm เพื่อตัดวงจรไม่ให้โค้ดแอบยิงคำสั่งรอบสองซ้อนกัน
+    if (step === 1 && phone.length === 10 && !showPhoneConfirm) {
+      handlePhoneNextClick();
+    }
+    
+    // จังหวะที่ 2: ผู้แจ้งกรอก PIN ครบ 6 หลัก
+    else if (step === 2) {
       if (isNewUser && isConfirmingPin && confirmPin.length === 6) {
         if (pin === confirmPin) {
           setStep(3); // ไปหน้ากรอกชื่อ
@@ -6203,7 +6212,9 @@ useEffect(() => {
         submitLogin(phone, pin);
       }
     }
-  }, [pin, confirmPin, step, isLoading, isConfirmingPin, isNewUser, phone]);
+  }, [phone, pin, confirmPin, step, isLoading, isConfirmingPin, isNewUser, showPhoneConfirm]); // 🌟 ฟันธง: เพิ่มตัวเฝ้าดู showPhoneConfirm ไว้ท้ายสุดด้วยครับ
+
+
 
   // 🌟 สมองกล 3: เข้าสู่ระบบ (ผู้ใช้เก่า) พร้อมระบบเยียวยาบัญชีเก่าที่ไม่มี PIN
   const submitLogin = async (loginPhone, loginPin) => {
@@ -6354,7 +6365,7 @@ useEffect(() => {
   };
 
   return (
-    <div className="fixed inset-0 z-[300] bg-slate-950/90 backdrop-blur-md flex items-center justify-center p-4 animate-in fade-in duration-300" onClick={onClose}>
+    <div className="fixed inset-0 z-[300] bg-slate-950/90 backdrop-blur-md flex items-center justify-center p-4 animate-in fade-in duration-300">
       <div className="absolute w-[300px] h-[300px] bg-orange-500/30 rounded-full blur-[100px] animate-pulse pointer-events-none z-0"></div>
       
       <div className="relative z-10 w-full max-w-sm bg-slate-900 border-[3px] border-solid border-cyan-500/50 rounded-[2.5rem] p-6 shadow-[0_0_50px_rgba(249,115,22,0.3)] flex flex-col items-center gap-4 transform transition-all" onClick={e => e.stopPropagation()}>
@@ -6372,8 +6383,8 @@ useEffect(() => {
                 {formatPhone(phone)}
               </div>
               <div className="flex gap-3">
-                <button onClick={() => setShowPhoneConfirm(false)} className="flex-1 py-3 bg-slate-800 text-slate-300 font-bold rounded-xl hover:bg-slate-700 transition-colors">แก้ไขเบอร์</button>
-                <button onClick={confirmPhoneNext} className="flex-1 py-3 bg-orange-600 text-white font-bold rounded-xl shadow-[0_0_15px_rgba(249,115,22,0.5)] hover:bg-orange-500 transition-colors">ยืนยันตามนี้</button>
+              <button onClick={() => { setShowPhoneConfirm(false); setPhone(prev => prev.slice(0, -1)); }} className="flex-1 py-3 bg-slate-800 text-slate-300 font-bold rounded-xl hover:bg-slate-700 transition-colors">แก้ไขเบอร์</button>
+                <button onClick={() => { setShowPhoneConfirm(false); setStep(2); setIsNewUser(true); }} className="flex-1 py-3 bg-orange-600 text-white font-bold rounded-xl shadow-[0_0_15px_rgba(249,115,22,0.5)] hover:bg-orange-500 transition-colors">ยืนยันตามนี้</button>
               </div>
             </div>
           </div>
@@ -6445,16 +6456,6 @@ useEffect(() => {
                 <X size={32} className="drop-shadow-md stroke-[3px]" />
               </button>
             </div>
-
-            {step === 1 && (
-              <button
-                onClick={() => { if (phone.length === 10) handlePhoneNextClick(); }}
-                disabled={phone.length !== 10 || isLoading}
-                className={`w-full mt-4 py-3 md:py-4 rounded-xl font-black text-[16px] md:text-[18px] transition-all duration-300 ${phone.length === 10 ? 'bg-gradient-to-r from-orange-500 to-amber-500 text-white shadow-[0_0_15px_rgba(249,115,22,0.6)] hover:scale-[1.02]' : 'bg-slate-800 text-slate-500 cursor-not-allowed'}`}
-              >
-                {isLoading ? 'กำลังตรวจสอบ...' : 'ถัดไป (ตรวจสอบหมายเลข)'}
-              </button>
-            )}
           </>
         )}
 
@@ -6464,7 +6465,7 @@ useEffect(() => {
               📝 ข้อมูลผู้แจ้งซ่อม
             </h2>
             <div className="w-full bg-slate-800/80 border border-amber-500/30 rounded-lg p-3 mb-6 text-center shadow-inner">
-              <p className="text-amber-400 font-bold text-sm">ยินดีต้อนรับ! กรุณากรอกชื่อและอีเมลเพื่อเปิดใช้งานระบบอัตโนมัติ</p>
+              <p className="text-amber-400 font-bold text-sm">ยินดีต้อนรับ! กรุณากรอกชื่อและอีเมลเพื่อลงทะเบียน</p>
             </div>
 
             <div className="w-full space-y-5">
@@ -6479,7 +6480,7 @@ useEffect(() => {
             </div>
 
             <div className="w-full flex gap-3 mt-8">
-               <button onClick={() => setStep(2)} className="flex-1 bg-slate-800 text-white font-bold py-3 md:py-4 rounded-xl border border-slate-600 hover:bg-slate-700 transition-colors">ย้อนกลับ</button>
+              <button onClick={() => { setStep(2); setConfirmPin(''); setIsConfirmingPin(false); }} className="flex-1 bg-slate-800 text-white font-bold py-3 md:py-4 rounded-xl border border-slate-600 hover:bg-slate-700 transition-colors">ย้อนกลับ</button>
                <button onClick={handleFinalSubmit} className="flex-1 bg-gradient-to-r from-orange-500 to-amber-500 text-white font-bold py-3 md:py-4 rounded-xl shadow-[0_0_15px_rgba(249,115,22,0.5)] hover:scale-[1.02] transition-transform">เสร็จสิ้นการสมัคร</button>
             </div>
           </div>
@@ -6556,6 +6557,7 @@ const handleStaffPhoneNext = async () => {
   const cleanPhone = staffPhone.replace(/-/g, '');
   if (cleanPhone.length !== 10) {
     setLoginError('กรุณากรอกเบอร์โทรศัพท์ให้ครบ 10 หลักค่ะ');
+    setStaffPhone(''); // 🌟 ฟันธง: ล้างข้อมูลทิ้งทันทีถ้าพิมพ์ไม่ครบ
     return;
   }
   
@@ -6568,17 +6570,19 @@ const handleStaffPhoneNext = async () => {
     if (!snapRole.empty) {
       const data = snapRole.docs[0].data();
       setStaffEmail(data.email);
-      setStaffRole(data.role); // 🌟 จำยศที่แท้จริงของช่าง
+      setStaffRole(data.role); 
       
-      {/* 🌟 ฟันธง: เช็คฟิลด์ pin ภายในคอลเลกชัน staff_roles ตรงๆ ไม่วิ่งไปปนกับ users อีกต่อไป */}
       const SkinnerPin = data.pin !== undefined && data.pin !== null && String(data.pin).trim() !== '';
       setIsNewStaff(!SkinnerPin);
       setStaffStep(2);
     } else {
+      // 🌟 ฟันธงจุดเปลี่ยนชีวิต: ถ้าไม่ใช่เบอร์ ฝวด. ให้แจ้งเตือนสีแดง แล้วล้างข้อมูลเบอร์เก่าทิ้งทันที!
       setLoginError('เฉพาะเจ้าหน้าที่ ฝวด. เท่านั้น'); 
+      setStaffPhone(''); // 🚀 สั่งเคลียร์หน้าจอให้ว่างอัตโนมัติ ช่างกดพิมพ์ใหม่ได้เลย ไม่ต้องกดปุ่ม C ให้วุ่นวาย
     }
   } catch (err) {
     setLoginError('เกิดข้อผิดพลาดในการตรวจสอบข้อมูล');
+    setStaffPhone(''); // 🚀 ล้างค่าเมื่อเกิดข้อผิดพลาดจากระบบฐานข้อมูล
   } finally {
     setIsLoggingIn(false);
   }
@@ -6641,7 +6645,7 @@ const handleStaffPinSubmit = async () => {
       setAttemptCount(0);
       closeStaffLogin();
       onStart(staffRole || 'Commander'); 
-    } else {
+    } else {4
       const newCount = attemptCount + 1;
       setAttemptCount(newCount);
       setLoginError(`รหัส PIN ไม่ถูกต้อง (ครั้งที่ ${newCount}/5)`);
@@ -6668,12 +6672,40 @@ const handleStaffPinSubmit = async () => {
 
   const handleStaffNumpad = (num) => {
     setLoginError('');
+    // รับแค่ตัวเลขเข้ามา ไม่ต้องสั่งทะลุตรงนี้!
     if (staffStep === 1 && staffPhone.length < 10) setStaffPhone(prev => prev + num);
-    if (staffStep === 2) {
+    else if (staffStep === 2) {
       if (isConfirmingStaffPin && confirmStaffPin.length < 6) setConfirmStaffPin(prev => prev + num);
       else if (!isConfirmingStaffPin && staffPin.length < 6) setStaffPin(prev => prev + num);
     }
   };
+
+  // 🌟 สมองกลหลัก: Auto-Submit อัตโนมัติทะลุปรุโปร่ง 1,000,000% (กันบั๊กโค้ดวิ่งแซง)
+  useEffect(() => {
+    if (!showLogin || isLoggingIn) return;
+
+    // ดักจังหวะที่ 1: กรอกเบอร์ครบ 10 หลักปุ๊บ -> สั่งเช็คเบอร์ทันที!
+    if (staffStep === 1 && staffPhone.length === 10) {
+      handleStaffPhoneNext();
+    }
+    
+    // ดักจังหวะที่ 2: กรอก PIN ครบ 6 หลักปุ๊บ -> สั่งทะลุหน้าจอทันที!
+    else if (staffStep === 2) {
+      if (isNewStaff) {
+         if (!isConfirmingStaffPin && staffPin.length === 6) {
+            setIsConfirmingStaffPin(true); // ตั้งรหัสรอบแรกเสร็จ เด้งไปหน้ายืนยันรหัส
+         } else if (isConfirmingStaffPin && confirmStaffPin.length === 6) {
+            handleStaffPinSubmit(); // ยืนยันรหัสเสร็จ บันทึกข้อมูลเข้า DB ทันที!
+         }
+      } else {
+         if (staffPin.length === 6) {
+            handleStaffPinSubmit(); // ช่างเก่า รหัสครบ 6 หลัก ล็อคอินทันที!
+         }
+      }
+    }
+  }, [staffPhone, staffPin, confirmStaffPin, staffStep, isLoggingIn, isConfirmingStaffPin, isNewStaff, showLogin]);
+
+
 
   const handleStaffDelete = () => {
     if (staffStep === 1) setStaffPhone(prev => prev.slice(0, -1));
@@ -6913,7 +6945,7 @@ const handleStaffPinSubmit = async () => {
       )}
 
       {showLogin && (
-        <div className="fixed inset-0 z-[300] bg-slate-950/90 backdrop-blur-md flex items-center justify-center p-4 animate-in fade-in duration-300" onClick={closeStaffLogin}>
+        <div className="fixed inset-0 z-[300] bg-slate-950/90 backdrop-blur-md flex items-center justify-center p-4 animate-in fade-in duration-300">
           <div className="absolute w-[300px] h-[300px] bg-cyan-500/30 rounded-full blur-[100px] animate-pulse pointer-events-none z-0"></div>
           
           <div className="relative z-10 w-full max-w-sm bg-slate-900 border-[3px] border-solid border-cyan-500 rounded-[2.5rem] p-6 shadow-[0_0_50px_rgba(34,211,238,0.5)] flex flex-col items-center gap-4 transform transition-all" onClick={e => e.stopPropagation()}>
@@ -6986,26 +7018,8 @@ const handleStaffPinSubmit = async () => {
               <button type="button" onClick={handleStaffDelete} className="h-16 flex items-center justify-center bg-slate-900/60 backdrop-blur-md border border-slate-600/50 rounded-2xl transition-all duration-300 hover:bg-rose-500/10 hover:border-rose-500 hover:text-rose-400 hover:shadow-[0_0_20px_rgba(225,29,72,0.6),inset_0_0_10px_rgba(225,29,72,0.2)] active:scale-90 active:bg-rose-600 active:text-white text-rose-500">
                 <X size={32} className="drop-shadow-md stroke-[3px]" />
               </button>
-
-              {staffStep === 1 && (
-                <button
-                  type="button"
-                  onClick={() => {
-                    if (staffPhone.length === 10) {
-                      if (typeof handleStaffPhoneNext === 'function') {
-                        handleStaffPhoneNext();
-                      } else {
-                        console.log("ตรวจสอบสิทธิ์เบอร์:", staffPhone);
-                      }
-                    }
-                  }}
-                  disabled={staffPhone.length !== 10}
-                  className={`col-span-3 mt-2 py-3 md:py-4 rounded-xl font-black text-[16px] md:text-[18px] tracking-widest transition-all duration-300 ${staffPhone.length === 10 ? 'bg-gradient-to-r from-emerald-500 to-teal-500 text-white shadow-[0_0_20px_rgba(16,185,129,0.6)] hover:scale-[1.02]' : 'bg-slate-800 text-slate-500 cursor-not-allowed border-[2px] border-slate-700'}`}
-                >
-                  ตรวจสอบสิทธิ์ (ฝวด.)
-                </button>
-              )}
             </div>
+
 
             {isLoggingIn && (
               <div className="w-full h-[256px] flex flex-col items-center justify-center animate-in zoom-in duration-300">
