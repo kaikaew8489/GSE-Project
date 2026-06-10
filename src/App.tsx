@@ -6311,7 +6311,7 @@ useEffect(() => {
     }
   };
 
-
+  
   const handleDelete = () => {
     if (step === 1) setPhone(prev => prev.slice(0, -1));
     else if (step === 2) {
@@ -6665,41 +6665,13 @@ const handleStaffPinSubmit = async () => {
     }
   }, [staffPin, confirmStaffPin, staffStep, isLoggingIn, isConfirmingStaffPin, isNewStaff, showLogin]);
 
-  
 
   const handleStaffNumpad = (num) => {
     setLoginError('');
     if (staffStep === 1 && staffPhone.length < 10) setStaffPhone(prev => prev + num);
-    else if (staffStep === 2) {
-      if (isNewStaff) {
-         // 1. ช่างใหม่: จังหวะตั้งรหัสผ่านครั้งแรก
-         if (!isConfirmingStaffPin && staffPin.length < 6) {
-            const newPin = staffPin + num;
-            setStaffPin(newPin);
-            if (newPin.length === 6) setIsConfirmingStaffPin(true); 
-         } 
-         // 2. ช่างใหม่: จังหวะกรอกยืนยันรหัสผ่านอีกครั้ง
-         else if (isConfirmingStaffPin && confirmStaffPin.length < 6) {
-            const newConfirm = confirmStaffPin + num;
-            setConfirmStaffPin(newConfirm);
-            
-            // 🌟 ฟันธง: พอกดเลขยืนยันตัวที่ 6 ปุ๊บ ดีเลย์เสี้ยววิให้สเตทอัปเดต แล้วสั่งลุย Submit ทันที!
-            if (newConfirm.length === 6) {
-               setTimeout(() => handleStaffPinSubmit(), 50);
-            }
-         }
-      } else {
-         // 3. ช่างเก่า: จังหวะกรอกรหัส PIN เข้าใช้งาน
-         if (staffPin.length < 6) {
-            const newPin = staffPin + num;
-            setStaffPin(newPin);
-            
-            // 🌟 ฟันธง: พอกรอกรหัสเข้าสู่ระบบครบ 6 หลักปุ๊บ ดีเลย์เสี้ยววิ แล้วสั่ง Submit ทันที!
-            if (newPin.length === 6) {
-               setTimeout(() => handleStaffPinSubmit(), 50);
-            }
-         }
-      }
+    if (staffStep === 2) {
+      if (isConfirmingStaffPin && confirmStaffPin.length < 6) setConfirmStaffPin(prev => prev + num);
+      else if (!isConfirmingStaffPin && staffPin.length < 6) setStaffPin(prev => prev + num);
     }
   };
 
