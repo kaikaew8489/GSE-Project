@@ -6236,17 +6236,30 @@ useEffect(() => {
           localStorage.setItem('gse_remembered_name', userData.fullName || userData.name || '');
           setAttemptCount(0);
           onLoginSuccess('reporter');
+
         } else if (userData.pin === loginPin) {
           localStorage.setItem('gse_remembered_phone', cleanPhone);
           localStorage.setItem('gse_remembered_name', userData.fullName || userData.name || '');
           setAttemptCount(0);
           onLoginSuccess('reporter');
+
+
         } else {
+          // 🌟 ฟันธง: ตรรกะล็อกบัญชีผู้แจ้งเมื่อผิดครบ 5 ครั้ง
           const newCount = attemptCount + 1;
           setAttemptCount(newCount);
-          setLoginError(`รหัส PIN ไม่ถูกต้อง (ครั้งที่ ${newCount}/5)`);
-          setPin('');
+          
+          if (newCount >= 5) {
+            setLoginError('❌ บัญชีถูกระงับชั่วคราว 3 นาทีเนื่องจากกรอกรหัสผิดครบ 5 ครั้ง');
+            localStorage.setItem('gse_user_lock_until', Date.now() + 3 * 60 * 1000); 
+            setPin('');
+          } else {
+            setLoginError(`รหัส PIN ไม่ถูกต้อง (ครั้งที่ ${newCount}/5)`);
+            setPin('');
+          }
         }
+
+
       } else {
         setLoginError('ไม่พบข้อมูลผู้ใช้งาน');
       }
@@ -6284,6 +6297,15 @@ useEffect(() => {
   };
 
   const handleNumpad = (num) => {
+
+    // 🌟 ฟันธง: ดักจับเวลาล็อกคงเหลือ ถ้ายังไม่ครบ 3 นาที ห้ามกดปุ่มเลขเด็ดขาด!
+    const userLock = localStorage.getItem('gse_user_lock_until');
+    if (userLock && Date.now() < Number(userLock)) {
+      const remainMin = Math.ceil((Number(userLock) - Date.now()) / 1000 / 60);
+      setLoginError(`❌ ระบบยังล็อกอยู่ กรุณารออีกประมาณ ${remainMin} นาที หรือกดลืมรหัส PIN`);
+      return;
+    }
+
     setLoginError('');
     if (step === 1 && phone.length < 10) setPhone(prev => prev + num);
     else if (step === 2) {
@@ -6645,12 +6667,22 @@ const handleStaffPinSubmit = async () => {
       setAttemptCount(0);
       closeStaffLogin();
       onStart(staffRole || 'Commander'); 
-    } else {4
+      
+    } else {
+      // 🌟 ฟันธง: ตรรกะล็อกบัญชีช่าง ฝวด. เมื่อผิดครบ 5 ครั้ง
       const newCount = attemptCount + 1;
       setAttemptCount(newCount);
-      setLoginError(`รหัส PIN ไม่ถูกต้อง (ครั้งที่ ${newCount}/5)`);
-      setStaffPin('');
+      
+      if (newCount >= 5) {
+        setLoginError('❌ ระบบล็อกการทำงานชั่วคราว 3 นาทีเนื่องจากกรอกรหัสผิดครบ 5 ครั้ง');
+        localStorage.setItem('gse_staff_lock_until', Date.now() + 3 * 60 * 1000);
+        setStaffPin('');
+      } else {
+        setLoginError(`รหัส PIN ไม่ถูกต้อง (ครั้งที่ ${newCount}/5)`);
+        setStaffPin('');
+      }
     }
+
   } catch (err) {
     setLoginError('เกิดข้อผิดพลาดในการตรวจสอบรหัส');
   } finally { setIsLoggingIn(false); }
@@ -6671,6 +6703,15 @@ const handleStaffPinSubmit = async () => {
 
 
   const handleStaffNumpad = (num) => {
+
+    // 🌟 ฟันธง: ดักจับเวลาล็อกคงเหลือของฝั่งช่าง
+    const staffLock = localStorage.getItem('gse_staff_lock_until');
+    if (staffLock && Date.now() < Number(staffLock)) {
+      const remainMin = Math.ceil((Number(staffLock) - Date.now()) / 1000 / 60);
+      setLoginError(`❌ ระบบยังล็อกอยู่ กรุณารออีกประมาณ ${remainMin} นาที`);
+      return;
+    }
+    
     setLoginError('');
     // รับแค่ตัวเลขเข้ามา ไม่ต้องสั่งทะลุตรงนี้!
     if (staffStep === 1 && staffPhone.length < 10) setStaffPhone(prev => prev + num);
