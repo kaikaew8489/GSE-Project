@@ -2049,14 +2049,47 @@ useEffect(() => {
       if (target && target.lastHoldAt) {
         pauseDurationMs = new Date().getTime() - new Date(target.lastHoldAt).getTime();
       }
+
+      // 🌟 ฟันธง: ท่ออัปโหลดรูปภาพโหมดดำเนินการต่อ (เซฟแยกโฟลเดอร์ resume สูงสุด 4 รูปอย่างเป็นระเบียบ)
+      let uploadedUrls = [];
+      if (actionAttachments && actionAttachments.length > 0) {
+        for (let i = 0; i < actionAttachments.length; i++) {
+          const fileData = actionAttachments[i];
+          if (fileData.startsWith('http')) {
+            uploadedUrls.push(fileData);
+          } else {
+            try {
+              const res = await fetch(fileData);
+              const blob = await res.blob();
+              const ext = fileData.includes('video') ? '.mp4' : '.jpg';
+              // สร้างท่อส่งแยกเฉพาะโหมด Resume
+              const fileRef = ref(storage, `gse_reports/resume/${Date.now()}_resume_media_${i}${ext}`);
+              await uploadBytes(fileRef, blob);
+              uploadedUrls.push(await getDownloadURL(fileRef));
+            } catch (error) { 
+              console.error("Resume Media Upload Error:", error); 
+            }
+          }
+        }
+      }
+
       updates = {
         status: 'in_progress',
         resumeReason: actionText,
         totalPauseMs: ((target ? target.totalPauseMs : 0) || 0) + pauseDurationMs,
         lastHoldAt: null,
-        historyLog: [...currentLog, { type: 'resume', reason: actionText, timestamp: new Date().toISOString(), pauseDurationMs: pauseDurationMs }]
+        // 🌟 ฟันธง: เพิ่ม attachments: uploadedUrls เข้าไปในประวัติรอบนี้ เพื่อให้รูปแยกจากรอบอื่นเด็ดขาด!
+        historyLog: [...currentLog, { 
+          type: 'resume', 
+          reason: actionText, 
+          timestamp: new Date().toISOString(), 
+          pauseDurationMs: pauseDurationMs,
+          attachments: uploadedUrls 
+        }]
       };
     }
+
+
 
     // 🌟 2. อัปเดตขึ้นฐานข้อมูล
     await updateTicketStatus(ticketId, updates);
@@ -3454,8 +3487,11 @@ const executeRatingSubmit = async () => {
               <label className="text-[16px] md:text-[20px] font-black text-orange-300 uppercase tracking-wide ml-1 flex items-center gap-1.5 md:gap-2">
                 <AlertCircle size={18} className="md:w-5 md:h-5" /> อาการเสีย / รายละเอียดปัญหา <span className="text-rose-500">*</span>
               </label>
+
+
               <textarea
                 name="description"
+                autoComplete="on" 
                 value={formData.description}
                 onChange={handleInputChange}
                 rows={3}
@@ -3515,12 +3551,12 @@ const executeRatingSubmit = async () => {
                   name="room"
                   value={formData.room}
                   onChange={handleInputChange}
-                  autoComplete="off" 
+                  autoComplete="on"
                   className={`w-full bg-slate-900 border-[2px] border-solid ${
                     formErrors.room
                       ? 'border-rose-500 ring-1 ring-rose-500/30'
                       : 'border-orange-500/30 focus:border-orange-400 shadow-[0_0_15px_rgba(249,115,22,0.2)] focus:shadow-[0_0_25px_rgba(249,115,22,0.8)]'
-                  } rounded-2xl px-5 py-4 md:py-5 text-sm md:text-[16px] font-bold text-orange-100 outline-none transition-all duration-300 placeholder:text-slate-500 [&:-webkit-autofill]:bg-slate-900 [&:-webkit-autofill]:text-orange-100 [&:-webkit-autofill]:shadow-[0_0_0_1000px_#0f172a_inset]`}
+                  } rounded-2xl px-5 py-4 md:py-5 text-sm md:text-[16px] font-bold text-orange-100 outline-none transition-all duration-300 placeholder:text-slate-500 [&:-webkit-autofill]:bg-slate-900 [&:-webkit-autofill]:shadow-[0_0_0_1000px_#0f172a_inset] [&:-webkit-autofill]:[-webkit-text-fill-color:#ffedd5]`}
                   placeholder="ระบุสถานที่หรือห้อง"
                 />
                 
@@ -4642,17 +4678,20 @@ const renderTracking = () => (
                       </p>
                     </div>
 
+
+
                     {/* ========================================== */}
-                    {/* 📸 ฟันธง: ดึงรูปจากประวัติใครประวัติมัน (log.attachments) */}
+                    {/* 📸 ฟันธง: ดึงรูปจากประวัติมาแสดง (โชว์ได้ทั้งกล่องม่วง และ กล่องส้ม!) */}
                     {/* ========================================== */}
-                    {isHold && log.attachments && log.attachments.length > 0 && (
+                    {log.attachments && log.attachments.length > 0 && (
                       <div className="px-4 md:px-6 pb-4 md:pb-6 w-full">
-                        <label className="text-[13px] md:text-[16px] font-black text-purple-700 flex items-center gap-1.5 mb-2">
-                          <Camera className="w-4 h-4 md:w-5 md:h-5 text-purple-600" /> 📸 ภาพหลักฐานเหตุขัดข้อง:
+                        <label className={`text-[13px] md:text-[16px] font-black flex items-center gap-1.5 mb-2 ${isHold ? 'text-purple-700' : 'text-orange-700'}`}>
+                          <Camera className={`w-4 h-4 md:w-5 md:h-5 ${isHold ? 'text-purple-600' : 'text-orange-600'}`} /> 
+                          📸 {isHold ? 'ภาพหลักฐานเหตุขัดข้อง:' : 'ภาพหลักฐานอะไหล่/ดำเนินการต่อ:'}
                         </label>
-                        <div className="flex gap-2 overflow-x-auto pb-2 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden w-full">
+                        <div className="flex flex-wrap gap-2 pb-2 w-full">
                           {log.attachments.map((url, idx) => (
-                            <div key={`hold-timeline-${index}-${idx}`} className="relative w-20 h-20 md:w-24 md:h-24 shrink-0 rounded-lg overflow-hidden border border-purple-300 shadow-sm cursor-pointer hover:scale-105 transition-all" onClick={(e) => { e.stopPropagation(); setLightboxImg(url); }}>
+                            <div key={`timeline-img-${index}-${idx}`} className={`relative w-20 h-20 md:w-24 md:h-24 shrink-0 rounded-lg overflow-hidden border shadow-sm cursor-pointer hover:scale-105 transition-all ${isHold ? 'border-purple-300' : 'border-orange-300'}`} onClick={(e) => { e.stopPropagation(); setLightboxImg(url); }}>
                               {url.includes('video') || url.includes('.mp4') ? (
                                 <>
                                   <video src={url} className="w-full h-full object-cover opacity-80" />
@@ -4668,6 +4707,7 @@ const renderTracking = () => (
                         </div>
                       </div>
                     )}
+
 
 
                         {/* 🌟 ฟันธง: ส่วนท้ายที่ปรับ Layout ย้ายเวลามาซ้าย และขยายฟอนต์ใหญ่ขึ้น! */}
@@ -4911,7 +4951,7 @@ const renderTracking = () => (
                                 <label className="text-[13px] md:text-[16px] font-black text-blue-700 flex items-center gap-1.5 mb-2">
                                   <Camera className="w-4 h-4 md:w-5 md:h-5 text-blue-600" /> 📸 ภาพหลักฐานการปิดงาน:
                                 </label>
-                                <div className="flex gap-2 overflow-x-auto pb-2 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden w-full">
+                                <div className="flex flex-wrap gap-2 pb-2 mt-2 w-full">
                                     {t.finishAttachments.map((url, idx) => (
                                     <div key={`finish-${idx}`} className="relative w-20 h-20 md:w-24 md:h-24 shrink-0 rounded-lg overflow-hidden border border-blue-300 shadow-sm cursor-pointer hover:scale-105 transition-all" onClick={() => setLightboxImg(url)}>
                                       {url.includes('video') || url.includes('.mp4') ? (
@@ -5209,27 +5249,36 @@ const renderTracking = () => (
                                   </div>
                                 )
                               )}
-
-
-
                             </div>
                           )}
 
-                            {/* 🌟 ฟันธง: จำกัดสิทธิ์เฉพาะช่างหลักหรือหัวหน้าเท่านั้นถึงจะเห็นปุ่มดึงงานกลับมาแก้! */}
+
+                            {/* 🌟 ฟันธง: จำกัดสิทธิ์เฉพาะช่างหลักหรือหัวหน้าเท่านั้น และแยกป้ายจบงานกับปุ่มแก้ไขออกจากกัน! */}
                             {(t.status === 'completed' || t.status === 'verified') && (currentUserRole !== 'reporter' && currentUserRole !== 'ssc_duty') && (
-                              <button
-                                onClick={() => updateTicketStatus(t.id, { 
-                                  status: 'in_progress', 
-                                  completedAt: null, 
-                                  cause: null 
-                                })}
-                                className="w-full bg-orange-100 text-orange-800 border-2 border-solid border-orange-400 font-bold py-3.5 md:py-6 rounded-xl md:rounded-3xl hover:bg-orange-200 hover:text-orange-900 active:scale-95 transition-all text-[15px] md:text-[24px] shadow-sm flex justify-center items-center gap-2 md:gap-4 mt-3 md:mt-6 hover:shadow-[0_0_15px_rgba(249,115,22,0.4)]"
-                              >
-                                <RotateCcw className="w-[18px] h-[18px] md:w-8 md:h-8 animate-spin-slow" /> ดึงงานกลับมาแก้ไข
-                              </button>
+                              <div className="w-full mt-3 md:mt-6">
+                                {t.status === 'verified' ? (
+                                  /* 🟩 ถ้าตั๋วประเมินแล้ว (verified) โชว์ป้ายปิดตายตั๋ว สีเขียว */
+                                  <div className="w-full bg-emerald-50 border-2 border-emerald-400 text-emerald-700 font-black text-[16px] md:text-[24px] text-center py-3.5 md:py-6 rounded-xl md:rounded-3xl shadow-sm flex items-center justify-center gap-2 cursor-default">
+                                    <CheckCircle className="w-[18px] h-[18px] md:w-8 md:h-8" /> 
+                                    ปิดงานซ่อม (เสร็จสิ้นสมบูรณ์)
+                                  </div>
+                                ) : (
+                                  /* 🟧 ถ้ายังไม่ verified (เช่น เพิ่งกดปิดงาน completed) โชว์ปุ่มดึงงานกลับมาแก้ไข */
+                                  <button
+                                    onClick={() => updateTicketStatus(t.id, { 
+                                      status: 'in_progress', 
+                                      completedAt: null, 
+                                      cause: null 
+                                    })}
+                                    className="w-full bg-orange-100 text-orange-800 border-2 border-solid border-orange-400 font-bold py-3.5 md:py-6 rounded-xl md:rounded-3xl hover:bg-orange-200 hover:text-orange-900 active:scale-95 transition-all text-[15px] md:text-[24px] shadow-sm flex justify-center items-center gap-2 md:gap-4 hover:shadow-[0_0_15px_rgba(249,115,22,0.4)]"
+                                  >
+                                    <RotateCcw className="w-[18px] h-[18px] md:w-8 md:h-8 animate-spin-slow" /> ดึงงานกลับมาแก้ไข
+                                  </button>
+                                )}
+                              </div>
                             )}
-                        </div>
-                      )}
+                            </div>
+                          )}
 
 
                       {/* 🌟 โซนปุ่มกด Action (ขนาดบิ๊กเบิ้ม สำหรับผู้แจ้งปัญหา) */}
@@ -5318,8 +5367,7 @@ const renderTracking = () => (
             })
             )}
           </div>
-          
-    
+
 
      {/* 🛠️ Action Modals (ฟันธง: ใช้เวทย์มนต์ createPortal วาร์ปทะลุกรอบ 1,000,000%) */}
      {actionModal.isOpen && typeof document !== 'undefined' ? createPortal(
@@ -5416,45 +5464,37 @@ const renderTracking = () => (
               )}
 
 
-              {/* ======================================================== */}
-              {/* 🌟 ฟันธง: โซนหน้าต่างแนบไฟล์ และ เวร SSC (ผ่าร่างแยกส่วนกันแล้ว) */}
-              {/* ======================================================== */}
 
-              {/* 📸 ท่อนที่ 1: โซนแนบหลักฐาน (รูป/วิดีโอ) - เปิดให้ทั้ง SSC, ปิดงาน และ แจ้งขัดข้อง */}
-              {['ssc', 'finish', 'hold'].includes(actionModal.type) && (
+              {/* 📸 ท่อนที่ 1: โซนแนบหลักฐาน (รูป/วิดีโอ) - บังคับแนบรูป! */}
+              {['ssc', 'finish', 'hold', 'resume'].includes(actionModal.type) && (
                 <div className="mt-4 flex flex-col gap-2 text-left">
                   <label className="text-[13px] md:text-sm font-black tracking-wider text-cyan-400 flex items-center gap-1.5">
-                    <Camera size={16} /> 📸 {actionModal.type === 'hold' ? 'แนบหลักฐานเหตุขัดข้อง (สูงสุด 2 ไฟล์)' : 'แนบหลักฐานการตรวจซ่อม (ถ้ามี)'}
+                    <Camera size={16} /> 📸 {
+                      actionModal.type === 'finish' ? 'แนบหลักฐานการตรวจซ่อม (บังคับ 1-6 ไฟล์)' : 
+                      actionModal.type === 'hold' ? 'แนบหลักฐานเหตุขัดข้อง (บังคับ 1-4 ไฟล์)' : 
+                      'แนบหลักฐานอะไหล่/ดำเนินการต่อ (บังคับ 1-4 ไฟล์)'
+                    }
                   </label>
-                  <div className="flex gap-2 overflow-x-auto pb-2 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
+                  
+                  <div className="flex flex-wrap gap-2 pb-2">
                     {actionAttachments.map((file, idx) => (
                       <div key={idx} className="relative w-24 h-24 shrink-0 rounded-xl overflow-hidden border-2 border-cyan-500/50 shadow-[0_0_10px_rgba(34,211,238,0.3)]">
-
                           {file.includes('video') || file.includes('.mp4') ? (
-                          /* 🌟 ฟันธง: ถอด controls ออก ใส่สามเหลี่ยม และสั่งเด้ง Lightbox แทน */
                           <>
                             <video src={file} className="w-full h-full object-cover opacity-80" />
-                            <div 
-                              className="absolute inset-0 flex items-center justify-center bg-black/40 hover:bg-black/20 transition-colors z-10 cursor-pointer"
-                              onClick={(e) => { e.stopPropagation(); setLightboxImg(file); }}
-                            >
-                              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="white" className="w-8 h-8 md:w-10 md:h-10 drop-shadow-[0_2px_8px_rgba(0,0,0,0.8)] hover:scale-110 transition-transform ml-1">
-                                <path d="M5 3l14 9-14 9V3z" />
-                              </svg>
+                            <div className="absolute inset-0 flex items-center justify-center bg-black/40 hover:bg-black/20 transition-colors z-10 cursor-pointer" onClick={(e) => { e.stopPropagation(); setLightboxImg(file); }}>
+                              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="white" className="w-8 h-8 md:w-10 md:h-10 drop-shadow-[0_2px_8px_rgba(0,0,0,0.8)] hover:scale-110 transition-transform ml-1"><path d="M5 3l14 9-14 9V3z" /></svg>
                             </div>
                           </>
                         ) : (
-                          /* 🌟 เติม onClick ให้คลิกขยายรูปได้ พร้อมหยุด Event ไม่ให้ทะลุ */
                           <img src={file} onClick={(e) => { e.stopPropagation(); setLightboxImg(file); }} className="w-full h-full object-cover cursor-pointer hover:scale-110 transition-all" />
                         )}
-
-                        <button type="button" onClick={() => setActionAttachments(prev => prev.filter((_, i) => i !== idx))} className="absolute top-1 right-1 bg-rose-500 text-white rounded-full p-1 active:scale-90 shadow-md z-10">
-                          <X size={12} className="stroke-[3px]" />
-                        </button>
+                        <button type="button" onClick={() => setActionAttachments(prev => prev.filter((_, i) => i !== idx))} className="absolute top-1 right-1 bg-rose-500 text-white rounded-full p-1 active:scale-90 shadow-md z-10"><X size={12} className="stroke-[3px]" /></button>
                       </div>
                     ))}
-                    {/* 🌟 ฟันธง: ล็อคจำนวนรูปอัจฉริยะ! ถ้าโหมดขัดข้องให้แค่ 2 รูป ถ้าโหมดอื่นให้ 3 รูป */}
-                    {actionAttachments.length < (actionModal.type === 'hold' ? 2 : 3) && (
+
+                    {/* 🌟 ฟันธง: จำกัดจำนวนรูปอัจฉริยะ โหมดปิดงานให้ 6 รูป โหมดอื่น 4 รูป */}
+                    {actionAttachments.length < (actionModal.type === 'finish' ? 6 : 4) && (
                       <label className="w-24 h-24 shrink-0 rounded-xl border-2 border-dashed border-cyan-500/50 flex flex-col items-center justify-center text-cyan-400 hover:bg-cyan-500/20 cursor-pointer transition-all active:scale-95">
                         <PlusCircle size={24} />
                         <span className="text-[10px] font-bold mt-1">เพิ่มรูป/คลิป</span>
@@ -5462,12 +5502,8 @@ const renderTracking = () => (
                           const files = Array.from(e.target.files);
                           if(files.length === 0) return;
                           for (const file of files) {
-                            if(file.size > 20 * 1024 * 1024) {
-                              alert(`⚠️ ไฟล์ ${file.name} ใหญ่เกิน 20MB ครับ`);
-                              continue;
-                            }
-                            const reader = new FileReader();
-                            reader.readAsDataURL(file);
+                            if(file.size > 20 * 1024 * 1024) { alert(`⚠️ ไฟล์ ${file.name} ใหญ่เกิน 20MB ครับ`); continue; }
+                            const reader = new FileReader(); reader.readAsDataURL(file);
                             reader.onload = (ev) => setActionAttachments(prev => [...prev, ev.target.result]);
                           }
                           e.target.value = null;
@@ -5477,6 +5513,9 @@ const renderTracking = () => (
                   </div>
                 </div>
               )}
+
+
+
 
               {/* 🟢/🟠 ท่อนที่ 2: โซนเลือกผลการซ่อม (ล็อคไว้ให้เฉพาะเวร SSC เห็นเท่านั้น!) */}
               {actionModal.type === 'ssc' && (
@@ -5497,36 +5536,44 @@ const renderTracking = () => (
 
             </div>
 
-           {/* 🌟 🔘 โซนปุ่มกด (อัปเกรด UI: กรอบขาวทั้งหมด + แยกสี Hover ตาม Semantic) */}
-           <div className="flex gap-4 pt-4">
-              
-              {/* ⚪ ปุ่มซ้าย: ยกเลิก (Safe Action) - ฟันธง: กรอบขาว -> Hover แดงเรืองแสง */}
-              <button
-                 onClick={() => setActionModal({ isOpen: false, ticketId: null, type: null })}
-                 className="flex-1 py-3.5 md:py-4 rounded-xl font-bold text-white bg-slate-800 border-[2px] border-solid border-white/50 shadow-inner active:scale-95 transition-all duration-300 hover:bg-rose-600 hover:border-rose-400 hover:shadow-[0_0_20px_rgba(225,29,72,0.8)] hover:-translate-y-1"
-              >
-                 {actionModal.type === 'cancel' ? 'ไม่ยกเลิก' : 'ยกเลิก'}
-              </button>
+          {/* 🌟 🔘 โซนปุ่มกด (อัปเกรด UI: ล็อคปุ่มสีเทาถ้าข้อมูลไม่ครบ) */}
+          <div className="flex gap-4 pt-4">
+                
+                {/* ⚪ ปุ่มซ้าย: ยกเลิก (ล้างกระดานผีหลอก) */}
+                <button
+                   onClick={() => {
+                     setActionModal({ isOpen: false, ticketId: null, type: null });
+                     setActionText(''); 
+                     setActionAttachments([]);
+                   }}
+                   className="flex-1 py-3.5 md:py-4 rounded-xl font-bold text-white bg-slate-800 border-[2px] border-solid border-white/50 shadow-inner active:scale-95 transition-all duration-300 hover:bg-rose-600 hover:border-rose-400 hover:shadow-[0_0_20px_rgba(225,29,72,0.8)] hover:-translate-y-1"
+                >
+                   {actionModal.type === 'cancel' ? 'ไม่ยกเลิก' : 'ยกเลิก'}
+                </button>
 
-              {/* 🔴/🟠/🟢 ปุ่มขวา: ยืนยันทำรายการ - ฟันธง: กรอบขาว -> แยกสี Hover สีส้ม/แดง/เขียว ให้ตรงกับแสงด้านหลัง! */}
-              <button
-                 onClick={executeActionModal}
-                 disabled={actionModal.type === 'accept' ? !selectedTech : !actionText.trim()}
-                 className={`flex-[1.5] py-3.5 md:py-4 rounded-xl font-black text-white border-[2px] border-solid border-white/50 active:scale-95 transition-all duration-300 hover:-translate-y-1 hover:border-white disabled:opacity-50 disabled:grayscale ${
-                   actionModal.type === 'cancel' || actionModal.type === 'hold'
-                     ? 'bg-rose-600 shadow-[0_5px_15px_rgba(225,29,72,0.4)] hover:bg-rose-500 hover:shadow-[0_0_35px_rgba(225,29,72,1)]' 
-                     : actionModal.type === 'finish'
-                     ? 'bg-emerald-600 shadow-[0_5px_15px_rgba(16,185,129,0.4)] hover:bg-emerald-500 hover:shadow-[0_0_35px_rgba(16,185,129,1)]' 
-                     : 'bg-gradient-to-r from-orange-500 to-amber-500 shadow-[0_5px_15px_rgba(249,115,22,0.4)] hover:from-orange-400 hover:to-amber-400 hover:shadow-[0_0_35px_rgba(249,115,22,1)]'
-                 }`}
-              >
-                 {actionModal.type === 'accept' ? 'ยืนยันรับงานซ่อม' :
-                  actionModal.type === 'cancel' ? 'ยืนยันลบงานซ่อม' :
-                  actionModal.type === 'finish' ? 'ยืนยันบันทึกปิดงาน' :
-                  actionModal.type === 'hold' ? 'ยืนยันแจ้งขัดข้อง' :
-                  'ยืนยันบันทึก'}
-              </button>
-            </div>
+                {/* 🔵 ปุ่มขวา: ยืนยัน (ฟันธง: ล็อคสีเทาบังคับแนบรูป/เหตุผล เฉพาะ 3 โหมดหลัก) */}
+                <button
+                   onClick={executeActionModal}
+                   disabled={['hold', 'resume', 'finish'].includes(actionModal.type) && (actionText.trim() === '' || actionAttachments.length === 0)}
+                   className={`flex-1 py-3.5 md:py-4 rounded-xl font-bold text-white border-[2px] border-solid shadow-inner transition-all duration-300 ${
+                     (['hold', 'resume', 'finish'].includes(actionModal.type) && (actionText.trim() === '' || actionAttachments.length === 0))
+                       ? 'bg-slate-700 border-slate-500 cursor-not-allowed opacity-50' /* 🔒 สีเทากดไม่ได้ */
+                       : actionModal.type === 'hold' ? 'bg-rose-600 border-rose-400 hover:shadow-[0_0_20px_rgba(225,29,72,0.8)] hover:-translate-y-1 active:scale-95'
+                       : actionModal.type === 'resume' ? 'bg-orange-600 border-orange-400 hover:shadow-[0_0_20px_rgba(249,115,22,0.8)] hover:-translate-y-1 active:scale-95'
+                       : actionModal.type === 'finish' ? 'bg-emerald-600 border-emerald-400 hover:shadow-[0_0_20px_rgba(16,185,129,0.8)] hover:-translate-y-1 active:scale-95'
+                       : 'bg-blue-600 border-blue-400 hover:shadow-[0_0_20px_rgba(59,130,246,0.8)] hover:-translate-y-1 active:scale-95'
+                   }`}
+                >
+                   {/* 🌟 แจ้งเตือนบนปุ่มถ้ากรอกไม่ครบ! */}
+                   {(['hold', 'resume', 'finish'].includes(actionModal.type) && (actionText.trim() === '' || actionAttachments.length === 0))
+                     ? '⚠️ ระบุเหตุผลและแนบรูป'
+                     : actionModal.type === 'cancel' ? 'ยืนยันยกเลิก'
+                     : actionModal.type === 'hold' ? 'ยืนยันแจ้งขัดข้อง'
+                     : actionModal.type === 'resume' ? 'ยืนยันดำเนินการต่อ'
+                     : 'ยืนยันบันทึก'}
+                </button>
+
+              </div>
           </div>
         </div>,
         document.body
@@ -6230,18 +6277,40 @@ useEffect(() => {
     if (step === 1 && phone.length < 10) setPhone(prev => prev + num);
     else if (step === 2) {
       if (isNewUser) {
+         // 1. ผู้ใช้ใหม่: จังหวะตั้งรหัสผ่านครั้งแรก
          if (!isConfirmingPin && pin.length < 6) {
             const newPin = pin + num;
             setPin(newPin);
-            if (newPin.length === 6) setIsConfirmingPin(true);
-         } else if (isConfirmingPin && confirmPin.length < 6) {
-            setConfirmPin(prev => prev + num);
+            // ครบ 6 หลักปุ๊บ เด้งไปหน้ายืนยันทันที (ของเดิมท่านทำไว้ดีแล้ว)
+            if (newPin.length === 6) setIsConfirmingPin(true); 
+         } 
+         // 2. ผู้ใช้ใหม่: จังหวะกรอกยืนยันรหัสผ่านอีกครั้ง
+         else if (isConfirmingPin && confirmPin.length < 6) {
+            const newConfirm = confirmPin + num;
+            setConfirmPin(newConfirm);
+            
+            // 🌟 ฟันธงจุดที่ 1: พอพิมพ์ยืนยันครบ 6 หลักปุ๊บ สั่งเซฟข้อมูลอัตโนมัติทันที!
+            if (newConfirm.length === 6) {
+               // นำชื่อฟังก์ชันที่ใช้ "บันทึกรหัสผ่าน/สมัครสมาชิก" ของท่านมาใส่ตรงนี้แทนคำว่า handleSubmitRegister ครับ
+               handleSubmitRegister(pin, newConfirm); 
+            }
          }
       } else {
-         if (pin.length < 6) setPin(prev => prev + num);
+         // 3. ผู้ใช้เก่า: จังหวะกรอกรหัสเข้าใช้งาน
+         if (pin.length < 6) {
+            const newPin = pin + num;
+            setPin(newPin);
+            
+            // 🌟 ฟันธงจุดที่ 2: พอกรอกรหัสเข้าสู่ระบบครบ 6 หลักปุ๊บ สั่งเช็คเข้าสู่ระบบอัตโนมัติทันที!
+            if (newPin.length === 6) {
+               // นำชื่อฟังก์ชันที่ใช้ "ตรวจสอบรหัสเข้าสู่ระบบ" ของท่านมาใส่ตรงนี้แทนคำว่า handleLoginSubmit ครับ
+               handleLoginSubmit(newPin); 
+            }
+         }
       }
     }
   };
+
 
   const handleDelete = () => {
     if (step === 1) setPhone(prev => prev.slice(0, -1));
@@ -6596,13 +6665,41 @@ const handleStaffPinSubmit = async () => {
     }
   }, [staffPin, confirmStaffPin, staffStep, isLoggingIn, isConfirmingStaffPin, isNewStaff, showLogin]);
 
+  
 
   const handleStaffNumpad = (num) => {
     setLoginError('');
     if (staffStep === 1 && staffPhone.length < 10) setStaffPhone(prev => prev + num);
-    if (staffStep === 2) {
-      if (isConfirmingStaffPin && confirmStaffPin.length < 6) setConfirmStaffPin(prev => prev + num);
-      else if (!isConfirmingStaffPin && staffPin.length < 6) setStaffPin(prev => prev + num);
+    else if (staffStep === 2) {
+      if (isNewStaff) {
+         // 1. ช่างใหม่: จังหวะตั้งรหัสผ่านครั้งแรก
+         if (!isConfirmingStaffPin && staffPin.length < 6) {
+            const newPin = staffPin + num;
+            setStaffPin(newPin);
+            if (newPin.length === 6) setIsConfirmingStaffPin(true); 
+         } 
+         // 2. ช่างใหม่: จังหวะกรอกยืนยันรหัสผ่านอีกครั้ง
+         else if (isConfirmingStaffPin && confirmStaffPin.length < 6) {
+            const newConfirm = confirmStaffPin + num;
+            setConfirmStaffPin(newConfirm);
+            
+            // 🌟 ฟันธง: พอกดเลขยืนยันตัวที่ 6 ปุ๊บ ดีเลย์เสี้ยววิให้สเตทอัปเดต แล้วสั่งลุย Submit ทันที!
+            if (newConfirm.length === 6) {
+               setTimeout(() => handleStaffPinSubmit(), 50);
+            }
+         }
+      } else {
+         // 3. ช่างเก่า: จังหวะกรอกรหัส PIN เข้าใช้งาน
+         if (staffPin.length < 6) {
+            const newPin = staffPin + num;
+            setStaffPin(newPin);
+            
+            // 🌟 ฟันธง: พอกรอกรหัสเข้าสู่ระบบครบ 6 หลักปุ๊บ ดีเลย์เสี้ยววิ แล้วสั่ง Submit ทันที!
+            if (newPin.length === 6) {
+               setTimeout(() => handleStaffPinSubmit(), 50);
+            }
+         }
+      }
     }
   };
 
