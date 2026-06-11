@@ -1265,7 +1265,7 @@ function UPSStatusCard() {
       <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-6 md:mb-8 border-b-2 border-cyan-500/40 pb-4 md:pb-6 relative z-10 gap-3 md:gap-0">
         <div className="flex items-center gap-3 md:gap-4">
           <h3 className="text-[18px] md:text-[26px] font-black text-cyan-300 tracking-widest flex items-center gap-2 md:gap-3 drop-shadow-[0_0_10px_rgba(34,211,238,0.8)]">
-            <Activity className="w-6 h-6 md:w-8 md:h-8 animate-pulse" /> Galaxy UPS-120kW-SAT
+            <Activity className="w-6 h-6 md:w-8 md:h-8 animate-pulse" />UPS-120kW-SAT
           </h3>
           {getStatusBadge(upsData.upsStatus)}
         </div>
@@ -1372,42 +1372,31 @@ function UPSStatusCard() {
 
 function MainApp({ onGoHome, initialRole }) {
 
-  // =========================================================================
-  // 🌟🌟 ฟันธงข้อ 3 สเต็ปที่ 1: วางสมองกลตรวจจับการเลื่อนจอตรงนี้เลยครับ! (บนสุด) 🌟🌟
-  // =========================================================================
-  const [isNavVisible, setIsNavVisible] = useState(true);
-  const lastScrollY = useRef(0);
-
-  useEffect(() => {
-    const handleScroll = () => {
-      const container = document.querySelector('.overflow-y-auto');
-      if (!container) return;
-      
-      const currentScrollY = container.scrollTop;
-      if (currentScrollY > lastScrollY.current && currentScrollY > 50) {
-        setIsNavVisible(false); // ไถลงล่าง -> ซ่อนเมนู
-      } else {
-        setIsNavVisible(true);  // ไถขึ้นบน -> โชว์เมนู
-      }
-      lastScrollY.current = currentScrollY;
-    };
-
-    const container = document.querySelector('.overflow-y-auto');
-    if (container) container.addEventListener('scroll', handleScroll);
-
-    
-    return () => container?.removeEventListener('scroll', handleScroll);
-  }, []);
-  // =========================================================================
-
-  // 🌟 ฟันธงแก้: เปลี่ยนเป็น sessionStorage (จำเฉพาะตอนเปิดแอป ปิดแอปปุ๊บลืมทันที!)
+  // 🌟 ฟันธงแก้: ย้าย activeTab มาไว้บนสุดตรงนี้ครับ!
   const [activeTab, setActiveTab] = useState(
-    initialRole !== 'reporter' ? 'dashboard' : 'report'
+    initialRole !== 'reporter' ? 'hub' : 'report'
   );
 
   useEffect(() => {
     sessionStorage.setItem('activeTab', activeTab);
   }, [activeTab]);
+
+  // =========================================================================
+  // 🌟🌟 ฟันธง: สมองกลซ่อนเมนู (แบบสายตรง เสถียร 100% ไม่กินสเปค) 🌟🌟
+  // =========================================================================
+  const [isNavVisible, setIsNavVisible] = useState(true);
+  const lastScrollY = useRef(0);
+
+  const handleMainScroll = (e) => {
+    const currentScrollY = e.target.scrollTop;
+    if (currentScrollY > lastScrollY.current && currentScrollY > 20) {
+      setIsNavVisible(false); // ไถลง -> ซ่อน
+    } else {
+      setIsNavVisible(true);  // ไถขึ้น -> โชว์
+    }
+    lastScrollY.current = currentScrollY;
+  };
+  // =========================================================================
 
 
   // 🌟🌟🌟 จุดที่ 1: เติมบรรทัดนี้ลงไป! (สำคัญมาก ถ้าไม่มีระบบจะพัง) 🌟🌟🌟
@@ -2526,6 +2515,7 @@ const executeRatingSubmit = async () => {
     } else if (dashTimeframe === 'custom_date') {
       setTrackTimeframe('custom_date');
       setTrackDate(customDate); // ระบุวัน ตรงกันอยู่แล้ว
+
     } else if (dashTimeframe === 'week') {
       setTrackTimeframe('week'); // ส่งค่าสัปดาห์นี้ไปประมวลผล
     } else {
@@ -2533,6 +2523,109 @@ const executeRatingSubmit = async () => {
     }
   };
 
+
+
+// ==========================================
+  // 🌟 ฟันธง: หน้าต่าง GSE Hub (ศูนย์รวมแอปพลิเคชัน)
+  // ==========================================
+  const renderHub = () => {
+    const apps = [
+      { id: 'dashboard', name: 'ระบบแจ้งซ่อม', desc: 'แผงควบคุมและจัดการงาน', icon: <Wrench size={32} className="drop-shadow-md" />, color: 'orange', active: true,
+        themeClasses: 'from-orange-500 to-amber-600 border-orange-500 shadow-orange-500/40 text-orange-400 hover:border-orange-400' },
+      // 🌟 เปิดใช้งานปุ่ม IoT Monitoring!
+      { id: 'monitoring', name: 'IoT Monitoring', desc: 'สถานะ UPS & เซนเซอร์', icon: <Activity size={32} className="drop-shadow-md" />, color: 'cyan', active: true,
+        themeClasses: 'from-cyan-500 to-blue-600 border-cyan-500 shadow-cyan-500/40 text-cyan-400 hover:border-cyan-400' },
+      { id: 'pm', name: 'ระบบงาน PM', desc: 'ตรวจสอบและบำรุงรักษา', icon: <CheckSquare size={32} className="drop-shadow-md" />, color: 'emerald', active: false,
+        themeClasses: 'from-emerald-500 to-teal-600 border-emerald-500 shadow-emerald-500/40 text-emerald-400 hover:border-emerald-400' },
+      { id: 'leave', name: 'ระบบวันลา', desc: 'ลาหยุด/เข้าสาย', icon: <Calendar size={32} className="drop-shadow-md" />, color: 'rose', active: false,
+        themeClasses: 'from-rose-500 to-red-600 border-rose-500 shadow-rose-500/40 text-rose-400 hover:border-rose-400' },
+      { id: 'report', name: 'Daily Report', desc: 'รายงานประจำวัน', icon: <FileText size={32} className="drop-shadow-md" />, color: 'purple', active: false,
+        themeClasses: 'from-purple-500 to-fuchsia-600 border-purple-500 shadow-purple-500/40 text-purple-400 hover:border-purple-400' },
+      { id: 'procurement', name: 'จัดซื้อจัดจ้าง', desc: 'เบิกจ่ายอะไหล่', icon: <Briefcase size={32} className="drop-shadow-md" />, color: 'blue', active: false,
+        themeClasses: 'from-blue-500 to-indigo-600 border-blue-500 shadow-blue-500/40 text-blue-400 hover:border-blue-400' },
+    ];
+
+    return (
+      <div className="p-4 md:p-8 pb-32 animate-in zoom-in-95 duration-500 w-full max-w-5xl mx-auto flex flex-col items-center justify-center min-h-[80vh] relative">
+        
+        {/* 🚪 ฟันธง: ปุ่มออกจากระบบ (Logout) จัดวางมุมขวาบนของ Hub อย่างหรูหรา */}
+        <button 
+          onClick={async () => {
+            try {
+              await signOut(auth);
+              onGoHome();
+            } catch (error) {
+              console.error("Logout Error:", error);
+            }
+          }}
+          className="absolute top-4 right-4 md:top-8 md:right-8 bg-slate-900/80 border-[2px] border-rose-500/60 text-rose-400 hover:bg-rose-600 hover:text-white hover:border-rose-400 px-4 py-2 md:px-5 md:py-2.5 rounded-xl flex items-center gap-2 font-black transition-all shadow-[0_0_15px_rgba(225,29,72,0.3)] hover:shadow-[0_0_25px_rgba(225,29,72,0.8)] active:scale-95 z-50 backdrop-blur-md"
+        >
+          <LogOut size={20} className="md:w-6 md:h-6" /> <span className="hidden md:inline tracking-widest uppercase">ออกจากระบบ</span>
+        </button>
+
+        {/* 💥 แสงเฟลอร์พื้นหลัง */}
+        <div className="absolute top-1/4 left-1/2 -translate-x-1/2 w-[300px] h-[300px] md:w-[500px] md:h-[500px] bg-cyan-500/20 blur-[100px] rounded-full pointer-events-none z-0 animate-pulse"></div>
+
+        <div className="text-center relative z-10 mb-8 md:mb-12 w-full mt-12 md:mt-0">
+          <div className="inline-block bg-slate-900/80 border-[2px] border-cyan-500/50 rounded-full px-6 py-2 mb-4 shadow-[0_0_15px_rgba(34,211,238,0.3)]">
+            <span className="text-cyan-400 font-black tracking-widest uppercase text-sm md:text-base">GSE Operations Hub</span>
+          </div>
+          <h2 className="text-3xl md:text-5xl font-black text-white drop-shadow-lg tracking-wide mb-3">
+            ศูนย์ปฏิบัติการ ฝวด.
+          </h2>
+          <p className="text-slate-400 font-bold text-sm md:text-lg">
+            กรุณาเลือกระบบที่ต้องการใช้งาน
+          </p>
+        </div>
+
+        <div className="grid grid-cols-2 md:grid-cols-3 gap-4 md:gap-6 w-full relative z-10">
+          {apps.map((app, idx) => (
+            <button
+              key={idx}
+              onClick={() => app.active ? setActiveTab(app.id) : alert('🚀 ล็อกเป้าหมายเรียบร้อย! กำลังพัฒนาระบบใน Phase ถัดไปครับ!')}
+              className={`relative p-5 md:p-8 rounded-[1.5rem] md:rounded-[2rem] border-[2px] flex flex-col items-center justify-center text-center transition-all duration-300 group overflow-hidden ${
+                app.active 
+                  ? `bg-slate-900 border-slate-700 hover:bg-slate-800 hover:scale-105 ${app.themeClasses.split(' ').find(c => c.startsWith('hover:border-'))} hover:shadow-[0_0_30px_rgba(255,255,255,0.15)] cursor-pointer` 
+                  : 'bg-slate-900/50 border-slate-700/50 grayscale opacity-60 hover:opacity-100 hover:grayscale-0 cursor-not-allowed'
+              }`}
+            >
+              <div className={`absolute inset-0 bg-gradient-to-br ${app.themeClasses.split(' ').filter(c => c.startsWith('from-') || c.startsWith('to-')).join(' ')} opacity-0 ${app.active ? 'group-hover:opacity-10' : ''} transition-opacity duration-300`}></div>
+              
+              <div className={`w-16 h-16 md:w-20 md:h-20 rounded-2xl md:rounded-3xl flex items-center justify-center mb-4 md:mb-5 transition-transform duration-500 ${app.active ? 'group-hover:scale-110 group-hover:rotate-3' : ''} ${
+                app.active ? `bg-gradient-to-br ${app.themeClasses.split(' ').filter(c => c.startsWith('from-') || c.startsWith('to-')).join(' ')} text-white shadow-lg` : 'bg-slate-800 text-slate-500 border border-slate-600'
+              }`}>
+                {app.icon}
+              </div>
+              
+              <h3 className={`text-[16px] md:text-[22px] font-black tracking-wide mb-1 md:mb-2 ${app.active ? 'text-white' : 'text-slate-400'}`}>
+                {app.name}
+              </h3>
+              <p className={`text-[12px] md:text-[14px] font-bold ${app.active ? app.themeClasses.split(' ').find(c => c.startsWith('text-')) : 'text-slate-500'}`}>
+                {app.desc}
+              </p>
+
+              {!app.active && (
+                <div className="absolute top-3 right-3 bg-slate-800 border border-slate-600 px-2 py-1 rounded-md text-[10px] md:text-[12px] font-black text-slate-400">
+                  Coming Soon
+                </div>
+              )}
+            </button>
+          ))}
+        </div>
+      </div>
+    );
+  };
+
+
+
+  // ==========================================
+  // 🌟 ฟันธง: ห้อง IoT Monitoring (แยกเป็นสัดส่วนชัดเจน)
+  // ==========================================
+  const renderMonitoring = () => (
+    <div className="p-4 md:p-8 pb-32 animate-in slide-in-from-right-4 duration-500 w-full max-w-6xl mx-auto">
+      <UPSStatusCard />
+    </div>
+  );
 
   // ==========================================
   // 🎨 Views Rendering
@@ -2695,12 +2788,6 @@ const executeRatingSubmit = async () => {
             }
             return null; // วันธรรมดา(ที่ไม่ใช่วันหยุด) ไม่ต้องโชว์
           })()}
-          {/* ========================================================= */}
-
-
-          {/* ========================================================= */}
-          {/* 🌟 ฟันธง: เสียบกล่อง UPS เข้ามาโชว์ในแผงควบคุมของช่างตรงนี้เลย! */}
-          <UPSStatusCard />
           {/* ========================================================= */}
 
 
@@ -5800,106 +5887,88 @@ const renderTracking = () => (
       )}
 
 
-      {/* 🚀 Dynamic Header (ฟันธง: รีดไขมันแนวตั้ง ปรับ md:py-4 ลดเหลือ md:py-2.5 คืนพื้นที่จอ) */}
-      <div className="bg-slate-900/50 backdrop-blur-xl pl-5 md:pl-8 pr-4 py-3 md:py-2.5 flex items-center justify-between sticky top-4 z-50 border-2 border-solid border-orange-500 rounded-2xl md:rounded-xl mt-4 md:mt-3 transition-all duration-500 shadow-[0_0_15px_rgba(249,115,22,0.5)] mx-4 md:mx-6">
-        <div className="flex items-center gap-3.5 md:gap-4 z-10">
-          
-          <div className="bg-white w-14 h-14 md:w-12 md:h-12 rounded-2xl md:rounded-xl shadow-md text-orange-500 border-2 border-solid border-orange-300 flex items-center justify-center shrink-0">
-            {activeTab === 'dashboard' ? <LayoutDashboard className="w-8 h-8 md:w-6 md:h-6" strokeWidth={2.5} /> : activeTab === 'report' ? <PlusCircle className="w-8 h-8 md:w-6 md:h-6" strokeWidth={2.5} /> : currentUserRole !== 'reporter' ? <Wrench className="w-8 h-8 md:w-6 md:h-6" strokeWidth={2.5} /> : <ClipboardCheck className="w-8 h-8 md:w-6 md:h-6" strokeWidth={2.5} />}
-          </div>
-          
-          <div>
+      {/* 🚀 Dynamic Header (ซ่อนเมื่ออยู่หน้า Hub) */}
+      {activeTab !== 'hub' && (
+        <div className="bg-slate-900/50 backdrop-blur-xl pl-5 md:pl-8 pr-4 py-3 md:py-2.5 flex items-center justify-between sticky top-4 z-50 border-2 border-solid border-orange-500 rounded-2xl md:rounded-xl mt-4 md:mt-3 transition-all duration-500 shadow-[0_0_15px_rgba(249,115,22,0.5)] mx-4 md:mx-6">
+          <div className="flex items-center gap-3.5 md:gap-4 z-10">
+            <div className={`bg-white w-14 h-14 md:w-12 md:h-12 rounded-2xl md:rounded-xl shadow-md border-2 border-solid flex items-center justify-center shrink-0 ${activeTab === 'monitoring' ? 'text-cyan-500 border-cyan-300' : 'text-orange-500 border-orange-300'}`}>
+              {activeTab === 'dashboard' ? <LayoutDashboard className="w-8 h-8 md:w-6 md:h-6" strokeWidth={2.5} /> : activeTab === 'report' ? <PlusCircle className="w-8 h-8 md:w-6 md:h-6" strokeWidth={2.5} /> : activeTab === 'monitoring' ? <Activity className="w-8 h-8 md:w-6 md:h-6" strokeWidth={2.5} /> : currentUserRole !== 'reporter' ? <Wrench className="w-8 h-8 md:w-6 md:h-6" strokeWidth={2.5} /> : <ClipboardCheck className="w-8 h-8 md:w-6 md:h-6" strokeWidth={2.5} />}
+            </div>
+            <div>
+              {/* ========================================================= */}
+              {/* 🌟 สมองกลคำทักทายอัจฉริยะฉบับไซไฟอวกาศ */}
+              {(() => {
+                const hour = sysTime.getHours();
+                let rawName = String(currentUserName || localStorage.getItem('gse_remembered_name') || '').trim();
+                let shortName = rawName.split(' ')[0].replace(/^(นาย|นางสาว|น\.ส\.|นาง|ว่าที่ ร\.ต\.)/g, '').trim();
+                const displayName = shortName ? `คุณ${shortName}` : '';
+                
+                const myRawPhone = String(sessionStorage.getItem('userPhone') || localStorage.getItem('gse_remembered_phone') || '').trim().replace(/\D/g, '');
+                const hasActiveTicket = tickets.some(t => {
+                  const tPhone = String(t.reporterContact || t.contact || '').trim().replace(/\D/g, '');
+                  return tPhone === myRawPhone && ['pending', 'acknowledged', 'in_progress', 'on_hold'].includes(t.status);
+                });
 
-          {/* ========================================================= */}
-            {/* 🌟 ฟันธง: สมองกลคำทักทายอัจฉริยะฉบับไซไฟอวกาศ (รู้ใจ แยกบริบทตามหน้าจอ 100%) */}
-            {(() => {
-              const hour = sysTime.getHours();
-              let rawName = String(currentUserName || localStorage.getItem('gse_remembered_name') || '').trim();
-              let shortName = rawName.split(' ')[0].replace(/^(นาย|นางสาว|น\.ส\.|นาง|ว่าที่ ร\.ต\.)/g, '').trim();
-              const displayName = shortName ? `คุณ${shortName}` : '';
-              
-              const myRawPhone = String(sessionStorage.getItem('userPhone') || localStorage.getItem('gse_remembered_phone') || '').trim().replace(/\D/g, '');
-              const hasActiveTicket = tickets.some(t => {
-                const tPhone = String(t.reporterContact || t.contact || '').trim().replace(/\D/g, '');
-                return tPhone === myRawPhone && ['pending', 'acknowledged', 'in_progress', 'on_hold'].includes(t.status);
-              });
-
-              let greeting = null;
-              
-              // 🌟 1. สำหรับ หน.ฝวด. (Commander)
-              if (currentUserRole === 'Commander') {
-                if (hour >= 5 && hour < 12) greeting = <span>☀️ อรุณสวัสดิ์ครับท่านหัวหน้า</span>;
-                else if (hour >= 12 && hour < 17) greeting = <span>🌤️ สวัสดีตอนบ่ายครับท่านหัวหน้า</span>;
-                else if (hour >= 17 && hour < 21) greeting = <span>🌇 สวัสดีตอนเย็นครับท่านหัวหน้า</span>;
-                else {
-                  greeting = <span>🌙ตอนนี้นอกเวลาทำการครับท่านหัวหน้า</span>;
-                }
-              } 
-              // 🌟 2. สำหรับวิศวกร ฝวด. และ ผู้ใช้งานทั่วไป (Technician & Reporter)
-              else {
-                // 🔧 กรณีมีงานค้าง (แสดงเฉพาะก่อน 3 ทุ่ม เพื่อไม่ไปทับข้อความแจ้งนอกเวลา)
-                if (hasActiveTicket && hour >= 5 && hour < 21) greeting = <><span>🔧 สวัสดีครับ {displayName}</span><span className="text-[12px] md:text-[14px] text-orange-200 mt-0.5">👋 ตรวจสอบสถานะงานซ่อมได้เลยครับ</span></>;
-                else if (hour >= 5 && hour < 12) greeting = <><span>☀️ สวัสดีตอนเช้าครับ {displayName}</span><span className="text-[12px] md:text-[14px] text-orange-200 mt-0.5">ตรวจสอบงานค้างและรีบจัดการงานนะครับ</span></>;
-                else if (hour >= 12 && hour < 17) greeting = <><span>🌤️ สวัสดีตอนบ่ายครับ {displayName}</span><span className="text-[12px] md:text-[14px] text-orange-200 mt-0.5">เข้าไปตรวจสอบงานซ่อมได้เลยครับ</span></>;
-                else if (hour >= 17 && hour < 21) greeting = <><span>🌇 สวัสดีตอนเย็นครับ {displayName}</span><span className="text-[12px] md:text-[14px] text-orange-200 mt-0.5">นอกเวลาทำการ พรุ่งนี้ดำเนินการต่อนะครับ</span></>;
-                else {
-
-                  // 🌙 นอกเวลาทำการ (หลัง 21:00 น.) แยกตามหน้าต่างที่เปิด
-                  if (activeTab === 'report') {
-                    // 🌟 ฟันธง: เติมชื่อ {displayName} แทรกเข้าไปในคำทักทายหลัง 3 ทุ่ม
-                    greeting = <><span>🌙 นอกเวลาทำการครับ {displayName}</span><span className="text-[12px] md:text-[14px] text-orange-200 mt-0.5">ฝากเรื่องแจ้งซ่อมไว้ในระบบได้เลยครับ</span></>;
-                  } else if (activeTab === 'tracking') {
-                    greeting = <><span>🌙 นอกเวลาทำการครับ {displayName}</span><span className="text-[12px] md:text-[14px] text-orange-200 mt-0.5"></span></>;
-                  } else {
-                    greeting = <><span>🌙 นอกเวลาทำการครับ {displayName}</span><span className="text-[12px] md:text-[14px] text-orange-200 mt-0.5"></span></>;
+                let greeting = null;
+                if (currentUserRole === 'Commander') {
+                  if (hour >= 5 && hour < 12) greeting = <span>☀️ อรุณสวัสดิ์ครับท่านหัวหน้า</span>;
+                  else if (hour >= 12 && hour < 17) greeting = <span>🌤️ สวัสดีตอนบ่ายครับท่านหัวหน้า</span>;
+                  else if (hour >= 17 && hour < 21) greeting = <span>🌇 สวัสดีตอนเย็นครับท่านหัวหน้า</span>;
+                  else greeting = <span>🌙 ตอนนี้นอกเวลาทำการครับท่านหัวหน้า</span>;
+                } else {
+                  if (hasActiveTicket && hour >= 5 && hour < 21) greeting = <><span>🔧 สวัสดีครับ {displayName}</span><span className="text-[12px] md:text-[14px] text-orange-200 mt-0.5">👋 ตรวจสอบสถานะงานซ่อมได้เลยครับ</span></>;
+                  else if (hour >= 5 && hour < 12) greeting = <><span>☀️ สวัสดีตอนเช้าครับ {displayName}</span><span className="text-[12px] md:text-[14px] text-orange-200 mt-0.5">ทีม ฝวด. พร้อมให้บริการครับ</span></>;
+                  else if (hour >= 12 && hour < 17) greeting = <><span>🌤️ สวัสดีตอนบ่ายครับ {displayName}</span><span className="text-[12px] md:text-[14px] text-orange-200 mt-0.5">ระบบมีปัญหาแจ้งได้เลยครับ</span></>;
+                  else if (hour >= 17 && hour < 21) greeting = <><span>🌇 สวัสดีตอนเย็นครับ {displayName}</span><span className="text-[12px] md:text-[14px] text-orange-200 mt-0.5">ตอนนี้นอกเวลาทำการ ฝากเรื่องไว้นะครับ</span></>;
+                  else {
+                    if (activeTab === 'report') {
+                      greeting = <><span>🌙 นอกเวลาทำการครับ {displayName}</span><span className="text-[12px] md:text-[14px] text-orange-200 mt-0.5">ฝากเรื่องแจ้งซ่อมไว้ในระบบได้เลยครับ</span></>;
+                    } else {
+                      greeting = <><span>🌙 นอกเวลาทำการครับ {displayName}</span><span className="text-[12px] md:text-[14px] text-orange-200 mt-0.5"></span></>;
+                    }
                   }
                 }
-              }
+                return (
+                  <div className={`font-bold text-[14px] sm:text-[15px] md:text-[18px] tracking-widest mb-1 md:mb-2 animate-in slide-in-from-top-2 flex flex-col items-start justify-center opacity-90 drop-shadow-sm leading-tight ${activeTab === 'monitoring' ? 'text-cyan-300' : 'text-orange-300'}`}>
+                     {greeting}
+                  </div>
+                );
+              })()}
+              {/* ========================================================= */}
+              <h1 className="font-black text-white text-2xl sm:text-3xl md:text-4xl tracking-widest leading-tight drop-shadow-[0_4px_4px_rgba(0,0,0,0.5)] md:py-1">
+                {activeTab === 'dashboard' ? 'แผงควบคุม' : activeTab === 'report' ? 'แจ้งซ่อม' : activeTab === 'monitoring' ? 'IoT Monitoring' : currentUserRole !== 'reporter' ? 'จัดการงานซ่อม' : 'ติดตามสถานะ'}
+              </h1>
+            </div>
+          </div>
 
-              return (
-                // 🌟 แก้จุดที่ 1 (คำทักทาย): จัด Layout เป็น flex-col เพื่อแยก 2 บรรทัดชัดเจน
-                <div className="text-orange-300 font-bold text-[14px] sm:text-[15px] md:text-[18px] tracking-widest mb-1 md:mb-2 animate-in slide-in-from-top-2 flex flex-col items-start justify-center opacity-90 drop-shadow-sm leading-tight">
-                   {greeting}
-                </div>
-              );
-            })()}
-            {/* ========================================================= */}
-         
-            {/* 🌟 แก้จุดที่ 2 (หัวข้อใหญ่): ลบคำว่า whitespace-nowrap ทิ้ง! และลดขนาด md:text-5xl ลงเหลือแค่ 4xl เพื่อความสบายตาใน PC */}
-            <h1 className="font-black text-white text-2xl sm:text-3xl md:text-4xl tracking-widest leading-tight drop-shadow-[0_4px_4px_rgba(0,0,0,0.5)] md:py-1">
-              {activeTab === 'dashboard' ? 'แผงควบคุม' : activeTab === 'report' ? 'แจ้งซ่อม' : currentUserRole !== 'reporter' ? 'จัดการงานซ่อม' : 'ติดตามสถานะ'}
-            </h1>
+          <div className="flex items-center gap-4 z-50">
+            <div className="relative w-12 md:w-28 h-14 md:h-16 shrink-0 pointer-events-none overflow-visible">
+              <img 
+                src={activeTab === 'dashboard' ? "/mascot-dashboard.webp" : activeTab === 'report' ? "/mascot-report.webp" : (activeTab === 'tracking' && currentUserRole !== 'reporter') ? "/mascot-tech.webp" : activeTab === 'monitoring' ? "/mascot-dashboard.webp" : "/mascot-track.webp"}
+                key={activeTab + currentUserRole}
+                alt="GSE Mascot" 
+                className="absolute bottom-[-10px] right-[-10px] md:bottom-[-35px] md:right-[-5px] w-[65px] md:w-[85px] max-w-none h-auto object-contain drop-shadow-[0_5px_5px_rgba(0,0,0,0.4)] animate-in slide-in-from-right-4 fade-in duration-500 overflow-visible"
+              />
+            </div>
           </div>
         </div>
+      )}
 
 
 
-       {/* 🌟 ฟันธง: โซนขวามือ (ลบปุ่ม Logout ทิ้ง เหลือแค่น้องมาสคอตน่ารักๆ คลีนๆ) */}
-       <div className="flex items-center gap-4 z-50">
-          <div className="relative w-12 md:w-28 h-14 md:h-16 shrink-0 pointer-events-none overflow-visible">
-            <img 
-              src={activeTab === 'dashboard' ? "/mascot-dashboard.webp" : activeTab === 'report' ? "/mascot-report.webp" : (activeTab === 'tracking' && currentUserRole !== 'reporter') ? "/mascot-tech.webp" : "/mascot-track.webp"}
-              key={activeTab + currentUserRole}
-              alt="GSE Mascot" 
-              className="absolute bottom-[-10px] right-[-10px] md:bottom-[-35px] md:right-[-5px] w-[65px] md:w-[85px] max-w-none h-auto object-contain drop-shadow-[0_5px_5px_rgba(0,0,0,0.4)] animate-in slide-in-from-right-4 fade-in duration-500 overflow-visible"
-            />
-          </div>
-        </div>
-      </div>
-
-
-
-      {/* 🎯 พื้นที่แสดงผลเนื้อหาภายในแอป */}
-      <div 
-        className="relative z-10 flex-1 overflow-y-auto overflow-x-hidden w-full [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none] pb-28 md:px-6"
-        style={{ overscrollBehavior: 'none', touchAction: 'pan-y' }}
+    {/* 🎯 พื้นที่แสดงผลเนื้อหาภายในแอป */}
+    <div 
+        id="gse-main-scroll"
+        onScroll={handleMainScroll}
+        className="relative z-10 flex-1 overflow-y-auto overflow-x-hidden w-full [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none] pb-32 md:pb-40 px-0 md:px-6"
       >
-       {activeTab === 'dashboard' && (currentUserRole !== 'reporter') && renderDashboard()}
+        {activeTab === 'hub' && (currentUserRole !== 'reporter') && renderHub()}
+        {activeTab === 'monitoring' && (currentUserRole !== 'reporter') && renderMonitoring()}
+        {activeTab === 'dashboard' && (currentUserRole !== 'reporter') && renderDashboard()}
         {activeTab === 'report' && renderReport()}
         {activeTab === 'tracking' && renderTracking()}
       </div>
-
-      </div>
+    </div> {/* 🌟 ฟันธง: กู้คืนวงเล็บปิดกล่องแม่ที่หายไป 1 ตัวตรงนี้ครับ! หัวใจสำคัญเลย! */}
 
 
 {/* ======================================================================= */}
@@ -6210,76 +6279,88 @@ const renderTracking = () => (
    {/* 🌟 ฟันธง: เรียกใช้ฟอนต์ Sarabun เรียบร้อย สะอาดตา */}
    <SarabunFontEmbed />
 
-{/* 🧭 Navigation Bar (ฟันธง: คืนค่าความกว้างเดิมให้ขนานกับกรอบบนสุด 100%) */}
-<div className={`fixed left-1/2 -translate-x-1/2 w-[calc(100%-2rem)] md:w-[calc(100%-3rem)] max-w-md md:max-w-[calc(72rem-3rem)] py-2 md:py-4 bg-slate-900/95 backdrop-blur-xl border-2 md:border-[3px] border-solid border-orange-500 rounded-2xl md:rounded-[2rem] z-[9999] shadow-[0_10px_30px_rgba(249,115,22,0.4)] md:shadow-[0_15px_40px_rgba(249,115,22,0.6)] transform-gpu transition-all duration-500 ease-in-out ${
-  isNavVisible ? 'bottom-4 md:bottom-8 opacity-100 translate-y-0' : '-bottom-32 opacity-0 translate-y-full pointer-events-none'
-}`}>
-  
-  <div className="w-full flex justify-evenly items-center px-1 md:px-8">
+   
+
+{/* 🧭 Navigation Bar (ซ่อนเมื่ออยู่หน้า Hub) */}
+{activeTab !== 'hub' && (
+        <div className={`fixed left-1/2 -translate-x-1/2 w-[calc(100%-2rem)] md:w-[calc(100%-3rem)] max-w-md md:max-w-[calc(72rem-3rem)] py-2 md:py-4 bg-slate-900/95 backdrop-blur-xl border-2 md:border-[3px] border-solid ${activeTab === 'monitoring' ? 'border-cyan-500 shadow-[0_10px_30px_rgba(6,182,212,0.4)] md:shadow-[0_15px_40px_rgba(6,182,212,0.6)]' : 'border-orange-500 shadow-[0_10px_30px_rgba(249,115,22,0.4)] md:shadow-[0_15px_40px_rgba(249,115,22,0.6)]'} rounded-2xl md:rounded-[2rem] z-[9999] transform-gpu transition-all duration-500 ease-in-out ${
+          isNavVisible ? 'bottom-4 md:bottom-8 opacity-100 translate-y-0' : '-bottom-32 opacity-0 translate-y-full pointer-events-none'
+        }`}>
           
-      {/* 🚪 ปุ่มออกจากระบบ (แทนปุ่มหน้าแรก) */}
-      <button 
-            onClick={async () => {
-              try {
-                await signOut(auth); // สั่งเตะบัญชีออกจาก Firebase
-                onGoHome(); // วาร์ปกลับหน้า Landing Page
-              } catch (error) {
-                console.error("Logout Error:", error);
-              }
-            }} 
-            className="flex flex-col items-center justify-center gap-1.5 md:gap-3 active:scale-95 transition-all shrink-0 group"
-          >
-            <div className="p-2.5 md:p-4 rounded-full bg-transparent text-slate-400 group-hover:text-rose-400 transition-colors">
-              <LogOut className="w-6 h-6 md:w-12 md:h-12" />
-            </div>
-            <span className="block text-[14px] md:text-[22px] font-black text-slate-400 group-hover:text-rose-400 tracking-widest whitespace-nowrap shrink-0 transition-colors">ออกจากระบบ</span>
-          </button>
+          <div className="w-full flex justify-evenly items-center px-1 md:px-8">
+                  
+              {/* 🚪 ปุ่มออกจากระบบ สำหรับฝั่ง User แจ้งซ่อมเท่านั้น (ฝั่งช่างย้ายไปหน้า Hub แล้ว) */}
+              <button 
+                    onClick={async () => {
+                      try {
+                        await signOut(auth);
+                        onGoHome();
+                      } catch (error) {
+                        console.error("Logout Error:", error);
+                      }
+                    }} 
+                    className="flex flex-col items-center justify-center gap-1.5 md:gap-3 active:scale-95 transition-all shrink-0 group"
+                  >
+                    <div className="p-2.5 md:p-4 rounded-full bg-transparent text-slate-400 group-hover:text-rose-400 transition-colors">
+                      <LogOut className="w-6 h-6 md:w-12 md:h-12" />
+                    </div>
+                    <span className="block text-[14px] md:text-[22px] font-black text-slate-400 group-hover:text-rose-400 tracking-widest whitespace-nowrap shrink-0 transition-colors">ออกจากระบบ</span>
+                  </button>
 
-      {/* ================= โหมดแผงแจ้งซ่อม ติดตามสถานะ หน้าผู้แจ้ง (Reporter) ================= */}
-      {currentUserRole === 'reporter' && (
-        <>
-          {/* 🟠 ปุ่มแจ้งซ่อม */}
-          <button onClick={() => setActiveTab('report')} className="flex flex-col items-center justify-center gap-1.5 md:gap-3 transition-all shrink-0 active:scale-95 group">
-            <div className={`p-2.5 md:p-4 rounded-full transition-all ${activeTab === 'report' ? 'bg-gradient-to-b from-orange-400 to-orange-600 text-white shadow-[0_0_15px_rgba(249,115,22,0.8)] border-[2px] border-white scale-110' : 'bg-transparent text-slate-400 group-hover:text-orange-300'}`}>
-              <PlusCircle className={`w-6 h-6 md:w-12 md:h-12 ${activeTab === 'report' ? 'stroke-[3px]' : ''}`} />
-            </div>
-            <span className={`block text-[14px] md:text-[22px] font-black tracking-widest whitespace-nowrap shrink-0 transition-all ${activeTab === 'report' ? 'text-orange-400 drop-shadow-md md:mt-1' : 'text-slate-400 group-hover:text-orange-300'}`}>แจ้งซ่อม</span>
-          </button>
+              {/* ================= โหมดแผงแจ้งซ่อม ติดตามสถานะ หน้าผู้แจ้ง (Reporter) ================= */}
+              {currentUserRole === 'reporter' && (
+                <>
+                  <button onClick={() => setActiveTab('report')} className="flex flex-col items-center justify-center gap-1.5 md:gap-3 transition-all shrink-0 active:scale-95 group">
+                    <div className={`p-2.5 md:p-4 rounded-full transition-all ${activeTab === 'report' ? 'bg-gradient-to-b from-orange-400 to-orange-600 text-white shadow-[0_0_15px_rgba(249,115,22,0.8)] border-[2px] border-white scale-110' : 'bg-transparent text-slate-400 group-hover:text-orange-300'}`}>
+                      <PlusCircle className={`w-6 h-6 md:w-12 md:h-12 ${activeTab === 'report' ? 'stroke-[3px]' : ''}`} />
+                    </div>
+                    <span className={`block text-[14px] md:text-[22px] font-black tracking-widest whitespace-nowrap shrink-0 transition-all ${activeTab === 'report' ? 'text-orange-400 drop-shadow-md md:mt-1' : 'text-slate-400 group-hover:text-orange-300'}`}>แจ้งซ่อม</span>
+                  </button>
 
-          {/* 🟠 ปุ่มติดตามสถานะ */}
-          <button onClick={() => { setActiveTab('tracking'); setSearchTerm(''); }} className="flex flex-col items-center justify-center gap-1.5 md:gap-3 transition-all shrink-0 active:scale-95 group">
-            <div className={`p-2.5 md:p-4 rounded-full transition-all ${activeTab === 'tracking' ? 'bg-gradient-to-b from-orange-400 to-orange-600 text-white shadow-[0_0_15px_rgba(249,115,22,0.8)] border-[2px] border-white scale-110' : 'bg-transparent text-slate-400 group-hover:text-orange-300'}`}>
-              <ClipboardCheck className={`w-6 h-6 md:w-12 md:h-12 ${activeTab === 'tracking' ? 'stroke-[3px]' : ''}`} />
-            </div>
-            <span className={`block text-[14px] md:text-[22px] font-black tracking-widest whitespace-nowrap shrink-0 transition-all ${activeTab === 'tracking' ? 'text-orange-400 drop-shadow-md md:mt-1' : 'text-slate-400 group-hover:text-orange-300'}`}>ติดตามสถานะ</span>
-          </button>
-        </>
-      )}
+                  <button onClick={() => { setActiveTab('tracking'); setSearchTerm(''); }} className="flex flex-col items-center justify-center gap-1.5 md:gap-3 transition-all shrink-0 active:scale-95 group">
+                    <div className={`p-2.5 md:p-4 rounded-full transition-all ${activeTab === 'tracking' ? 'bg-gradient-to-b from-orange-400 to-orange-600 text-white shadow-[0_0_15px_rgba(249,115,22,0.8)] border-[2px] border-white scale-110' : 'bg-transparent text-slate-400 group-hover:text-orange-300'}`}>
+                      <ClipboardCheck className={`w-6 h-6 md:w-12 md:h-12 ${activeTab === 'tracking' ? 'stroke-[3px]' : ''}`} />
+                    </div>
+                    <span className={`block text-[14px] md:text-[22px] font-black tracking-widest whitespace-nowrap shrink-0 transition-all ${activeTab === 'tracking' ? 'text-orange-400 drop-shadow-md md:mt-1' : 'text-slate-400 group-hover:text-orange-300'}`}>ติดตามสถานะ</span>
+                  </button>
+                </>
+              )}
 
+              {/* ======= โหมดแผงควบคุมด้านล่างช่าง (Technician) ======*/}
+              {currentUserRole !== 'reporter' && (
+                <>
+                  {/* 🌟 ปุ่มหน้าหลัก (GSE Hub) - มีเสมอเพื่อให้กดกลับบ้านได้ */}
+                  <button onClick={() => setActiveTab('hub')} className="flex flex-col items-center justify-center gap-1.5 md:gap-3 transition-all shrink-0 active:scale-95 group">
+                    <div className="p-2.5 md:p-4 rounded-full transition-all bg-transparent text-slate-400 group-hover:text-cyan-300">
+                      <Home className="w-6 h-6 md:w-12 md:h-12" />
+                    </div>
+                    <span className="block text-[14px] md:text-[22px] font-black tracking-widest whitespace-nowrap shrink-0 transition-all text-slate-400 group-hover:text-cyan-300">เมนูหลัก</span>
+                  </button>
 
-      {/* ======= โหมดแผงควบคุมด้านล่างช่าง (Technician) ======*/}
-      {currentUserRole !== 'reporter' && (
-        <>
-          {/* 🟠 ปุ่มแผงควบคุม */}
-          <button onClick={() => setActiveTab('dashboard')} className="flex flex-col items-center justify-center gap-1.5 md:gap-3 transition-all shrink-0 active:scale-95 group">
-            <div className={`p-2.5 md:p-4 rounded-full transition-all ${activeTab === 'dashboard' ? 'bg-gradient-to-b from-orange-400 to-orange-600 text-white shadow-[0_0_15px_rgba(249,115,22,0.8)] border-[2px] border-white scale-110' : 'bg-transparent text-slate-400 group-hover:text-orange-300'}`}>
-              <LayoutDashboard className={`w-6 h-6 md:w-12 md:h-12 ${activeTab === 'dashboard' ? 'stroke-[3px]' : ''}`} />
-            </div>
-            <span className={`block text-[14px] md:text-[22px] font-black tracking-widest whitespace-nowrap shrink-0 transition-all ${activeTab === 'dashboard' ? 'text-orange-400 drop-shadow-md md:mt-1' : 'text-slate-400 group-hover:text-orange-300'}`}>แผงควบคุม</span>
-          </button>
+                  {/* 🌟 🟠 แสดงปุ่มแจ้งซ่อมเฉพาะตอนอยู่ในหมวดแจ้งซ่อม */}
+                  {(activeTab === 'dashboard' || activeTab === 'tracking') && (
+                    <>
+                      <button onClick={() => setActiveTab('dashboard')} className="flex flex-col items-center justify-center gap-1.5 md:gap-3 transition-all shrink-0 active:scale-95 group">
+                        <div className={`p-2.5 md:p-4 rounded-full transition-all ${activeTab === 'dashboard' ? 'bg-gradient-to-b from-orange-400 to-orange-600 text-white shadow-[0_0_15px_rgba(249,115,22,0.8)] border-[2px] border-white scale-110' : 'bg-transparent text-slate-400 group-hover:text-orange-300'}`}>
+                          <LayoutDashboard className={`w-6 h-6 md:w-12 md:h-12 ${activeTab === 'dashboard' ? 'stroke-[3px]' : ''}`} />
+                        </div>
+                        <span className={`block text-[14px] md:text-[22px] font-black tracking-widest whitespace-nowrap shrink-0 transition-all ${activeTab === 'dashboard' ? 'text-orange-400 drop-shadow-md md:mt-1' : 'text-slate-400 group-hover:text-orange-300'}`}>แผงควบคุม</span>
+                      </button>
 
-           {/* 🟠 ปุ่มจัดการงานซ่อม */}
-          <button onClick={() => setActiveTab('tracking')} className="flex flex-col items-center justify-center gap-1.5 md:gap-3 transition-all shrink-0 active:scale-95 group">
-            <div className={`p-2.5 md:p-4 rounded-full transition-all ${activeTab === 'tracking' ? 'bg-gradient-to-b from-orange-400 to-orange-600 text-white shadow-[0_0_15px_rgba(249,115,22,0.8)] border-[2px] border-white scale-110' : 'bg-transparent text-slate-400 group-hover:text-orange-300'}`}>
-              <Wrench className={`w-6 h-6 md:w-12 md:h-12 ${activeTab === 'tracking' ? 'stroke-[3px]' : ''}`} />
-            </div>
-            <span className={`block text-[14px] md:text-[22px] font-black tracking-widest whitespace-nowrap shrink-0 transition-all ${activeTab === 'tracking' ? 'text-orange-400 drop-shadow-md md:mt-1' : 'text-slate-400 group-hover:text-orange-300'}`}>จัดการงาน</span>
-          </button>
-        </>
+                      <button onClick={() => setActiveTab('tracking')} className="flex flex-col items-center justify-center gap-1.5 md:gap-3 transition-all shrink-0 active:scale-95 group">
+                        <div className={`p-2.5 md:p-4 rounded-full transition-all ${activeTab === 'tracking' ? 'bg-gradient-to-b from-orange-400 to-orange-600 text-white shadow-[0_0_15px_rgba(249,115,22,0.8)] border-[2px] border-white scale-110' : 'bg-transparent text-slate-400 group-hover:text-orange-300'}`}>
+                          <Wrench className={`w-6 h-6 md:w-12 md:h-12 ${activeTab === 'tracking' ? 'stroke-[3px]' : ''}`} />
+                        </div>
+                        <span className={`block text-[14px] md:text-[22px] font-black tracking-widest whitespace-nowrap shrink-0 transition-all ${activeTab === 'tracking' ? 'text-orange-400 drop-shadow-md md:mt-1' : 'text-slate-400 group-hover:text-orange-300'}`}>จัดการงาน</span>
+                      </button>
+                    </>
+                  )}
+                </>
+              )}
+          </div>
+        </div>
       )}
     </div>
-  </div>
-</div>
   );
 }
 
