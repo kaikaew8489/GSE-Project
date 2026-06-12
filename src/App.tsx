@@ -59,6 +59,9 @@ import {
   ArrowRightLeft,   // 👈 เติมตรงนี้
   Thermometer,      // 👈 เติมตรงนี้
   Zap,
+  Package,
+  Globe,
+  ArrowUpRight,
 } from 'lucide-react';
 
 
@@ -1214,49 +1217,29 @@ function EvidenceUploader({ attachments, setAttachments, label = "แนบห�
 }
 
 // ==========================================
-// 🌟 ฟันธง: วิดเจ็ตมอนิเตอร์สถานะ UPS (อัปเกรด วันที่+สีตามวัน)
+// 🌟 ฟันธง: วิดเจ็ตมอนิเตอร์สถานะ UPS (เลย์เอาท์ใหม่ อัดแน่นทุกค่าสำคัญจากหน้าจอจริง!)
 // ==========================================
 function UPSStatusCard() {
   const [upsData, setUpsData] = useState({
-    batteryCapacity: 0, runtimeRemaining: 0, upsLoad: 0, batteryTemp: 0, upsStatus: 2, inputFreq: 0, inputVolL1: 0, inputVolL2: 0, inputVolL3: 0, lastUpdated: ""
+    // ข้อมูลเดิม
+    batteryCapacity: 0, runtimeRemaining: 0, upsLoad: 0, batteryTemp: 0, upsStatus: 2, lastUpdated: "",
+    // 🌟 ข้อมูลใหม่ที่เพิ่มตามหน้าจอจริง
+    upsMode: "Normal operation", systemMode: "Inverter",
+    outVolL1L2: 0, outVolL2L3: 0, outVolL3L1: 0,
+    outCurL1: 0, outCurL2: 0, outCurL3: 0,
+    outFreq: 0,
+    totalPowerKW: 0, totalPowerKVA: 0,
+    outPowerL1_KW: 0, outPowerL1_KVA: 0,
+    outPowerL2_KW: 0, outPowerL2_KVA: 0,
+    outPowerL3_KW: 0, outPowerL3_KVA: 0
   });
 
   useEffect(() => {
     const unsub = onSnapshot(doc(db, "ups_monitoring", "station_1"), (docSnap) => {
-      if (docSnap.exists()) setUpsData(docSnap.data());
+      if (docSnap.exists()) setUpsData(prev => ({ ...prev, ...docSnap.data() }));
     });
     return () => unsub();
   }, []);
-
-  const getTempColor = (temp) => temp > 30 ? 'text-rose-300 drop-shadow-[0_0_10px_rgba(225,29,72,0.9)]' : 'text-emerald-300 drop-shadow-[0_0_10px_rgba(16,185,129,0.9)]';
-  const getLoadColor = (load) => load > 80 ? 'text-rose-300 drop-shadow-[0_0_10px_rgba(225,29,72,0.9)]' : 'text-amber-300 drop-shadow-[0_0_10px_rgba(251,191,36,0.9)]';
-
-  const getStatusBadge = (statusCode) => {
-    switch (statusCode) {
-      case 2: return <span className="bg-emerald-500/20 text-emerald-400 border-[2px] border-emerald-500/80 px-3 py-1 md:py-1.5 rounded-lg text-[12px] md:text-[16px] font-black tracking-widest [box-shadow:0_0_20px_rgba(16,185,129,0.8)]">🟢 ONLINE</span>;
-      case 3: return <span className="bg-rose-500/20 text-rose-400 border-[2px] border-rose-500/80 px-3 py-1 md:py-1.5 rounded-lg text-[12px] md:text-[16px] font-black tracking-widest animate-pulse [box-shadow:0_0_30px_rgba(225,29,72,1)]">🔴 ON BATTERY (ไฟดับ!)</span>;
-      case 4: return <span className="bg-yellow-500/20 text-yellow-400 border-[2px] border-yellow-500/80 px-3 py-1 md:py-1.5 rounded-lg text-[12px] md:text-[16px] font-black tracking-widest [box-shadow:0_0_20px_rgba(234,179,8,0.8)]">🟡 SMART BOOST</span>;
-      case 9:
-      case 10: return <span className="bg-purple-500/20 text-purple-400 border-[2px] border-purple-500/80 px-3 py-1 md:py-1.5 rounded-lg text-[12px] md:text-[16px] font-black tracking-widest [box-shadow:0_0_20px_rgba(168,85,247,0.8)]">🟠 BYPASS MODE</span>;
-      default: return <span className="bg-slate-500/20 text-slate-400 border-[2px] border-slate-500/80 px-3 py-1 rounded-lg text-[12px] md:text-[14px] font-black tracking-widest">UNKNOWN</span>;
-    }
-  };
-
-  // 🌟 ฟันธง: สมองกลคำนวณสีประจำวัน
-  const getDayColorClass = (dateString) => {
-    if (!dateString) return 'text-cyan-100';
-    const day = new Date(dateString).getDay();
-    const colors = [
-      'text-red-500 drop-shadow-[0_0_8px_rgba(239,68,68,0.8)]',    // อาทิตย์ (แดง)
-      'text-yellow-400 drop-shadow-[0_0_8px_rgba(250,204,21,0.8)]', // จันทร์ (เหลือง)
-      'text-pink-400 drop-shadow-[0_0_8px_rgba(244,114,182,0.8)]',  // อังคาร (ชมพู)
-      'text-green-500 drop-shadow-[0_0_8px_rgba(34,197,94,0.8)]',   // พุธ (เขียว)
-      'text-orange-500 drop-shadow-[0_0_8px_rgba(249,115,22,0.8)]', // พฤหัส (ส้ม)
-      'text-sky-400 drop-shadow-[0_0_8px_rgba(56,189,248,0.8)]',    // ศุกร์ (ฟ้า)
-      'text-purple-400 drop-shadow-[0_0_8px_rgba(192,132,252,0.8)]' // เสาร์ (ม่วง)
-    ];
-    return colors[day];
-  };
 
   const formatThaiDate = (dateString) => {
     if (!dateString) return '';
@@ -1266,83 +1249,147 @@ function UPSStatusCard() {
     return `วัน${days[d.getDay()]}ที่ ${d.getDate()} ${months[d.getMonth()]} ${d.getFullYear() + 543}`;
   };
 
-  return (
-    <div className="w-full bg-slate-900/80 backdrop-blur-3xl border-[2px] md:border-[3px] border-solid border-cyan-400/80 rounded-[1.5rem] md:rounded-[2rem] p-5 md:p-8 [box-shadow:0_0_40px_rgba(34,211,238,0.5),inset_0_0_20px_rgba(34,211,238,0.2)] mt-6 overflow-hidden relative group transition-all duration-500 hover:[box-shadow:0_0_60px_rgba(34,211,238,0.7)]">
-      <div className="absolute -top-20 -right-20 w-[250px] md:w-[350px] h-[250px] md:h-[350px] bg-cyan-500/40 blur-[100px] rounded-full pointer-events-none z-0"></div>
-      <div className="absolute -bottom-20 -left-20 w-[200px] md:w-[300px] h-[200px] md:h-[300px] bg-cyan-600/30 blur-[80px] rounded-full pointer-events-none z-0"></div>
+  const getDayColorClass = (dateString) => {
+    if (!dateString) return 'text-cyan-100';
+    const day = new Date(dateString).getDay();
+    const colors = ['text-red-500', 'text-yellow-400', 'text-pink-400', 'text-green-500', 'text-orange-500', 'text-sky-400', 'text-purple-400'];
+    return colors[day] + " drop-shadow-[0_0_8px_rgba(255,255,255,0.3)]";
+  };
 
-      <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-6 md:mb-8 border-b-2 border-cyan-500/40 pb-4 md:pb-6 relative z-10 gap-3 md:gap-0">
-        <div className="flex items-center gap-3 md:gap-4">
-          <h3 className="text-[18px] md:text-[26px] font-black text-cyan-300 tracking-widest flex items-center gap-2 md:gap-3 drop-shadow-[0_0_10px_rgba(34,211,238,0.8)]">
-            <Activity className="w-6 h-6 md:w-8 md:h-8 animate-pulse" />UPS-120kW-SAT
+  return (
+    <div className="w-full bg-slate-950/40 backdrop-blur-3xl border-[2px] border-cyan-500/50 rounded-[2.5rem] p-4 md:p-8 shadow-[0_0_50px_rgba(6,182,212,0.2)] mt-4 relative overflow-hidden animate-in fade-in duration-700">
+      
+      {/* Header & Real-time Clock */}
+      <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-8 pb-6 border-b border-cyan-500/30 gap-4">
+        <div>
+          <h3 className="text-xl md:text-3xl font-black text-white tracking-tighter flex items-center gap-3">
+            <div className="w-3 h-3 bg-cyan-400 rounded-full animate-ping"></div>
+            GALAXY VS 120kW <span className="text-cyan-400/60 text-lg md:text-xl font-light">| COMMAND CENTER</span>
           </h3>
-          {getStatusBadge(upsData.upsStatus)}
         </div>
         
-        <div className="flex flex-col items-end gap-1 w-full md:w-auto justify-end bg-slate-950/50 md:bg-transparent px-3 py-2 md:p-0 rounded-lg md:rounded-none border border-slate-700 md:border-none">
-          <span className="text-[11px] md:text-[14px] text-cyan-200/80 font-mono tracking-wider flex items-center gap-1.5 mb-0.5">
-            <span className="relative flex h-2 w-2 md:h-3 md:w-3"><span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-cyan-400 opacity-75"></span><span className="relative inline-flex rounded-full h-2 w-2 md:h-3 md:w-3 bg-cyan-500"></span></span>
-            <span className="hidden md:inline">Monitoring</span> Real-time:
-          </span>
-          {upsData.lastUpdated ? (
-            <div className="flex flex-col md:flex-row items-end md:items-baseline gap-1 md:gap-3 leading-tight">
-               <span className={`text-[13px] md:text-[16px] font-bold tracking-wide ${getDayColorClass(upsData.lastUpdated)}`}>
-                 {formatThaiDate(upsData.lastUpdated)}
-               </span>
-               <span className="text-[16px] md:text-[24px] text-cyan-100 font-black font-mono drop-shadow-[0_0_10px_rgba(34,211,238,0.9)]">
-                 {new Date(upsData.lastUpdated).toLocaleTimeString('th-TH')} น.
-               </span>
+        <div className="flex flex-col items-end">
+          <div className="flex items-center gap-2 mb-1">
+            <div className="w-2 h-2 bg-emerald-500 rounded-full"></div>
+            <span className="text-[10px] uppercase tracking-[0.3em] text-cyan-400/70 font-bold">Live Telemetry</span>
+          </div>
+          <div className="flex items-baseline gap-3">
+            <span className={`text-sm md:text-lg font-bold ${getDayColorClass(upsData.lastUpdated)}`}>
+              {formatThaiDate(upsData.lastUpdated)}
+            </span>
+            <span className="text-xl md:text-3xl font-black font-mono text-white drop-shadow-[0_0_15px_rgba(255,255,255,0.4)]">
+              {upsData.lastUpdated ? new Date(upsData.lastUpdated).toLocaleTimeString('th-TH') : '--:--:--'} น.
+            </span>
+          </div>
+        </div>
+      </div>
+
+      {/* 🌟 SECTION 1: BATTERY & SYSTEM MODE (ขยับขึ้นมาเด่นๆ) */}
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8">
+        {/* Battery Card */}
+        <div className="col-span-1 md:col-span-2 bg-gradient-to-br from-slate-900/90 to-slate-800/90 border border-emerald-500/40 rounded-3xl p-6 flex items-center justify-between shadow-lg">
+          <div className="flex items-center gap-6">
+            <div className="relative w-20 h-20 md:w-24 md:h-24 flex items-center justify-center">
+              <svg className="w-full h-full rotate-[-90deg]">
+                <circle cx="50%" cy="50%" r="45%" stroke="rgba(16,185,129,0.1)" strokeWidth="8" fill="none" />
+                <circle cx="50%" cy="50%" r="45%" stroke="#10b981" strokeWidth="8" fill="none" strokeDasharray="283" strokeDashoffset={283 - (283 * upsData.batteryCapacity) / 100} strokeLinecap="round" className="transition-all duration-1000" />
+              </svg>
+              <span className="absolute inset-0 flex items-center justify-center text-2xl md:text-3xl font-black text-emerald-400">{upsData.batteryCapacity}%</span>
             </div>
-          ) : (
-            <span className="text-[14px] md:text-[24px] text-cyan-100 font-black font-mono drop-shadow-[0_0_10px_rgba(34,211,238,0.9)]">เชื่อมต่อ...</span>
-          )}
+            <div>
+              <p className="text-xs uppercase tracking-widest text-emerald-500/70 font-bold mb-1">Battery Capacity</p>
+              <p className="text-3xl md:text-4xl font-black text-white">{upsData.runtimeRemaining} <span className="text-lg font-light text-slate-400">Min Remaining</span></p>
+            </div>
+          </div>
+          <div className="hidden md:block text-right">
+            <p className="text-xs uppercase tracking-widest text-slate-500 font-bold mb-1">Temp</p>
+            <p className="text-2xl font-black text-rose-400">{upsData.batteryTemp}°C</p>
+          </div>
+        </div>
+
+        {/* System Modes */}
+        <div className="bg-slate-900/90 border border-cyan-500/40 rounded-3xl p-5 flex flex-col justify-center gap-3">
+          <div className="flex justify-between items-center bg-slate-950/50 p-3 rounded-xl border border-slate-800">
+            <span className="text-[10px] uppercase font-bold text-slate-500">UPS Mode</span>
+            <span className="text-sm font-black text-emerald-400 tracking-wider uppercase">{upsData.upsMode}</span>
+          </div>
+          <div className="flex justify-between items-center bg-slate-950/50 p-3 rounded-xl border border-slate-800">
+            <span className="text-[10px] uppercase font-bold text-slate-500">System Mode</span>
+            <span className="text-sm font-black text-cyan-400 tracking-wider uppercase">{upsData.systemMode}</span>
+          </div>
         </div>
       </div>
 
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-4 md:gap-6 relative z-10">
-        <div className="bg-slate-950/80 border-[2px] border-emerald-500/50 rounded-2xl px-3 py-5 md:py-6 text-center flex flex-col justify-center shadow-inner [box-shadow:0_0_25px_rgba(16,185,129,0.2)] transition-all hover:[box-shadow:0_0_35px_rgba(16,185,129,0.5)] hover:-translate-y-1">
-          <span className="text-slate-400 text-[12px] md:text-[16px] font-bold uppercase tracking-widest mb-2 flex items-center justify-center gap-1.5"><BatteryCharging className="w-4 h-4 md:w-5 md:h-5 text-emerald-500/70"/> แบตเตอรี่</span>
-          <span className="text-[34px] md:text-[46px] font-black font-mono text-emerald-400 drop-shadow-[0_0_15px_rgba(16,185,129,0.9)] leading-none">{upsData.batteryCapacity}%</span>
+      {/* 🌟 SECTION 2: 3-PHASE MATRIX (จัดเป็นตารางเทพๆ) */}
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+        
+        {/* Output Voltage Card */}
+        <div className="bg-slate-900/60 rounded-3xl p-6 border border-slate-800 relative overflow-hidden group">
+          <div className="absolute top-0 right-0 p-2 opacity-10 group-hover:opacity-20 transition-opacity"><Zap size={40} className="text-yellow-400"/></div>
+          <h4 className="text-xs font-black text-slate-500 uppercase tracking-[0.2em] mb-6 flex items-center gap-2">
+            <div className="w-1.5 h-1.5 bg-yellow-500 rounded-full"></div> Output Voltage
+          </h4>
+          <div className="space-y-4">
+            <div className="flex justify-between items-baseline"><span className="text-slate-400 font-mono">L1-2</span><span className="text-2xl font-black text-white font-mono">{upsData.outVolL1L2}<small className="text-xs ml-1 text-slate-500 font-sans">V</small></span></div>
+            <div className="flex justify-between items-baseline"><span className="text-slate-400 font-mono">L2-3</span><span className="text-2xl font-black text-white font-mono">{upsData.outVolL2L3}<small className="text-xs ml-1 text-slate-500 font-sans">V</small></span></div>
+            <div className="flex justify-between items-baseline"><span className="text-slate-400 font-mono">L3-1</span><span className="text-2xl font-black text-white font-mono">{upsData.outVolL3L1}<small className="text-xs ml-1 text-slate-500 font-sans">V</small></span></div>
+          </div>
+          <div className="mt-6 pt-4 border-t border-slate-800 flex justify-between">
+            <span className="text-[10px] font-bold text-slate-500 uppercase">Frequency</span>
+            <span className="text-sm font-black text-yellow-500 font-mono">{upsData.outFreq} Hz</span>
+          </div>
         </div>
-        <div className="bg-slate-950/80 border-[2px] border-sky-500/50 rounded-2xl px-3 py-5 md:py-6 text-center flex flex-col justify-center shadow-inner [box-shadow:0_0_25px_rgba(56,189,248,0.2)] transition-all hover:[box-shadow:0_0_35px_rgba(56,189,248,0.5)] hover:-translate-y-1">
-          <span className="text-slate-400 text-[12px] md:text-[16px] font-bold uppercase tracking-widest mb-2 flex items-center justify-center gap-1.5"><Timer className="w-4 h-4 md:w-5 md:h-5 text-sky-500/70"/> เวลาสำรองไฟ</span>
-          <span className="text-[34px] md:text-[46px] font-black font-mono text-sky-300 drop-shadow-[0_0_15px_rgba(56,189,248,0.9)] leading-none">{upsData.runtimeRemaining} <span className="text-[16px] md:text-[22px] font-sans text-sky-400/90 pl-1">นาที</span></span>
-        </div>
-        <div className="bg-slate-950/80 border-[2px] border-amber-500/50 rounded-2xl px-3 py-5 md:py-6 text-center flex flex-col justify-center shadow-inner [box-shadow:0_0_25px_rgba(251,191,36,0.2)] transition-all hover:[box-shadow:0_0_35px_rgba(251,191,36,0.5)] hover:-translate-y-1 overflow-hidden relative">
-          <div className="absolute top-0 left-0 w-full h-[6px] bg-amber-500/40 blur-[4px]"></div>
-          <span className="text-slate-400 text-[12px] md:text-[16px] font-bold uppercase tracking-widest mb-2 flex items-center justify-center gap-1.5"><ArrowRightLeft className="w-4 h-4 md:w-5 md:h-5 text-amber-500/70"/> ปริมาณโหลด</span>
-          <span className={`text-[34px] md:text-[46px] font-black font-mono leading-none ${getLoadColor(upsData.upsLoad)}`}>{upsData.upsLoad}%</span>
-        </div>
-        <div className="bg-slate-950/80 border-[2px] border-rose-500/50 rounded-2xl px-3 py-5 md:py-6 text-center flex flex-col justify-center shadow-inner [box-shadow:0_0_25px_rgba(225,29,72,0.2)] transition-all hover:[box-shadow:0_0_35px_rgba(225,29,72,0.5)] hover:-translate-y-1">
-          <span className="text-slate-400 text-[12px] md:text-[16px] font-bold uppercase tracking-widest mb-2 flex items-center justify-center gap-1.5"><Thermometer className="w-4 h-4 md:w-5 md:h-5 text-rose-500/70"/> อุณหภูมิแบต</span>
-          <span className={`text-[34px] md:text-[46px] font-black font-mono leading-none ${getTempColor(upsData.batteryTemp)}`}>{upsData.batteryTemp}°C</span>
-        </div>
-      </div>
 
-      <div className="mt-6 md:mt-8 pt-5 md:pt-6 border-t-[2px] border-dashed border-cyan-500/40 relative z-10">
-        <div className="flex items-center gap-2 mb-4">
-          <div className="bg-amber-500/20 p-1.5 rounded-lg border border-amber-500/50 shadow-[0_0_10px_rgba(251,191,36,0.4)]"><Zap className="w-5 h-5 md:w-6 md:h-6 text-amber-400 drop-shadow-[0_0_8px_rgba(251,191,36,0.9)] animate-pulse" /></div>
-          <span className="text-[14px] md:text-[18px] font-black text-slate-200 uppercase tracking-widest drop-shadow-md">ระบบไฟขาเข้า (Input Power)</span>
-        </div>
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-3 md:gap-5">
-          <div className="bg-slate-950/90 border-[2px] border-amber-500/50 rounded-xl p-3 md:p-4 flex flex-col items-center justify-center [box-shadow:0_0_15px_rgba(251,191,36,0.2)] hover:[box-shadow:0_0_25px_rgba(251,191,36,0.5)] transition-all">
-            <span className="text-slate-400 font-bold text-[11px] md:text-[14px] uppercase tracking-widest mb-1 md:mb-1.5">แรงดัน L1</span>
-            <span className="text-[22px] md:text-[32px] font-mono font-black text-amber-400 drop-shadow-[0_0_8px_rgba(251,191,36,0.8)]">{upsData.inputVolL1 || '0'}<span className="text-[13px] md:text-[18px] text-amber-500/80 font-sans pl-1">V</span></span>
+        {/* Output Current Card */}
+        <div className="bg-slate-900/60 rounded-3xl p-6 border border-slate-800 relative overflow-hidden group">
+          <div className="absolute top-0 right-0 p-2 opacity-10 group-hover:opacity-20 transition-opacity"><Activity size={40} className="text-orange-400"/></div>
+          <h4 className="text-xs font-black text-slate-500 uppercase tracking-[0.2em] mb-6 flex items-center gap-2">
+            <div className="w-1.5 h-1.5 bg-orange-500 rounded-full"></div> Output Current
+          </h4>
+          <div className="space-y-4">
+            <div className="flex justify-between items-baseline"><span className="text-slate-400 font-mono">Phase L1</span><span className="text-2xl font-black text-white font-mono">{upsData.outCurL1}<small className="text-xs ml-1 text-slate-500 font-sans">A</small></span></div>
+            <div className="flex justify-between items-baseline"><span className="text-slate-400 font-mono">Phase L2</span><span className="text-2xl font-black text-white font-mono">{upsData.outCurL2}<small className="text-xs ml-1 text-slate-500 font-sans">A</small></span></div>
+            <div className="flex justify-between items-baseline"><span className="text-slate-400 font-mono">Phase L3</span><span className="text-2xl font-black text-white font-mono">{upsData.outCurL3}<small className="text-xs ml-1 text-slate-500 font-sans">A</small></span></div>
           </div>
-          <div className="bg-slate-950/90 border-[2px] border-amber-500/50 rounded-xl p-3 md:p-4 flex flex-col items-center justify-center [box-shadow:0_0_15px_rgba(251,191,36,0.2)] hover:[box-shadow:0_0_25px_rgba(251,191,36,0.5)] transition-all">
-            <span className="text-slate-400 font-bold text-[11px] md:text-[14px] uppercase tracking-widest mb-1 md:mb-1.5">แรงดัน L2</span>
-            <span className="text-[22px] md:text-[32px] font-mono font-black text-amber-400 drop-shadow-[0_0_8px_rgba(251,191,36,0.8)]">{upsData.inputVolL2 || '0'}<span className="text-[13px] md:text-[18px] text-amber-500/80 font-sans pl-1">V</span></span>
-          </div>
-          <div className="bg-slate-950/90 border-[2px] border-amber-500/50 rounded-xl p-3 md:p-4 flex flex-col items-center justify-center [box-shadow:0_0_15px_rgba(251,191,36,0.2)] hover:[box-shadow:0_0_25px_rgba(251,191,36,0.5)] transition-all">
-            <span className="text-slate-400 font-bold text-[11px] md:text-[14px] uppercase tracking-widest mb-1 md:mb-1.5">แรงดัน L3</span>
-            <span className="text-[22px] md:text-[32px] font-mono font-black text-amber-400 drop-shadow-[0_0_8px_rgba(251,191,36,0.8)]">{upsData.inputVolL3 || '0'}<span className="text-[13px] md:text-[18px] text-amber-500/80 font-sans pl-1">V</span></span>
-          </div>
-          <div className="bg-slate-950/90 border-[2px] border-emerald-500/50 rounded-xl p-3 md:p-4 flex flex-col items-center justify-center [box-shadow:0_0_15px_rgba(16,185,129,0.2)] hover:[box-shadow:0_0_25px_rgba(16,185,129,0.5)] transition-all relative overflow-hidden">
-             <div className="absolute top-0 right-0 w-[50px] h-[50px] bg-emerald-500/20 blur-[20px] rounded-full pointer-events-none z-0"></div>
-            <span className="text-emerald-200/60 font-bold text-[11px] md:text-[14px] uppercase tracking-widest mb-1 md:mb-1.5 relative z-10">ความถี่ (Freq.)</span>
-            <span className="text-[22px] md:text-[32px] font-mono font-black text-emerald-400 drop-shadow-[0_0_8px_rgba(16,185,129,0.8)] relative z-10">{upsData.inputFreq || '0'}<span className="text-[13px] md:text-[18px] text-emerald-500/80 font-sans pl-1">Hz</span></span>
+          <div className="mt-6 pt-4 border-t border-slate-800 flex justify-between">
+            <span className="text-[10px] font-bold text-slate-500 uppercase">Load %</span>
+            <span className="text-sm font-black text-orange-500 font-mono">{upsData.upsLoad} %</span>
           </div>
         </div>
+
+        {/* Output Power Card */}
+        <div className="bg-slate-900/90 rounded-3xl p-6 border border-cyan-500/30 relative overflow-hidden group shadow-2xl">
+          <div className="absolute top-0 right-0 p-2 opacity-20"><ArrowUpRight size={40} className="text-cyan-400"/></div>
+          <h4 className="text-xs font-black text-slate-500 uppercase tracking-[0.2em] mb-4 flex items-center gap-2">
+            <div className="w-1.5 h-1.5 bg-cyan-500 rounded-full"></div> Output Power
+          </h4>
+          
+          {/* Total Power Display */}
+          <div className="mb-6 bg-cyan-500/10 p-4 rounded-2xl border border-cyan-500/20 text-center">
+             <p className="text-[10px] font-bold text-cyan-400 uppercase mb-1">Total Output</p>
+             <div className="flex justify-center items-center gap-4">
+               <span className="text-2xl font-black text-white font-mono">{upsData.totalPowerKW}<small className="text-[10px] ml-0.5">kW</small></span>
+               <div className="w-[1px] h-6 bg-slate-700"></div>
+               <span className="text-2xl font-black text-white font-mono">{upsData.totalPowerKVA}<small className="text-[10px] ml-0.5">kVA</small></span>
+             </div>
+          </div>
+
+          <div className="space-y-3">
+            <div className="flex justify-between text-[11px] font-mono border-b border-slate-800 pb-2">
+              <span className="text-slate-500">PHASE L1</span>
+              <span className="text-cyan-100">{upsData.outPowerL1_KW}kW / {upsData.outPowerL1_KVA}kVA</span>
+            </div>
+            <div className="flex justify-between text-[11px] font-mono border-b border-slate-800 pb-2">
+              <span className="text-slate-500">PHASE L2</span>
+              <span className="text-cyan-100">{upsData.outPowerL2_KW}kW / {upsData.outPowerL2_KVA}kVA</span>
+            </div>
+            <div className="flex justify-between text-[11px] font-mono pb-2">
+              <span className="text-slate-500">PHASE L3</span>
+              <span className="text-cyan-100">{upsData.outPowerL3_KW}kW / {upsData.outPowerL3_KVA}kVA</span>
+            </div>
+          </div>
+        </div>
+
       </div>
     </div>
   );
@@ -2522,8 +2569,18 @@ const executeRatingSubmit = async () => {
         themeClasses: 'from-rose-500 to-red-600 border-rose-500 shadow-rose-500/40 text-rose-400 hover:border-rose-400' },
       { id: 'report', name: 'Daily Report', desc: 'รายงานประจำวัน', icon: <FileText size={28} className="drop-shadow-md" />, color: 'purple', active: false,
         themeClasses: 'from-purple-500 to-fuchsia-600 border-purple-500 shadow-purple-500/40 text-purple-400 hover:border-purple-400' },
-      { id: 'procurement', name: 'จัดซื้อ/เบิก', desc: 'จัดการอะไหล่', icon: <Briefcase size={28} className="drop-shadow-md" />, color: 'blue', active: false,
-        themeClasses: 'from-blue-500 to-indigo-600 border-blue-500 shadow-blue-500/40 text-blue-400 hover:border-blue-400' },
+      
+      // 🌟 กล่องที่ 6: อะไหล่/ครุภัณฑ์ (กล่องเดิมที่ท่านสั่งแก้)
+      { id: 'inventory', name: 'อะไหล่/ครุภัณฑ์', desc: 'บริการงานจัดการ', icon: <Package size={28} className="drop-shadow-md" />, color: 'indigo', active: false,
+        themeClasses: 'from-indigo-500 to-violet-600 border-indigo-500 shadow-indigo-500/40 text-indigo-400 hover:border-indigo-400' },
+        
+      // 🌟 กล่องที่ 7: งานจัดซื้อจัดจ้าง (ดึงกลับมาตามสั่งครับ)
+      { id: 'procurement', name: 'งานจัดซื้อจัดจ้าง', desc: 'จัดการเอกสาร/เบิก', icon: <Briefcase size={28} className="drop-shadow-md" />, color: 'blue', active: false,
+        themeClasses: 'from-blue-500 to-sky-600 border-blue-500 shadow-blue-500/40 text-blue-400 hover:border-blue-400' },
+
+      // 🌟 กล่องที่ 8: งานบริการ S3EE (เพิ่มใหม่เอี่ยมอ่อง!)
+      { id: 's3ee', name: 'งานบริการ S3EE', desc: 'ระบบบริการลูกค้า', icon: <Globe size={28} className="drop-shadow-md" />, color: 'pink', active: false,
+        themeClasses: 'from-pink-500 to-rose-600 border-pink-500 shadow-pink-500/40 text-pink-400 hover:border-pink-400' },
     ];
 
     return (
@@ -2534,15 +2591,25 @@ const executeRatingSubmit = async () => {
         {/* 🌟 ฟันธง: กรอบหลัก เรืองแสงสีส้มอมแดง (เปลี่ยน pt กลับเป็นปกติ เพราะไม่ได้มีป้ายคร่อมขอบแล้ว) */}
         <div className="w-full max-w-md md:max-w-lg bg-transparent border-[2px] md:border-[3px] border-solid border-orange-500/90 rounded-[2rem] md:rounded-[2.5rem] p-6 md:p-8 shadow-[0_0_50px_rgba(239,68,68,0.5),inset_0_0_30px_rgba(249,115,22,0.2)] relative z-10 flex flex-col items-center animate-in zoom-in-95 duration-500 mt-6">
             
-            {/* 🌟 ป้ายชื่อด้านบน (ฟันธง: ย้ายเข้ามาอยู่ข้างในกรอบสีส้มแล้วครับ!) */}
-            <div className="w-[90%] max-w-[320px] mb-6 md:mb-8 mt-2">
-              <div className="bg-slate-900/90 backdrop-blur-md border-[2px] md:border-[3px] border-solid border-cyan-400 rounded-2xl md:rounded-3xl py-3 px-4 text-center shadow-[0_0_25px_rgba(34,211,238,0.6),inset_0_0_10px_rgba(34,211,238,0.3)] relative">
-                <h2 className="text-[18px] md:text-[22px] font-black text-cyan-300 drop-shadow-[0_0_8px_rgba(34,211,238,0.8)] tracking-widest leading-tight">
-                  ศูนย์ปฏิบัติการ
+            {/* 🌟 ป้ายชื่อด้านบน (ศูนย์ปฏิบัติการ ฝวด. + GSE Operations Hub) */}
+            <div className="w-[95%] max-w-[400px] mb-6 md:mb-8 mt-2">
+              <div className="bg-slate-900/90 backdrop-blur-md border-[2px] md:border-[3px] border-solid border-cyan-400 rounded-2xl md:rounded-3xl py-3 md:py-4 px-4 text-center shadow-[0_0_25px_rgba(34,211,238,0.6),inset_0_0_10px_rgba(34,211,238,0.3)] relative flex flex-col items-center justify-center">
+                
+                {/* 🌟 ฟันธง: บรรทัดที่ 1 จัดให้อยู่ในบรรทัดเดียวกัน ฟ้า-ส้ม */}
+                <h2 className="text-[18px] md:text-[24px] font-black tracking-widest leading-tight flex items-center justify-center gap-2 md:gap-3 flex-wrap">
+                  <span className="text-cyan-300 drop-shadow-[0_0_8px_rgba(34,211,238,0.8)]">ศูนย์ปฏิบัติการ</span>
+                  <span className="text-orange-400 drop-shadow-[0_0_8px_rgba(249,115,22,0.8)]">ฝวด.</span>
                 </h2>
-                <h2 className="text-[20px] md:text-[26px] font-black text-orange-400 drop-shadow-[0_0_8px_rgba(249,115,22,0.8)] tracking-widest leading-tight mt-0.5">
-                  ทีม ฝวด.
-                </h2>
+
+                {/* 🌟 ฟันธง: บรรทัดที่ 2 ซับไตเติลสีเงิน ขนาบด้วยเส้นเลเซอร์สุดล้ำ */}
+                <div className="mt-2 md:mt-3 flex items-center justify-center gap-3 w-[90%] opacity-80">
+                  <div className="h-[1px] flex-1 bg-gradient-to-r from-transparent to-slate-400/60"></div>
+                  <h3 className="text-[10px] md:text-[12px] font-bold text-slate-300 tracking-[0.25em] uppercase drop-shadow-md">
+                    GSE Operations Hub
+                  </h3>
+                  <div className="h-[1px] flex-1 bg-gradient-to-l from-transparent to-slate-400/60"></div>
+                </div>
+
               </div>
             </div>
 
