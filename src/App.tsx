@@ -2526,13 +2526,12 @@ const executeRatingSubmit = async () => {
 
 
 // ==========================================
-  // 🌟 ฟันธง: หน้าต่าง GSE Hub (ศูนย์รวมแอปพลิเคชัน)
+  // 🌟 ฟันธง: หน้าต่าง GSE Hub (ศูนย์ปฏิบัติการ ฝวด. สุดอลังการ!)
   // ==========================================
   const renderHub = () => {
     const apps = [
       { id: 'dashboard', name: 'ระบบแจ้งซ่อม', desc: 'แผงควบคุมและจัดการงาน', icon: <Wrench size={32} className="drop-shadow-md" />, color: 'orange', active: true,
         themeClasses: 'from-orange-500 to-amber-600 border-orange-500 shadow-orange-500/40 text-orange-400 hover:border-orange-400' },
-      // 🌟 เปิดใช้งานปุ่ม IoT Monitoring!
       { id: 'monitoring', name: 'IoT Monitoring', desc: 'สถานะ UPS & เซนเซอร์', icon: <Activity size={32} className="drop-shadow-md" />, color: 'cyan', active: true,
         themeClasses: 'from-cyan-500 to-blue-600 border-cyan-500 shadow-cyan-500/40 text-cyan-400 hover:border-cyan-400' },
       { id: 'pm', name: 'ระบบงาน PM', desc: 'ตรวจสอบและบำรุงรักษา', icon: <CheckSquare size={32} className="drop-shadow-md" />, color: 'emerald', active: false,
@@ -2546,9 +2545,31 @@ const executeRatingSubmit = async () => {
     ];
 
     return (
-      <div className="p-4 md:p-8 pb-32 animate-in zoom-in-95 duration-500 w-full max-w-5xl mx-auto flex flex-col items-center justify-center min-h-[80vh] relative">
+      <div className="p-4 md:p-8 pb-32 animate-in zoom-in-95 duration-500 w-full max-w-6xl mx-auto flex flex-col items-center justify-center min-h-[85vh] relative overflow-hidden">
         
-        {/* 🚪 ฟันธง: ปุ่มออกจากระบบ (Logout) จัดวางมุมขวาบนของ Hub อย่างหรูหรา */}
+        {/* 🌟🌟 ฟันธง 1: ฝังสมองกลสร้างเส้นสแกนเนอร์วิ่งขึ้นลง (Animation) 🌟🌟 */}
+        <style>{`
+          @keyframes hubScan {
+            0% { top: 0%; opacity: 0; }
+            15% { opacity: 1; }
+            85% { opacity: 1; }
+            100% { top: 100%; opacity: 0; }
+          }
+        `}</style>
+
+        {/* 🌟🌟 ฟันธง 2: ลายเส้น Grid โดนอัปเปหิไปอยู่หลังสุดแล้ว! 🌟🌟 */}
+        <div className="absolute inset-0 bg-[linear-gradient(rgba(249,115,22,0.07)_1px,transparent_1px),linear-gradient(90deg,rgba(249,115,22,0.07)_1px,transparent_1px)] bg-[size:30px_30px] md:bg-[size:50px_50px] pointer-events-none z-[-2]"></div>
+
+        {/* 🌟🌟 ฟันธง 3: เส้นเลเซอร์สแกนเนอร์สีส้มวิ่งขึ้นลง 🌟🌟 */}
+        <div className="absolute left-0 right-0 h-[3px] bg-orange-400 shadow-[0_0_25px_3px_rgba(249,115,22,0.9)] pointer-events-none z-[-1]" style={{ animation: 'hubScan 4s linear infinite' }}></div>
+
+        {/* 🌟🌟 ฟันธง 4: กรอบเส้นเดียวสว่างวาบ (ลบมุมดำ 4 ด้านทิ้งเรียบร้อย) 🌟🌟 */}
+        <div className="absolute inset-2 md:inset-4 border-[2px] md:border-[3px] border-orange-500 rounded-[2rem] md:rounded-[3rem] pointer-events-none z-0 shadow-[0_0_40px_rgba(249,115,22,0.5),inset_0_0_20px_rgba(249,115,22,0.3)]"></div>
+
+        {/* 💥 แสงเฟลอร์พื้นหลัง (สีส้มจางๆ ให้ดูนวลตา) */}
+        <div className="absolute top-1/4 left-1/2 -translate-x-1/2 w-[250px] h-[250px] md:w-[600px] md:h-[600px] bg-orange-500/15 blur-[100px] rounded-full pointer-events-none z-0 animate-pulse"></div>
+
+        {/* 🚪 ปุ่มออกจากระบบ */}
         <button 
           onClick={async () => {
             try {
@@ -2558,27 +2579,22 @@ const executeRatingSubmit = async () => {
               console.error("Logout Error:", error);
             }
           }}
-          className="absolute top-4 right-4 md:top-8 md:right-8 bg-slate-900/80 border-[2px] border-rose-500/60 text-rose-400 hover:bg-rose-600 hover:text-white hover:border-rose-400 px-4 py-2 md:px-5 md:py-2.5 rounded-xl flex items-center gap-2 font-black transition-all shadow-[0_0_15px_rgba(225,29,72,0.3)] hover:shadow-[0_0_25px_rgba(225,29,72,0.8)] active:scale-95 z-50 backdrop-blur-md"
+          className="absolute top-6 right-6 md:top-10 md:right-10 bg-slate-900/80 border-[2px] border-rose-500/60 text-rose-400 hover:bg-rose-600 hover:text-white hover:border-rose-400 px-3 py-1.5 md:px-5 md:py-2.5 rounded-xl flex items-center gap-2 font-black transition-all shadow-[0_0_15px_rgba(225,29,72,0.3)] hover:shadow-[0_0_25px_rgba(225,29,72,0.8)] active:scale-95 z-50 backdrop-blur-md"
         >
-          <LogOut size={20} className="md:w-6 md:h-6" /> <span className="hidden md:inline tracking-widest uppercase">ออกจากระบบ</span>
+          <LogOut size={18} className="md:w-6 md:h-6" /> <span className="hidden md:inline tracking-widest uppercase text-xs md:text-base">ออกจากระบบ</span>
         </button>
 
-        {/* 💥 แสงเฟลอร์พื้นหลัง */}
-        <div className="absolute top-1/4 left-1/2 -translate-x-1/2 w-[300px] h-[300px] md:w-[500px] md:h-[500px] bg-cyan-500/20 blur-[100px] rounded-full pointer-events-none z-0 animate-pulse"></div>
-
-        <div className="text-center relative z-10 mb-8 md:mb-12 w-full mt-12 md:mt-0">
-          <div className="inline-block bg-slate-900/80 border-[2px] border-cyan-500/50 rounded-full px-6 py-2 mb-4 shadow-[0_0_15px_rgba(34,211,238,0.3)]">
-            <span className="text-cyan-400 font-black tracking-widest uppercase text-sm md:text-base">GSE Operations Hub</span>
+        {/* 🌟🌟 หัวข้อศูนย์ปฏิบัติการ (ใหญ่ กระแทกตา ไม่มีคำว่ากรุณาเลือกระบบ) 🌟🌟 */}
+        <div className="text-center relative z-10 mb-8 md:mb-16 w-full mt-16 md:mt-10 flex justify-center">
+          <div className="inline-block bg-slate-900/90 border-[2px] md:border-[3px] border-orange-500/80 rounded-full px-8 py-4 md:px-16 md:py-6 shadow-[0_0_30px_rgba(249,115,22,0.4),inset_0_0_15px_rgba(249,115,22,0.2)] backdrop-blur-md transition-all hover:shadow-[0_0_40px_rgba(249,115,22,0.6)]">
+            <h2 className="text-2xl sm:text-3xl md:text-5xl font-black text-orange-400 tracking-widest drop-shadow-[0_0_15px_rgba(249,115,22,0.9)] m-0 leading-none uppercase">
+              ศูนย์ปฏิบัติการ ฝวด.
+            </h2>
           </div>
-          <h2 className="text-3xl md:text-5xl font-black text-white drop-shadow-lg tracking-wide mb-3">
-            ศูนย์ปฏิบัติการ ฝวด.
-          </h2>
-          <p className="text-slate-400 font-bold text-sm md:text-lg">
-            กรุณาเลือกระบบที่ต้องการใช้งาน
-          </p>
         </div>
 
-        <div className="grid grid-cols-2 md:grid-cols-3 gap-4 md:gap-6 w-full relative z-10">
+        {/* Grid ไอคอนเมนู */}
+        <div className="grid grid-cols-2 md:grid-cols-3 gap-4 md:gap-8 w-full max-w-4xl relative z-10 px-2 md:px-0">
           {apps.map((app, idx) => (
             <button
               key={idx}
@@ -2597,10 +2613,10 @@ const executeRatingSubmit = async () => {
                 {app.icon}
               </div>
               
-              <h3 className={`text-[16px] md:text-[22px] font-black tracking-wide mb-1 md:mb-2 ${app.active ? 'text-white' : 'text-slate-400'}`}>
+              <h3 className={`text-[15px] md:text-[22px] font-black tracking-wide mb-1 md:mb-2 ${app.active ? 'text-white' : 'text-slate-400'}`}>
                 {app.name}
               </h3>
-              <p className={`text-[12px] md:text-[14px] font-bold ${app.active ? app.themeClasses.split(' ').find(c => c.startsWith('text-')) : 'text-slate-500'}`}>
+              <p className={`text-[11px] md:text-[14px] font-bold ${app.active ? app.themeClasses.split(' ').find(c => c.startsWith('text-')) : 'text-slate-500'}`}>
                 {app.desc}
               </p>
 
