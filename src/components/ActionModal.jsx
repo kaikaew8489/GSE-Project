@@ -1,6 +1,6 @@
 import React from 'react';
 import { createPortal } from 'react-dom';
-import { Wrench, PauseCircle, ClipboardCheck, XCircle, AlertTriangle, FileText, Users, X, Search, User, CheckCircle2, Phone, ClipboardList } from 'lucide-react';
+import { Wrench, PauseCircle, ClipboardCheck, XCircle, AlertTriangle, FileText, Users, X, Search, User, CheckCircle2, Phone, ClipboardList, Camera, PlusCircle } from 'lucide-react';
 
 export default function ActionModal({ 
   isOpen, onClose, type, ticketId, 
