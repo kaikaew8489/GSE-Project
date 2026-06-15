@@ -1,134 +1,263 @@
-import React from 'react';
-import { createPortal } from 'react-dom';
-import { Wrench, PauseCircle, ClipboardCheck, XCircle, AlertTriangle, FileText, Users, X, Search, User, CheckCircle2, Phone, ClipboardList, Camera, PlusCircle } from 'lucide-react';
+import React, { useRef } from 'react';
+import { X, Camera, ShieldCheck, CheckCircle, PauseCircle, Wrench, FileText, PlusCircle, XCircle, Search, User, Check } from 'lucide-react';
 
-export default function ActionModal({ 
+export default function ActionModal({
   isOpen, onClose, type, ticketId, 
-  currentUserRole, selectedTech, setSelectedTech, currentUserName, 
-  technicianList, actionText, setActionText, selectedHelpers, setSelectedHelpers, 
-  helperSearch, setHelperSearch, employeeList, actionAttachments, setActionAttachments, 
-  setLightboxImg, sscSuccess, setSscSuccess, executeActionModal 
+  actionText, setActionText, actionAttachments, setActionAttachments,
+  selectedHelpers, setSelectedHelpers, helperSearch, setHelperSearch, employeeList,
+  executeActionModal, selectedTech, currentUserName
 }) {
-  if (!isOpen || typeof document === 'undefined') return null;
+  const fileInputRef = useRef(null);
 
-  return createPortal(
-    <div className="fixed inset-0 z-[9999999] flex items-center justify-center p-4 bg-slate-950/95 backdrop-blur-lg animate-in fade-in" onClick={onClose}>
-      <div className={`absolute w-[300px] h-[300px] rounded-full blur-[80px] animate-pulse pointer-events-none z-0 ${type === 'finish' ? 'bg-emerald-500/20' : type === 'hold' || type === 'cancel' ? 'bg-rose-500/20' : 'bg-orange-500/20'}`}></div>
+  if (!isOpen) return null;
 
-      <div className={`relative m-auto z-10 bg-slate-900 border-[2px] border-solid rounded-[2rem] w-[95%] max-w-[320px] sm:max-w-sm md:max-w-md h-auto max-h-[85dvh] overflow-y-auto overscroll-contain [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none] p-5 sm:p-8 md:p-10 pb-12 text-center space-y-4 sm:space-y-7 ${type === 'finish' ? 'border-emerald-500 shadow-[0_0_50px_rgba(16,185,129,0.5)]' : type === 'hold' || type === 'cancel' ? 'border-rose-500 shadow-[0_0_50px_rgba(225,29,72,0.5)]' : 'border-orange-500 shadow-[0_0_50px_rgba(249,115,22,0.6)]'}`} onClick={(e) => e.stopPropagation()}>
-        
-        {/* ไอคอนเรืองแสง */}
-        <div className={`w-24 h-24 rounded-full flex items-center justify-center mx-auto border-[3px] border-solid bg-slate-950 transition-all duration-300 ${type === 'finish' ? 'text-emerald-500 border-emerald-500 shadow-[0_0_25px_rgba(16,185,129,0.8)]' : type === 'hold' || type === 'cancel' ? 'text-rose-500 border-rose-500 shadow-[0_0_25px_rgba(225,29,72,0.8)]' : 'text-orange-500 border-orange-500 shadow-[0_0_25px_rgba(249,115,22,0.8)]'}`}>
-          {type === 'accept' && <Wrench size={44} className="animate-pulse" />}
-          {type === 'hold' && <PauseCircle size={44} className="animate-pulse" />}
-          {type === 'finish' && <ClipboardCheck size={44} className="animate-pulse" />}
-          {type === 'cancel' && <XCircle size={44} className="animate-pulse" />}
-          {type === 'ssc' && <AlertTriangle size={44} className="animate-pulse" />}
-          {type === 'resume' && <Wrench size={44} className="animate-pulse" />}
+  // 🌟 Logic ปุ่มสีเทา: บังคับกรอกเหตุผล + แนบรูป
+  let isConfirmDisabled = false;
+  if (['hold', 'resume', 'finish', 'ssc', 'cancel'].includes(type)) {
+    if (!actionText || actionText.trim() === '') {
+      isConfirmDisabled = true;
+    }
+    if (['hold', 'resume', 'finish', 'ssc'].includes(type) && (!actionAttachments || actionAttachments.length === 0)) {
+      isConfirmDisabled = true;
+    }
+  }
+
+  const handleFileChange = (e) => {
+    const files = Array.from(e.target.files);
+    if (files.length === 0) return;
+    
+    const currentCount = (actionAttachments || []).length;
+    const allowedCount = 6 - currentCount;
+    
+    if (files.length > allowedCount) {
+      alert(`⚠️ สามารถแนบหลักฐานเพิ่มได้อีก ${allowedCount} ไฟล์เท่านั้นครับ (สูงสุด 6 ไฟล์)`);
+    }
+
+    const filesToAdd = files.slice(0, allowedCount);
+    
+    filesToAdd.forEach(file => {
+      const reader = new FileReader();
+      reader.onloadend = () => setActionAttachments(prev => [...(prev || []), reader.result]);
+      reader.readAsDataURL(file);
+    });
+    
+    if(fileInputRef.current) fileInputRef.current.value = '';
+  };
+
+  const removeAttachment = (index) => {
+    setActionAttachments(prev => prev.filter((_, i) => i !== index));
+  };
+
+  // 🌟 ระบบเลือกทีมสนับสนุน
+  const toggleHelper = (emp) => {
+    const current = selectedHelpers || [];
+    const isSelected = current.find(h => h.name === emp.name);
+    if (isSelected) {
+      setSelectedHelpers(current.filter(h => h.name !== emp.name));
+    } else {
+      setSelectedHelpers([...current, emp]);
+      setHelperSearch(''); // ล้างช่องค้นหาอัตโนมัติ
+    }
+  };
+
+  const filteredEmployees = (employeeList || []).filter(emp => 
+    emp.name.toLowerCase().includes((helperSearch || '').toLowerCase()) || 
+    emp.department.toLowerCase().includes((helperSearch || '').toLowerCase())
+  );
+
+  const isExactMatch = filteredEmployees.some(emp => emp.name === (helperSearch || '').trim());
+
+  // 🌟 จัดหมวดหมู่สีสัน แสงเฟลอร์ ไอคอน
+  let modalConfig = { title: '', desc: '', icon: null, color: '', bgGlow: '', btnGlow: '', borderColor: '', shadowGlow: '' };
+  switch (type) {
+    case 'hold': modalConfig = { title: 'แจ้งเหตุขัดข้อง?', desc: `โปรดระบุเหตุผลที่ทำให้การซ่อมล่าช้า\nงานรหัส ${ticketId}`, icon: <PauseCircle size={48} className="text-orange-500 drop-shadow-[0_0_10px_rgba(249,115,22,0.8)]" />, color: 'text-orange-500', bgGlow: 'bg-orange-500/40', btnGlow: 'from-orange-500 to-amber-600 shadow-[0_0_20px_rgba(249,115,22,0.6)] border-orange-400', borderColor: 'border-orange-500', shadowGlow: 'shadow-[0_0_40px_rgba(249,115,22,0.35)]' }; break;
+    case 'resume': modalConfig = { title: 'ดำเนินการต่อ?', desc: `ระบุความคืบหน้าหรือการได้อะไหล่\nงานรหัส ${ticketId}`, icon: <Wrench size={48} className="text-emerald-500 drop-shadow-[0_0_10px_rgba(16,185,129,0.8)]" />, color: 'text-emerald-500', bgGlow: 'bg-emerald-500/40', btnGlow: 'from-emerald-500 to-teal-600 shadow-[0_0_20px_rgba(16,185,129,0.6)] border-emerald-400', borderColor: 'border-emerald-500', shadowGlow: 'shadow-[0_0_40px_rgba(16,185,129,0.35)]' }; break;
+    case 'finish': modalConfig = { title: 'ปิดงานซ่อม?', desc: `สรุปผลการแก้ไขปัญหา\nงานรหัส ${ticketId}`, icon: <CheckCircle size={48} className="text-emerald-500 drop-shadow-[0_0_10px_rgba(16,185,129,0.8)]" />, color: 'text-emerald-500', bgGlow: 'bg-emerald-500/50', btnGlow: 'from-emerald-500 to-teal-600 shadow-[0_0_20px_rgba(16,185,129,0.6)] border-emerald-400', borderColor: 'border-emerald-500', shadowGlow: 'shadow-[0_0_50px_rgba(16,185,129,0.35)]' }; break;
+    case 'ssc': modalConfig = { title: 'บันทึกการแก้ไขเบื้องต้น?', desc: `(สำหรับเวร SSC)\nงานรหัส ${ticketId}`, icon: <ShieldCheck size={48} className="text-blue-500 drop-shadow-[0_0_10px_rgba(59,130,246,0.8)]" />, color: 'text-blue-500', bgGlow: 'bg-blue-500/40', btnGlow: 'from-blue-500 to-cyan-600 shadow-[0_0_20px_rgba(59,130,246,0.6)] border-blue-400', borderColor: 'border-blue-500', shadowGlow: 'shadow-[0_0_40px_rgba(59,130,246,0.35)]' }; break;
+    case 'accept': modalConfig = { title: 'รับงานซ่อมระบบ?', desc: `คุณกำลังจะกดยอมรับงานซ่อมรหัส\n${ticketId}`, icon: <Wrench size={48} className="text-orange-500 drop-shadow-[0_0_10px_rgba(249,115,22,0.8)]" />, color: 'text-orange-500', bgGlow: 'bg-orange-500/40', btnGlow: 'from-orange-500 to-amber-600 shadow-[0_0_20px_rgba(249,115,22,0.6)] border-orange-400', borderColor: 'border-orange-500', shadowGlow: 'shadow-[0_0_40px_rgba(249,115,22,0.35)]' }; break;
+    case 'cancel': modalConfig = { title: 'ยกเลิกงานซ่อม?', desc: `ระบุเหตุผลที่ต้องการยกเลิกงาน\nรหัส ${ticketId}`, icon: <XCircle size={48} className="text-rose-500 drop-shadow-[0_0_10px_rgba(225,29,72,0.8)]" />, color: 'text-rose-500', bgGlow: 'bg-rose-500/40', btnGlow: 'from-rose-500 to-red-600 shadow-[0_0_20px_rgba(225,29,72,0.6)] border-rose-400', borderColor: 'border-rose-500', shadowGlow: 'shadow-[0_0_40px_rgba(225,29,72,0.35)]' }; break;
+    default: break;
+  }
+
+  return (
+    <div className="fixed inset-0 z-[99999] bg-slate-950/90 backdrop-blur-md flex items-center justify-center p-4 animate-in fade-in">
+      {/* 🌟 แสง Flare Background เรืองแสงทะลุทะลวง */}
+      <div className={`absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[300px] h-[300px] md:w-[450px] md:h-[450px] ${modalConfig.bgGlow} blur-[80px] md:blur-[120px] rounded-full pointer-events-none z-0`}></div>
+      
+      {/* 🌟 กรอบสีสันชัดเจน 100% พร้อมเงาเรืองแสงสุดๆ */}
+      <div className={`bg-[#0f172a] border-[2px] md:border-[3px] ${modalConfig.borderColor} rounded-[2rem] p-6 md:p-8 w-full max-w-md ${modalConfig.shadowGlow} relative flex flex-col max-h-[90vh] overflow-y-auto animate-in zoom-in-95 [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]`}>
+        <button onClick={onClose} className="absolute top-4 right-4 text-slate-400 hover:text-rose-400 transition-colors z-20"><X size={28}/></button>
+
+        <div className="flex flex-col items-center text-center relative z-10 mb-6 shrink-0">
+          <div className={`w-24 h-24 bg-slate-900 rounded-full flex items-center justify-center mb-5 border-[2px] ${modalConfig.borderColor} shadow-inner`}>
+            {modalConfig.icon}
+          </div>
+          <h2 className={`text-[24px] md:text-[32px] font-black ${modalConfig.color} drop-shadow-md`}>{modalConfig.title}</h2>
+          <p className="text-slate-300 font-bold text-[14px] md:text-[16px] whitespace-pre-line mt-2 leading-relaxed opacity-90">{modalConfig.desc}</p>
         </div>
 
-        {/* ข้อความหัวข้อ */}
-        <div>
-           <h3 className="text-2xl md:text-3xl font-black text-white tracking-tight drop-shadow-lg mb-2.5">
-             {type === 'accept' ? 'รับงานซ่อมระบบ?' : type === 'cancel' ? 'ยกเลิกงานแจ้งซ่อม?' : type === 'finish' ? 'บันทึกปิดงานซ่อม' : type === 'hold' ? 'แจ้งเหตุขัดข้อง?' : type === 'resume' ? 'ดำเนินการซ่อมต่อ' : 'บันทึกเวร SSC'}
-           </h3>
-           <p className="text-[14px] md:text-[15px] text-slate-300 font-bold leading-relaxed px-2 md:px-4">
-             {type === 'accept' ? <>คุณกำลังจะกดยอมรับงานซ่อมรหัส<br/><span className="text-orange-400 font-extrabold">{ticketId}</span></> :
-              type === 'cancel' ? <>คุณแน่ใจหรือไม่ว่าต้องการยกเลิกงาน<br/><span className="text-rose-400 font-extrabold">{ticketId}</span></> :
-              type === 'finish' ? <>โปรดตรวจสอบข้อมูลให้ถูกต้อง ก่อนส่งผล<br/><span className="text-orange-400 font-extrabold">{ticketId}</span></> :
-              type === 'hold' ? <>โปรดระบุเหตุผลที่ทำให้การซ่อมล่าช้า<br/>งานรหัส <span className="text-orange-400 font-extrabold">{ticketId}</span></> :
-              type === 'resume' ? <>โปรดระบุรายละเอียดสำหรับรหัสงาน<br/><span className="text-orange-400 font-extrabold">{ticketId}</span></> :
-              <>โปรดระบุการแก้ไขเบื้องต้นสำหรับงาน<br/><span className="text-orange-400 font-extrabold">{ticketId}</span></>}
-           </p>
-        </div>
+        {type === 'accept' && (
+          <div className="relative z-10 flex flex-col items-center w-full gap-2 mt-2 mb-6 shrink-0 animate-in slide-in-from-bottom-2 fade-in duration-300">
+            <label className="text-[14px] md:text-[16px] font-bold flex items-center gap-2 text-emerald-400 mb-1">
+              👨‍🔧 ยืนยันผู้รับผิดชอบงาน
+            </label>
+            <div className="w-full bg-slate-900 border-[2px] border-emerald-500/50 rounded-xl py-3.5 px-4 flex items-center justify-center shadow-[0_0_15px_rgba(16,185,129,0.15)]">
+              <span className="text-[16px] md:text-[20px] font-black text-emerald-400 tracking-wide">
+                {selectedTech || currentUserName}
+              </span>
+            </div>
+          </div>
+        )}
 
-        {/* ช่องกรอกข้อมูล */}
-        <div className="text-left space-y-5">
-          {type === 'accept' ? (
-             <div className="space-y-3">
-               <label className="text-[14px] md:text-[16px] font-black text-emerald-400 tracking-wider flex items-center justify-center gap-1.5">👨‍🔧 ยืนยันผู้รับผิดชอบงาน</label>
-               {currentUserRole === 'Commander' ? (
-                 <select value={selectedTech} onChange={(e) => setSelectedTech(e.target.value)} className="w-full bg-slate-800 border-[2px] border-solid border-emerald-500/50 text-emerald-300 font-bold rounded-xl px-4 py-3.5 outline-none text-center">
-                   <option value="" disabled>-- โปรดเลือกผู้รับผิดชอบ --</option>
-                   {technicianList.map((tech) => <option key={tech.name} value={tech.name}>{tech.name}</option>)}
-                 </select>
-               ) : (
-                 <div className="w-full bg-emerald-950/40 border-[2px] border-solid border-emerald-500/80 text-emerald-400 font-black rounded-xl px-4 py-4 text-center">{selectedTech || currentUserName}</div>
-               )}
-             </div>
-          ) : (
-             <div className="space-y-2">
-               <label className={`text-sm font-black tracking-wider flex items-center gap-1.5 ${type === 'finish' ? 'text-emerald-400' : type === 'hold' || type === 'cancel' ? 'text-rose-400' : 'text-orange-400'}`}>
-                 <FileText size={16} /> {type === 'hold' ? 'เหตุผลที่ทำให้เกิดความล่าช้า' : type === 'cancel' ? 'ระบุเหตุผลการยกเลิก' : type === 'finish' ? 'สรุปผลการซ่อม/ข้อแนะนำ' : 'บันทึกเหตุผลที่ต้องดำเนินการต่อ'}
-               </label>
-               <textarea value={actionText} onChange={(e) => setActionText(e.target.value)} placeholder="ระบุรายละเอียดลงที่นี่..." rows={4} className="w-full bg-slate-800 border-[2px] border-solid border-white/50 rounded-xl px-5 py-3.5 text-white font-bold text-sm outline-none" />
-             </div>
-          )}
+        {['hold', 'resume', 'finish', 'ssc', 'cancel'].includes(type) && (
+          <div className="relative z-10 flex flex-col gap-5 shrink-0">
+            <div className="flex flex-col gap-2">
+              <label className={`text-[14px] md:text-[16px] font-bold flex items-center gap-2 ${modalConfig.color}`}>
+                <FileText size={18}/> {type === 'finish' ? 'สรุปผลการซ่อมแซม' : 'เหตุผล/รายละเอียด'} <span className="text-rose-500">*</span>
+              </label>
+              <textarea
+                className={`w-full bg-slate-900 border-[1.5px] ${modalConfig.borderColor} focus:border-white rounded-xl p-4 text-white placeholder-slate-500 outline-none transition-colors text-[14px] md:text-[16px] resize-none shadow-inner`}
+                rows="3"
+                placeholder="ระบุรายละเอียดที่นี่..."
+                value={actionText || ''}
+                onChange={(e) => setActionText(e.target.value)}
+              />
+            </div>
 
-          {/* ทีมสนับสนุน */}
-          {type === 'finish' && (
-            <div className="mt-4 mb-4 relative z-50">
-              <label className="text-[14px] md:text-[16px] font-black text-cyan-400 uppercase tracking-wide flex items-center gap-2 mb-2"><Users size={18} /> 🤝 ทีมสนับสนุน / ผู้ร่วมดำเนินการ</label>
-              {selectedHelpers.length > 0 && (
-                <div className="flex flex-wrap gap-2 mb-3">
-                  {selectedHelpers.map((helper, idx) => (
-                    <div key={idx} className="bg-cyan-950 border border-cyan-500/50 rounded-lg px-3 py-1.5 flex items-center gap-2">
-                      <p className="text-cyan-300 font-bold text-[13px]">{helper.name}</p>
-                      <button type="button" onClick={() => setSelectedHelpers(prev => prev.filter((_, i) => i !== idx))} className="text-rose-400"><X size={14} /></button>
-                    </div>
-                  ))}
+            {['hold', 'resume', 'finish', 'ssc'].includes(type) && (
+              <div className="flex flex-col gap-2">
+                <div className="flex justify-between items-center mb-1">
+                  <label className={`text-[14px] md:text-[16px] font-bold flex items-center gap-2 ${modalConfig.color}`}>
+                    <Camera size={18}/> แนบหลักฐาน <span className="text-rose-500">*</span>
+                  </label>
+                  <div className="flex gap-2">
+                    <span className="text-[10px] md:text-[12px] font-bold px-2 py-0.5 rounded-lg bg-orange-900/60 text-orange-400 border border-orange-500/50 shadow-sm tracking-widest">
+                      รูป {(actionAttachments || []).length}/6
+                    </span>
+                  </div>
                 </div>
-              )}
-              <div className="relative">
-                <div className="flex items-center bg-slate-900 border-[2px] border-cyan-500/30 rounded-xl px-4 py-3"><Search size={18} className="text-cyan-500/50 mr-3" />
-                  <input type="text" value={helperSearch} onChange={(e) => setHelperSearch(e.target.value)} placeholder="พิมพ์ชื่อ..." className="w-full bg-transparent text-cyan-100 outline-none font-bold text-[14px]" />
-                </div>
-                {helperSearch.length > 0 && (
-                  <div className="absolute top-full left-0 w-full mt-2 bg-slate-800 border border-cyan-500/50 rounded-xl max-h-52 overflow-y-auto z-[9999]">
-                    {employeeList.filter(emp => emp.name.toLowerCase().includes(helperSearch.toLowerCase())).map((emp, idx) => (
-                      <div key={idx} onClick={() => { setSelectedHelpers(prev => [...prev, emp]); setHelperSearch(''); }} className="px-4 py-3 hover:bg-cyan-900/60 cursor-pointer">
-                        <p className="text-cyan-100 font-black">{emp.name}</p>
+
+                {(!actionAttachments || actionAttachments.length === 0) ? (
+                  <button 
+                    onClick={() => fileInputRef.current?.click()} 
+                    className={`w-full py-8 flex flex-col items-center justify-center gap-3 rounded-2xl border-[2px] border-dashed ${modalConfig.borderColor} bg-slate-900/50 text-slate-400 hover:text-white hover:bg-slate-800 transition-all shadow-inner hover:shadow-[0_0_15px_currentColor]`}
+                  >
+                    <Camera size={40} className={modalConfig.color} />
+                    <span className="text-[14px] md:text-[16px] font-bold">คลิกเพื่อแนบรูป / วิดีโอ</span>
+                  </button>
+                ) : (
+                  <div className="w-full flex flex-wrap gap-3">
+                    {(actionAttachments || []).map((file, idx) => (
+                      <div key={idx} className={`relative w-20 h-20 md:w-24 md:h-24 rounded-xl overflow-hidden border-2 ${modalConfig.borderColor} bg-slate-800 group shadow-sm`}>
+                        {file.includes('video') || file.includes('mp4') || file.includes('data:video') ? (
+                          <video src={file} className="w-full h-full object-cover opacity-80 group-hover:opacity-100 transition-opacity" />
+                        ) : (
+                          <img src={file} className="w-full h-full object-cover opacity-80 group-hover:opacity-100 transition-opacity" alt="preview" />
+                        )}
+                        <button onClick={() => removeAttachment(idx)} className="absolute top-1 right-1 bg-rose-500 text-white rounded-full p-0.5 opacity-80 hover:opacity-100 shadow-md"><X size={14}/></button>
                       </div>
                     ))}
+                    
+                    {(actionAttachments.length < 6) && (
+                      <button 
+                        onClick={() => fileInputRef.current?.click()} 
+                        className={`w-20 h-20 md:w-24 md:h-24 rounded-xl border-2 border-dashed ${modalConfig.borderColor} flex items-center justify-center text-slate-400 hover:text-white hover:bg-slate-800 transition-colors shadow-inner`}
+                      >
+                        <PlusCircle size={28} className={modalConfig.color} />
+                      </button>
+                    )}
+                  </div>
+                )}
+                <input type="file" multiple accept="image/*,video/*" className="hidden" ref={fileInputRef} onChange={handleFileChange} />
+              </div>
+            )}
+          </div>
+        )}
+
+        {/* 🌟 ทีมสนับสนุน (เฉพาะตอนปิดงาน) */}
+        {type === 'finish' && (
+          <div className="relative z-10 flex flex-col gap-2 mt-6 shrink-0 border-t-[2px] border-dashed border-emerald-500/30 pt-6">
+            <label className={`text-[14px] md:text-[16px] font-black flex items-center gap-2 ${modalConfig.color}`}>
+              <User size={18}/> ทีมสนับสนุน (ถ้ามี)
+            </label>
+            
+            <div className="relative w-full mb-2">
+              <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-500" size={18} />
+              <input 
+                type="text" 
+                placeholder="พิมพ์ชื่อเพื่อค้นหาบุคลากร..." 
+                value={helperSearch || ''} 
+                onChange={(e) => setHelperSearch(e.target.value)} 
+                className={`w-full bg-slate-900 border-[1.5px] ${modalConfig.borderColor} rounded-xl py-3 pl-10 pr-4 text-white text-[14px] md:text-[16px] focus:border-white outline-none transition-colors shadow-inner`}
+              />
+            </div>
+
+            {/* แสดงรายชื่อ "เฉพาะตอนที่มีการพิมพ์ค้นหา" เท่านั้น */}
+            {helperSearch && helperSearch.trim() !== '' && (
+              <div className="animate-in slide-in-from-top-2 fade-in duration-200">
+                {!isExactMatch && (
+                  <div onClick={() => toggleHelper({ name: helperSearch.trim(), position: 'บุคคลภายนอก', department: '-' })} className="flex items-center justify-between p-3 rounded-xl cursor-pointer transition-all bg-orange-500/10 border-[2px] border-orange-500/50 hover:bg-orange-500/20 mb-2 shadow-sm">
+                    <div>
+                      <p className="text-[14px] md:text-[16px] font-black text-orange-400 flex items-center gap-2"><PlusCircle size={16}/> เพิ่ม "{helperSearch.trim()}"</p>
+                      <p className="text-[11px] md:text-[13px] text-orange-500/80 font-bold mt-0.5">บุคคลภายนอก / ไม่ระบุสังกัด</p>
+                    </div>
+                  </div>
+                )}
+
+                {filteredEmployees.length > 0 && (
+                  <div className={`max-h-40 overflow-y-auto rounded-xl border-[1.5px] ${modalConfig.borderColor} bg-slate-900/80 p-2 space-y-1 [&::-webkit-scrollbar]:w-1.5 [&::-webkit-scrollbar-thumb]:bg-emerald-700 [&::-webkit-scrollbar-track]:bg-transparent shadow-[0_0_15px_rgba(16,185,129,0.15)] mb-2`}>
+                    {filteredEmployees.map((emp, i) => {
+                      const isSelected = (selectedHelpers || []).find(h => h.name === emp.name);
+                      return (
+                        <div key={i} onClick={() => toggleHelper(emp)} className={`flex items-center justify-between p-2.5 md:p-3 rounded-lg cursor-pointer transition-all ${isSelected ? 'bg-emerald-500/30 border border-emerald-500' : 'hover:bg-slate-800 border border-transparent'}`}>
+                          <div>
+                            <p className={`text-[14px] md:text-[15px] font-bold ${isSelected ? 'text-emerald-400' : 'text-slate-200'}`}>{emp.name}</p>
+                            <p className="text-[11px] md:text-[12px] text-slate-500">{emp.position} | {emp.department}</p>
+                          </div>
+                          {isSelected && <CheckCircle size={20} className="text-emerald-500" />}
+                        </div>
+                      );
+                    })}
                   </div>
                 )}
               </div>
-            </div>
-          )}
+            )}
 
-          {/* แนบสื่อ */}
-          {['ssc', 'finish', 'hold', 'resume'].includes(type) && (
-             <div className="mt-4 flex flex-col gap-2 text-left">
-               <label className="text-sm font-black text-cyan-400 flex items-center gap-1.5"><Camera size={16} /> 📸 แนบหลักฐาน</label>
-               <div className="flex flex-wrap gap-2 pb-2">
-                 {actionAttachments.map((file, idx) => (
-                   <div key={idx} className="relative w-20 h-20 rounded-xl border border-cyan-500 overflow-hidden">
-                     <img src={file} onClick={() => setLightboxImg(file)} className="w-full h-full object-cover" />
-                     <button type="button" onClick={() => setActionAttachments(prev => prev.filter((_, i) => i !== idx))} className="absolute top-1 right-1 bg-rose-500 text-white rounded-full p-1"><X size={12} /></button>
-                   </div>
-                 ))}
-                 <label className="w-20 h-20 rounded-xl border-2 border-dashed border-cyan-500 flex items-center justify-center cursor-pointer text-cyan-400">
-                    <PlusCircle size={24} />
-                    <input type="file" accept="image/*, video/*" multiple className="hidden" onChange={async (e) => {
-                      const files = Array.from(e.target.files);
-                      for (const file of files) {
-                        const reader = new FileReader(); reader.readAsDataURL(file);
-                        reader.onload = (ev) => setActionAttachments(prev => [...prev, ev.target.result]);
-                      }
-                    }} />
-                 </label>
-               </div>
-             </div>
-          )}
-
-          {/* ปุ่ม Action */}
-          <div className="flex gap-4 pt-4">
-             <button onClick={onClose} className="flex-1 py-3.5 rounded-xl font-bold text-white bg-slate-800 border border-slate-600">ยกเลิก</button>
-             <button onClick={executeActionModal} className="flex-[1.5] py-3.5 rounded-xl font-black text-white bg-orange-600">ยืนยัน</button>
+            {/* 🌟 ฟันธงแก้งาน: ปรับป้ายชื่อให้เป็น Inline-flex เรียงชิดกันสวยงาม ไม่เละ ไม่ล้น 100% 🌟 */}
+            {selectedHelpers && selectedHelpers.length > 0 && (
+              <div className="flex flex-wrap justify-start items-center gap-1.5 mt-2 bg-slate-900/40 p-2.5 rounded-xl border border-slate-700/50 w-full overflow-hidden">
+                {selectedHelpers.map((h, i) => (
+                  <div key={i} className="inline-flex items-center gap-1 bg-emerald-900/80 text-emerald-300 font-bold text-[11px] md:text-[13px] px-2.5 py-1 rounded-full border border-emerald-500 shadow-sm whitespace-nowrap w-max">
+                    <span className="truncate max-w-[160px] md:max-w-[200px]">{h.name}</span>
+                    {h.position === 'บุคคลภายนอก' && <span className="text-[10px] text-orange-400 shrink-0 ml-0.5">(ภายนอก)</span>}
+                    <X size={14} className="cursor-pointer hover:text-rose-400 shrink-0 ml-0.5" onClick={() => toggleHelper(h)} />
+                  </div>
+                ))}
+              </div>
+            )}
           </div>
+        )}
+
+        {/* 🌟 ปุ่มกดยกเลิกและยืนยัน */}
+        <div className="flex w-full gap-3 mt-8 relative z-10 shrink-0">
+          <button onClick={onClose} className="flex-[1] py-3.5 md:py-4 rounded-2xl font-black text-slate-300 bg-slate-800 border border-slate-600 hover:bg-slate-700 hover:text-white transition-all shadow-[0_0_10px_rgba(255,255,255,0.05)] hover:shadow-[0_0_15px_rgba(244,63,94,0.4)] active:scale-95 text-[16px] md:text-[18px]">
+            ยกเลิก
+          </button>
+          
+          <button 
+            onClick={executeActionModal} 
+            disabled={isConfirmDisabled}
+            className={`flex-[1.5] py-3.5 md:py-4 rounded-2xl font-black text-[16px] md:text-[20px] transition-all duration-300 border-[2px] 
+              ${isConfirmDisabled 
+                ? 'bg-slate-800 text-slate-500 border-slate-700 cursor-not-allowed grayscale shadow-none' 
+                : `bg-gradient-to-r ${modalConfig.btnGlow} text-white hover:brightness-110 hover:shadow-[0_0_30px_currentColor] active:scale-95`
+              }`}
+          >
+            ยืนยัน
+          </button>
         </div>
+
       </div>
-    </div>,
-    document.body
+    </div>
   );
 }
