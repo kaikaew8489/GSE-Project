@@ -329,11 +329,16 @@ export default function Dashboard({
 
       <div className="grid grid-cols-2 gap-4 md:gap-6">
         <div onClick={() => handleNavigateToTracking('pending')} className="bg-slate-800/40 backdrop-blur-xl p-5 md:p-8 rounded-[1.5rem] border-[2px] border-solid border-rose-500 hover:bg-slate-700/50 flex flex-col items-center shadow-lg active:scale-95 transition-all cursor-pointer relative overflow-hidden hover:shadow-[0_0_25px_rgba(244,63,94,0.5)] hover:-translate-y-1 hover:border-rose-400">
+
           <div className="absolute top-0 w-full h-1 md:h-2 bg-rose-500"></div>
           <div className="bg-rose-50 p-3 md:p-4 rounded-2xl md:rounded-3xl mb-3 md:mb-5">
             <AlertCircle className="w-6 h-6 md:w-8 md:h-8 text-rose-500 animate-pulse" />
           </div>
-          <div className="text-4xl md:text-[4rem] md:mb-2 font-black text-rose-400 font-mono tracking-tighter leading-none">{stats.pending}</div>
+
+          <div className="text-4xl md:text-[4rem] md:mb-2 font-black text-rose-400 font-mono tracking-tighter leading-none">
+            {tickets.filter(t => t.status === 'pending').length}
+          </div>
+
           <div className="text-[13px] md:text-[18px] font-bold text-rose-500 uppercase mt-2 tracking-widest">รอดำเนินการ</div>
         </div>
         
@@ -342,7 +347,11 @@ export default function Dashboard({
           <div className="bg-orange-50 p-3 md:p-4 rounded-2xl md:rounded-3xl mb-3 md:mb-5">
             <Wrench className="w-6 h-6 md:w-8 md:h-8 text-orange-500" />
           </div>
-          <div className="text-4xl md:text-[4rem] md:mb-2 font-black text-orange-500 font-mono tracking-tighter leading-none">{stats.fixing}</div>
+
+          <div className="text-4xl md:text-[4rem] md:mb-2 font-black text-orange-500 font-mono tracking-tighter leading-none">
+          {tickets.filter(t => t.status === 'in_progress' || t.status === 'on_hold').length}
+        </div>
+
           <div className="text-[13px] md:text-[18px] font-bold text-orange-500 uppercase mt-2 tracking-widest">กำลังซ่อม</div>
         </div>
 
@@ -351,7 +360,11 @@ export default function Dashboard({
           <div className="bg-slate-50 p-3 md:p-4 rounded-2xl md:rounded-3xl mb-3 md:mb-5">
             <XCircle className="w-6 h-6 md:w-8 md:h-8 text-slate-500" />
           </div>
-          <div className="text-4xl md:text-[4rem] md:mb-2 font-black text-slate-300 font-mono tracking-tighter leading-none">{stats.cancelled}</div>
+
+          <div className="text-4xl md:text-[4rem] md:mb-2 font-black text-slate-300 font-mono tracking-tighter leading-none">
+          {tickets.filter(t => t.status === 'cancelled').length}
+        </div>
+
           <div className="text-[14px] md:text-[16px] font-bold text-slate-300 uppercase mt-2 tracking-widest">ยกเลิก</div>
         </div>
 
@@ -360,7 +373,13 @@ export default function Dashboard({
           <div className="bg-emerald-50 p-3 md:p-4 rounded-2xl md:rounded-3xl mb-3 md:mb-5">
             <CheckCircle className="w-6 h-6 md:w-8 md:h-8 text-emerald-500"/>
           </div>
-          <div className="text-4xl md:text-[4rem] md:mb-2 font-black text-emerald-400 font-mono tracking-tighter leading-none">{stats.done}</div>
+
+
+         <div className="text-4xl md:text-[4rem] md:mb-2 font-black text-emerald-400 font-mono tracking-tighter leading-none">
+        {tickets.filter(t => t.status === 'completed' || t.status === 'verified').length}
+        </div>
+
+
           <div className="text-[14px] md:text-[20px] font-bold text-emerald-500 uppercase mt-2 tracking-widest">เสร็จสิ้น</div>
         </div> 
       </div>

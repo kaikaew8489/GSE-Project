@@ -459,34 +459,22 @@ export default function MainApp({ onGoHome, initialRole }) {
     }
   };
 
-  // =========================================================================
-  // 🌟 ฟันธง 1: ระบบ Data Privacy (Role-Based Access Control) คัดกรองความลับ!
-  // =========================================================================
   const permittedTickets = useMemo(() => {
     return tickets.filter((t) => {
-      // 1. หัวหน้า (Commander) เห็นทุกงาน
       if (currentUserRole === 'Commander') return true; 
-      
-      // 2. ผู้แจ้ง (Reporter) เห็นแค่งานตัวเอง
       if (currentUserRole === 'reporter') {
         return t.reporter === currentUserName;
       }
-      
-      // 3. ช่าง ฝวด. (Technician)
       const todayStr = sysTime.toISOString().split('T')[0];
       const todayDuty = allRosters.find(r => r.date === todayStr);
       const isSSCToday = todayDuty && todayDuty.techName === currentUserName;
-
-      const isPrimary = t.techName === currentUserName; // งานของตัวเอง
-      const isSSCActed = t.sscTechName === currentUserName; // งานที่เคยรับเป็น SSC
-      const isMyReport = t.reporter === currentUserName; // งานที่ตัวเองเป็นคนแจ้งซ่อม
-      const isPendingForSSC = isSSCToday && (t.status === 'pending' || t.status === 'รอช่างเข้าดำเนินการ'); // งานใหม่ที่รอรับสาย (เฉพาะคนเป็นเวรวันนี้)
-
-      // ถ้าไม่ตรงเงื่อนไขข้างบนเลย = ซ่อนทิ้งไป!
+      const isPrimary = t.techName === currentUserName; 
+      const isSSCActed = t.sscTechName === currentUserName; 
+      const isMyReport = t.reporter === currentUserName; 
+      const isPendingForSSC = isSSCToday && (t.status === 'pending' || t.status === 'รอช่างเข้าดำเนินการ'); 
       return isPrimary || isSSCActed || isMyReport || isPendingForSSC;
     });
   }, [tickets, currentUserRole, currentUserName, allRosters, sysTime]);
-
 
   const handleNavigateToTracking = (status) => {
     setActiveTab('tracking'); setFilterStatus(status); setSearchTerm('');
@@ -496,7 +484,6 @@ export default function MainApp({ onGoHome, initialRole }) {
     else setTrackTimeframe('all');
   };
 
-  // 🌟 ฟันธง 2: ดึงข้อมูลไปกรองต่อในหน้า Tracking (ใช้ permittedTickets)
   const filteredTickets_forTracking = useMemo(() => {
     return permittedTickets.filter((t) => {
       const searchStr = String(searchTerm || '').toLowerCase();
@@ -530,21 +517,61 @@ export default function MainApp({ onGoHome, initialRole }) {
         const diffDays = diffTime / (1000 * 60 * 60 * 24); 
         if (diffDays > 7 || diffDays < 0) return false;
       }
-
       return true;
     });
   }, [permittedTickets, searchTerm, filterStatus, trackTimeframe, trackDate, trackMonth, sysTime]);
 
-  // 🌟 ฟันธง 3: ดึงข้อมูลไปทำสถิติในหน้า Dashboard (ใช้ permittedTickets)
+
+
+  // 🌟 1. ฟันธง: เติมตัวแปรนี้กลับเข้ามาเพื่อใช้กรองข้อมูลตามเวลา 🌟
+  const filteredTickets_forDashboard = useMemo(() => {
+    return permittedTickets.filter((t) => {
+      if (!t.date) return false;
+      const tDateObj = new Date(t.date);
+      if (isNaN(tDateObj.getTime())) return true;
+
+      const tDateStr = tDateObj.toISOString().split('T')[0];
+      const tMonthStr = tDateStr.substring(0, 7);
+
+      if (dashTimeframe === 'custom_date' && customDate) {
+        if (tDateStr !== customDate) return false;
+      } else if (dashTimeframe === 'custom' && customMonth) {
+        if (tMonthStr !== customMonth) return false;
+      } else if (dashTimeframe === 'today') {
+        const todayStr = new Date(sysTime).toISOString().split('T')[0];
+        if (tDateStr !== todayStr) return false;
+      } else if (dashTimeframe === 'week') {
+        const now = new Date(sysTime);
+        const day = now.getDay();
+        const diffToMonday = day === 0 ? -6 : 1 - day;
+        const firstDay = new Date(now);
+        firstDay.setDate(now.getDate() + diffToMonday);
+        firstDay.setHours(0, 0, 0, 0);
+        const lastDay = new Date(firstDay);
+        lastDay.setDate(firstDay.getDate() + 6);
+        lastDay.setHours(23, 59, 59, 999);
+        if (tDateObj < firstDay || tDateObj > lastDay) return false;
+      } else if (dashTimeframe === 'month') {
+        const thisMonthStr = new Date(sysTime).toISOString().substring(0, 7);
+        if (tMonthStr !== thisMonthStr) return false;
+      }
+      return true;
+    });
+  }, [permittedTickets, dashTimeframe, customDate, customMonth, sysTime]);
+
+  // 🌟 2. อัปเดต dashStats ให้คำนวณจากตัวที่กรองเวลาแล้ว 🌟
   const dashStats = useMemo(() => {
     return {
-      total: permittedTickets.length,
-      pending: permittedTickets.filter(t => t.status === 'pending').length,
-      fixing: permittedTickets.filter(t => ['acknowledged', 'in_progress'].includes(t.status)).length,
-      cancelled: permittedTickets.filter(t => t.status === 'cancelled').length,
-      done: permittedTickets.filter(t => ['completed', 'verified'].includes(t.status)).length,
+      total: filteredTickets_forDashboard.length,
+      pending: filteredTickets_forDashboard.filter(t => t.status === 'pending').length,
+      fixing: filteredTickets_forDashboard.filter(t => ['acknowledged', 'in_progress', 'on_hold'].includes(t.status)).length,
+      cancelled: filteredTickets_forDashboard.filter(t => t.status === 'cancelled').length,
+      done: filteredTickets_forDashboard.filter(t => ['completed', 'verified'].includes(t.status)).length,
     };
-  }, [permittedTickets]);
+  }, [filteredTickets_forDashboard]);
+
+
+
 
   const [isNavVisible, setIsNavVisible] = useState(true);
   const lastScrollY = useRef(0);
@@ -558,29 +585,13 @@ export default function MainApp({ onGoHome, initialRole }) {
   const renderHub = () => {
     const apps = [
       { id: 'dashboard', name: 'แผงควบคุม', desc: 'จัดการงานซ่อม', icon: <Wrench size={28} className="drop-shadow-md" />, color: 'orange', active: true, themeClasses: 'from-orange-500 to-amber-600 border-orange-500 shadow-orange-500/40 text-orange-400 hover:border-orange-400' },
-
-      
       { id: 'monitoring', name: 'IoT Monitor', desc: 'สถานะ UPS', icon: <Activity size={28} className="drop-shadow-md" />, color: 'cyan', active: true, themeClasses: 'from-cyan-500 to-blue-600 border-cyan-500 shadow-cyan-500/40 text-cyan-400 hover:border-cyan-400' },
-
-      // 🌟 ฟันธง: เติมปุ่มดาวเทียมกลับเข้าไปตรงนี้ครับ! 🌟
       { id: 'satellite', name: 'Sat Signals', desc: 'สถานะสัญญาณดาวเทียม', icon: <Globe size={28} className="drop-shadow-md" />, color: 'purple', active: true, themeClasses: 'from-fuchsia-500 to-purple-600 border-fuchsia-500 shadow-fuchsia-500/40 text-fuchsia-400 hover:border-fuchsia-400' },
-
-
       { id: 'pm', name: 'ระบบ PM', desc: 'บำรุงรักษา', icon: <CheckSquare size={28} className="drop-shadow-md" />, color: 'emerald', active: false, themeClasses: 'from-emerald-500 to-teal-600 border-emerald-500 shadow-emerald-500/40 text-emerald-400 hover:border-emerald-400' },
-
-
       { id: 'leave', name: 'วันลา/เข้าสาย', desc: 'ระบบบุคคล', icon: <Calendar size={28} className="drop-shadow-md" />, color: 'rose', active: false, themeClasses: 'from-rose-500 to-red-600 border-rose-500 shadow-rose-500/40 text-rose-400 hover:border-rose-400' },
-
-
       { id: 'report', name: 'Daily Report', desc: 'รายงานประจำวัน', icon: <FileText size={28} className="drop-shadow-md" />, color: 'purple', active: false, themeClasses: 'from-purple-500 to-fuchsia-600 border-purple-500 shadow-purple-500/40 text-purple-400 hover:border-purple-400' },
-
-
       { id: 'inventory', name: 'อะไหล่/ครุภัณฑ์', desc: 'บริการงานจัดการ', icon: <Package size={28} className="drop-shadow-md" />, color: 'indigo', active: false, themeClasses: 'from-indigo-500 to-violet-600 border-indigo-500 shadow-indigo-500/40 text-indigo-400 hover:border-indigo-400' },
-
-
       { id: 'procurement', name: 'งานจัดซื้อจัดจ้าง', desc: 'จัดการเอกสาร/เบิก', icon: <Briefcase size={28} className="drop-shadow-md" />, color: 'blue', active: false, themeClasses: 'from-blue-500 to-sky-600 border-blue-500 shadow-blue-500/40 text-blue-400 hover:border-blue-400' },
-
-
       { id: 's3ee', name: 'งานบริการ S3EE', desc: 'ระบบบริการลูกค้า', icon: <Globe size={28} className="drop-shadow-md" />, color: 'pink', active: false, themeClasses: 'from-pink-500 to-rose-600 border-pink-500 shadow-pink-500/40 text-pink-400 hover:border-pink-400' },
     ];
 
@@ -645,14 +656,14 @@ export default function MainApp({ onGoHome, initialRole }) {
                  <ClipboardCheck className="w-8 h-8 md:w-6 md:h-6" strokeWidth={2.5} />}
               </div>
               <div>
-                <div className="font-bold text-[14px] md:text-[18px] tracking-widest mb-1 text-orange-300">
-                  สวัสดีครับคุณ {currentUserName || 'ผู้ใช้งาน'}
-                </div>
                 <h1 className="font-black text-white text-2xl md:text-4xl tracking-widest leading-tight drop-shadow-[0_4px_4px_rgba(0,0,0,0.5)] md:py-1">
                   {activeTab === 'dashboard' ? 'แผงควบคุม' : 
                    activeTab === 'report' ? 'แจ้งซ่อม' : 
                    currentUserRole !== 'reporter' ? 'จัดการงานซ่อม' : 'ติดตามสถานะ'}
                 </h1>
+                <div className="font-bold text-[14px] md:text-[18px] tracking-widest mb-1 text-orange-300 mt-1">
+                  สวัสดีครับคุณ {currentUserName || 'ผู้ใช้งาน'}
+                </div>
               </div>
             </div>
           </div>
@@ -672,16 +683,12 @@ export default function MainApp({ onGoHome, initialRole }) {
 
               {activeTab === 'monitoring' && <UPSStatusCard setActiveTab={setActiveTab} onGoHome={onGoHome} />}
 
-              
-              {/* 🌟 ฟันธง: สังเกตว่าส่ง permittedTickets ไปใช้แทน tickets ทั้งคู่เลยครับ 100% ปลอดภัย! */}
-              {activeTab === 'dashboard' && (currentUserRole !== 'reporter') && <Dashboard sysTime={sysTime} stats={dashStats} tickets={permittedTickets} allRosters={allRosters} technicianList={technicianList} dashTimeframe={dashTimeframe} setDashTimeframe={setDashTimeframe} customMonth={customMonth} setCustomMonth={setCustomMonth} showMonthPicker={showMonthPicker} setShowMonthPicker={setShowMonthPicker} pickerYear={pickerYear} setPickerYear={setPickerYear} customDate={customDate} setCustomDate={setCustomDate} showDatePicker={showDatePicker} setShowDatePicker={setShowDatePicker} calMonth={calMonth} setCalMonth={setCalMonth} calYear={calYear} setCalYear={setCalYear} currentUserRole={currentUserRole} currentUserName={currentUserName} handleNavigateToTracking={handleNavigateToTracking} setShowAdminRoster={setShowAdminRoster} />}
-
+              {/* 🌟 ฟันธง: เปลี่ยนตรง tickets= ให้ใช้ตัวที่กรองแล้ว 🌟 */}
+              {activeTab === 'dashboard' && (currentUserRole !== 'reporter') && <Dashboard sysTime={sysTime} stats={dashStats} tickets={filteredTickets_forDashboard} allRosters={allRosters} technicianList={technicianList} dashTimeframe={dashTimeframe} setDashTimeframe={setDashTimeframe} customMonth={customMonth} setCustomMonth={setCustomMonth} showMonthPicker={showMonthPicker} setShowMonthPicker={setShowMonthPicker} pickerYear={pickerYear} setPickerYear={setPickerYear} customDate={customDate} setCustomDate={setCustomDate} showDatePicker={showDatePicker} setShowDatePicker={setShowDatePicker} calMonth={calMonth} setCalMonth={setCalMonth} calYear={calYear} setCalYear={setCalYear} currentUserRole={currentUserRole} currentUserName={currentUserName} handleNavigateToTracking={handleNavigateToTracking} setShowAdminRoster={setShowAdminRoster} />}
 
               {activeTab === 'report' && <ReportView sysTime={sysTime} showSuccess={showSuccess} handleSubmit={handleSubmit} handleResetForm={handleResetForm} allRosters={allRosters} technicianList={technicianList} formData={formData} setFormData={setFormData} formErrors={formErrors} setFormErrors={setFormErrors} handleInputChange={handleInputChange} showImagePicker={showImagePicker} setShowImagePicker={setShowImagePicker} handleMediaUpload={handleMediaUpload} handleClipboardPaste={handleClipboardPaste} setLightboxImg={setLightboxImg} isSubmitting={isSubmitting} />}
 
-
               {activeTab === 'tracking' && <TrackingView sysTime={sysTime} currentUserRole={currentUserRole} currentUserName={currentUserName} tickets={permittedTickets} filteredTickets={filteredTickets_forTracking} searchTerm={searchTerm} setSearchTerm={setSearchTerm} filterStatus={filterStatus} setFilterStatus={setFilterStatus} trackTimeframe={trackTimeframe} setTrackTimeframe={setTrackTimeframe} trackMonth={trackMonth} setTrackMonth={setTrackMonth} trackDate={trackDate} setTrackDate={setTrackDate} showTrackMonthPicker={showTrackMonthPicker} setShowTrackMonthPicker={setShowTrackMonthPicker} showTrackDatePicker={showTrackDatePicker} setShowTrackDatePicker={setShowTrackDatePicker} trackCalMonth={trackCalMonth} setTrackCalMonth={setTrackCalMonth} trackCalYear={trackCalYear} setTrackCalYear={setTrackCalYear} allRosters={allRosters} technicianList={technicianList} setActionModal={setActionModal} updateTicketStatus={updateTicketStatus} setRatingModal={setRatingModal} setLightboxImg={setLightboxImg} getLiveStopwatch={getLiveStopwatch} />}
-
 
               {activeTab === 'manage' && <TrackingView sysTime={sysTime} currentUserRole={currentUserRole} currentUserName={currentUserName} tickets={permittedTickets} filteredTickets={filteredTickets_forTracking} searchTerm={searchTerm} setSearchTerm={setSearchTerm} filterStatus={filterStatus} setFilterStatus={setFilterStatus} trackTimeframe={trackTimeframe} setTrackTimeframe={setTrackTimeframe} trackMonth={trackMonth} setTrackMonth={setTrackMonth} trackDate={trackDate} setTrackDate={setTrackDate} showTrackMonthPicker={showTrackMonthPicker} setShowTrackMonthPicker={setShowTrackMonthPicker} showTrackDatePicker={showTrackDatePicker} setShowTrackDatePicker={setShowTrackDatePicker} trackCalMonth={trackCalMonth} setTrackCalMonth={setTrackCalMonth} trackCalYear={trackCalYear} setTrackCalYear={setTrackCalYear} allRosters={allRosters} technicianList={technicianList} setActionModal={setActionModal} updateTicketStatus={updateTicketStatus} setRatingModal={setRatingModal} setLightboxImg={setLightboxImg} getLiveStopwatch={getLiveStopwatch} />}
             </>
@@ -730,7 +737,6 @@ export default function MainApp({ onGoHome, initialRole }) {
       <ActionModal 
         isOpen={actionModal.isOpen} 
         onClose={() => {
-          // 🌟 ฟันธง: สั่งล้างข้อมูลให้เกลี้ยงทุกครั้งที่กดปิดหน้าต่าง
           setActionModal({ isOpen: false, ticketId: null, type: null });
           setActionText('');
           setActionAttachments([]);
@@ -766,7 +772,6 @@ export default function MainApp({ onGoHome, initialRole }) {
         </div>
       )}
 
-      {/* 🌟 ฟันธง: กล่องประเมินดาวฉบับ World Class เปลี่ยนสี Dynamic ทุกจุด (กรอบ/แสง/ปุ่ม) 100%! 🌟 */}
       {ratingModal.isOpen && (() => {
         const getRatingColors = (rating) => {
           switch(rating) {
@@ -775,7 +780,6 @@ export default function MainApp({ onGoHome, initialRole }) {
             case 3: return { text: 'text-yellow-400', star: 'text-yellow-400', outline: 'border-yellow-400', flare: 'bg-yellow-400', mainBtn: 'bg-yellow-500 hover:bg-yellow-600', tagActive: 'border-yellow-400 bg-yellow-400/20', emojiText: 'ปานกลาง 🙂', shadow: 'shadow-[0_0_50px_rgba(250,204,21,0.3)]' };
             case 4: return { text: 'text-lime-400', star: 'text-lime-400', outline: 'border-lime-500', flare: 'bg-lime-500', mainBtn: 'bg-lime-500 hover:bg-lime-600', tagActive: 'border-lime-500 bg-lime-500/20', emojiText: 'ดี 😃', shadow: 'shadow-[0_0_50px_rgba(132,204,22,0.3)]' };
             case 5: return { text: 'text-emerald-400', star: 'text-emerald-400', outline: 'border-emerald-500', flare: 'bg-emerald-500', mainBtn: 'bg-emerald-500 hover:bg-emerald-600', tagActive: 'border-emerald-500 bg-emerald-500/20', emojiText: 'ยอดเยี่ยม 😍', shadow: 'shadow-[0_0_50px_rgba(16,185,129,0.4)]' };
-            // สถานะเริ่มต้น (0 ดาว) ให้เป็นสีเทากลางๆ เพื่อให้สีโผล่มาตอนกด
             default: return { text: 'text-slate-300', star: 'text-slate-600', outline: 'border-slate-600', flare: 'bg-slate-600', mainBtn: 'bg-emerald-600 hover:bg-emerald-500', tagActive: 'border-emerald-500 bg-slate-700/80', emojiText: '', shadow: 'shadow-[0_0_40px_rgba(255,255,255,0.05)]' };
           }
         };
@@ -783,10 +787,8 @@ export default function MainApp({ onGoHome, initialRole }) {
         
         return (
           <div className="fixed inset-0 z-[99999] bg-slate-950/90 backdrop-blur-md flex items-center justify-center p-4 animate-in fade-in">
-            {/* 🌟 ปรับ Flare Background ให้ใหญ่ สว่าง และเปลี่ยนสีตามดาว 🌟 */}
             <div className={`absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[350px] h-[350px] md:w-[500px] md:h-[500px] ${ratingColors.flare}/30 blur-[100px] md:blur-[120px] rounded-full pointer-events-none z-0 transition-colors duration-500`}></div>
             
-            {/* 🌟 กรอบ Modal ด้านนอกสุด ดึงสี Dynamic มาใส่ที่ Border และ Shadow 🌟 */}
             <div className={`bg-[#0f172a] border-[2px] md:border-[3px] ${ratingColors.outline} rounded-[2rem] p-6 md:p-8 w-full max-w-md ${ratingColors.shadow} relative flex flex-col items-center overflow-y-auto max-h-[90vh] [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none] transition-all duration-500`}>
               
               <button onClick={() => setRatingModal({ isOpen: false, ticketId: null, rating: 0, comment: '', techName: '', techPhotoUrl: '', tags: [] })} className="absolute top-4 right-4 md:top-6 md:right-6 text-slate-400 hover:text-rose-400 transition-colors z-20"><X size={28}/></button>
@@ -874,7 +876,6 @@ export default function MainApp({ onGoHome, initialRole }) {
         );
       })()}
 
-    {/* 🌟 ฟันธงแก้จุดเดียว: อัปเกรด Lightbox ให้แยกแยะรูปภาพและวิดีโอได้ */}
     {lightboxImg && (
         <div className="fixed inset-0 z-[99999] bg-black/90 backdrop-blur-sm flex items-center justify-center p-4 animate-in fade-in" onClick={() => setLightboxImg(null)}>
           <button className="absolute top-5 right-5 text-slate-400 hover:text-white p-2 rounded-full bg-slate-800 border border-slate-700 active:scale-95" onClick={() => setLightboxImg(null)}><X size={24} /></button>
