@@ -4,6 +4,8 @@ import {
   Home, PlusCircle, CheckCircle, AlertCircle, Wrench, MapPin, User, Camera, X, Monitor, Activity, Phone, CheckSquare, ThumbsUp, Search, PieChart, LayoutDashboard, ClipboardCheck, Mail, AlertTriangle, FileText, PauseCircle, Send, Loader2, ChevronRight, ChevronDown, XCircle, RotateCcw, Hash, DoorOpen, Building, Clock, TrendingUp, Calendar, PhoneCall, Flame, Settings, Star, Briefcase, Users, Landmark, Maximize2, Save, ShieldAlert, CheckCircle2, ClipboardList, Moon, ShieldCheck, Lock, LogOut, Eye, EyeOff, Video, BatteryCharging, Timer, ArrowRightLeft, Thermometer, Zap, Package, Globe, ArrowUpRight, ShieldMinus, HelpCircle
 } from 'lucide-react';
 
+import AttendanceView from './AttendanceView';
+
 import { auth, db, storage } from '../lib/firebaseConfig';
 import { signInAnonymously, onAuthStateChanged, signOut, signInWithEmailAndPassword, sendPasswordResetEmail } from 'firebase/auth';
 import { collection, addDoc, onSnapshot, doc, updateDoc, query, orderBy, limit, serverTimestamp, writeBatch, getDocs, where } from 'firebase/firestore';
@@ -588,7 +590,7 @@ export default function MainApp({ onGoHome, initialRole }) {
       { id: 'monitoring', name: 'IoT Monitor', desc: 'สถานะ UPS', icon: <Activity size={28} className="drop-shadow-md" />, color: 'cyan', active: true, themeClasses: 'from-cyan-500 to-blue-600 border-cyan-500 shadow-cyan-500/40 text-cyan-400 hover:border-cyan-400' },
       { id: 'satellite', name: 'Sat Signals', desc: 'สถานะสัญญาณดาวเทียม', icon: <Globe size={28} className="drop-shadow-md" />, color: 'purple', active: true, themeClasses: 'from-fuchsia-500 to-purple-600 border-fuchsia-500 shadow-fuchsia-500/40 text-fuchsia-400 hover:border-fuchsia-400' },
       { id: 'pm', name: 'ระบบ PM', desc: 'บำรุงรักษา', icon: <CheckSquare size={28} className="drop-shadow-md" />, color: 'emerald', active: false, themeClasses: 'from-emerald-500 to-teal-600 border-emerald-500 shadow-emerald-500/40 text-emerald-400 hover:border-emerald-400' },
-      { id: 'leave', name: 'วันลา/เข้าสาย', desc: 'ระบบบุคคล', icon: <Calendar size={28} className="drop-shadow-md" />, color: 'rose', active: false, themeClasses: 'from-rose-500 to-red-600 border-rose-500 shadow-rose-500/40 text-rose-400 hover:border-rose-400' },
+      { id: 'leave', name: 'วันลา/เข้าสาย', desc: 'ระบบบุคคล', icon: <Calendar size={28} className="drop-shadow-md" />, color: 'rose', active: true, themeClasses: 'from-rose-500 to-red-600 border-rose-500 shadow-rose-500/40 text-rose-400 hover:border-rose-400' },
       { id: 'report', name: 'Daily Report', desc: 'รายงานประจำวัน', icon: <FileText size={28} className="drop-shadow-md" />, color: 'purple', active: false, themeClasses: 'from-purple-500 to-fuchsia-600 border-purple-500 shadow-purple-500/40 text-purple-400 hover:border-purple-400' },
       { id: 'inventory', name: 'อะไหล่/ครุภัณฑ์', desc: 'บริการงานจัดการ', icon: <Package size={28} className="drop-shadow-md" />, color: 'indigo', active: false, themeClasses: 'from-indigo-500 to-violet-600 border-indigo-500 shadow-indigo-500/40 text-indigo-400 hover:border-indigo-400' },
       { id: 'procurement', name: 'งานจัดซื้อจัดจ้าง', desc: 'จัดการเอกสาร/เบิก', icon: <Briefcase size={28} className="drop-shadow-md" />, color: 'blue', active: false, themeClasses: 'from-blue-500 to-sky-600 border-blue-500 shadow-blue-500/40 text-blue-400 hover:border-blue-400' },
@@ -646,7 +648,8 @@ export default function MainApp({ onGoHome, initialRole }) {
         'shadow-[0_0_60px_-5px_rgba(244,63,94,1)] border-rose-500/50')
       }`}>
 
-        {activeTab !== 'hub' && activeTab !== 'satellite' && activeTab !== 'monitoring' && (
+        {/* 🌟 ฟันธง: เติม && activeTab !== 'leave' เข้าไปตรงนี้ครับ 🌟 */}
+        {activeTab !== 'hub' && activeTab !== 'satellite' && activeTab !== 'monitoring' && activeTab !== 'leave' && (
           <div className="bg-slate-900/50 backdrop-blur-xl pl-5 md:pl-8 pr-4 py-3 md:py-2.5 flex items-center justify-between sticky top-4 z-50 border-2 border-solid border-orange-500 rounded-2xl md:rounded-xl mt-4 md:mt-3 transition-all duration-500 shadow-[0_0_15px_rgba(249,115,22,0.5)] mx-4 md:mx-6">
             <div className="flex items-center gap-3.5 md:gap-4 z-10">
               <div className="bg-white w-14 h-14 md:w-12 md:h-12 rounded-2xl md:rounded-xl shadow-md border-2 border-solid flex items-center justify-center shrink-0 text-orange-500 border-orange-300">
@@ -691,11 +694,32 @@ export default function MainApp({ onGoHome, initialRole }) {
               {activeTab === 'tracking' && <TrackingView sysTime={sysTime} currentUserRole={currentUserRole} currentUserName={currentUserName} tickets={permittedTickets} filteredTickets={filteredTickets_forTracking} searchTerm={searchTerm} setSearchTerm={setSearchTerm} filterStatus={filterStatus} setFilterStatus={setFilterStatus} trackTimeframe={trackTimeframe} setTrackTimeframe={setTrackTimeframe} trackMonth={trackMonth} setTrackMonth={setTrackMonth} trackDate={trackDate} setTrackDate={setTrackDate} showTrackMonthPicker={showTrackMonthPicker} setShowTrackMonthPicker={setShowTrackMonthPicker} showTrackDatePicker={showTrackDatePicker} setShowTrackDatePicker={setShowTrackDatePicker} trackCalMonth={trackCalMonth} setTrackCalMonth={setTrackCalMonth} trackCalYear={trackCalYear} setTrackCalYear={setTrackCalYear} allRosters={allRosters} technicianList={technicianList} setActionModal={setActionModal} updateTicketStatus={updateTicketStatus} setRatingModal={setRatingModal} setLightboxImg={setLightboxImg} getLiveStopwatch={getLiveStopwatch} />}
 
               {activeTab === 'manage' && <TrackingView sysTime={sysTime} currentUserRole={currentUserRole} currentUserName={currentUserName} tickets={permittedTickets} filteredTickets={filteredTickets_forTracking} searchTerm={searchTerm} setSearchTerm={setSearchTerm} filterStatus={filterStatus} setFilterStatus={setFilterStatus} trackTimeframe={trackTimeframe} setTrackTimeframe={setTrackTimeframe} trackMonth={trackMonth} setTrackMonth={setTrackMonth} trackDate={trackDate} setTrackDate={setTrackDate} showTrackMonthPicker={showTrackMonthPicker} setShowTrackMonthPicker={setShowTrackMonthPicker} showTrackDatePicker={showTrackDatePicker} setShowTrackDatePicker={setShowTrackDatePicker} trackCalMonth={trackCalMonth} setTrackCalMonth={setTrackCalMonth} trackCalYear={trackCalYear} setTrackCalYear={setTrackCalYear} allRosters={allRosters} technicianList={technicianList} setActionModal={setActionModal} updateTicketStatus={updateTicketStatus} setRatingModal={setRatingModal} setLightboxImg={setLightboxImg} getLiveStopwatch={getLiveStopwatch} />}
+
+              {/* 🌟 ฟันธง: เอาโค้ดใหม่มาวางแทรกตรงนี้ครับ! (ต้องอยู่เหนือ </>) 🌟 */}
+              {activeTab === 'leave' && (
+                <>
+                  <div className="bg-slate-900/50 backdrop-blur-xl pl-5 md:pl-8 pr-4 py-3 md:py-2.5 flex items-center justify-between sticky top-4 z-50 border-2 border-solid border-rose-500 rounded-2xl md:rounded-xl mt-4 md:mt-3 transition-all duration-500 shadow-[0_0_15px_rgba(244,63,94,0.5)] mx-4 md:mx-6 mb-6">
+                    <div className="flex items-center gap-3.5 md:gap-4 z-10">
+                      <div className="bg-white w-14 h-14 md:w-12 md:h-12 rounded-2xl md:rounded-xl shadow-md border-2 border-solid flex items-center justify-center shrink-0 text-rose-500 border-rose-300">
+                        <Calendar className="w-8 h-8 md:w-6 md:h-6" strokeWidth={2.5} />
+                      </div>
+                      <div>
+                        <h1 className="font-black text-white text-2xl md:text-4xl tracking-widest leading-tight drop-shadow-[0_4px_4px_rgba(0,0,0,0.5)] md:py-1">ระบบลงเวลาและวันลา</h1>
+                        <div className="font-bold text-[14px] md:text-[18px] tracking-widest mb-1 text-rose-300 mt-1">สวัสดีครับคุณ {currentUserName || 'ผู้ใช้งาน'}</div>
+                      </div>
+                    </div>
+                  </div>
+                  <div className="px-4 md:px-6">
+                  <AttendanceView sysTime={sysTime} currentUserRole={currentUserRole} currentUserName={currentUserName} setActiveTab={setActiveTab} onGoHome={onGoHome} />
+                  </div>
+                </>
+              )}
+
             </>
           )}
         </div>
 
-        {activeTab !== 'hub' && activeTab !== 'satellite' && activeTab !== 'monitoring' && (
+        {activeTab !== 'hub' && activeTab !== 'satellite' && activeTab !== 'monitoring' && activeTab !== 'leave' && (
           <div className={`fixed left-1/2 -translate-x-1/2 w-[calc(100%-2rem)] md:w-[calc(100%-3rem)] max-w-md md:max-w-[calc(72rem-3rem)] py-2 md:py-4 bg-slate-900/95 backdrop-blur-xl border-2 md:border-[3px] border-solid border-orange-500 shadow-[0_10px_30px_rgba(249,115,22,0.4)] md:shadow-[0_15px_40px_rgba(249,115,22,0.6)] rounded-2xl md:rounded-[2rem] z-[9999] transform-gpu transition-all duration-500 ease-in-out ${isNavVisible ? 'bottom-4 md:bottom-8 opacity-100 translate-y-0' : '-bottom-32 opacity-0 translate-y-full pointer-events-none'}`}>
             <div className="w-full flex justify-evenly items-center px-1 md:px-8">
               <button onClick={onGoHome} className="flex flex-col items-center justify-center gap-1.5 md:gap-3 active:scale-95 transition-all shrink-0 group">
