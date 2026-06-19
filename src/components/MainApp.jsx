@@ -19,6 +19,7 @@ import UPSStatusCard from './UPSStatusCard';
 import SatelliteStatusCard from './SatelliteStatusCard';
 import Dashboard from './Dashboard';
 import ReportView from './ReportView';
+import DailyReportView from './DailyReportView';
 import TrackingView from './TrackingView';
 import { ThaiDateFormatter, ErrorBoundary, SearchableDropdown, SciFiSelectModal, SarabunFontEmbed } from './SharedUI';
 
@@ -589,7 +590,7 @@ export default function MainApp({ onGoHome, initialRole }) {
   const renderHub = () => {
     const apps = [
       { id: 'dashboard', name: 'แผงควบคุม', desc: 'จัดการงานซ่อม', icon: <Wrench size={28} className="drop-shadow-md" />, color: 'orange', active: true, themeClasses: 'from-orange-500 to-amber-600 border-orange-500 shadow-orange-500/40 text-orange-400 hover:border-orange-400' },
-      { id: 'report', name: 'Daily Report', desc: 'รายงานผลปฏิบัติงาน', icon: <FileText size={28} className="drop-shadow-md" />, color: 'purple', active: true, themeClasses: 'from-purple-500 to-fuchsia-600 border-purple-500 shadow-purple-500/40 text-purple-400 hover:border-purple-400' },
+      { id: 'daily_report', name: 'Daily Report', desc: 'รายงานผลปฏิบัติงาน', icon: <FileText size={28} className="drop-shadow-md" />, color: 'purple', active: true, themeClasses: 'from-purple-500 to-fuchsia-600 border-purple-500 shadow-purple-500/40 text-purple-400 hover:border-purple-400' },
       { id: 'leave', name: 'วันลา/เข้าสาย', desc: 'ระบบบุคคล', icon: <Calendar size={28} className="drop-shadow-md" />, color: 'rose', active: true, themeClasses: 'from-rose-500 to-red-600 border-rose-500 shadow-rose-500/40 text-rose-400 hover:border-rose-400' },
       { id: 'monitoring', name: 'IoT Monitor', desc: 'สถานะ UPS', icon: <Activity size={28} className="drop-shadow-md" />, color: 'cyan', active: true, themeClasses: 'from-cyan-500 to-blue-600 border-cyan-500 shadow-cyan-500/40 text-cyan-400 hover:border-cyan-400' },
       { id: 'satellite', name: 'Sat Signals', desc: 'สถานะสัญญาณดาวเทียม', icon: <Globe size={28} className="drop-shadow-md" />, color: 'purple', active: true, themeClasses: 'from-fuchsia-500 to-purple-600 border-fuchsia-500 shadow-fuchsia-500/40 text-fuchsia-400 hover:border-fuchsia-400' },
@@ -651,7 +652,7 @@ export default function MainApp({ onGoHome, initialRole }) {
       }`}>
 
         {/* 🌟 ฟันธง: เติม && activeTab !== 'leave' เข้าไปตรงนี้ครับ 🌟 */}
-        {activeTab !== 'hub' && activeTab !== 'satellite' && activeTab !== 'monitoring' && activeTab !== 'leave' && activeTab !== 'report' && (
+        {activeTab !== 'hub' && activeTab !== 'satellite' && activeTab !== 'monitoring' && activeTab !== 'leave' && activeTab !== 'daily_report' && (
           <div className="bg-slate-900/50 backdrop-blur-xl pl-5 md:pl-8 pr-4 py-3 md:py-2.5 flex items-center justify-between sticky top-4 z-50 border-2 border-solid border-orange-500 rounded-2xl md:rounded-xl mt-4 md:mt-3 transition-all duration-500 shadow-[0_0_15px_rgba(249,115,22,0.5)] mx-4 md:mx-6">
             <div className="flex items-center gap-3.5 md:gap-4 z-10">
               <div className="bg-white w-14 h-14 md:w-12 md:h-12 rounded-2xl md:rounded-xl shadow-md border-2 border-solid flex items-center justify-center shrink-0 text-orange-500 border-orange-300">
@@ -682,21 +683,26 @@ export default function MainApp({ onGoHome, initialRole }) {
             </div>
           ) : (
             <>
-              {activeTab === 'hub' && (currentUserRole !== 'reporter') && renderHub()}
+            
+{/* 🌟 ฟันธง: โค้ดหน้าหลัก (Hub) ที่หายไป เอากลับมาใส่ตรงนี้ครับ! 🌟 */}
+{activeTab === 'hub' && renderHub()}
 
-              {activeTab === 'satellite' && <SatelliteStatusCard setActiveTab={setActiveTab} onGoHome={onGoHome} />}
+{activeTab === 'satellite' && <SatelliteStatusCard setActiveTab={setActiveTab} onGoHome={onGoHome} />}
 
-              {activeTab === 'monitoring' && <UPSStatusCard setActiveTab={setActiveTab} onGoHome={onGoHome} />}
+{activeTab === 'monitoring' && <UPSStatusCard setActiveTab={setActiveTab} onGoHome={onGoHome} />}
 
-              {/* 🌟 ฟันธง: เปลี่ยนตรง tickets= ให้ใช้ตัวที่กรองแล้ว 🌟 */}
-              {activeTab === 'dashboard' && (currentUserRole !== 'reporter') && <Dashboard sysTime={sysTime} stats={dashStats} tickets={filteredTickets_forDashboard} allRosters={allRosters} technicianList={technicianList} dashTimeframe={dashTimeframe} setDashTimeframe={setDashTimeframe} customMonth={customMonth} setCustomMonth={setCustomMonth} showMonthPicker={showMonthPicker} setShowMonthPicker={setShowMonthPicker} pickerYear={pickerYear} setPickerYear={setPickerYear} customDate={customDate} setCustomDate={setCustomDate} showDatePicker={showDatePicker} setShowDatePicker={setShowDatePicker} calMonth={calMonth} setCalMonth={setCalMonth} calYear={calYear} setCalYear={setCalYear} currentUserRole={currentUserRole} currentUserName={currentUserName} handleNavigateToTracking={handleNavigateToTracking} setShowAdminRoster={setShowAdminRoster} />}
+{/* หน้าจอแจ้งซ่อม (ใช้ 'report') - กู้คืนมาให้สมบูรณ์ */}
+{activeTab === 'report' && (<ReportView sysTime={sysTime} showSuccess={showSuccess} handleSubmit={handleSubmit} handleResetForm={handleResetForm} allRosters={allRosters} technicianList={technicianList} formData={formData} setFormData={setFormData} formErrors={formErrors} setFormErrors={setFormErrors} handleInputChange={handleInputChange} showImagePicker={showImagePicker} setShowImagePicker={setShowImagePicker} handleMediaUpload={handleMediaUpload} handleClipboardPaste={handleClipboardPaste} setLightboxImg={setLightboxImg} isSubmitting={isSubmitting} />)}
 
-              {activeTab === 'report' && (<ReportView sysTime={sysTime} currentUserRole={currentUserRole} currentUserName={currentUserName} setActiveTab={setActiveTab} onGoHome={onGoHome} />)}
+{/* หน้าจอ Daily Report (ใช้ 'daily_report') - ของใหม่ล้ำๆ */}
+{activeTab === 'daily_report' && (<DailyReportView sysTime={sysTime} currentUserRole={currentUserRole} currentUserName={currentUserName} setActiveTab={setActiveTab} onGoHome={onGoHome} />)}
 
+{/* 🌟 ฟันธง: เปลี่ยนตรง tickets= ให้ใช้ตัวที่กรองแล้ว 🌟 */}
+{activeTab === 'dashboard' && (currentUserRole !== 'reporter') && <Dashboard sysTime={sysTime} stats={dashStats} tickets={filteredTickets_forDashboard} allRosters={allRosters} technicianList={technicianList} dashTimeframe={dashTimeframe} setDashTimeframe={setDashTimeframe} customMonth={customMonth} setCustomMonth={setCustomMonth} showMonthPicker={showMonthPicker} setShowMonthPicker={setShowMonthPicker} pickerYear={pickerYear} setPickerYear={setPickerYear} customDate={customDate} setCustomDate={setCustomDate} showDatePicker={showDatePicker} setShowDatePicker={setShowDatePicker} calMonth={calMonth} setCalMonth={setCalMonth} calYear={calYear} setCalYear={setCalYear} currentUserRole={currentUserRole} currentUserName={currentUserName} handleNavigateToTracking={handleNavigateToTracking} setShowAdminRoster={setShowAdminRoster} />}
 
-              {activeTab === 'tracking' && <TrackingView sysTime={sysTime} currentUserRole={currentUserRole} currentUserName={currentUserName} tickets={permittedTickets} filteredTickets={filteredTickets_forTracking} searchTerm={searchTerm} setSearchTerm={setSearchTerm} filterStatus={filterStatus} setFilterStatus={setFilterStatus} trackTimeframe={trackTimeframe} setTrackTimeframe={setTrackTimeframe} trackMonth={trackMonth} setTrackMonth={setTrackMonth} trackDate={trackDate} setTrackDate={setTrackDate} showTrackMonthPicker={showTrackMonthPicker} setShowTrackMonthPicker={setShowTrackMonthPicker} showTrackDatePicker={showTrackDatePicker} setShowTrackDatePicker={setShowTrackDatePicker} trackCalMonth={trackCalMonth} setTrackCalMonth={setTrackCalMonth} trackCalYear={trackCalYear} setTrackCalYear={setTrackCalYear} allRosters={allRosters} technicianList={technicianList} setActionModal={setActionModal} updateTicketStatus={updateTicketStatus} setRatingModal={setRatingModal} setLightboxImg={setLightboxImg} getLiveStopwatch={getLiveStopwatch} />}
+{activeTab === 'tracking' && <TrackingView sysTime={sysTime} currentUserRole={currentUserRole} currentUserName={currentUserName} tickets={permittedTickets} filteredTickets={filteredTickets_forTracking} searchTerm={searchTerm} setSearchTerm={setSearchTerm} filterStatus={filterStatus} setFilterStatus={setFilterStatus} trackTimeframe={trackTimeframe} setTrackTimeframe={setTrackTimeframe} trackMonth={trackMonth} setTrackMonth={setTrackMonth} trackDate={trackDate} setTrackDate={setTrackDate} showTrackMonthPicker={showTrackMonthPicker} setShowTrackMonthPicker={setShowTrackMonthPicker} showTrackDatePicker={showTrackDatePicker} setShowTrackDatePicker={setShowTrackDatePicker} trackCalMonth={trackCalMonth} setTrackCalMonth={setTrackCalMonth} trackCalYear={trackCalYear} setTrackCalYear={setTrackCalYear} allRosters={allRosters} technicianList={technicianList} setActionModal={setActionModal} updateTicketStatus={updateTicketStatus} setRatingModal={setRatingModal} setLightboxImg={setLightboxImg} getLiveStopwatch={getLiveStopwatch} />}
 
-              {activeTab === 'manage' && <TrackingView sysTime={sysTime} currentUserRole={currentUserRole} currentUserName={currentUserName} tickets={permittedTickets} filteredTickets={filteredTickets_forTracking} searchTerm={searchTerm} setSearchTerm={setSearchTerm} filterStatus={filterStatus} setFilterStatus={setFilterStatus} trackTimeframe={trackTimeframe} setTrackTimeframe={setTrackTimeframe} trackMonth={trackMonth} setTrackMonth={setTrackMonth} trackDate={trackDate} setTrackDate={setTrackDate} showTrackMonthPicker={showTrackMonthPicker} setShowTrackMonthPicker={setShowTrackMonthPicker} showTrackDatePicker={showTrackDatePicker} setShowTrackDatePicker={setShowTrackDatePicker} trackCalMonth={trackCalMonth} setTrackCalMonth={setTrackCalMonth} trackCalYear={trackCalYear} setTrackCalYear={setTrackCalYear} allRosters={allRosters} technicianList={technicianList} setActionModal={setActionModal} updateTicketStatus={updateTicketStatus} setRatingModal={setRatingModal} setLightboxImg={setLightboxImg} getLiveStopwatch={getLiveStopwatch} />}
+{activeTab === 'manage' && <TrackingView sysTime={sysTime} currentUserRole={currentUserRole} currentUserName={currentUserName} tickets={permittedTickets} filteredTickets={filteredTickets_forTracking} searchTerm={searchTerm} setSearchTerm={setSearchTerm} filterStatus={filterStatus} setFilterStatus={setFilterStatus} trackTimeframe={trackTimeframe} setTrackTimeframe={setTrackTimeframe} trackMonth={trackMonth} setTrackMonth={setTrackMonth} trackDate={trackDate} setTrackDate={setTrackDate} showTrackMonthPicker={showTrackMonthPicker} setShowTrackMonthPicker={setShowTrackMonthPicker} showTrackDatePicker={showTrackDatePicker} setShowTrackDatePicker={setShowTrackDatePicker} trackCalMonth={trackCalMonth} setTrackCalMonth={setTrackCalMonth} trackCalYear={trackCalYear} setTrackCalYear={setTrackCalYear} allRosters={allRosters} technicianList={technicianList} setActionModal={setActionModal} updateTicketStatus={updateTicketStatus} setRatingModal={setRatingModal} setLightboxImg={setLightboxImg} getLiveStopwatch={getLiveStopwatch} />}
 
               {/* 🌟 ฟันธง: เอาโค้ดใหม่มาวางแทรกตรงนี้ครับ! (ต้องอยู่เหนือ </>) 🌟 */}
               {activeTab === 'leave' && (
@@ -722,7 +728,7 @@ export default function MainApp({ onGoHome, initialRole }) {
           )}
         </div>
 
-        {activeTab !== 'hub' && activeTab !== 'satellite' && activeTab !== 'monitoring' && activeTab !== 'leave' && activeTab !== 'report' && (
+        {activeTab !== 'hub' && activeTab !== 'satellite' && activeTab !== 'monitoring' && activeTab !== 'leave' && activeTab !== 'daily_report' && (
           <div className={`fixed left-1/2 -translate-x-1/2 w-[calc(100%-2rem)] md:w-[calc(100%-3rem)] max-w-md md:max-w-[calc(72rem-3rem)] py-2 md:py-4 bg-slate-900/95 backdrop-blur-xl border-2 md:border-[3px] border-solid border-orange-500 shadow-[0_10px_30px_rgba(249,115,22,0.4)] md:shadow-[0_15px_40px_rgba(249,115,22,0.6)] rounded-2xl md:rounded-[2rem] z-[9999] transform-gpu transition-all duration-500 ease-in-out ${isNavVisible ? 'bottom-4 md:bottom-8 opacity-100 translate-y-0' : '-bottom-32 opacity-0 translate-y-full pointer-events-none'}`}>
             <div className="w-full flex justify-evenly items-center px-1 md:px-8">
               <button onClick={onGoHome} className="flex flex-col items-center justify-center gap-1.5 md:gap-3 active:scale-95 transition-all shrink-0 group">
