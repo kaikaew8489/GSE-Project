@@ -19,16 +19,13 @@ export default function UPSStatusCard({ setActiveTab, onGoHome }) {
     outPowerL3_KW: 0, outPowerL3_KVA: 0
   };
 
-  // 🌟 ฟันธง: แยก State สำหรับ UPS 2 เครื่อง
   const [upsData1, setUpsData1] = useState(defaultData);
   const [upsData2, setUpsData2] = useState(defaultData);
 
   useEffect(() => {
-    // 🔌 ฟังข้อมูลเครื่องที่ 1
     const unsub1 = onSnapshot(doc(db, "ups_monitoring", "station_1"), (docSnap) => {
       if (docSnap.exists()) setUpsData1(prev => ({ ...prev, ...docSnap.data() }));
     });
-    // 🔌 ฟังข้อมูลเครื่องที่ 2 (เตรียมฐานข้อมูลชื่อ station_2 รอไว้เลยครับ)
     const unsub2 = onSnapshot(doc(db, "ups_monitoring", "station_2"), (docSnap) => {
       if (docSnap.exists()) setUpsData2(prev => ({ ...prev, ...docSnap.data() }));
     });
@@ -52,10 +49,11 @@ export default function UPSStatusCard({ setActiveTab, onGoHome }) {
   };
 
   return (
-    <div className="w-full max-w-7xl mx-auto space-y-8 animate-in fade-in duration-700 pb-32">
+    // 🌟 ฟันธง: บีบกล่องเนื้อหาตรงกลางให้เล็กลงนิดนึงด้วย w-[96%] md:w-[94%] mx-auto เพื่อให้มีเลเยอร์ลึกกว่าปุ่มล่าง
+    <div className="w-[96%] md:w-[94%] max-w-7xl mx-auto space-y-8 animate-in fade-in duration-700 pb-32 mt-4 relative z-10">
       
       {/* 🚀 ==================== เครื่องที่ 1 (Galaxy VS 120kW) ==================== 🚀 */}
-      <div className="w-full bg-slate-950/60 backdrop-blur-2xl border-[3px] border-solid border-cyan-400/80 rounded-[1rem] p-4 md:p-6 shadow-[0_0_70px_rgba(6,182,212,0.25)] relative overflow-hidden mt-4">
+      <div className="w-full bg-slate-950/60 backdrop-blur-2xl border-[3px] border-solid border-cyan-400/80 rounded-[1rem] p-4 md:p-6 shadow-[0_0_70px_rgba(6,182,212,0.25)] relative overflow-hidden">
         <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[350px] h-[350px] md:w-[750px] md:h-[750px] bg-cyan-500/20 blur-[0px] rounded-[1.5rem] pointer-events-none z-0"></div>
         
         <div className="flex flex-col md:flex-row justify-between items-center mb-8 pb-5 border-b border-cyan-500/30 gap-4 relative z-20">
@@ -262,11 +260,11 @@ export default function UPSStatusCard({ setActiveTab, onGoHome }) {
         </div>
       </div>
 
-      {/* 🌟 ฟันธง: แผงปุ่มทางออก ของ UPS 🌟 */}
-      <div className="flex w-full gap-3 md:gap-4 relative z-10">
+      {/* 🌟 ฟันธง: ดึงแผงปุ่มทางออก ของ UPS ให้ขยายออกไป 100% ทะลุกรอบเนื้อหาออกมา เพื่อตีกรอบให้เป็น Layer เดียวกับขอบจอด้านบน 🌟 */}
+      <div className="fixed bottom-4 md:bottom-6 left-1/2 -translate-x-1/2 w-[calc(100%-2rem)] md:w-full md:max-w-7xl flex gap-3 md:gap-4 z-[9999]">
         <button
           onClick={handleGoHub}
-          className="flex-[1] bg-slate-800/80 hover:bg-slate-700 backdrop-blur-md border-[2px] border-slate-600 hover:border-cyan-400 text-white py-4 rounded-2xl font-black tracking-widest flex items-center justify-center gap-3 transition-all shadow-lg active:scale-95 text-[14px] md:text-[18px]"
+          className="flex-[1] bg-slate-900/95 hover:bg-slate-800 backdrop-blur-xl border-2 md:border-[3px] border-cyan-500/80 hover:border-cyan-400 text-cyan-400 py-3 md:py-4 rounded-2xl md:rounded-[1.2rem] font-black tracking-widest flex items-center justify-center gap-3 transition-all shadow-[0_10px_30px_rgba(6,182,212,0.4)] active:scale-95 text-[14px] md:text-[18px]"
         >
           <Home size={24} className="text-cyan-400" />
           <span>หน้าหลัก (HOME)</span>
@@ -274,7 +272,7 @@ export default function UPSStatusCard({ setActiveTab, onGoHome }) {
 
         <button
           onClick={handleLogout}
-          className="flex-[1] bg-rose-950/40 hover:bg-rose-900/60 backdrop-blur-md border-[2px] border-rose-900 hover:border-rose-500 text-rose-300 hover:text-white py-4 rounded-2xl font-black tracking-widest flex items-center justify-center gap-3 transition-all shadow-lg active:scale-95 text-[14px] md:text-[18px]"
+          className="flex-[1] bg-slate-900/95 hover:bg-rose-900/60 backdrop-blur-xl border-2 md:border-[3px] border-rose-600 hover:border-rose-400 text-rose-400 hover:text-rose-300 py-3 md:py-4 rounded-2xl md:rounded-[1.2rem] font-black tracking-widest flex items-center justify-center gap-3 transition-all shadow-[0_10px_30px_rgba(244,63,94,0.4)] active:scale-95 text-[14px] md:text-[18px]"
         >
           <LogOut size={24} className="text-rose-500" />
           <span>ออกจากระบบ</span>

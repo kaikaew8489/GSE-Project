@@ -1,8 +1,10 @@
 import React, { useState, useEffect } from 'react';
+import { createPortal } from 'react-dom'; // 🌟 นำเข้าฟังก์ชันทะลุจอ
 import { 
   Sun, Sunset, AlertTriangle, Wrench, Users, FileText, 
   Map, MapPin, Camera, Video, X, Send, Activity, Monitor,
-  Home, LogOut, Calendar, Clock, CheckCircle, RotateCcw
+  Home, LogOut, Calendar, Clock, CheckCircle, RotateCcw,
+  Image as ImageIcon, ClipboardList // 🌟 นำเข้าไอคอนใหม่
 } from 'lucide-react';
 import { db, storage } from '../lib/firebaseConfig';
 import { collection, addDoc, serverTimestamp, query, orderBy, onSnapshot } from 'firebase/firestore';
@@ -48,13 +50,41 @@ export default function DailyReportView({ sysTime, currentUserRole, currentUserN
 
   const handleFileSelect = (e) => {
     const files = Array.from(e.target.files);
-    const newFiles = files.map(file => ({
-      url: URL.createObjectURL(file),
-      type: file.type.startsWith('video/') ? 'video' : 'image',
-      rawFile: file
-    }));
-    setEvidenceFiles(prev => [...prev, ...newFiles].slice(0, 5));
+    if (files.length === 0) return;
+
+    setEvidenceFiles(prev => {
+      let currentImages = prev.filter(f => f.type === 'image');
+      let currentVideos = prev.filter(f => f.type === 'video');
+
+      files.forEach(file => {
+        const isVideo = file.type.startsWith('video/');
+        if (isVideo && currentVideos.length < 1) {
+          currentVideos.push({ url: URL.createObjectURL(file), type: 'video', rawFile: file });
+        } else if (!isVideo && currentImages.length < 6) {
+          currentImages.push({ url: URL.createObjectURL(file), type: 'image', rawFile: file });
+        }
+      });
+      return [...currentImages, ...currentVideos];
+    });
     setShowImagePicker(false);
+  };
+
+  // 🌟 ฟันธง: ฟังก์ชันดึงรูปที่แคปไว้ใน PC (Paste from Clipboard)
+  const handleClipboardPaste = async () => {
+    try {
+      const clipboardItems = await navigator.clipboard.read();
+      for (const clipboardItem of clipboardItems) {
+        const imageTypes = clipboardItem.types.filter(type => type.startsWith('image/'));
+        if (imageTypes.length > 0) {
+          const blob = await clipboardItem.getType(imageTypes[0]);
+          const file = new File([blob], `snipped_evidence_${Date.now()}.png`, { type: blob.type });
+          handleFileSelect({ target: { files: [file] } });
+          setShowImagePicker(false);
+          return;
+        }
+      }
+      alert("⚠️ ไม่พบรูปภาพในคลิปบอร์ดครับ โปรดแคปหน้าจอใหม่อีกครั้ง");
+    } catch (err) { alert("⚠️ เบราว์เซอร์ไม่อนุญาตให้ดึงรูปจากคลิปบอร์ดครับ"); }
   };
 
   const removeFile = (index) => setEvidenceFiles(prev => prev.filter((_, i) => i !== index));
@@ -126,8 +156,6 @@ export default function DailyReportView({ sysTime, currentUserRole, currentUserN
         </div>
       )}
 
-      {/* 🌟 ฟันธง 1: ลบกรอบ Header DAILY REPORT ที่ซ้ำซ้อนออกทั้งหมด (คลีนสุดๆ) 🌟 */}
-
       <div className="flex bg-slate-900/80 backdrop-blur-md rounded-[1rem] p-1.5 border-[2px] border-slate-700/80 shadow-lg">
         <button onClick={() => setActiveTabState('write')} className={`flex-1 py-3.5 rounded-[0.8rem] font-black text-[15px] md:text-[16px] transition-all duration-300 flex items-center justify-center gap-2 ${activeTabState === 'write' ? 'bg-gradient-to-r from-purple-600 to-indigo-600 text-white shadow-[0_0_20px_rgba(168,85,247,0.6)] border border-purple-400/50 scale-[1.02] z-10' : 'text-slate-400 hover:text-white hover:bg-slate-800'}`}><FileText size={18} /> เขียนรายงาน</button>
         <button onClick={() => setActiveTabState('timeline')} className={`flex-1 py-3.5 rounded-[0.8rem] font-black text-[15px] md:text-[16px] transition-all duration-300 flex items-center justify-center gap-2 ${activeTabState === 'timeline' ? 'bg-gradient-to-r from-cyan-600 to-blue-600 text-white shadow-[0_0_20px_rgba(6,182,212,0.6)] border border-cyan-400/50 scale-[1.02] z-10' : 'text-slate-400 hover:text-white hover:bg-slate-800'}`}><Activity size={18} /> ไทม์ไลน์ทีม (Feed)</button>
@@ -138,7 +166,6 @@ export default function DailyReportView({ sysTime, currentUserRole, currentUserN
           <div>
             <label className="block text-[14px] md:text-[16px] font-bold text-slate-300 mb-3">ช่วงเวลาปฏิบัติงาน (Time Slot)</label>
             <div className="grid grid-cols-3 gap-2 md:gap-4">
-              {/* 🌟 ฟันธง 2: เพิ่ม hover effect ให้ปุ่มช่วงเวลาเรืองแสงตาม Theme 🌟 */}
               <button onClick={() => setTimeSlot('morning')} className={`py-3 md:py-4 rounded-xl font-bold flex flex-col items-center justify-center gap-1.5 border-[2px] transition-all duration-300 active:scale-95 ${timeSlot === 'morning' ? 'bg-cyan-500/20 border-cyan-400 text-cyan-300 shadow-[0_0_20px_rgba(6,182,212,0.4)]' : 'bg-slate-800/80 border-slate-600 text-slate-400 hover:border-cyan-400 hover:text-cyan-300 hover:shadow-[0_0_15px_rgba(34,211,238,0.4)] hover:-translate-y-1'}`}><Sun size={22}/> <span className="text-[12px] md:text-[14px] tracking-wide">งานช่วงเช้า</span></button>
               <button onClick={() => setTimeSlot('afternoon')} className={`py-3 md:py-4 rounded-xl font-bold flex flex-col items-center justify-center gap-1.5 border-[2px] transition-all duration-300 active:scale-95 ${timeSlot === 'afternoon' ? 'bg-orange-500/20 border-orange-400 text-orange-300 shadow-[0_0_20px_rgba(249,115,22,0.4)]' : 'bg-slate-800/80 border-slate-600 text-slate-400 hover:border-orange-400 hover:text-orange-300 hover:shadow-[0_0_15px_rgba(249,115,22,0.4)] hover:-translate-y-1'}`}><Sunset size={22}/> <span className="text-[12px] md:text-[14px] tracking-wide">งานช่วงบ่าย</span></button>
               <button onClick={() => setTimeSlot('urgent')} className={`py-3 md:py-4 rounded-xl font-bold flex flex-col items-center justify-center gap-1.5 border-[2px] transition-all duration-300 active:scale-95 ${timeSlot === 'urgent' ? 'bg-rose-500/20 border-rose-400 text-rose-300 shadow-[0_0_20px_rgba(225,29,72,0.4)]' : 'bg-slate-800/80 border-slate-600 text-slate-400 hover:border-rose-400 hover:text-rose-300 hover:shadow-[0_0_15px_rgba(225,29,72,0.4)] hover:-translate-y-1'}`}><AlertTriangle size={22}/> <span className="text-[12px] md:text-[14px] tracking-wide">ภารกิจด่วน!</span></button>
@@ -177,13 +204,14 @@ export default function DailyReportView({ sysTime, currentUserRole, currentUserN
             </div>
           </div>
 
+          {/* 🌟 ฟันธง: กรอบแนบรูปภาพอัปเกรด โควตา 6 รูป 1 คลิป (ถอดแบบ Sci-Fi) 🌟 */}
           <div className="space-y-4 pt-4 mt-4 border-t-[2px] border-dashed border-purple-500/30">
             <div className="flex justify-between items-center ml-1 mb-2">
               <label className="text-[14px] md:text-[18px] font-black text-purple-300 uppercase tracking-wide flex items-center gap-1.5 md:gap-2">
                 <Camera className="md:w-5 md:h-5" /> แนบรูปและวิดีโอ <span className="text-slate-500 font-normal text-[12px]">(โชว์ผลงาน)</span>
               </label>
               <div className="flex gap-2">
-                <div className="bg-orange-950 border border-orange-500/80 text-orange-400 text-[10px] md:text-[12px] font-black px-2 py-1 rounded-lg shadow-[0_0_10px_rgba(249,115,22,0.8)] backdrop-blur-sm">รูป {evidenceFiles.filter(f => f.type === 'image').length}/4</div>
+                <div className="bg-orange-950 border border-orange-500/80 text-orange-400 text-[10px] md:text-[12px] font-black px-2 py-1 rounded-lg shadow-[0_0_10px_rgba(249,115,22,0.8)] backdrop-blur-sm">รูป {evidenceFiles.filter(f => f.type === 'image').length}/6</div>
                 <div className="bg-purple-950 border border-purple-500/80 text-purple-400 text-[10px] md:text-[12px] font-black px-2 py-1 rounded-lg shadow-[0_0_10px_rgba(168,85,247,0.8)] backdrop-blur-sm">คลิป {evidenceFiles.filter(f => f.type === 'video').length}/1</div>
               </div>
             </div>
@@ -191,15 +219,16 @@ export default function DailyReportView({ sysTime, currentUserRole, currentUserN
             {evidenceFiles.length > 0 && (
               <div className="grid grid-cols-4 sm:grid-cols-5 gap-2 md:gap-3 mb-3">
                 {evidenceFiles.map((file, idx) => (
-                  <div key={idx} className="relative aspect-square rounded-xl overflow-hidden border-[2px] border-purple-400/80 shadow-[0_0_15px_rgba(168,85,247,0.3)] group">
+                  <div key={idx} className="relative aspect-square rounded-xl overflow-hidden border-[2px] border-purple-400/80 shadow-[0_0_15px_rgba(168,85,247,0.3)] group cursor-pointer" onClick={() => window.open(file.url, '_blank')}>
                     {file.type === 'video' ? <div className="w-full h-full flex items-center justify-center bg-slate-900 text-purple-400"><Video size={28}/></div> : <img src={file.url} alt="Evidence" className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500" />}
-                    <button onClick={() => removeFile(idx)} className="absolute top-1 right-1 bg-rose-500/90 backdrop-blur-sm text-white p-1 rounded-full shadow-lg transition-all active:scale-75 hover:bg-rose-600 border border-rose-400 z-10"><X size={12} className="stroke-[3px]" /></button>
+                    <button type="button" onClick={(e) => { e.stopPropagation(); removeFile(idx); }} className="absolute top-1 right-1 bg-rose-500/90 backdrop-blur-sm text-white p-1 rounded-full shadow-lg transition-all active:scale-75 hover:bg-rose-600 border border-rose-400 z-10"><X size={12} className="stroke-[3px]" /></button>
                   </div>
                 ))}
               </div>
             )}
 
-            {evidenceFiles.length < 5 && (
+            {/* ปุ่มอัปโหลดจะไม่หายไปจนกว่าข้อมูลชนิดนั้นจะเต็มความจุ */}
+            {(evidenceFiles.filter(f => f.type === 'image').length < 6 || evidenceFiles.filter(f => f.type === 'video').length < 1) && (
               <button type="button" onClick={() => setShowImagePicker(true)} className="w-full h-24 md:h-32 border-[2px] border-dashed border-cyan-400/60 bg-cyan-950/20 hover:bg-purple-900/30 hover:border-purple-400 rounded-xl flex flex-col items-center justify-center transition-all duration-300 cursor-pointer shadow-[inset_0_0_20px_rgba(6,182,212,0.1)] hover:shadow-[0_0_30px_rgba(168,85,247,0.4)] group">
                 <div className="flex items-center gap-2 mb-1 transition-all">
                   <Camera size={32} className="text-cyan-300/70 group-hover:text-purple-400 transition-all md:w-10 md:h-10 drop-shadow-md" />
@@ -212,10 +241,10 @@ export default function DailyReportView({ sysTime, currentUserRole, currentUserN
           </div>
 
           <div className="pt-4 flex flex-col md:flex-row items-center gap-4 text-center mt-2">
-            <button onClick={handleSubmitReport} disabled={isSubmitting || !taskType || !details} className={`group w-full md:flex-[2] py-4 md:py-5 rounded-[1.2rem] font-black text-[20px] md:text-[24px] transition-all duration-300 flex justify-center items-center gap-3 border-[2px] border-solid border-white/80 shadow-xl ${taskType && details ? 'bg-gradient-to-r from-orange-500 to-amber-500 hover:from-orange-400 hover:to-yellow-400 text-white shadow-[0_0_20px_rgba(249,115,22,0.5)] hover:shadow-[0_0_35px_rgba(249,115,22,0.8)] hover:-translate-y-1 active:scale-95' : 'bg-slate-800 text-slate-500 border-slate-700 cursor-not-allowed'}`}>
+            <button onClick={handleSubmitReport} disabled={isSubmitting || !taskType || !details} className={`group w-full md:flex-[2] py-4 md:py-5 rounded-[1.2rem] font-black text-[20px] md:text-[24px] transition-all duration-300 flex justify-center items-center gap-3 border-[2px] border-solid border-white/80 shadow-xl ${taskType && details ? 'bg-gradient-to-r from-purple-500 to-indigo-600 hover:from-purple-400 hover:to-indigo-500 text-white shadow-[0_0_20px_rgba(168,85,247,0.5)] hover:shadow-[0_0_35px_rgba(168,85,247,0.8)] hover:-translate-y-1 active:scale-95' : 'bg-slate-800 text-slate-500 border-slate-700 cursor-not-allowed'}`}>
               {isSubmitting ? <span className="animate-pulse">กำลังอัปโหลด...</span> : <><Send size={26} className="md:w-7 md:h-7 drop-shadow-md" /> <span className="tracking-wide drop-shadow-md">ส่งรายงานผลปฏิบัติงาน</span></>}
             </button>
-            <button type="button" onClick={() => { setTimeSlot('morning'); setTaskType(''); setDetails(''); setLocationDesc(''); setGpsCoords(null); setEvidenceFiles([]); }} className="w-full md:flex-[1] bg-emerald-600/90 text-white hover:bg-rose-500 hover:shadow-[0_0_25px_rgba(244,63,94,0.6)] hover:-translate-y-1 hover:border-rose-300 font-bold text-[18px] md:text-[20px] py-4 md:py-5 rounded-[1.2rem] flex items-center justify-center gap-2 border-[2px] border-solid border-white/60 active:scale-95 shadow-md transition-all duration-300">
+            <button type="button" onClick={() => { setTimeSlot('morning'); setTaskType(''); setDetails(''); setLocationDesc(''); setGpsCoords(null); setEvidenceFiles([]); }} className="w-full md:flex-[1] bg-emerald-600/90 text-white hover:bg-emerald-500 hover:shadow-[0_0_25px_rgba(16,185,129,0.6)] hover:-translate-y-1 hover:border-emerald-300 font-bold text-[18px] md:text-[20px] py-4 md:py-5 rounded-[1.2rem] flex items-center justify-center gap-2 border-[2px] border-solid border-white/60 active:scale-95 shadow-md transition-all duration-300">
               <RotateCcw size={20} className="md:w-6 md:h-6" /> ล้างข้อมูล
             </button>
           </div>
@@ -297,7 +326,7 @@ export default function DailyReportView({ sysTime, currentUserRole, currentUserN
         </div>
       )}
 
-      {/* 🌟 ฟันธง: ปุ่มควบคุมด้านล่าง (หดขอบซ้ายขวาในมือถือ px-4 ให้ตรงกับกรอบด้านบนเป๊ะๆ) 🌟 */}
+      {/* 🌟 ฟันธง: ปุ่มควบคุมด้านล่างจัดระเบียบขอบสมมาตร 🌟 */}
       <div className="flex flex-row w-full px-4 md:px-0 gap-3 md:gap-4 mt-8 pt-6 border-t-[2px] border-dashed border-slate-700/50 relative z-[99]">
         <button 
           type="button"
@@ -316,21 +345,45 @@ export default function DailyReportView({ sysTime, currentUserRole, currentUserN
         </button>
       </div>
 
-      {showImagePicker && (
-        <div className="fixed inset-0 z-[99999] bg-slate-900/90 backdrop-blur-md flex items-center justify-center p-4 animate-in fade-in" onClick={() => setShowImagePicker(false)}>
-          <div className="bg-[#1e293b] border-[2px] border-purple-500 rounded-3xl p-6 w-full max-w-sm shadow-[0_0_60px_rgba(168,85,247,0.7)]" onClick={(e) => e.stopPropagation()}>
-            <h3 className="text-xl font-black text-white mb-6 text-center flex items-center justify-center gap-2">แนบหลักฐานการทำงาน</h3>
-            <div className="flex flex-col gap-3">
+      {/* 🌟 ฟันธง: ป๊อบอัปอัปโหลดรูปภาพแยก PC (คลิปบอร์ด) / Mobile (ถ่ายสด) ชัดเจน 🌟 */}
+      {showImagePicker && typeof document !== 'undefined' ? createPortal(
+        <div className="fixed inset-0 z-[999999] flex items-center justify-center p-4 bg-slate-800/80 backdrop-blur-md animate-in fade-in duration-300" onClick={() => setShowImagePicker(false)}>
+          <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[450px] h-[450px] bg-purple-600/30 rounded-full blur-[100px] animate-pulse pointer-events-none z-0"></div>
+          <div className="relative z-10 bg-slate-900/90 backdrop-blur-sm border-[3px] border-solid border-purple-500 rounded-[1.5rem] p-6 w-full max-w-sm shadow-[0_0_60px_rgba(168,85,247,0.5)] text-center animate-in zoom-in-95 duration-300" onClick={e => e.stopPropagation()}>
+            <h3 className="text-xl font-black text-purple-100 mb-6 tracking-widest flex items-center justify-center gap-2 drop-shadow-[0_0_10px_rgba(168,85,247,1)]"><Monitor size={22} className="text-purple-400" /> เลือกรูปภาพ/วิดีโอ</h3>
+            
+            {/* 📱 โหมดมือถือ (Mobile View) */}
+            <div className="flex md:hidden flex-col gap-3">
               <div className="grid grid-cols-2 gap-3">
-                <button onClick={() => { document.getElementById('report-cam-img').click(); setShowImagePicker(false); }} className="bg-purple-600 hover:bg-purple-500 p-4 rounded-2xl flex flex-col items-center justify-center gap-2 font-bold text-white shadow-lg transition-transform active:scale-95"><Camera size={28}/> ถ่ายรูป</button>
-                <button onClick={() => { document.getElementById('report-cam-vid').click(); setShowImagePicker(false); }} className="bg-indigo-600 hover:bg-indigo-500 p-4 rounded-2xl flex flex-col items-center justify-center gap-2 font-bold text-white shadow-lg transition-transform active:scale-95"><Video size={28}/> ถ่ายวิดีโอ</button>
+                <button onClick={() => { document.getElementById('report-cam-img').click(); setShowImagePicker(false); }} className="bg-gradient-to-b from-blue-500 to-blue-700 p-4 rounded-[1rem] flex flex-col items-center justify-center gap-2 border-[2px] border-white/60 shadow-[0_0_15px_rgba(59,130,246,0.5)] transition-transform active:scale-95">
+                  <Camera className="text-white w-8 h-8 drop-shadow-md" /> <span className="font-black text-white text-[14px] drop-shadow-md">ถ่ายรูป</span>
+                </button>
+                <button onClick={() => { document.getElementById('report-cam-vid').click(); setShowImagePicker(false); }} className="bg-gradient-to-b from-rose-500 to-rose-700 p-4 rounded-[1rem] flex flex-col items-center justify-center gap-2 border-[2px] border-white/60 shadow-[0_0_15px_rgba(225,29,72,0.5)] transition-transform active:scale-95">
+                  <Video className="text-white w-8 h-8 drop-shadow-md" /> <span className="font-black text-white text-[14px] drop-shadow-md">ถ่ายวิดีโอ</span>
+                </button>
               </div>
-              <button onClick={() => { document.getElementById('report-gal').click(); setShowImagePicker(false); }} className="bg-slate-700 hover:bg-slate-600 p-4 rounded-2xl flex items-center justify-center gap-3 font-bold text-white shadow-lg transition-transform active:scale-95"><Monitor size={20}/> เลือกจากคลังภาพ</button>
-              <button onClick={() => setShowImagePicker(false)} className="w-full py-3 text-slate-400 font-bold mt-2 hover:text-white transition-colors">ยกเลิก</button>
+              <button onClick={() => { document.getElementById('report-gal').click(); setShowImagePicker(false); }} className="w-full bg-gradient-to-b from-emerald-500 to-emerald-700 p-4 rounded-[1rem] flex items-center justify-center gap-3 border-[2px] border-white/60 shadow-[0_0_15px_rgba(16,185,129,0.5)] transition-transform active:scale-95 mt-1">
+                <Monitor className="text-white w-6 h-6 drop-shadow-md" /> <span className="font-black text-white text-[16px] drop-shadow-md">เลือกคลังภาพ/วิดีโอ</span>
+              </button>
             </div>
+
+            {/* 💻 โหมดคอมพิวเตอร์ (PC View) - มีแค่คลังภาพ และ Paste */}
+            <div className="hidden md:flex flex-col gap-4">
+              <button onClick={() => { document.getElementById('report-gal').click(); setShowImagePicker(false); }} className="flex flex-col items-center justify-center bg-gradient-to-b from-emerald-500 to-emerald-700 p-8 rounded-xl border-[2px] border-white/60 shadow-[0_0_20px_rgba(16,185,129,0.4)] hover:scale-105 group transition-all">
+                <div className="flex gap-4 mb-3"><Camera size={40} className="text-white drop-shadow-md group-hover:scale-110 transition-all" /><Video size={40} className="text-white drop-shadow-md group-hover:scale-110 transition-all" /></div>
+                <span className="text-white font-black text-lg drop-shadow-lg group-hover:scale-105 transition-all">เลือกรูปภาพ/วิดีโอ</span>
+                <span className="text-emerald-100 text-sm mt-1 font-bold group-hover:text-white">คลิกเพื่ออัปโหลดจากคอมพิวเตอร์</span>
+              </button>
+              <button type="button" onClick={handleClipboardPaste} className="flex items-center justify-center gap-3 bg-slate-900 border-[2px] border-purple-500/60 p-4 rounded-xl cursor-pointer transition-all shadow-[0_0_15px_rgba(168,85,247,0.2)] hover:bg-slate-800 hover:border-purple-400 hover:scale-[1.02] active:scale-95 group">
+                <ClipboardList className="text-purple-400 w-6 h-6 drop-shadow-md group-hover:scale-110 group-hover:text-purple-300 transition-all" />
+                <div className="flex flex-col items-start text-left"><span className="text-purple-400 font-black text-[16px] tracking-wide group-hover:text-purple-300">แคปหน้าจอเสร็จแล้วกดปุ่มนี้</span><span className="text-slate-400 text-[13px] font-bold mt-0.5">กด Win + Shift + S หรือ PRT SC</span></div>
+              </button>
+            </div>
+            
+            <button onClick={() => setShowImagePicker(false)} className="w-full mt-6 py-4 bg-slate-800 text-slate-200 font-bold rounded-xl border-[2px] border-white/40 transition-all duration-300 shadow-[0_0_10px_rgba(244,63,94,0.3)] hover:bg-rose-700 hover:text-white active:scale-95 uppercase tracking-widest">ยกเลิก</button>
           </div>
-        </div>
-      )}
+        </div>, document.body
+      ) : null}
 
       <input type="file" id="report-cam-img" accept="image/*" capture="environment" onChange={handleFileSelect} className="hidden" />
       <input type="file" id="report-cam-vid" accept="video/*" capture="environment" onChange={handleFileSelect} className="hidden" />
