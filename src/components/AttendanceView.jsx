@@ -25,12 +25,17 @@ export default function AttendanceView({ sysTime, currentUserRole, currentUserNa
   const [showImagePicker, setShowImagePicker] = useState(false);
   const [showTimePicker, setShowTimePicker] = useState(false);
   
-  // 🌟 ฟันธง: เพิ่ม State เปิด Popup สำหรับขอออกก่อนของเวร SSC
+  // State สำหรับ Custom Sci-Fi Pop-up Calendar
+  const [calendarTarget, setCalendarTarget] = useState(null); // 'start' | 'end' | null
+  const [calMonth, setCalMonth] = useState(sysTime.getMonth());
+  const [calYear, setCalYear] = useState(sysTime.getFullYear());
+
+  // เปิด Popup สำหรับขอออกก่อนของเวร SSC
   const [showEarlyLeaveModal, setShowEarlyLeaveModal] = useState(false);
 
   const [alertConfig, setAlertConfig] = useState({ show: false, message: '', type: 'info' });
 
-  // 🌟 Logic เช็คว่าเป็นเวร SSC วันนี้หรือไม่
+  // Logic เช็คว่าเป็นเวร SSC วันนี้หรือไม่
   const todayStr = sysTime.toLocaleDateString('en-CA'); 
   const todayRoster = allRosters.find(r => r.date === todayStr);
   const isSSCToday = todayRoster && todayRoster.techName === currentUserName;
@@ -49,7 +54,7 @@ export default function AttendanceView({ sysTime, currentUserRole, currentUserNa
   };
   const closeAlert = () => setAlertConfig({ show: false, message: '', type: 'info' });
 
-  // 🌟 ฟันธง: สร้างตัวเลือกเวลาล่วงหน้าแค่ 2.5 ชั่วโมง (10 สล็อต) ตามหลัก UX ลดภาระการคิด
+  // สร้างตัวเลือกเวลาล่วงหน้าแค่ 2.5 ชั่วโมง (10 สล็อต) ตามหลัก UX ลดภาระการคิด
   const timeOptions = [];
   let startH = sysTime.getHours();
   let startM = Math.ceil(sysTime.getMinutes() / 15) * 15;
@@ -178,11 +183,10 @@ export default function AttendanceView({ sysTime, currentUserRole, currentUserNa
     }
   };
 
-  // 🌟 ฟันธง: ฟังก์ชันกดปุ่มสีส้มขอออกก่อน/สีเขียวครบเวลา (เปิด Popup ถ้ายังไม่ครบ)
   const handleEndSSCShift = (progressPct) => {
     if (progressPct < 100) {
       setActionType('early'); 
-      setShowEarlyLeaveModal(true); // 🌟 สั่งเปิด Popup ฟอร์ม แทนการแบ่งครึ่งจอ
+      setShowEarlyLeaveModal(true);
     } else {
       customAlert("✅ ออกเวร SSC เรียบร้อย!\nขอบคุณสำหรับการปฏิบัติหน้าที่อย่างเต็มกำลังครับ!", "success");
       setSscShiftStart(null); 
@@ -257,13 +261,11 @@ export default function AttendanceView({ sysTime, currentUserRole, currentUserNa
       
       setLateEta(''); setLateReason(''); setEvidenceFiles([]); setLeaveStartDate(''); setLeaveEndDate('');
       
-      // 🌟 ฟันธง: แก้บั๊ก Logic! ถ้าขอออกก่อน (เวร SSC) พอกดส่งฟอร์มเสร็จ ต้องเปลี่ยนเป็นหน้า "เสร็จสิ้นภารกิจ" ห้ามกลับไปหน้าแรก!
       if (isSSCToday && actionType === 'early') {
-        setShowEarlyLeaveModal(false); // ปิด Popup
+        setShowEarlyLeaveModal(false);
         setSscShiftStart(null); 
         localStorage.removeItem('gse_ssc_shift_start');
         
-        // 🌟 เซ็ตสถานะว่า Completed (จบงาน) ระบบจะโชว์หน้าสีเขียว!
         const todayStrLocal = sysTime.toLocaleDateString('en-CA');
         setSscShiftCompletedDate(todayStrLocal); 
         localStorage.setItem('gse_ssc_shift_completed_date', todayStrLocal);
@@ -277,24 +279,56 @@ export default function AttendanceView({ sysTime, currentUserRole, currentUserNa
   return (
     <div className="w-full max-w-5xl mx-auto space-y-4 md:space-y-6 animate-in fade-in duration-500 pb-28 relative z-10">
       
-      {/* 🌟 กรอบวันที่ด้านบน */}
-      <div className={`relative bg-slate-900/80 backdrop-blur-xl border-[2px] border-solid ${wTheme.border} rounded-[1.5rem] p-4 md:p-5 ${wTheme.glow} overflow-hidden`}>
-        <div className={`absolute -top-20 -left-20 w-40 h-40 ${wTheme.bg} blur-[60px] rounded-full pointer-events-none z-0`}></div>
-        <div className="relative z-10 flex items-center gap-4">
-          <div className={`w-12 h-12 md:w-14 md:h-14 rounded-2xl flex items-center justify-center border-2 border-solid shadow-inner ${wTheme.bg} ${wTheme.border} ${wTheme.textHead} shrink-0`}>
-            <Calendar size={24} className="md:w-7 md:h-7" />
-          </div>
-          <div className="flex flex-col md:flex-row md:items-center gap-1 md:gap-4 w-full">
-            <h2 className={`text-[18px] md:text-[22px] font-black ${wTheme.textHead} tracking-widest uppercase`}>
-              ประจำ{wTheme.dayLabel}
-            </h2>
-            <div className="hidden md:block h-6 w-[2px] bg-slate-700/80 rounded-full"></div> 
-            <div className="font-mono text-[14px] md:text-[16px] flex items-center bg-slate-900/60 px-3 py-1.5 md:px-4 md:py-2 rounded-xl border border-slate-700/80 shadow-inner w-max mt-0.5 md:mt-0">
-              <span className="text-slate-200 font-bold tracking-wider drop-shadow-md">{ThaiDateFormatter(sysTime)}</span>
+      {/* 🌟 ------------------------------------------------------------- 🌟 */}
+      {/* 🌟 จุดแก้ไข: กรอบแสดง วัน วันที่ เวลา มาตรฐานระดับโลก (World-Class UI) 🌟 */}
+      {(() => {
+        const dayOfWeek = sysTime.getDay();
+        const daysThai = ['วันอาทิตย์', 'วันจันทร์', 'วันอังคาร', 'วันพุธ', 'วันพฤหัสบดี', 'วันศุกร์', 'วันเสาร์'];
+        const dayColors = ['text-rose-400', 'text-yellow-400', 'text-pink-400', 'text-emerald-400', 'text-orange-400', 'text-sky-400', 'text-purple-400'];
+        const borderColors = ['border-rose-500/40', 'border-yellow-500/40', 'border-pink-500/40', 'border-emerald-500/40', 'border-orange-500/40', 'border-sky-500/40', 'border-purple-500/40'];
+        const glowColors = ['shadow-[0_0_20px_rgba(225,29,72,0.2)]', 'shadow-[0_0_20px_rgba(234,179,8,0.2)]', 'shadow-[0_0_20px_rgba(244,114,182,0.2)]', 'shadow-[0_0_20px_rgba(16,185,129,0.2)]', 'shadow-[0_0_20px_rgba(249,115,22,0.2)]', 'shadow-[0_0_20px_rgba(14,165,233,0.2)]', 'shadow-[0_0_20px_rgba(168,85,247,0.2)]'];
+        
+        const currentDayColor = dayColors[dayOfWeek];
+        const currentBorder = borderColors[dayOfWeek];
+        const currentGlow = glowColors[dayOfWeek];
+        
+        const formatThaiDateClean = (dateObj) => {
+          const thMonthsShort = ['ม.ค.', 'ก.พ.', 'มี.ค.', 'เม.ย.', 'พ.ค.', 'มิ.ย.', 'ก.ค.', 'ส.ค.', 'ก.ย.', 'ต.ค.', 'พ.ย.', 'ธ.ค.'];
+          return `${dateObj.getDate()} ${thMonthsShort[dateObj.getMonth()]} ${dateObj.getFullYear() + 543}`;
+        };
+
+        return (
+          <div className={`w-full bg-slate-900/80 backdrop-blur-xl border-[2px] border-solid ${currentBorder} rounded-[1rem] p-3 md:p-4 ${currentGlow} flex flex-col md:flex-row items-center justify-center gap-2 md:gap-5 relative overflow-hidden mb-6 z-10 transition-all duration-500`}>
+            <div className="absolute inset-0 bg-gradient-to-r from-transparent via-slate-700/10 to-transparent opacity-50 pointer-events-none"></div>
+            
+            {/* โซนวันและวันที่ */}
+            <div className="relative z-10 flex items-center gap-2 md:gap-3">
+              <div className={`p-1.5 rounded-lg bg-slate-950/50 border border-slate-700/50 ${currentDayColor} shadow-inner`}>
+                <Calendar size={18} />
+              </div>
+              <span className={`font-black tracking-widest text-[14px] md:text-[16px] ${currentDayColor} drop-shadow-md`}>
+                ประจำ{daysThai[dayOfWeek]}ที่ {formatThaiDateClean(sysTime)}
+              </span>
+            </div>
+
+            {/* เส้นคั่นกลาง (ซ่อนในมือถือ โชว์ใน PC) */}
+            <div className="relative z-10 hidden md:block w-[2px] h-5 bg-slate-600/50 rounded-full"></div>
+            {/* เส้นคั่นแนวนอน (โชว์ในมือถือ ซ่อนใน PC) */}
+            <div className="relative z-10 md:hidden w-3/4 h-[1px] bg-slate-700/50 my-0.5 rounded-full"></div>
+
+            {/* โซนเวลา */}
+            <div className="relative z-10 flex items-center gap-2 md:gap-3">
+              <div className="p-1.5 rounded-lg bg-slate-950/50 border border-slate-700/50 text-orange-400 shadow-inner">
+                <Clock size={18} />
+              </div>
+              <span className="font-black font-mono tracking-widest text-[14px] md:text-[16px] text-orange-400 drop-shadow-md">
+                {sysTime.toLocaleTimeString('th-TH', { hour: '2-digit', minute: '2-digit', second: '2-digit' })} น.
+              </span>
             </div>
           </div>
-        </div>
-      </div>
+        );
+      })()}
+      {/* 🌟 ------------------------------------------------------------- 🌟 */}
 
       {/* 🌟 แถบเมนูย่อย (เฉพาะ Commander) */}
       {currentUserRole === 'Commander' && (
@@ -313,12 +347,10 @@ export default function AttendanceView({ sysTime, currentUserRole, currentUserNa
 
       {/* 🌟 หน้าจัดการเวลาของฉัน (My Record) */}
       {activeSubTab === 'my_record' && (
-        // 🌟 ฟันธง: ถ้าเป็น SSC ให้กาง w-full ตลอดเวลา เพราะเราย้ายฟอร์มออกก่อนไปไว้ใน Popup แล้ว
         <div className={`grid grid-cols-1 ${!isSSCToday ? 'md:grid-cols-2' : 'w-full'} gap-4 md:gap-6 animate-in slide-in-from-bottom-4 duration-500`}>
           
-          {/* 🟢 กล่องเช็คอิน (เปลี่ยนโฉมอัตโนมัติถ้าเป็นเวร SSC) */}
+          {/* 🟢 กล่องเช็คอิน */}
           {!isSSCToday ? (
-            // --- โหมดวันทำงานปกติ (จ.-ศ.) ---
             <div className="relative overflow-hidden bg-slate-900/80 backdrop-blur-xl border-[2px] border-emerald-500/50 p-6 rounded-[1.5rem] shadow-[0_0_30px_rgba(16,185,129,0.3)] flex flex-col items-center justify-center text-center">
               <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-48 h-48 bg-emerald-500/20 blur-[60px] rounded-full pointer-events-none z-0"></div>
               <div className="relative z-10 w-20 h-20 bg-emerald-500/10 text-emerald-400 rounded-full flex items-center justify-center mb-3 border-[2px] border-emerald-500/50 shadow-[0_0_20px_rgba(16,185,129,0.4)]"><UserCheck size={40} /></div>
@@ -330,9 +362,7 @@ export default function AttendanceView({ sysTime, currentUserRole, currentUserNa
               </button>
             </div>
           ) : (
-            // --- 🔵 โหมดเวรปฏิบัติการ SSC (เสาร์-อาทิตย์ / วันหยุด) ---
             sscShiftCompletedDate === todayStr ? (
-              // 🌟 แสดงหน้าต่าง "เสร็จสิ้นภารกิจ" (ถ้ากดออกเวรแล้ว) 🌟
               <div className="relative overflow-hidden bg-slate-900/90 backdrop-blur-xl border-[2px] border-emerald-500 p-6 rounded-[1.5rem] shadow-[0_0_40px_rgba(16,185,129,0.3)] flex flex-col items-center justify-center text-center h-full min-h-[350px]">
                 <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-64 h-64 bg-emerald-500/20 blur-[80px] rounded-full pointer-events-none z-0"></div>
                 <div className="relative z-10 w-20 h-20 bg-emerald-500/10 text-emerald-400 rounded-full flex items-center justify-center mb-3 border-[2px] border-emerald-500/50 shadow-[0_0_20px_rgba(16,185,129,0.6)]">
@@ -348,7 +378,6 @@ export default function AttendanceView({ sysTime, currentUserRole, currentUserNa
                 </div>
               </div>
             ) : (
-              // 🌟 แสดงหน้าจอ "คุมเวร SSC" (ถ้ายังไม่ออกเวร)
               <div className="relative overflow-hidden bg-slate-900/90 backdrop-blur-xl border-[2px] border-blue-500 p-6 rounded-[1.5rem] shadow-[0_0_40px_rgba(59,130,246,0.3)] flex flex-col items-center text-center">
                 <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-64 h-64 bg-blue-500/20 blur-[80px] rounded-full pointer-events-none z-0"></div>
                 
@@ -376,7 +405,7 @@ export default function AttendanceView({ sysTime, currentUserRole, currentUserNa
                     </button>
                   </>
                 ) : (
-                  <div className="relative z-10 w-full flex flex-col gap-4 w-full">
+                  <div className="relative z-10 w-full flex flex-col gap-4">
                     {(() => {
                       const elapsedMs = sysTime.getTime() - sscShiftStart.getTime();
                       const totalMs = 8 * 3600 * 1000;
@@ -417,7 +446,7 @@ export default function AttendanceView({ sysTime, currentUserRole, currentUserNa
             )
           )}
 
-          {/* 🌟 ฟันธง: กล่องแจ้งลางาน/เข้าสาย/ออกก่อน (สำหรับวันปกติเท่านั้น SSC ไม่โชว์แล้ว!) 🌟 */}
+          {/* 🌟 กล่องแจ้งลางาน/เข้าสาย/ออกก่อน (สำหรับวันปกติ) */}
           {!isSSCToday && (
             <div className="relative overflow-hidden bg-slate-900/80 backdrop-blur-xl border-[2px] border-slate-600/50 p-6 rounded-[1.5rem] shadow-[0_0_30px_rgba(0,0,0,0.3)] flex flex-col animate-in fade-in">
               <div className="flex flex-wrap bg-slate-800 rounded-xl p-1 mb-5 border border-slate-700 relative z-10 gap-1">
@@ -438,16 +467,60 @@ export default function AttendanceView({ sysTime, currentUserRole, currentUserNa
                         <button onClick={() => setLeaveType('offsite')} className={`py-2 rounded-lg text-[13px] font-bold border transition-all ${leaveType === 'offsite' ? 'bg-emerald-500/20 border-emerald-400 text-emerald-300 shadow-[0_0_10px_rgba(16,185,129,0.3)]' : 'bg-slate-800 border-slate-600 text-slate-400'}`}>✈️ ไปราชการ/สัมมนา</button>
                       </div>
                     </div>
+                    
                     <div className="grid grid-cols-2 gap-3">
                       <div>
                         <label className="block text-[12px] font-bold text-slate-400 mb-1">ตั้งแต่วันที่ <span className="text-rose-500">*</span></label>
-                        <input type="date" value={leaveStartDate} onChange={e => setLeaveStartDate(e.target.value)} className="w-full bg-slate-800/80 border border-slate-600 rounded-lg px-3 py-2 text-white text-[14px] outline-none focus:border-blue-400" />
+                        <div 
+                          onClick={() => { setCalendarTarget('start'); setCalMonth(leaveStartDate ? new Date(leaveStartDate).getMonth() : sysTime.getMonth()); setCalYear(leaveStartDate ? new Date(leaveStartDate).getFullYear() : sysTime.getFullYear()); }} 
+                          className="w-full bg-slate-800/80 border-[2px] border-slate-600 rounded-xl px-3 py-2.5 text-white font-bold text-[14px] flex justify-between items-center cursor-pointer hover:border-blue-400 focus:shadow-[0_0_15px_rgba(59,130,246,0.4)] transition-all shadow-inner"
+                        >
+                          <span className={leaveStartDate ? "text-white font-mono" : "text-slate-400"}>
+                            {leaveStartDate ? (() => {
+                              const d = new Date(leaveStartDate);
+                              const thMonthsShort = ['ม.ค.', 'ก.พ.', 'มี.ค.', 'เม.ย.', 'พ.ค.', 'มิ.ย.', 'ก.ค.', 'ส.ค.', 'ก.ย.', 'ต.ค.', 'พ.ย.', 'ธ.ค.'];
+                              return `${d.getDate()} ${thMonthsShort[d.getMonth()]} ${d.getFullYear() + 543}`;
+                            })() : '-- เลือกวัน --'}
+                          </span>
+                          <Calendar size={16} className="text-blue-400" />
+                        </div>
                       </div>
                       <div>
                         <label className="block text-[12px] font-bold text-slate-400 mb-1">ถึงวันที่ <span className="text-rose-500">*</span></label>
-                        <input type="date" value={leaveEndDate} onChange={e => setLeaveEndDate(e.target.value)} className="w-full bg-slate-800/80 border border-slate-600 rounded-lg px-3 py-2 text-white text-[14px] outline-none focus:border-blue-400" />
+                        <div 
+                          onClick={() => { setCalendarTarget('end'); setCalMonth(leaveEndDate ? new Date(leaveEndDate).getMonth() : sysTime.getMonth()); setCalYear(leaveEndDate ? new Date(leaveEndDate).getFullYear() : sysTime.getFullYear()); }} 
+                          className="w-full bg-slate-800/80 border-[2px] border-slate-600 rounded-xl px-3 py-2.5 text-white font-bold text-[14px] flex justify-between items-center cursor-pointer hover:border-blue-400 focus:shadow-[0_0_15px_rgba(59,130,246,0.4)] transition-all shadow-inner"
+                        >
+                          <span className={leaveEndDate ? "text-white font-mono" : "text-slate-400"}>
+                            {leaveEndDate ? (() => {
+                              const d = new Date(leaveEndDate);
+                              const thMonthsShort = ['ม.ค.', 'ก.พ.', 'มี.ค.', 'เม.ย.', 'พ.ค.', 'มิ.ย.', 'ก.ค.', 'ส.ค.', 'ก.ย.', 'ต.ค.', 'พ.ย.', 'ธ.ค.'];
+                              return `${d.getDate()} ${thMonthsShort[d.getMonth()]} ${d.getFullYear() + 543}`;
+                            })() : '-- เลือกวัน --'}
+                          </span>
+                          <Calendar size={16} className="text-blue-400" />
+                        </div>
                       </div>
                     </div>
+
+                    {/* 🌟 กล่องคำนวณสรุปจำนวนวันลา 🌟 */}
+                    {leaveStartDate && leaveEndDate && (
+                      <div className="mt-3 bg-blue-500/10 border border-blue-500/30 rounded-xl p-3 flex items-center justify-between shadow-inner animate-in fade-in">
+                        <span className="text-slate-300 text-[13px] font-bold flex items-center gap-1.5"><Calendar size={14} className="text-blue-400"/> สรุปจำนวนวันลา:</span>
+                        {(() => {
+                          const start = new Date(leaveStartDate);
+                          const end = new Date(leaveEndDate);
+                          const diffTime = end.getTime() - start.getTime();
+                          const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24)) + 1;
+                          
+                          if (diffDays > 0) {
+                            return <span className="text-blue-400 font-black text-[16px] drop-shadow-md">{diffDays} วัน</span>;
+                          } else {
+                            return <span className="text-rose-400 font-black text-[13px]">⚠️ ระบุวันที่ไม่ถูกต้อง</span>;
+                          }
+                        })()}
+                      </div>
+                    )}
                   </>
                 ) : (
                   <div>
@@ -597,24 +670,56 @@ export default function AttendanceView({ sysTime, currentUserRole, currentUserNa
         </div>
       )}
 
-      {/* 🌟 Custom Time Picker Modal */}
+      {/* 🌟 Custom Time Picker Modal (แก้ไขซ่อน Scrollbar โหมดนี้เรียบร้อย) */}
       {showTimePicker && typeof document !== 'undefined' ? createPortal(
-        <div className="fixed inset-0 z-[9999999] bg-slate-900/90 backdrop-blur-sm flex items-end md:items-center justify-center p-4 md:p-0 animate-in fade-in" onClick={() => setShowTimePicker(false)}>
-          <div className={`bg-[#1e293b] border-2 ${actionType === 'early' ? 'border-rose-500 shadow-[0_0_40px_rgba(244,63,94,0.3)]' : 'border-orange-500 shadow-[0_0_40px_rgba(249,115,22,0.3)]'} rounded-[2rem] w-full max-w-sm flex flex-col animate-in slide-in-from-bottom-10 md:slide-in-from-bottom-0`} onClick={e => e.stopPropagation()}>
-            <div className="p-6 border-b border-slate-700/50 flex justify-between items-center bg-slate-800/50 rounded-t-[2rem]">
-              <h3 className={`text-[20px] font-black flex items-center gap-2 ${actionType === 'early' ? 'text-rose-400' : 'text-orange-400'}`}><Clock size={24} /> ระบุเวลา</h3>
-              <button onClick={() => setShowTimePicker(false)} className="text-slate-400 hover:text-white bg-slate-800 p-2 rounded-full transition-all active:scale-95"><X size={20} /></button>
+        <div className="fixed inset-0 z-[9999999] bg-slate-950/80 backdrop-blur-md flex items-center justify-center p-4 animate-in fade-in duration-200" onClick={() => setShowTimePicker(false)}>
+          
+          <div className={`absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[350px] h-[350px] rounded-full blur-[100px] pointer-events-none z-0 ${actionType === 'early' ? 'bg-rose-500/10' : 'bg-orange-500/10'}`}></div>
+          
+          <div className={`bg-[#0f172a] border-[2px] border-solid rounded-[2rem] p-6 w-full max-w-sm relative flex flex-col animate-in zoom-in-95 duration-200 ${actionType === 'early' ? 'border-rose-500 shadow-[0_0_40px_rgba(244,63,94,0.4),inset_0_0_15px_rgba(244,63,94,0.1)]' : 'border-orange-500 shadow-[0_0_40px_rgba(249,115,22,0.4),inset_0_0_15px_rgba(249,115,22,0.1)]'}`} onClick={e => e.stopPropagation()}>
+            
+            <div className="flex justify-between items-center mb-6">
+              <h3 className={`text-[18px] md:text-[20px] font-black flex items-center gap-2 ${actionType === 'early' ? 'text-rose-400' : 'text-orange-400'}`}>
+                <Clock size={24} className="animate-pulse" /> ระบุเวลา (ETA)
+              </h3>
+              <button onClick={() => setShowTimePicker(false)} className="text-slate-400 hover:text-white bg-slate-800/50 border border-slate-700 p-2 rounded-xl transition-all active:scale-95 hover:bg-slate-700">
+                <X size={20} />
+              </button>
             </div>
-            <div className="p-4 max-h-[50vh] overflow-y-auto space-y-2 [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]">
-              {timeOptions.map(time => (
-                <button key={time} onClick={() => { setLateEta(time); setShowTimePicker(false); }} className={`w-full py-4 rounded-2xl font-mono text-[18px] font-bold transition-all active:scale-95 ${lateEta === time ? (actionType === 'early' ? 'bg-rose-500 text-white shadow-[0_0_15px_rgba(244,63,94,0.5)] border-2 border-rose-400' : 'bg-orange-500 text-white shadow-[0_0_15px_rgba(249,115,22,0.5)] border-2 border-orange-400') : 'bg-slate-800/80 border-2 border-transparent text-slate-300 hover:bg-slate-700 hover:text-white hover:border-slate-500'}`}>{time} น.</button>
-              ))}
+            
+            {/* 🌟 จุดแก้ไข 1: นำ Scrollbar ออก (เปลี่ยน class [&::-webkit-scrollbar] ให้เป็น hidden) */}
+            <div className="w-full max-h-[50vh] overflow-y-auto space-y-2.5 mb-6 [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]">
+              {timeOptions.map(time => {
+                const isSelected = lateEta === time;
+                return (
+                  <button 
+                    key={time} 
+                    onClick={() => { setLateEta(time); setShowTimePicker(false); }} 
+                    className={`w-full py-3.5 rounded-xl font-mono text-[16px] md:text-[18px] font-bold transition-all active:scale-95 border ${
+                      isSelected 
+                        ? (actionType === 'early' ? 'bg-rose-500 text-white border-rose-300 shadow-[0_0_15px_rgba(244,63,94,0.6)]' : 'bg-orange-500 text-white border-orange-300 shadow-[0_0_15px_rgba(249,115,22,0.6)]') 
+                        : `bg-slate-800/40 border-slate-700/80 text-slate-300 hover:bg-slate-700 ${actionType === 'early' ? 'hover:border-rose-400/50 hover:text-rose-300' : 'hover:border-orange-400/50 hover:text-orange-300'}`
+                    }`}
+                  >
+                    {time} น.
+                  </button>
+                );
+              })}
             </div>
+
+            <button
+              type="button"
+              onClick={() => setShowTimePicker(false)}
+              className={`w-full py-3.5 border-[2px] border-solid bg-transparent rounded-2xl font-black text-[16px] tracking-widest transition-all active:scale-95 shadow-sm ${actionType === 'early' ? 'border-rose-500/80 text-rose-400 hover:bg-rose-600 hover:text-white' : 'border-orange-500/80 text-orange-400 hover:bg-orange-600 hover:text-white'}`}
+            >
+              ยกเลิก
+            </button>
+            
           </div>
         </div>, document.body
       ) : null}
 
-      {/* 🌟 ฟันธง: Modal แจ้งขอออกเวรก่อนกำหนด (สำหรับโหมด SSC แบบ Popup ลอยๆ ไม่บังจอมิด) 🌟 */}
+      {/* 🌟 Modal แจ้งขอออกเวรก่อนกำหนด */}
       {showEarlyLeaveModal && typeof document !== 'undefined' ? createPortal(
         <div className="fixed inset-0 z-[999999] flex items-center justify-center p-4 bg-slate-900/80 backdrop-blur-md animate-in fade-in duration-300" onClick={() => setShowEarlyLeaveModal(false)}>
            <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-64 h-64 bg-rose-600/20 blur-[80px] rounded-full pointer-events-none z-0"></div>
@@ -668,6 +773,115 @@ export default function AttendanceView({ sysTime, currentUserRole, currentUserNa
                 </button>
              </div>
            </div>
+        </div>, document.body
+      ) : null}
+
+      {/* 🌟 Date Picker Modal 🌟 */}
+      {calendarTarget && typeof document !== 'undefined' ? createPortal(
+        <div className="fixed inset-0 z-[9999999] bg-slate-950/80 backdrop-blur-md flex items-center justify-center p-4 animate-in fade-in duration-200" onClick={() => setCalendarTarget(null)}>
+          <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[350px] h-[350px] bg-cyan-500/10 rounded-full blur-[100px] pointer-events-none z-0"></div>
+          
+          <div className="bg-[#0f172a] border-[2px] border-solid border-cyan-400 rounded-[2rem] p-6 w-full max-w-sm shadow-[0_0_40px_rgba(34,211,238,0.4),inset_0_0_15px_rgba(34,211,238,0.1)] relative flex flex-col items-center animate-in zoom-in-95 duration-200" onClick={e => e.stopPropagation()}>
+            
+            <div className="w-full flex justify-between items-center mb-6">
+              <button 
+                type="button"
+                onClick={() => {
+                  if (calMonth === 0) { setCalMonth(11); setCalYear(prev => prev - 1); } 
+                  else { setCalMonth(prev => prev - 1); }
+                }}
+                className="w-10 h-10 border border-slate-700 rounded-xl bg-slate-800/50 flex items-center justify-center text-slate-300 hover:text-cyan-400 hover:border-cyan-500/50 transition-all active:scale-95"
+              >
+                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="m15 18-6-6 6-6"/></svg>
+              </button>
+              
+              <div className="text-center flex flex-col">
+                <span className="text-slate-400 font-bold text-[11px] tracking-widest uppercase mb-0.5">เลือกวันที่</span>
+                <span className="text-cyan-400 font-black text-[18px] tracking-wide drop-shadow-[0_0_8px_rgba(34,211,238,0.5)]">
+                  {(() => {
+                    const thMonths = ['มกราคม', 'กุมภาพันธ์', 'มีนาคม', 'เมษายน', 'พฤษภาคม', 'มิถุนายน', 'กรกฎาคม', 'สิงหาคม', 'กันยายน', 'ตุลาคม', 'พฤศจิกายน', 'ธันวาคม'];
+                    return `${thMonths[calMonth]} ${calYear + 543}`;
+                  })()}
+                </span>
+              </div>
+              
+              <button 
+                type="button"
+                onClick={() => {
+                  if (calMonth === 11) { setCalMonth(0); setCalYear(prev => prev + 1); } 
+                  else { setCalMonth(prev => prev + 1); }
+                }}
+                className="w-10 h-10 border border-slate-700 rounded-xl bg-slate-800/50 flex items-center justify-center text-slate-300 hover:text-cyan-400 hover:border-cyan-500/50 transition-all active:scale-95"
+              >
+                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="m9 18 6-6-6-6"/></svg>
+              </button>
+            </div>
+
+            <div className="grid grid-cols-7 gap-2 w-full text-center mb-3 text-[13px] font-black tracking-wide">
+              <div className="text-rose-400">อา</div>
+              <div className="text-slate-400">จ</div>
+              <div className="text-slate-400">อ</div>
+              <div className="text-slate-400">พ</div>
+              <div className="text-slate-400">พฤ</div>
+              <div className="text-slate-400">ศ</div>
+              <div className="text-sky-400">ส</div>
+            </div>
+
+            <div className="grid grid-cols-7 gap-2 w-full text-center mb-6">
+              {(() => {
+                const firstDayIndex = new Date(calYear, calMonth, 1).getDay();
+                const totalDays = new Date(calYear, calMonth + 1, 0).getDate();
+                const cells = [];
+                
+                for (let i = 0; i < firstDayIndex; i++) {
+                  cells.push(<div key={`blank-${i}`} className="w-10 h-10"></div>);
+                }
+                
+                for (let day = 1; day <= totalDays; day++) {
+                  const currentString = `${calYear}-${String(calMonth + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
+                  const isSelected = calendarTarget === 'start' ? leaveStartDate === currentString : leaveEndDate === currentString;
+                  const dayOfWeekIndex = (firstDayIndex + day - 1) % 7;
+                  
+                  let textColor = 'text-white';
+                  if (dayOfWeekIndex === 0) textColor = 'text-rose-400';
+                  if (dayOfWeekIndex === 6) textColor = 'text-sky-400';
+
+                  const isTodayCell = sysTime.getFullYear() === calYear && sysTime.getMonth() === calMonth && sysTime.getDate() === day;
+
+                  cells.push(
+                    <button
+                      key={`day-${day}`}
+                      type="button"
+                      onClick={() => {
+                        if (calendarTarget === 'start') setLeaveStartDate(currentString);
+                        else setLeaveEndDate(currentString);
+                        setCalendarTarget(null);
+                      }}
+                      className={`w-10 h-10 mx-auto rounded-full font-mono font-bold text-[15px] flex items-center justify-center transition-all active:scale-95 border ${
+                        isSelected 
+                          ? 'bg-cyan-500 text-slate-950 border-cyan-300 shadow-[0_0_15px_rgba(34,211,238,0.8)] scale-110' 
+                          : isTodayCell 
+                            ? `bg-orange-500/20 border-orange-500/60 ${textColor} shadow-[0_0_10px_rgba(249,115,22,0.4)]`
+                            : `bg-slate-800/40 border-slate-700/80 ${textColor} hover:bg-slate-700 hover:border-cyan-400/50`
+                      }`}
+                    >
+                      {day}
+                    </button>
+                  );
+                }
+                return cells;
+              })()}
+            </div>
+
+            <button
+              type="button"
+              onClick={() => setCalendarTarget(null)}
+              className="w-full py-3.5 border-[2px] border-solid border-cyan-500/80 text-cyan-400 bg-transparent rounded-2xl hover:bg-cyan-600 hover:text-white font-black text-[16px] tracking-widest transition-all active:scale-95 shadow-sm"
+            >
+              ยกเลิก
+            </button>
+
+          </div>
         </div>, document.body
       ) : null}
 

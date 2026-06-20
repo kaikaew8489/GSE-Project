@@ -14,7 +14,8 @@ export default function ReportView({
   allRosters, technicianList, formData, setFormData,
   formErrors, setFormErrors, handleInputChange,
   showImagePicker, setShowImagePicker, handleMediaUpload,
-  handleClipboardPaste, setLightboxImg, isSubmitting
+  handleClipboardPaste, setLightboxImg, isSubmitting,
+  currentUserName // 🌟 รับ Prop ชื่อผู้ใช้เข้ามาที่นี่
 }) {
   return (
     <div className="p-5 pb-32 animate-in slide-in-from-right-4 duration-500 space-y-6 relative">

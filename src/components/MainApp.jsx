@@ -364,6 +364,31 @@ export default function MainApp({ onGoHome, initialRole }) {
         localStorage.setItem('gse_remembered_phone', String(newTicket.reporterContact).replace(/\D/g, ''));
         localStorage.setItem('gse_remembered_name', newTicket.reporter);
       }
+
+      // 🌟 ------------------------------------------------------------- 🌟
+      // 🌟 จุดที่เพิ่มที่ 1: ยิงข้อมูลไปหา Apps Script เพื่อแจ้งเตือนเมื่อสร้างงานใหม่ (NEW) 🌟
+      const APPS_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbxBoB_e637WkWMeSuX9NP3BSKcSiE8J3dSXmlzNV9aeiq6DRUvn81bSp6w-B0nzCVA5/exec"; 
+      
+      fetch(APPS_SCRIPT_URL, {
+        method: 'POST',
+        mode: 'no-cors', // ⚠️ ป้องกัน Error ข้ามโดเมน
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          ticketId: newId,
+          equipment: formData.equipment,
+          description: formData.description,
+          reporter: formData.reporter,
+          phone: formData.reporterContact,
+          primaryTech: newTicket.techName,
+          building: formData.building,
+          room: formData.room,
+          status: "NEW" 
+        })
+      }).catch(err => console.error("LINE Notify Error:", err));
+      // 🌟 ------------------------------------------------------------- 🌟
+
       setShowSuccess(true);
       setTimeout(() => {
         setShowSuccess(false);
@@ -373,7 +398,7 @@ export default function MainApp({ onGoHome, initialRole }) {
       }, 5000);
     } catch (e) {
       alert("❌ เกิดข้อผิดพลาดในการส่งข้อมูล: " + e.message);
-    } finally {         // ✅ แก้เป็นคำนี้ครับ!
+    } finally {         
       setIsSubmitting(false);
     }
   };
@@ -407,6 +432,8 @@ export default function MainApp({ onGoHome, initialRole }) {
       }
 
       let updateData = {};
+      let pushStatusLine = ""; // ตัวแปรบอกสถานะเพื่อยิง LINE
+
       if (type === 'hold') {
         const log = { type: 'hold', timestamp: sysTime.toISOString(), reason: actionText || 'รออะไหล่/อุปกรณ์', attachments: finalUrls };
         updateData = { status: 'on_hold', lastHoldAt: log.timestamp, historyLog: [...(ticket.historyLog || []), log] };
@@ -422,11 +449,37 @@ export default function MainApp({ onGoHome, initialRole }) {
       } else if (type === 'accept') {
         const log = { type: 'accepted', timestamp: sysTime.toISOString(), by: selectedTech || currentUserName };
         updateData = { status: 'in_progress', acceptedAt: log.timestamp, startedAt: sysTime.toISOString(), historyLog: [...(ticket.historyLog || []), log], techName: selectedTech || currentUserName, techPhone: technicianList.find(x => x.name === (selectedTech || currentUserName))?.phone || '-' };
+        pushStatusLine = "ACCEPTED";
       } else if (type === 'finish') {
         updateData = { status: 'completed', cause: actionText, completedAt: sysTime.toISOString(), finishAttachments: finalUrls, helpers: selectedHelpers };
+        pushStatusLine = "COMPLETED";
       }
       
       await updateDoc(doc(db, "tickets", ticket.dbId), { ...updateData, updatedAt: serverTimestamp() });
+
+      // 🌟 ------------------------------------------------------------- 🌟
+      // 🌟 จุดที่เพิ่มที่ 2: ยิงข้อมูลไปหา Apps Script เพื่อแจ้งเตือนตอนรับงาน หรือ ซ่อมเสร็จ 🌟
+      if (pushStatusLine) {
+        const APPS_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbxBoB_e637WkWMeSuX9NP3BSKcSiE8J3dSXmlzNV9aeiq6DRUvn81bSp6w-B0nzCVA5/exec"; 
+        
+        fetch(APPS_SCRIPT_URL, {
+          method: 'POST',
+          mode: 'no-cors',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            ticketId: ticket.id,
+            equipment: ticket.equipment,
+            description: ticket.description,
+            reporter: ticket.reporter,
+            phone: ticket.reporterContact,
+            primaryTech: updateData.techName || ticket.techName,
+            building: ticket.building,
+            room: ticket.room,
+            status: pushStatusLine
+          })
+        }).catch(e => console.error("LINE Notify Update Error:", e));
+      }
+      // 🌟 ------------------------------------------------------------- 🌟
       
       setActionModal({ isOpen: false, ticketId: null, type: null });
       setActionText('');
@@ -636,7 +689,6 @@ export default function MainApp({ onGoHome, initialRole }) {
   return (
     <div className="fixed inset-0 w-full h-[100dvh] bg-slate-900 flex justify-center overflow-hidden">
       <div className="absolute inset-0 z-0 bg-cover bg-center bg-no-repeat opacity-40 pointer-events-none" style={{ backgroundImage: "url('/bg-earth-new.webp')" }}></div>
-      {/* 🌟 ฟันธงจุดที่ 1: บีบกรอบนอกสุดของ App ในโหมด PC ให้กว้าง max-w-5xl สมมาตรพอดีกับกล่องเนื้อหาภายใน 🌟 */}
       <div className={`relative z-10 flex flex-col h-[100dvh] w-full max-w-md md:max-w-5xl backdrop-blur-md overflow-hidden text-slate-100 font-sans select-none bg-slate-900/40 border-x border-solid transition-all duration-1000 ${
         activeTab === 'dashboard' ? 'shadow-[0_0_60px_-5px_rgba(249,115,22,1)] border-orange-500/50' :
         activeTab === 'report' ? 'shadow-[0_0_60px_-5px_rgba(16,185,129,1)] border-emerald-500/50' :
@@ -644,7 +696,6 @@ export default function MainApp({ onGoHome, initialRole }) {
         'shadow-[0_0_60px_-5px_rgba(244,63,94,1)] border-rose-500/50')
       }`}>
 
-        {/* 🌟 MASTER HEADER (แถบหัวข้อจักรวาล) แสดงผลทุกหน้าอัตโนมัติ 🌟 */}
         {activeTab !== 'hub' && (() => {
           const getHeaderProps = (tab, role) => {
             switch(tab) {
@@ -667,9 +718,14 @@ export default function MainApp({ onGoHome, initialRole }) {
                 <div className={`bg-white w-14 h-14 md:w-16 md:h-16 rounded-2xl md:rounded-xl shadow-inner border-[2px] border-solid flex items-center justify-center shrink-0 ${hc.bgIcon}`}>
                   {hc.icon}
                 </div>
-                <h1 className="font-black text-white text-[24px] md:text-[36px] tracking-widest leading-tight drop-shadow-[0_2px_4px_rgba(0,0,0,0.5)]">
-                  {hc.title}
-                </h1>
+                <div className="flex flex-col">
+                  <h1 className="font-black text-white text-[24px] md:text-[36px] tracking-widest leading-tight drop-shadow-[0_2px_4px_rgba(0,0,0,0.5)]">
+                    {hc.title}
+                  </h1>
+                  <span className={`text-[13px] md:text-[16px] font-bold mt-1 tracking-wide ${hc.text} opacity-90 animate-in fade-in duration-300`}>
+                    👋 สวัสดีครับ, <span className="text-white">คุณ{currentUserName || 'ผู้ใช้งาน'}</span>
+                  </span>
+                </div>
               </div>
             </div>
           );
@@ -689,11 +745,10 @@ export default function MainApp({ onGoHome, initialRole }) {
 
               {activeTab === 'monitoring' && <UPSStatusCard setActiveTab={setActiveTab} onGoHome={onGoHome} />}
 
-              {activeTab === 'report' && (<ReportView sysTime={sysTime} showSuccess={showSuccess} handleSubmit={handleSubmit} handleResetForm={handleResetForm} allRosters={allRosters} technicianList={technicianList} formData={formData} setFormData={setFormData} formErrors={formErrors} setFormErrors={setFormErrors} handleInputChange={handleInputChange} showImagePicker={showImagePicker} setShowImagePicker={setShowImagePicker} handleMediaUpload={handleMediaUpload} handleClipboardPaste={handleClipboardPaste} setLightboxImg={setLightboxImg} isSubmitting={isSubmitting} />)}
+              {activeTab === 'report' && (<ReportView sysTime={sysTime} showSuccess={showSuccess} handleSubmit={handleSubmit} handleResetForm={handleResetForm} allRosters={allRosters} technicianList={technicianList} formData={formData} setFormData={setFormData} formErrors={formErrors} setFormErrors={setFormErrors} handleInputChange={handleInputChange} showImagePicker={showImagePicker} setShowImagePicker={setShowImagePicker} handleMediaUpload={handleMediaUpload} handleClipboardPaste={handleClipboardPaste} setLightboxImg={setLightboxImg} isSubmitting={isSubmitting} currentUserName={currentUserName} />)}
 
               {activeTab === 'daily_report' && (<DailyReportView sysTime={sysTime} currentUserRole={currentUserRole} currentUserName={currentUserName} setActiveTab={setActiveTab} onGoHome={onGoHome} />)}
 
-              {/* 🌟 ฟันธงจุดที่ 2: ครอบล็อกกล่อง Dashboard ให้ยืดเต็ม 100% รับกับแผง Layout หลัก เพื่อความระเบียบเรียบร้อยสูงสุด 🌟 */}
               {activeTab === 'dashboard' && (currentUserRole !== 'reporter') && (
                 <div className="w-full [&>div]:!max-w-full">
                   <Dashboard sysTime={sysTime} stats={dashStats} tickets={filteredTickets_forDashboard} allRosters={allRosters} technicianList={technicianList} dashTimeframe={dashTimeframe} setDashTimeframe={setDashTimeframe} customMonth={customMonth} setCustomMonth={setCustomMonth} showMonthPicker={showMonthPicker} setShowMonthPicker={setShowMonthPicker} pickerYear={pickerYear} setPickerYear={setPickerYear} customDate={customDate} setCustomDate={setCustomDate} showDatePicker={showDatePicker} setShowDatePicker={setShowDatePicker} calMonth={calMonth} setCalMonth={setCalMonth} calYear={calYear} setCalYear={setCalYear} currentUserRole={currentUserRole} currentUserName={currentUserName} handleNavigateToTracking={handleNavigateToTracking} setShowAdminRoster={setShowAdminRoster} />
@@ -707,7 +762,6 @@ export default function MainApp({ onGoHome, initialRole }) {
               {activeTab === 'leave' && (
                 <>
                   <div className="px-4 md:px-6">
-                    {/* 🌟 ฟันธง: เติม allRosters={allRosters} แทรกเข้าตรงท้ายสุดก่อนเครื่องหมาย /> ได้เลยครับ */}
                     <AttendanceView sysTime={sysTime} currentUserRole={currentUserRole} currentUserName={currentUserName} setActiveTab={setActiveTab} onGoHome={onGoHome} allRosters={allRosters} />
                   </div>
                 </>
@@ -716,7 +770,6 @@ export default function MainApp({ onGoHome, initialRole }) {
           )}
         </div>
 
-        {/* 🌟 ฟันธงจุดที่ 3: ปรับแต่งแถบเมนูด้านล่าง (Bottom Nav) ในโหมด PC ให้กว้างสมมาตรพอดีขอบการ์ดทุกใบ (976px) แถบเส้นจัดวางสวยงามระดับพรีเมียม 🌟 */}
         {activeTab !== 'hub' && activeTab !== 'satellite' && activeTab !== 'monitoring' && activeTab !== 'leave' && activeTab !== 'daily_report' && (
           <div className={`fixed left-1/2 -translate-x-1/2 w-[calc(100%-2rem)] md:w-[calc(100%-3rem)] md:max-w-[976px] py-2 md:py-3 bg-slate-900/95 backdrop-blur-xl border-2 md:border-[3px] border-solid border-orange-500 shadow-[0_10px_30px_rgba(249,115,22,0.4)] rounded-2xl md:rounded-[1.2rem] z-[9999] transform-gpu transition-all duration-500 ease-in-out ${isNavVisible ? 'bottom-4 md:bottom-6 opacity-100 translate-y-0' : '-bottom-32 opacity-0 translate-y-full pointer-events-none'}`}>
             <div className="w-full flex justify-evenly items-center px-1 md:px-8">

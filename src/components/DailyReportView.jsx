@@ -1,21 +1,20 @@
 import React, { useState, useEffect } from 'react';
-import { createPortal } from 'react-dom'; // 🌟 นำเข้าฟังก์ชันทะลุจอ
+import { createPortal } from 'react-dom';
 import { 
   Sun, Sunset, AlertTriangle, Wrench, Users, FileText, 
   Map, MapPin, Camera, Video, X, Send, Activity, Monitor,
   Home, LogOut, Calendar, Clock, CheckCircle, RotateCcw,
-  Image as ImageIcon, ClipboardList // 🌟 นำเข้าไอคอนใหม่
+  Image as ImageIcon, ClipboardList
 } from 'lucide-react';
 import { db, storage } from '../lib/firebaseConfig';
 import { collection, addDoc, serverTimestamp, query, orderBy, onSnapshot } from 'firebase/firestore';
 import { ref, uploadBytes, getDownloadURL } from 'firebase/storage';
-import { ThaiDateFormatter } from './SharedUI';
 
 export default function DailyReportView({ sysTime, currentUserRole, currentUserName, setActiveTab, onGoHome }) {
   const [activeTabState, setActiveTabState] = useState('write'); 
 
   const [timeSlot, setTimeSlot] = useState('morning'); 
-  const [taskType, setTaskType] = useState(''); 
+  const [taskType, setTaskType] = useState([]); 
   const [details, setDetails] = useState('');
   const [locationDesc, setLocationDesc] = useState('');
   const [gpsCoords, setGpsCoords] = useState(null);
@@ -69,7 +68,6 @@ export default function DailyReportView({ sysTime, currentUserRole, currentUserN
     setShowImagePicker(false);
   };
 
-  // 🌟 ฟันธง: ฟังก์ชันดึงรูปที่แคปไว้ใน PC (Paste from Clipboard)
   const handleClipboardPaste = async () => {
     try {
       const clipboardItems = await navigator.clipboard.read();
@@ -90,8 +88,8 @@ export default function DailyReportView({ sysTime, currentUserRole, currentUserN
   const removeFile = (index) => setEvidenceFiles(prev => prev.filter((_, i) => i !== index));
 
   const handleSubmitReport = async () => {
-    if (!taskType || !details) {
-      alert("⚠️ กรุณาเลือก 'หมวดหมู่งาน' และระบุ 'รายละเอียด' ให้ครบถ้วนครับ!");
+    if (taskType.length === 0 || !details) {
+      alert("⚠️ กรุณาเลือก 'หมวดหมู่งาน' (เลือกได้มากกว่า 1 หมวด) และระบุ 'รายละเอียด' ให้ครบถ้วนครับ!");
       return;
     }
 
@@ -122,7 +120,7 @@ export default function DailyReportView({ sysTime, currentUserRole, currentUserN
         setActiveTabState('timeline'); 
       }, 2500);
 
-      setTimeSlot('morning'); setTaskType(''); setDetails(''); setLocationDesc(''); setGpsCoords(null); setEvidenceFiles([]);
+      setTimeSlot('morning'); setTaskType([]); setDetails(''); setLocationDesc(''); setGpsCoords(null); setEvidenceFiles([]);
     } catch (error) {
       console.error("Firebase Error: ", error);
       alert("❌ เกิดข้อผิดพลาดในการส่งข้อมูล ติดต่อแอดมินด่วนครับ");
@@ -136,7 +134,7 @@ export default function DailyReportView({ sysTime, currentUserRole, currentUserN
   });
 
   return (
-    <div className="w-full max-w-4xl mx-auto space-y-6 animate-in fade-in duration-500 pb-28 pt-6 md:pt-10 relative z-10">
+    <div className="w-full max-w-4xl mx-auto px-4 md:px-0 space-y-6 animate-in fade-in duration-500 pb-28 pt-6 md:pt-10 relative z-10">
       
       {showSuccessModal && (
         <div className="fixed inset-0 z-[99999] bg-slate-950/90 backdrop-blur-md flex flex-col items-center justify-center p-6 animate-in fade-in zoom-in duration-500">
@@ -156,9 +154,64 @@ export default function DailyReportView({ sysTime, currentUserRole, currentUserN
         </div>
       )}
 
+      {/* 🌟 ------------------------------------------------------------- 🌟 */}
+      {/* 🌟 กรอบแสดง วัน วันที่ เวลา มาตรฐานระดับโลก (World-Class UI) 🌟 */}
+      {(() => {
+        const dayOfWeek = sysTime.getDay();
+        const daysThai = ['วันอาทิตย์', 'วันจันทร์', 'วันอังคาร', 'วันพุธ', 'วันพฤหัสบดี', 'วันศุกร์', 'วันเสาร์'];
+        const dayColors = ['text-rose-400', 'text-yellow-400', 'text-pink-400', 'text-emerald-400', 'text-orange-400', 'text-sky-400', 'text-purple-400'];
+        const borderColors = ['border-rose-500/40', 'border-yellow-500/40', 'border-pink-500/40', 'border-emerald-500/40', 'border-orange-500/40', 'border-sky-500/40', 'border-purple-500/40'];
+        const glowColors = ['shadow-[0_0_20px_rgba(225,29,72,0.2)]', 'shadow-[0_0_20px_rgba(234,179,8,0.2)]', 'shadow-[0_0_20px_rgba(244,114,182,0.2)]', 'shadow-[0_0_20px_rgba(16,185,129,0.2)]', 'shadow-[0_0_20px_rgba(249,115,22,0.2)]', 'shadow-[0_0_20px_rgba(14,165,233,0.2)]', 'shadow-[0_0_20px_rgba(168,85,247,0.2)]'];
+        
+        const currentDayColor = dayColors[dayOfWeek];
+        const currentBorder = borderColors[dayOfWeek];
+        const currentGlow = glowColors[dayOfWeek];
+        
+        const formatThaiDateClean = (dateObj) => {
+          const thMonthsShort = ['ม.ค.', 'ก.พ.', 'มี.ค.', 'เม.ย.', 'พ.ค.', 'มิ.ย.', 'ก.ค.', 'ส.ค.', 'ก.ย.', 'ต.ค.', 'พ.ย.', 'ธ.ค.'];
+          return `${dateObj.getDate()} ${thMonthsShort[dateObj.getMonth()]} ${dateObj.getFullYear() + 543}`;
+        };
+
+        return (
+          <div className={`w-full bg-slate-900/80 backdrop-blur-xl border-[2px] border-solid ${currentBorder} rounded-[1rem] p-3 md:p-4 ${currentGlow} flex flex-col md:flex-row items-center justify-center gap-2 md:gap-5 relative overflow-hidden mb-6 z-10 transition-all duration-500`}>
+            <div className="absolute inset-0 bg-gradient-to-r from-transparent via-slate-700/10 to-transparent opacity-50 pointer-events-none"></div>
+            
+            {/* โซนวันและวันที่ */}
+            <div className="relative z-10 flex items-center gap-2 md:gap-3">
+              <div className={`p-1.5 rounded-lg bg-slate-950/50 border border-slate-700/50 ${currentDayColor} shadow-inner`}>
+                <Calendar size={18} />
+              </div>
+              <span className={`font-black tracking-widest text-[14px] md:text-[16px] ${currentDayColor} drop-shadow-md`}>
+                ประจำ{daysThai[dayOfWeek]}ที่ {formatThaiDateClean(sysTime)}
+              </span>
+            </div>
+
+            {/* เส้นคั่นกลาง (ซ่อนในมือถือ โชว์ใน PC) */}
+            <div className="relative z-10 hidden md:block w-[2px] h-5 bg-slate-600/50 rounded-full"></div>
+            {/* เส้นคั่นแนวนอน (โชว์ในมือถือ ซ่อนใน PC) */}
+            <div className="relative z-10 md:hidden w-3/4 h-[1px] bg-slate-700/50 my-0.5 rounded-full"></div>
+
+            {/* โซนเวลา */}
+            <div className="relative z-10 flex items-center gap-2 md:gap-3">
+              <div className="p-1.5 rounded-lg bg-slate-950/50 border border-slate-700/50 text-orange-400 shadow-inner">
+                <Clock size={18} />
+              </div>
+              <span className="font-black font-mono tracking-widest text-[14px] md:text-[16px] text-orange-400 drop-shadow-md">
+                {sysTime.toLocaleTimeString('th-TH', { hour: '2-digit', minute: '2-digit', second: '2-digit' })} น.
+              </span>
+            </div>
+          </div>
+        );
+      })()}
+      {/* 🌟 ------------------------------------------------------------- 🌟 */}
+
       <div className="flex bg-slate-900/80 backdrop-blur-md rounded-[1rem] p-1.5 border-[2px] border-slate-700/80 shadow-lg">
-        <button onClick={() => setActiveTabState('write')} className={`flex-1 py-3.5 rounded-[0.8rem] font-black text-[15px] md:text-[16px] transition-all duration-300 flex items-center justify-center gap-2 ${activeTabState === 'write' ? 'bg-gradient-to-r from-purple-600 to-indigo-600 text-white shadow-[0_0_20px_rgba(168,85,247,0.6)] border border-purple-400/50 scale-[1.02] z-10' : 'text-slate-400 hover:text-white hover:bg-slate-800'}`}><FileText size={18} /> เขียนรายงาน</button>
-        <button onClick={() => setActiveTabState('timeline')} className={`flex-1 py-3.5 rounded-[0.8rem] font-black text-[15px] md:text-[16px] transition-all duration-300 flex items-center justify-center gap-2 ${activeTabState === 'timeline' ? 'bg-gradient-to-r from-cyan-600 to-blue-600 text-white shadow-[0_0_20px_rgba(6,182,212,0.6)] border border-cyan-400/50 scale-[1.02] z-10' : 'text-slate-400 hover:text-white hover:bg-slate-800'}`}><Activity size={18} /> ไทม์ไลน์ทีม (Feed)</button>
+        <button onClick={() => setActiveTabState('write')} className={`flex-1 py-3.5 rounded-[0.8rem] font-black text-[15px] md:text-[16px] transition-all duration-300 flex items-center justify-center gap-2 ${activeTabState === 'write' ? 'bg-gradient-to-r from-purple-600 to-indigo-600 text-white shadow-[0_0_20px_rgba(168,85,247,0.6)] border border-purple-400/50 scale-[1.02] z-10' : 'text-slate-400 hover:text-white hover:bg-slate-800'}`}>
+          <FileText size={18} /> เขียนรายงาน
+        </button>
+        <button onClick={() => setActiveTabState('timeline')} className={`flex-1 py-3.5 rounded-[0.8rem] font-black text-[15px] md:text-[16px] transition-all duration-300 flex items-center justify-center gap-2 ${activeTabState === 'timeline' ? 'bg-gradient-to-r from-cyan-600 to-blue-600 text-white shadow-[0_0_20px_rgba(6,182,212,0.6)] border border-cyan-400/50 scale-[1.02] z-10' : 'text-slate-400 hover:text-white hover:bg-slate-800'}`}>
+          <ClipboardList size={18} /> กระดานปฏิบัติการ
+        </button>
       </div>
 
       {activeTabState === 'write' && (
@@ -173,7 +226,7 @@ export default function DailyReportView({ sysTime, currentUserRole, currentUserN
           </div>
 
           <div>
-            <label className="block text-[14px] md:text-[16px] font-bold text-slate-300 mb-3">หมวดหมู่งาน (Tags) <span className="text-rose-500">*</span></label>
+            <label className="block text-[14px] md:text-[16px] font-bold text-slate-300 mb-3">หมวดหมู่งาน (Tags) <span className="text-slate-500 text-[12px] font-normal tracking-wider">- เลือกได้หลายข้อ</span> <span className="text-rose-500">*</span></label>
             <div className="flex flex-wrap gap-2 md:gap-3">
               {[
                 { id: 'ma', icon: <Wrench size={16}/>, label: 'ซ่อมบำรุง (MA)' },
@@ -182,7 +235,16 @@ export default function DailyReportView({ sysTime, currentUserRole, currentUserN
                 { id: 'field', icon: <Map size={16}/>, label: 'ลงพื้นที่ / สำรวจ' },
                 { id: 'other', icon: <Monitor size={16}/>, label: 'งานอื่นๆ' }
               ].map(tag => (
-                <button key={tag.id} onClick={() => setTaskType(tag.id)} className={`px-4 py-2 md:py-2.5 rounded-full font-bold text-[13px] md:text-[14px] border-[2px] flex items-center gap-2 transition-all active:scale-95 ${taskType === tag.id ? 'bg-purple-500/20 border-purple-400 text-purple-300 shadow-[0_0_15px_rgba(168,85,247,0.4)]' : 'bg-slate-800/80 border-slate-600 text-slate-400 hover:border-slate-500 hover:bg-slate-800'}`}>
+                <button 
+                  key={tag.id} 
+                  onClick={() => {
+                    setTaskType(prev => 
+                      prev.includes(tag.id) 
+                        ? prev.filter(t => t !== tag.id) 
+                        : [...prev, tag.id]
+                    );
+                  }} 
+                  className={`px-4 py-2 md:py-2.5 rounded-full font-bold text-[13px] md:text-[14px] border-[2px] flex items-center gap-2 transition-all active:scale-95 ${taskType.includes(tag.id) ? 'bg-purple-500/20 border-purple-400 text-purple-300 shadow-[0_0_15px_rgba(168,85,247,0.4)]' : 'bg-slate-800/80 border-slate-600 text-slate-400 hover:border-slate-500 hover:bg-slate-800'}`}>
                   {tag.icon} {tag.label}
                 </button>
               ))}
@@ -198,13 +260,12 @@ export default function DailyReportView({ sysTime, currentUserRole, currentUserN
             <label className="block text-[14px] md:text-[16px] font-bold text-slate-300 mb-3 flex items-center gap-2"><MapPin size={18} className="text-cyan-400"/> สถานที่ปฏิบัติงาน</label>
             <div className="flex flex-col md:flex-row gap-3">
               <button onClick={handleGetLocation} className={`md:w-auto px-5 py-3 rounded-xl font-bold text-[13px] md:text-[15px] border-[2px] transition-all active:scale-95 flex items-center justify-center gap-2 ${gpsCoords ? 'bg-emerald-500/20 border-emerald-400 text-emerald-300 shadow-[0_0_15px_rgba(16,185,129,0.3)]' : 'bg-slate-800 border-cyan-500/80 text-cyan-400 hover:bg-cyan-500/20 hover:border-cyan-400 shadow-[0_0_10px_rgba(6,182,212,0.1)]'}`}>
-                {gpsCoords ? '📍 ล็อกพิกัดแล้ว' : '📍 กดดึงพิกัด GPS ปัจจุบัน'}
+                {gpsCoords ? '✅ ล็อกพิกัดสำเร็จ' : '📍 กดดึงพิกัด GPS ปัจจุบัน'}
               </button>
               <input type="text" placeholder="ระบุชื่อสถานที่เพิ่มเติม (เช่น ห้อง Server, ตึกอำนวยการ)" value={locationDesc} onChange={(e) => setLocationDesc(e.target.value)} className="flex-1 bg-slate-800 border-[2px] border-slate-600 rounded-xl px-4 py-3 text-white outline-none focus:border-cyan-400 focus:shadow-[0_0_15px_rgba(6,182,212,0.2)] text-[14px] md:text-[15px] transition-all" />
             </div>
           </div>
 
-          {/* 🌟 ฟันธง: กรอบแนบรูปภาพอัปเกรด โควตา 6 รูป 1 คลิป (ถอดแบบ Sci-Fi) 🌟 */}
           <div className="space-y-4 pt-4 mt-4 border-t-[2px] border-dashed border-purple-500/30">
             <div className="flex justify-between items-center ml-1 mb-2">
               <label className="text-[14px] md:text-[18px] font-black text-purple-300 uppercase tracking-wide flex items-center gap-1.5 md:gap-2">
@@ -227,7 +288,6 @@ export default function DailyReportView({ sysTime, currentUserRole, currentUserN
               </div>
             )}
 
-            {/* ปุ่มอัปโหลดจะไม่หายไปจนกว่าข้อมูลชนิดนั้นจะเต็มความจุ */}
             {(evidenceFiles.filter(f => f.type === 'image').length < 6 || evidenceFiles.filter(f => f.type === 'video').length < 1) && (
               <button type="button" onClick={() => setShowImagePicker(true)} className="w-full h-24 md:h-32 border-[2px] border-dashed border-cyan-400/60 bg-cyan-950/20 hover:bg-purple-900/30 hover:border-purple-400 rounded-xl flex flex-col items-center justify-center transition-all duration-300 cursor-pointer shadow-[inset_0_0_20px_rgba(6,182,212,0.1)] hover:shadow-[0_0_30px_rgba(168,85,247,0.4)] group">
                 <div className="flex items-center gap-2 mb-1 transition-all">
@@ -241,10 +301,10 @@ export default function DailyReportView({ sysTime, currentUserRole, currentUserN
           </div>
 
           <div className="pt-4 flex flex-col md:flex-row items-center gap-4 text-center mt-2">
-            <button onClick={handleSubmitReport} disabled={isSubmitting || !taskType || !details} className={`group w-full md:flex-[2] py-4 md:py-5 rounded-[1.2rem] font-black text-[20px] md:text-[24px] transition-all duration-300 flex justify-center items-center gap-3 border-[2px] border-solid border-white/80 shadow-xl ${taskType && details ? 'bg-gradient-to-r from-purple-500 to-indigo-600 hover:from-purple-400 hover:to-indigo-500 text-white shadow-[0_0_20px_rgba(168,85,247,0.5)] hover:shadow-[0_0_35px_rgba(168,85,247,0.8)] hover:-translate-y-1 active:scale-95' : 'bg-slate-800 text-slate-500 border-slate-700 cursor-not-allowed'}`}>
+            <button onClick={handleSubmitReport} disabled={isSubmitting || taskType.length === 0 || !details} className={`group w-full md:flex-[2] py-4 md:py-5 rounded-[1.2rem] font-black text-[20px] md:text-[24px] transition-all duration-300 flex justify-center items-center gap-3 border-[2px] border-solid border-white/80 shadow-xl ${taskType.length > 0 && details ? 'bg-gradient-to-r from-purple-500 to-indigo-600 hover:from-purple-400 hover:to-indigo-500 text-white shadow-[0_0_20px_rgba(168,85,247,0.5)] hover:shadow-[0_0_35px_rgba(168,85,247,0.8)] hover:-translate-y-1 active:scale-95' : 'bg-slate-800 text-slate-500 border-slate-700 cursor-not-allowed'}`}>
               {isSubmitting ? <span className="animate-pulse">กำลังอัปโหลด...</span> : <><Send size={26} className="md:w-7 md:h-7 drop-shadow-md" /> <span className="tracking-wide drop-shadow-md">ส่งรายงานผลปฏิบัติงาน</span></>}
             </button>
-            <button type="button" onClick={() => { setTimeSlot('morning'); setTaskType(''); setDetails(''); setLocationDesc(''); setGpsCoords(null); setEvidenceFiles([]); }} className="w-full md:flex-[1] bg-emerald-600/90 text-white hover:bg-emerald-500 hover:shadow-[0_0_25px_rgba(16,185,129,0.6)] hover:-translate-y-1 hover:border-emerald-300 font-bold text-[18px] md:text-[20px] py-4 md:py-5 rounded-[1.2rem] flex items-center justify-center gap-2 border-[2px] border-solid border-white/60 active:scale-95 shadow-md transition-all duration-300">
+            <button type="button" onClick={() => { setTimeSlot('morning'); setTaskType([]); setDetails(''); setLocationDesc(''); setGpsCoords(null); setEvidenceFiles([]); }} className="w-full md:flex-[1] bg-emerald-600/90 text-white hover:bg-emerald-500 hover:shadow-[0_0_25px_rgba(16,185,129,0.6)] hover:-translate-y-1 hover:border-emerald-300 font-bold text-[18px] md:text-[20px] py-4 md:py-5 rounded-[1.2rem] flex items-center justify-center gap-2 border-[2px] border-solid border-white/60 active:scale-95 shadow-md transition-all duration-300">
               <RotateCcw size={20} className="md:w-6 md:h-6" /> ล้างข้อมูล
             </button>
           </div>
@@ -284,9 +344,23 @@ export default function DailyReportView({ sysTime, currentUserRole, currentUserN
                   <div className="flex-1 space-y-3 z-10">
                     <div className="flex flex-wrap justify-between items-start gap-2">
                       <h3 className="text-[18px] md:text-[20px] font-black text-white drop-shadow-sm">{item.userName}</h3>
-                      <span className={`px-3 py-1.5 rounded-lg text-[12px] font-bold border-[2px] shadow-sm ${item.taskType === 'ma' ? 'bg-purple-500/20 text-purple-300 border-purple-500/50' : item.taskType === 'field' ? 'bg-emerald-500/20 text-emerald-300 border-emerald-500/50' : item.taskType === 'meeting' ? 'bg-blue-500/20 text-blue-300 border-blue-500/50' : 'bg-slate-700/50 text-slate-300 border-slate-500/50'}`}>
-                        {item.taskType === 'ma' ? 'ซ่อมบำรุง' : item.taskType === 'field' ? 'ลงพื้นที่' : item.taskType === 'meeting' ? 'ประชุม/พบปะ' : item.taskType === 'doc' ? 'เอกสาร/จัดซื้อ' : 'งานอื่นๆ'}
-                      </span>
+                      <div className="flex flex-wrap gap-1.5 justify-end">
+                        {(Array.isArray(item.taskType) ? item.taskType : [item.taskType]).map(tType => {
+                          const tagProps = {
+                            'ma': { label: 'ซ่อมบำรุง', bg: 'bg-purple-500/20 text-purple-300 border-purple-500/50' },
+                            'field': { label: 'ลงพื้นที่', bg: 'bg-emerald-500/20 text-emerald-300 border-emerald-500/50' },
+                            'meeting': { label: 'ประชุม/พบปะ', bg: 'bg-blue-500/20 text-blue-300 border-blue-500/50' },
+                            'doc': { label: 'เอกสาร/จัดซื้อ', bg: 'bg-orange-500/20 text-orange-300 border-orange-500/50' },
+                            'other': { label: 'งานอื่นๆ', bg: 'bg-slate-700/50 text-slate-300 border-slate-500/50' }
+                          };
+                          const props = tagProps[tType] || tagProps['other'];
+                          return (
+                            <span key={tType} className={`px-3 py-1.5 rounded-lg text-[11px] md:text-[12px] font-bold border-[2px] shadow-sm ${props.bg}`}>
+                              {props.label}
+                            </span>
+                          );
+                        })}
+                      </div>
                     </div>
                     
                     <p className="text-slate-200 text-[15px] leading-relaxed bg-slate-950/40 p-3 rounded-xl border border-slate-700/50">{item.details}</p>
@@ -326,8 +400,7 @@ export default function DailyReportView({ sysTime, currentUserRole, currentUserN
         </div>
       )}
 
-      {/* 🌟 ฟันธง: ปุ่มควบคุมด้านล่างจัดระเบียบขอบสมมาตร 🌟 */}
-      <div className="flex flex-row w-full px-4 md:px-0 gap-3 md:gap-4 mt-8 pt-6 border-t-[2px] border-dashed border-slate-700/50 relative z-[99]">
+      <div className="flex flex-row w-full gap-3 md:gap-4 mt-8 pt-6 border-t-[2px] border-dashed border-slate-700/50 relative z-[99]">
         <button 
           type="button"
           onClick={() => { if(setActiveTab) setActiveTab('hub'); }} 
@@ -345,14 +418,12 @@ export default function DailyReportView({ sysTime, currentUserRole, currentUserN
         </button>
       </div>
 
-      {/* 🌟 ฟันธง: ป๊อบอัปอัปโหลดรูปภาพแยก PC (คลิปบอร์ด) / Mobile (ถ่ายสด) ชัดเจน 🌟 */}
       {showImagePicker && typeof document !== 'undefined' ? createPortal(
         <div className="fixed inset-0 z-[999999] flex items-center justify-center p-4 bg-slate-800/80 backdrop-blur-md animate-in fade-in duration-300" onClick={() => setShowImagePicker(false)}>
           <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[450px] h-[450px] bg-purple-600/30 rounded-full blur-[100px] animate-pulse pointer-events-none z-0"></div>
           <div className="relative z-10 bg-slate-900/90 backdrop-blur-sm border-[3px] border-solid border-purple-500 rounded-[1.5rem] p-6 w-full max-w-sm shadow-[0_0_60px_rgba(168,85,247,0.5)] text-center animate-in zoom-in-95 duration-300" onClick={e => e.stopPropagation()}>
             <h3 className="text-xl font-black text-purple-100 mb-6 tracking-widest flex items-center justify-center gap-2 drop-shadow-[0_0_10px_rgba(168,85,247,1)]"><Monitor size={22} className="text-purple-400" /> เลือกรูปภาพ/วิดีโอ</h3>
             
-            {/* 📱 โหมดมือถือ (Mobile View) */}
             <div className="flex md:hidden flex-col gap-3">
               <div className="grid grid-cols-2 gap-3">
                 <button onClick={() => { document.getElementById('report-cam-img').click(); setShowImagePicker(false); }} className="bg-gradient-to-b from-blue-500 to-blue-700 p-4 rounded-[1rem] flex flex-col items-center justify-center gap-2 border-[2px] border-white/60 shadow-[0_0_15px_rgba(59,130,246,0.5)] transition-transform active:scale-95">
@@ -367,7 +438,6 @@ export default function DailyReportView({ sysTime, currentUserRole, currentUserN
               </button>
             </div>
 
-            {/* 💻 โหมดคอมพิวเตอร์ (PC View) - มีแค่คลังภาพ และ Paste */}
             <div className="hidden md:flex flex-col gap-4">
               <button onClick={() => { document.getElementById('report-gal').click(); setShowImagePicker(false); }} className="flex flex-col items-center justify-center bg-gradient-to-b from-emerald-500 to-emerald-700 p-8 rounded-xl border-[2px] border-white/60 shadow-[0_0_20px_rgba(16,185,129,0.4)] hover:scale-105 group transition-all">
                 <div className="flex gap-4 mb-3"><Camera size={40} className="text-white drop-shadow-md group-hover:scale-110 transition-all" /><Video size={40} className="text-white drop-shadow-md group-hover:scale-110 transition-all" /></div>
