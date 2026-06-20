@@ -1,36 +1,44 @@
-import React, { useState, useRef } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { 
   Clock, Calendar, UserCheck, AlertCircle, MapPin, 
   EyeOff, Activity, UserX, ShieldCheck, 
-  Camera, Image as ImageIcon, Video, X, Home, LogOut, ChevronDown, ClipboardList, Monitor
+  Camera, Image as ImageIcon, Video, X, Home, LogOut, ChevronDown, ClipboardList, Monitor, Briefcase, FileText, CheckCircle
 } from 'lucide-react';
 import { ThaiDateFormatter } from './SharedUI';
 
-// 🌟 นำเข้าอาวุธ Firebase
 import { db } from '../lib/firebaseConfig'; 
 import { collection, addDoc, serverTimestamp } from 'firebase/firestore';
 
-export default function AttendanceView({ sysTime, currentUserRole, currentUserName, setActiveTab, onGoHome }) {
+export default function AttendanceView({ sysTime, currentUserRole, currentUserName, setActiveTab, onGoHome, setLightboxImg, allRosters = [] }) {
   const [activeSubTab, setActiveSubTab] = useState(currentUserRole === 'Commander' ? 'live' : 'my_record');
   
-  // State สำหรับกล่องแจ้งสาย/ออกก่อน
+  // State ควบคุมกล่อง Action
+  const [actionType, setActionType] = useState('late'); // 'late', 'early', 'leave'
+  
   const [lateEta, setLateEta] = useState('');
   const [lateReason, setLateReason] = useState('');
+  const [leaveType, setLeaveType] = useState('sick'); // 'sick', 'vacation', 'business', 'offsite'
+  const [leaveStartDate, setLeaveStartDate] = useState('');
+  const [leaveEndDate, setLeaveEndDate] = useState('');
+  
   const [evidenceFiles, setEvidenceFiles] = useState([]);
-  const [lateReasonType, setLateReasonType] = useState('late'); 
-  
   const [showImagePicker, setShowImagePicker] = useState(false);
-  
-  // 🌟 ฟันธง: เพิ่ม State สำหรับ Custom Time Picker และ Custom Alert
   const [showTimePicker, setShowTimePicker] = useState(false);
-  const [alertConfig, setAlertConfig] = useState({ show: false, message: '', type: 'info' }); // type: 'success', 'error', 'info'
+  const [alertConfig, setAlertConfig] = useState({ show: false, message: '', type: 'info' });
+
+  // 🌟 ฟันธง: Logic เช็คว่าเป็นเวร SSC วันนี้หรือไม่
+  const todayStr = sysTime.toLocaleDateString('en-CA'); // รูปแบบ YYYY-MM-DD
+  const todayRoster = allRosters.find(r => r.date === todayStr);
+  const isSSCToday = todayRoster && todayRoster.techName === currentUserName;
+  
+  // State จำลองการเข้าเวร SSC (ในระบบจริงต้องดึงจาก Database)
+  const [sscShiftStart, setSscShiftStart] = useState(null); 
 
   const customAlert = (message, type = 'info') => {
     setAlertConfig({ show: true, message, type });
   };
   const closeAlert = () => setAlertConfig({ show: false, message: '', type: 'info' });
 
-  // 🌟 สร้าง Dropdown เวลาล่วงหน้า 12 ชั่วโมง
   const timeOptions = [];
   let startH = sysTime.getHours();
   let startM = Math.ceil(sysTime.getMinutes() / 15) * 15;
@@ -41,7 +49,6 @@ export default function AttendanceView({ sysTime, currentUserRole, currentUserNa
     timeOptions.push(`${String(h).padStart(2, '0')}:${String(m).padStart(2, '0')}`);
   }
 
-  // 🌟 จัดการสีตามวันปัจจุบัน
   const dayOfWeek = sysTime.getDay();
   const dayThemes = {
     0: { bg: 'bg-rose-500/20', border: 'border-rose-500', textHead: 'text-rose-400', dayLabel: 'วันอาทิตย์', glow: 'shadow-[0_0_20px_rgba(225,29,72,0.4)]' },
@@ -71,12 +78,23 @@ export default function AttendanceView({ sysTime, currentUserRole, currentUserNa
 
   const handleFileSelect = (e) => {
     const files = Array.from(e.target.files);
-    const newFiles = files.map(file => ({
-      url: URL.createObjectURL(file),
-      type: file.type.startsWith('video/') ? 'video' : 'image',
-      rawFile: file
-    }));
-    setEvidenceFiles(prev => [...prev, ...newFiles].slice(0, 3)); 
+    if (files.length === 0) return;
+
+    setEvidenceFiles(prev => {
+      let currentImages = prev.filter(f => f.type === 'image');
+      let currentVideos = prev.filter(f => f.type === 'video');
+
+      files.forEach(file => {
+        const isVideo = file.type.startsWith('video/');
+        if (isVideo && currentVideos.length < 1) {
+          currentVideos.push({ url: URL.createObjectURL(file), type: 'video', rawFile: file });
+        } else if (!isVideo && currentImages.length < 6) {
+          currentImages.push({ url: URL.createObjectURL(file), type: 'image', rawFile: file });
+        }
+      });
+      return [...currentImages, ...currentVideos];
+    });
+    setShowImagePicker(false);
   };
 
   const handleClipboardPaste = async () => {
@@ -92,8 +110,8 @@ export default function AttendanceView({ sysTime, currentUserRole, currentUserNa
           return;
         }
       }
-      customAlert("⚠️ ไม่พบรูปภาพที่แคปไว้ครับ!", "error");
-    } catch (err) { customAlert("⚠️ เบราว์เซอร์ไม่อนุญาต หรือท่านยังไม่ได้แคปรูปไว้ครับ", "error"); }
+      customAlert("⚠️ ไม่พบรูปภาพในคลิปบอร์ดครับ โปรดแคปหน้าจอใหม่อีกครั้ง", "error");
+    } catch (err) { customAlert("⚠️ เบราว์เซอร์ไม่อนุญาตให้ดึงรูปจากคลิปบอร์ดครับ", "error"); }
   };
 
   const removeFile = (index) => {
@@ -112,34 +130,50 @@ export default function AttendanceView({ sysTime, currentUserRole, currentUserNa
   };
 
   const handleStartWork = () => {
-    if (!navigator.geolocation) {
-      customAlert("⚠️ เบราว์เซอร์ของคุณไม่รองรับระบบ GPS ครับ", "error");
-      return;
-    }
-
+    if (!navigator.geolocation) { customAlert("⚠️ เบราว์เซอร์ของคุณไม่รองรับระบบ GPS ครับ", "error"); return; }
     customAlert("🛰️ กำลังตรวจสอบพิกัดดาวเทียม...\nกรุณารอสักครู่ครับ", "info");
-
     navigator.geolocation.getCurrentPosition(
       (position) => {
         const userLat = position.coords.latitude;
         const userLng = position.coords.longitude;
         const targetLat = 13.102163; 
         const targetLng = 100.927813;
-        
         const distance = getDistance(targetLat, targetLng, userLat, userLng);
         
         if (distance > 100) {
           customAlert(`❌ ปฏิเสธการลงเวลา!\nพิกัดของคุณอยู่ห่างจากศูนย์ปฏิบัติการ ${Math.round(distance)} เมตร\n\n(ระบบอนุญาตให้ลงเวลาในรัศมีไม่เกิน 100 เมตรเท่านั้น)`, "error");
         } else {
-          closeAlert(); // ปิดแจ้งเตือนกำลังตรวจสอบ แล้วเปิดกล้องเลย
+          closeAlert(); 
           document.getElementById('live-snap-checkin').click();
         }
       },
-      (error) => {
-        customAlert("⚠️ ไม่สามารถอ่านพิกัด GPS ได้!\nกรุณาเปิดการอนุญาต Location Services ในมือถือ/เบราว์เซอร์ก่อนครับ", "error");
-      },
+      (error) => { customAlert("⚠️ ไม่สามารถอ่านพิกัด GPS ได้!\nกรุณาเปิดการอนุญาต Location Services ในมือถือ/เบราว์เซอร์ก่อนครับ", "error"); },
       { enableHighAccuracy: true } 
     );
+  };
+
+  // 🌟 ฟันธง: ฟังก์ชันเริ่มเวร SSC
+  const handleStartSSCShift = () => {
+    const currentHour = sysTime.getHours();
+    const currentMinute = sysTime.getMinutes();
+    const isLate = currentHour >= 11 && currentMinute > 0;
+    
+    setSscShiftStart(sysTime);
+    if (isLate) {
+      customAlert(`[เวร SSC: ${currentUserName}]\n📸 บันทึกเวลาเข้าเวร: ${sysTime.toLocaleTimeString('th-TH', { hour: '2-digit', minute: '2-digit' })} น.\n\n⚠️ คุณเข้าเวรล่าช้าเกินเวลา 11:00 น. ตามข้อกำหนดครับ`, "error");
+    } else {
+      customAlert(`[เวร SSC: ${currentUserName}]\n📸 บันทึกเวลาเข้าเวรเรียบร้อย: ${sysTime.toLocaleTimeString('th-TH', { hour: '2-digit', minute: '2-digit' })} น.\n\n✅ พร้อมสแตนด์บายประสานงานครับ`, "success");
+    }
+  };
+
+  // 🌟 ฟันธง: ฟังก์ชันออกเวร SSC
+  const handleEndSSCShift = (progressPct) => {
+    if (progressPct < 100) {
+      customAlert("⚠️ คุณปฏิบัติหน้าที่ยังไม่ครบ 8 ชั่วโมง!\nหากมีเหตุจำเป็นต้องออกก่อน กรุณาแจ้ง Commander ในกลุ่มสื่อสารครับ", "error");
+    } else {
+      customAlert("✅ ออกเวร SSC เรียบร้อย!\nขอบคุณสำหรับการปฏิบัติหน้าที่อย่างเต็มกำลังครับ!", "success");
+      setSscShiftStart(null); // Reset
+    }
   };
 
   const handleLiveSnapSubmit = async (e) => {
@@ -180,27 +214,31 @@ export default function AttendanceView({ sysTime, currentUserRole, currentUserNa
   };
 
   const handleSubmitNotice = async () => {
-    if (!lateEta || !lateReason) {
-      customAlert("⚠️ กรุณาระบุเวลาและเหตุผลให้ครบถ้วนก่อนส่งข้อมูลครับ!", "error");
-      return;
+    if (actionType === 'leave') {
+      if (!leaveStartDate || !leaveEndDate || !lateReason) {
+         customAlert("⚠️ กรุณาระบุวันที่ลา และเหตุผลให้ครบถ้วนครับ!", "error"); return;
+      }
+    } else {
+      if (!lateEta || !lateReason) {
+         customAlert("⚠️ กรุณาระบุเวลาและเหตุผลให้ครบถ้วนก่อนส่งข้อมูลครับ!", "error"); return;
+      }
     }
 
     try {
       await addDoc(collection(db, 'attendance_logs'), {
-        type: lateReasonType === 'late' ? 'late_notice' : 'early_leave',
+        type: actionType === 'leave' ? 'leave_request' : (actionType === 'late' ? 'late_notice' : 'early_leave'),
         userName: currentUserName || 'Unknown',
         timestamp: serverTimestamp(),
         dateString: sysTime.toLocaleDateString('en-CA'),
         etaTime: lateEta,
         reason: lateReason,
+        leaveDetails: actionType === 'leave' ? { type: leaveType, start: leaveStartDate, end: leaveEndDate } : null,
         hasEvidence: evidenceFiles.length > 0 
       });
 
-      customAlert(`✅ ส่งข้อมูลแจ้ง${lateReasonType === 'late' ? 'เข้าสาย' : 'ขอออกก่อน'} ลงฐานข้อมูลเรียบร้อยแล้วครับ!`, "success");
+      customAlert(`✅ ส่งข้อมูลแจ้ง${actionType === 'late' ? 'เข้าสาย' : actionType === 'early' ? 'ขอออกก่อน' : 'ลางาน/ไปราชการ'} ลงฐานข้อมูลเรียบร้อยแล้วครับ!`, "success");
       
-      setLateEta('');
-      setLateReason('');
-      setEvidenceFiles([]);
+      setLateEta(''); setLateReason(''); setEvidenceFiles([]); setLeaveStartDate(''); setLeaveEndDate('');
     } catch (error) {
       console.error("Firebase Error: ", error);
       customAlert("❌ เกิดข้อผิดพลาดในการส่งข้อมูล: " + error.message, "error");
@@ -247,83 +285,196 @@ export default function AttendanceView({ sysTime, currentUserRole, currentUserNa
 
       {/* 🌟 หน้าจัดการเวลาของฉัน (My Record) */}
       {activeSubTab === 'my_record' && (
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6 animate-in slide-in-from-bottom-4 duration-500">
           
-          {/* 🟢 กล่องเช็คอิน (Sci-Fi Emerald) */}
-          <div className="relative overflow-hidden bg-slate-900/80 backdrop-blur-xl border-[2px] border-emerald-500/50 p-6 rounded-[1.5rem] shadow-[0_0_30px_rgba(16,185,129,0.3)] flex flex-col items-center justify-center text-center">
-            <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-48 h-48 bg-emerald-500/20 blur-[60px] rounded-full pointer-events-none z-0"></div>
-            
-            <div className="relative z-10 w-20 h-20 bg-emerald-500/10 text-emerald-400 rounded-full flex items-center justify-center mb-3 border-[2px] border-emerald-500/50 shadow-[0_0_20px_rgba(16,185,129,0.4)]">
-              <UserCheck size={40} />
+          {/* 🟢 กล่องเช็คอิน (เปลี่ยนโฉมอัตโนมัติถ้าเป็นเวร SSC) */}
+          {!isSSCToday ? (
+            // --- โหมดวันทำงานปกติ (จ.-ศ.) ---
+            <div className="relative overflow-hidden bg-slate-900/80 backdrop-blur-xl border-[2px] border-emerald-500/50 p-6 rounded-[1.5rem] shadow-[0_0_30px_rgba(16,185,129,0.3)] flex flex-col items-center justify-center text-center">
+              <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-48 h-48 bg-emerald-500/20 blur-[60px] rounded-full pointer-events-none z-0"></div>
+              <div className="relative z-10 w-20 h-20 bg-emerald-500/10 text-emerald-400 rounded-full flex items-center justify-center mb-3 border-[2px] border-emerald-500/50 shadow-[0_0_20px_rgba(16,185,129,0.4)]"><UserCheck size={40} /></div>
+              <h2 className="relative z-10 text-[22px] md:text-[26px] font-black text-emerald-400 mb-1 drop-shadow-[0_0_10px_rgba(16,185,129,0.8)]">{currentUserName || 'คุณ'}</h2>
+              <h3 className="relative z-10 text-[18px] font-bold text-white mb-2 drop-shadow-md">พร้อมปฏิบัติงาน (Start Work)</h3>
+              <p className="relative z-10 text-slate-400 text-[14px] mb-6">ระบบจะบันทึกพิกัด GPS และถ่ายภาพสดเพื่อยืนยัน</p>
+              <button onClick={handleStartWork} className="relative z-10 w-full py-4 bg-emerald-500 hover:bg-emerald-400 text-slate-900 font-black rounded-xl text-[18px] md:text-[20px] shadow-[0_0_20px_rgba(16,185,129,0.6)] hover:shadow-[0_0_35px_rgba(16,185,129,0.9)] active:scale-95 transition-all">
+                เริ่มงาน ณ เวลา {sysTime.toLocaleTimeString('th-TH', { hour: '2-digit', minute: '2-digit', second: '2-digit' })} น.
+              </button>
             </div>
-            
-            <h2 className="relative z-10 text-[22px] md:text-[26px] font-black text-emerald-400 mb-1 drop-shadow-[0_0_10px_rgba(16,185,129,0.8)]">
-              {currentUserName || 'คุณ'}
-            </h2>
-            <h3 className="relative z-10 text-[18px] font-bold text-white mb-2 drop-shadow-md">พร้อมปฏิบัติงาน (Start Work)</h3>
-            <p className="relative z-10 text-slate-400 text-[14px] mb-6">ระบบจะบันทึกพิกัด GPS และถ่ายภาพสดเพื่อยืนยัน</p>
-            
-            <button onClick={handleStartWork} className="relative z-10 w-full py-4 bg-emerald-500 hover:bg-emerald-400 text-slate-900 font-black rounded-xl text-[18px] md:text-[20px] shadow-[0_0_20px_rgba(16,185,129,0.6)] hover:shadow-[0_0_35px_rgba(16,185,129,0.9)] active:scale-95 transition-all">
-              เริ่มงาน ณ เวลา {sysTime.toLocaleTimeString('th-TH', { hour: '2-digit', minute: '2-digit', second: '2-digit' })} น.
-            </button>
-          </div>
-
-          {/* 🟠 กล่องแจ้งสาย / ออกก่อน (ใช้สวิตช์สลับ) */}
-          <div className="relative overflow-hidden bg-slate-900/80 backdrop-blur-xl border-[2px] border-orange-500/50 p-6 rounded-[1.5rem] shadow-[0_0_30px_rgba(249,115,22,0.3)] flex flex-col">
-            
-            <div className="flex bg-slate-800 rounded-xl p-1 mb-6 border border-slate-700 relative z-10">
-               <button onClick={() => setLateReasonType('late')} className={`flex-1 py-3 rounded-lg font-black text-[14px] transition-all ${lateReasonType === 'late' ? 'bg-orange-500 text-white shadow-lg' : 'text-slate-400'}`}>🟠 แจ้งเข้าสาย</button>
-               <button onClick={() => setLateReasonType('early')} className={`flex-1 py-3 rounded-lg font-black text-[14px] transition-all ${lateReasonType === 'early' ? 'bg-rose-500 text-white shadow-lg' : 'text-slate-400'}`}>🔴 ขอออกก่อน</button>
-            </div>
-
-            <div className="relative z-10 space-y-4 flex-1">
-              <div>
-                <label className="block text-[14px] font-bold text-slate-300 mb-1">
-                  {lateReasonType === 'late' ? 'เวลาที่คาดว่าจะถึง (ETA)' : 'เวลาที่ต้องการออก (Departure Time)'} <span className="text-rose-500">*</span>
-                </label>
-                {/* 🌟 ฟันธง: เปลี่ยน Select ธรรมดา เป็นปุ่มเรียก Custom Modal ล้ำๆ 🌟 */}
-                <div onClick={() => setShowTimePicker(true)} className="w-full bg-slate-800/80 border-[2px] border-slate-600 rounded-xl px-4 py-3 text-white font-mono text-[18px] flex justify-between items-center cursor-pointer hover:border-orange-500 focus:shadow-[0_0_15px_rgba(249,115,22,0.4)] transition-all">
-                  <span className={lateEta ? "text-white font-bold drop-shadow-md" : "text-slate-400"}>{lateEta ? `${lateEta} น.` : '-- เลือกเวลา --'}</span>
-                  <ChevronDown size={20} className="text-orange-400" />
+          ) : (
+            // --- 🔵 โหมดเวรปฏิบัติการ SSC (เสาร์-อาทิตย์ / วันหยุด) ---
+            <div className="relative overflow-hidden bg-slate-900/90 backdrop-blur-xl border-[2px] border-blue-500 p-6 rounded-[1.5rem] shadow-[0_0_40px_rgba(59,130,246,0.3)] flex flex-col items-center text-center">
+              <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-64 h-64 bg-blue-500/20 blur-[80px] rounded-full pointer-events-none z-0"></div>
+              
+              <div className="w-full relative z-10 flex justify-between items-start mb-4">
+                <div className="bg-blue-900/50 border border-blue-400 px-3 py-1.5 rounded-lg text-blue-300 font-bold text-[12px] flex items-center gap-1.5 shadow-[0_0_10px_rgba(59,130,246,0.5)]">
+                  <Monitor size={14}/> โหมดเวรปฏิบัติการ
+                </div>
+                <div className="bg-slate-800 border border-slate-600 px-3 py-1.5 rounded-lg text-slate-300 font-mono font-bold text-[12px]">
+                  เวลาครบกำหนด: 8 ชม.
                 </div>
               </div>
 
-              <div>
-                <label className="block text-[14px] font-bold text-slate-300 mb-1">เหตุผล <span className="text-rose-500">*</span></label>
-                <textarea rows="3" placeholder={lateReasonType === 'late' ? "ระบุเหตุผลเข้าสาย..." : "ระบุเหตุผลขอออกก่อน..."} value={lateReason} onChange={(e) => setLateReason(e.target.value)} className="w-full bg-slate-800/80 border-[2px] border-slate-600 rounded-xl px-4 py-3 text-white focus:border-orange-500 outline-none resize-none"></textarea>
-              </div>
+              <div className="relative z-10 w-20 h-20 bg-blue-500/10 text-blue-400 rounded-full flex items-center justify-center mb-3 border-[2px] border-blue-500/50 shadow-[0_0_20px_rgba(59,130,246,0.6)]"><ShieldCheck size={40} /></div>
+              <h2 className="relative z-10 text-[22px] md:text-[26px] font-black text-blue-400 mb-1 drop-shadow-[0_0_10px_rgba(59,130,246,0.8)] uppercase">{currentUserName || 'คุณ'}</h2>
+              <h3 className="relative z-10 text-[16px] font-bold text-slate-300 mb-6 drop-shadow-md">เจ้าหน้าที่เวร SSC ประจำวันนี้</h3>
+
+              {!sscShiftStart ? (
+                <>
+                  <div className="relative z-10 bg-slate-800/80 border border-dashed border-slate-600 rounded-xl p-4 w-full mb-6 text-left shadow-inner">
+                    <p className="text-rose-400 text-[13px] font-bold mb-1 flex items-center gap-1.5"><AlertCircle size={14}/> คำเตือนการเข้าเวร</p>
+                    <p className="text-slate-300 text-[13px]">ท่านสามารถเข้าเวรเวลาใดก็ได้ แต่ต้อง <span className="text-blue-400 font-black">ไม่เกิน 11:00 น.</span> เพื่อ Standby การประสานงานกับสวีเดน</p>
+                  </div>
+                  <button onClick={handleStartSSCShift} className="relative z-10 w-full py-4 bg-gradient-to-r from-blue-600 to-cyan-600 hover:from-blue-500 hover:to-cyan-500 text-white font-black rounded-xl text-[18px] shadow-[0_0_20px_rgba(59,130,246,0.6)] hover:shadow-[0_0_35px_rgba(59,130,246,0.9)] active:scale-95 transition-all border border-blue-300">
+                    เริ่มเข้าเวรปฏิบัติการ (Start Shift)
+                  </button>
+                </>
+              ) : (
+                <div className="relative z-10 w-full flex flex-col gap-4 w-full">
+                  {(() => {
+                    const elapsedMs = sysTime.getTime() - sscShiftStart.getTime();
+                    const totalMs = 8 * 3600 * 1000;
+                    let progressPct = (elapsedMs / totalMs) * 100;
+                    if (progressPct > 100) progressPct = 100;
+                    
+                    const remainMs = totalMs - elapsedMs;
+                    const h = Math.floor(Math.abs(remainMs) / 3600000);
+                    const m = Math.floor((Math.abs(remainMs) % 3600000) / 60000);
+                    const s = Math.floor((Math.abs(remainMs) % 60000) / 1000);
+                    const timeStr = `${String(h).padStart(2,'0')}:${String(m).padStart(2,'0')}:${String(s).padStart(2,'0')}`;
+                    
+                    const isDone = progressPct >= 100;
+
+                    return (
+                      <>
+                        <div className="bg-slate-950/60 p-4 rounded-xl border border-slate-700 w-full">
+                          <div className="flex justify-between items-center mb-2">
+                            <span className="text-slate-400 font-bold text-[13px]">เวลาปฏิบัติการ (8 ชม.)</span>
+                            <span className={`font-mono font-black text-[16px] ${isDone ? 'text-emerald-400' : 'text-blue-400 animate-pulse'}`}>{isDone ? 'ครบกำหนด' : `เหลือ ${timeStr}`}</span>
+                          </div>
+                          <div className="w-full bg-slate-800 rounded-full h-4 overflow-hidden border border-slate-700 shadow-inner">
+                            <div className={`h-full transition-all duration-1000 rounded-full relative overflow-hidden ${isDone ? 'bg-emerald-500' : 'bg-gradient-to-r from-blue-600 to-cyan-400'}`} style={{ width: `${progressPct}%` }}>
+                              {!isDone && <div className="absolute inset-0 bg-white/20 w-full animate-[shimmer_2s_infinite]"></div>}
+                            </div>
+                          </div>
+                        </div>
+                        
+                        <button onClick={() => handleEndSSCShift(progressPct)} className={`w-full py-4 font-black rounded-xl text-[18px] transition-all active:scale-95 border border-white/20 shadow-lg ${isDone ? 'bg-emerald-600 hover:bg-emerald-500 text-white shadow-[0_0_20px_rgba(16,185,129,0.5)]' : 'bg-orange-600 hover:bg-orange-500 text-white shadow-[0_0_20px_rgba(249,115,22,0.5)]'}`}>
+                          {isDone ? '✅ ออกเวร (ครบ 8 ชั่วโมง)' : '⚠️ ขอออกเวรก่อนกำหนด'}
+                        </button>
+                      </>
+                    );
+                  })()}
+                </div>
+              )}
+            </div>
+          )}
+
+          {/* 🟠 กล่องแจ้งลางาน/เข้าสาย/ออกก่อน */}
+          <div className="relative overflow-hidden bg-slate-900/80 backdrop-blur-xl border-[2px] border-slate-600/50 p-6 rounded-[1.5rem] shadow-[0_0_30px_rgba(0,0,0,0.3)] flex flex-col">
+            
+            {/* 🌟 ฟันธง: เพิ่มแท็บแจ้งลางาน/ไปราชการ */}
+            <div className="flex flex-wrap bg-slate-800 rounded-xl p-1 mb-5 border border-slate-700 relative z-10 gap-1">
+               <button onClick={() => setActionType('late')} className={`flex-1 min-w-[80px] py-2.5 rounded-lg font-black text-[13px] md:text-[14px] transition-all ${actionType === 'late' ? 'bg-orange-500 text-white shadow-md' : 'text-slate-400 hover:text-slate-200'}`}>🟠 เข้าสาย</button>
+               <button onClick={() => setActionType('early')} className={`flex-1 min-w-[80px] py-2.5 rounded-lg font-black text-[13px] md:text-[14px] transition-all ${actionType === 'early' ? 'bg-rose-500 text-white shadow-md' : 'text-slate-400 hover:text-slate-200'}`}>🔴 ออกก่อน</button>
+               <button onClick={() => setActionType('leave')} className={`w-full mt-1 py-2.5 rounded-lg font-black text-[13px] md:text-[14px] transition-all ${actionType === 'leave' ? 'bg-blue-600 text-white shadow-md' : 'bg-slate-900/50 text-slate-400 hover:text-slate-200'}`}>🔵 แจ้งลางาน / ไปปฏิบัติราชการ</button>
+            </div>
+
+            <div className="relative z-10 space-y-4 flex-1 animate-in fade-in">
+              {actionType === 'leave' ? (
+                <>
+                  <div className="flex flex-col gap-2">
+                    <label className="block text-[14px] font-bold text-slate-300">ประเภทการลา <span className="text-rose-500">*</span></label>
+                    <div className="grid grid-cols-2 gap-2">
+                      <button onClick={() => setLeaveType('sick')} className={`py-2 rounded-lg text-[13px] font-bold border transition-all ${leaveType === 'sick' ? 'bg-blue-500/20 border-blue-400 text-blue-300' : 'bg-slate-800 border-slate-600 text-slate-400'}`}>🤒 ลาป่วย</button>
+                      <button onClick={() => setLeaveType('personal')} className={`py-2 rounded-lg text-[13px] font-bold border transition-all ${leaveType === 'personal' ? 'bg-blue-500/20 border-blue-400 text-blue-300' : 'bg-slate-800 border-slate-600 text-slate-400'}`}>💼 ลากิจ</button>
+                      <button onClick={() => setLeaveType('vacation')} className={`py-2 rounded-lg text-[13px] font-bold border transition-all ${leaveType === 'vacation' ? 'bg-blue-500/20 border-blue-400 text-blue-300' : 'bg-slate-800 border-slate-600 text-slate-400'}`}>🏖️ ลาพักผ่อน</button>
+                      <button onClick={() => setLeaveType('offsite')} className={`py-2 rounded-lg text-[13px] font-bold border transition-all ${leaveType === 'offsite' ? 'bg-emerald-500/20 border-emerald-400 text-emerald-300 shadow-[0_0_10px_rgba(16,185,129,0.3)]' : 'bg-slate-800 border-slate-600 text-slate-400'}`}>✈️ ไปราชการ/สัมมนา</button>
+                    </div>
+                  </div>
+                  <div className="grid grid-cols-2 gap-3">
+                    <div>
+                      <label className="block text-[12px] font-bold text-slate-400 mb-1">ตั้งแต่วันที่ <span className="text-rose-500">*</span></label>
+                      <input type="date" value={leaveStartDate} onChange={e => setLeaveStartDate(e.target.value)} className="w-full bg-slate-800/80 border border-slate-600 rounded-lg px-3 py-2 text-white text-[14px] outline-none focus:border-blue-400" />
+                    </div>
+                    <div>
+                      <label className="block text-[12px] font-bold text-slate-400 mb-1">ถึงวันที่ <span className="text-rose-500">*</span></label>
+                      <input type="date" value={leaveEndDate} onChange={e => setLeaveEndDate(e.target.value)} className="w-full bg-slate-800/80 border border-slate-600 rounded-lg px-3 py-2 text-white text-[14px] outline-none focus:border-blue-400" />
+                    </div>
+                  </div>
+                </>
+              ) : (
+                <div>
+                  <label className="block text-[14px] font-bold text-slate-300 mb-1">
+                    {actionType === 'late' ? 'เวลาที่คาดว่าจะถึง (ETA)' : 'เวลาที่ต้องการออก (Departure Time)'} <span className="text-rose-500">*</span>
+                  </label>
+                  <div onClick={() => setShowTimePicker(true)} className="w-full bg-slate-800/80 border-[2px] border-slate-600 rounded-xl px-4 py-3 text-white font-mono text-[18px] flex justify-between items-center cursor-pointer hover:border-orange-500 focus:shadow-[0_0_15px_rgba(249,115,22,0.4)] transition-all">
+                    <span className={lateEta ? "text-white font-bold drop-shadow-md" : "text-slate-400"}>{lateEta ? `${lateEta} น.` : '-- เลือกเวลา --'}</span>
+                    <ChevronDown size={20} className={actionType === 'late' ? "text-orange-400" : "text-rose-400"} />
+                  </div>
+                </div>
+              )}
 
               <div>
-                 <label className="block text-[14px] font-bold text-slate-300 mb-2">แนบภาพ/วิดีโอหลักฐาน <span className="text-slate-500 font-normal">(ถ้ามี)</span></label>
-                 <div className="flex flex-wrap gap-2">
+                <label className="block text-[14px] font-bold text-slate-300 mb-1">เหตุผล <span className="text-rose-500">*</span></label>
+                <textarea rows="2" placeholder="ระบุเหตุผลแบบกระชับ..." value={lateReason} onChange={(e) => setLateReason(e.target.value)} className="w-full bg-slate-800/80 border-[2px] border-slate-600 rounded-xl px-4 py-3 text-white focus:border-cyan-400 outline-none resize-none text-[14px]"></textarea>
+              </div>
+
+              {/* 🌟 ฟันธง: กรอบแนบรูปภาพ/คลิปวิดีโอ Sci-Fi แบบอัปเกรดโควตา 6 รูป 1 คลิป (ถอดแบบหน้าแจ้งซ่อมเป๊ะๆ) 🌟 */}
+              <div className="space-y-4 pt-3 mt-3 border-t-[2px] border-dashed border-slate-600/50">
+                <div className="flex justify-between items-center ml-1 mb-2">
+                  <label className="text-[14px] font-black text-slate-300 uppercase tracking-wide flex items-center gap-1.5">
+                    <Camera className="w-4 h-4" /> ภาพ/วิดีโอหลักฐาน <span className="text-slate-500 font-normal text-[11px]">(ถ้ามี)</span>
+                  </label>
+                  <div className="flex gap-1.5">
+                    <div className="bg-orange-950 border border-orange-500/80 text-orange-400 text-[10px] font-black px-2 py-0.5 rounded-md shadow-[0_0_10px_rgba(249,115,22,0.8)] backdrop-blur-sm">รูป {evidenceFiles.filter(f => f.type === 'image').length}/6</div>
+                    <div className="bg-purple-950 border border-purple-500/80 text-purple-400 text-[10px] font-black px-2 py-0.5 rounded-md shadow-[0_0_10px_rgba(168,85,247,0.8)] backdrop-blur-sm">คลิป {evidenceFiles.filter(f => f.type === 'video').length}/1</div>
+                  </div>
+                </div>
+
+                {evidenceFiles.length > 0 && (
+                  <div className="grid grid-cols-4 sm:grid-cols-5 gap-2 mb-2">
                     {evidenceFiles.map((file, idx) => (
-                      <div key={idx} className="relative w-16 h-16 rounded-xl border-2 border-orange-500/50 overflow-hidden bg-slate-900 group shadow-[0_0_10px_rgba(249,115,22,0.2)]">
-                         {file.type === 'video' ? (
-                           <div className="w-full h-full flex items-center justify-center text-orange-400"><Video size={24} /></div>
-                         ) : (
-                           <img src={file.url} alt="Evidence" className="w-full h-full object-cover opacity-80" />
-                         )}
-                         <button onClick={() => removeFile(idx)} className="absolute top-1 right-1 bg-rose-500 text-white rounded-full p-0.5 opacity-0 group-hover:opacity-100 transition-opacity"><X size={12} /></button>
+                      <div key={idx} className="relative aspect-square rounded-xl overflow-hidden border-[2px] border-cyan-500/60 shadow-[0_0_10px_rgba(6,182,212,0.3)] group cursor-pointer" onClick={() => setLightboxImg?.(file.url)}>
+                        {file.type === 'video' ? (
+                          <div className="w-full h-full flex items-center justify-center bg-slate-950 text-purple-400"><Video size={24}/></div>
+                        ) : (
+                          <img src={file.url} alt="Evidence" className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500" />
+                        )}
+                        <button type="button" onClick={(e) => { e.stopPropagation(); removeFile(idx); }} className="absolute top-1 right-1 bg-rose-500/90 backdrop-blur-sm text-white p-1 rounded-full shadow-lg transition-all active:scale-75 hover:bg-rose-600 border border-rose-400 z-10"><X size={10} className="stroke-[3px]" /></button>
                       </div>
                     ))}
-                    
-                    {evidenceFiles.length < 3 && (
-                      <button onClick={() => setShowImagePicker(true)} className="w-16 h-16 rounded-xl border-2 border-dashed border-slate-500 hover:border-orange-500 hover:bg-orange-500/20 flex items-center justify-center text-slate-400 hover:text-orange-400 transition-all hover:shadow-[0_0_10px_rgba(249,115,22,0.3)]">
-                        <Camera size={24} />
-                      </button>
-                    )}
-                 </div>
+                  </div>
+                )}
+
+                {/* ปุ่มอัปโหลดจะไม่หายไปจนกว่าจะเต็มโควตา */}
+                {(evidenceFiles.filter(f => f.type === 'image').length < 6 || evidenceFiles.filter(f => f.type === 'video').length < 1) && (
+                  <button type="button" onClick={() => setShowImagePicker(true)} className="w-full h-20 border-[2px] border-dashed border-slate-500 bg-slate-800/40 hover:bg-cyan-900/30 hover:border-cyan-400 rounded-xl flex flex-col items-center justify-center transition-all duration-300 cursor-pointer shadow-[inset_0_0_15px_rgba(0,0,0,0.2)] hover:shadow-[0_0_20px_rgba(6,182,212,0.3)] group">
+                    <div className="flex items-center gap-2 mb-0.5 transition-all">
+                      <Camera size={22} className="text-slate-500 group-hover:text-cyan-400 transition-all drop-shadow-md" />
+                      <span className="text-slate-600 group-hover:text-white text-[18px] font-light font-mono mx-1 transition-colors">/</span>
+                      <Video size={22} className="text-slate-500 group-hover:text-purple-400 transition-all drop-shadow-md" />
+                    </div>
+                    <span className="font-bold tracking-widest text-slate-500 group-hover:text-cyan-300 text-[11px] md:text-[13px]">คลิกแนบรูป/วิดีโอ (คลิปยาวไม่เกิน 8 วิ)</span>
+                  </button>
+                )}
               </div>
+
             </div>
             
-            <button onClick={handleSubmitNotice} className={`relative z-10 w-full mt-6 py-4 font-black rounded-xl text-[18px] transition-all duration-300 ${lateEta && lateReason ? (lateReasonType === 'late' ? 'bg-gradient-to-r from-orange-500 to-amber-500 hover:from-orange-400 hover:to-amber-400 text-white shadow-[0_0_20px_rgba(249,115,22,0.6)] hover:shadow-[0_0_35px_rgba(249,115,22,0.9)] active:scale-95 border border-orange-300' : 'bg-gradient-to-r from-rose-500 to-pink-500 hover:from-rose-400 hover:to-pink-400 text-white shadow-[0_0_20px_rgba(244,63,94,0.6)] hover:shadow-[0_0_35px_rgba(244,63,94,0.9)] active:scale-95 border border-rose-300') : 'bg-slate-800 text-slate-500 border border-slate-700 cursor-not-allowed'}`}>
-              ส่งแจ้งเตือน {lateReasonType === 'late' ? 'เข้าสาย' : 'ขอออกก่อน'}
+            <button onClick={handleSubmitNotice} className={`relative z-10 w-full mt-5 py-3.5 font-black rounded-xl text-[16px] md:text-[18px] transition-all duration-300 border shadow-lg ${
+              (actionType === 'leave' && leaveStartDate && leaveEndDate && lateReason) || (actionType !== 'leave' && lateEta && lateReason)
+                ? (actionType === 'late' ? 'bg-gradient-to-r from-orange-500 to-amber-500 text-white border-orange-300 shadow-orange-500/40 hover:shadow-orange-500/60' 
+                  : actionType === 'early' ? 'bg-gradient-to-r from-rose-500 to-pink-500 text-white border-rose-300 shadow-rose-500/40 hover:shadow-rose-500/60'
+                  : 'bg-gradient-to-r from-blue-600 to-cyan-500 text-white border-blue-300 shadow-blue-500/40 hover:shadow-blue-500/60') 
+                : 'bg-slate-800 text-slate-500 border-slate-700 cursor-not-allowed'
+            }`}>
+              {actionType === 'leave' ? 'ส่งคำขออนุมัติลางาน/ไปราชการ' : `ส่งแจ้งเตือน${actionType === 'late' ? 'เข้าสาย' : 'ขอออกก่อน'}`}
             </button>
           </div>
         </div>
       )}
 
-      {/* 🌟 หน้า Live / Report ส่วนของ Commander (ละไว้ให้โค้ดสะอาด แต่มีครบถ้วน) */}
+      {/* 🌟 หน้า Live / Report ส่วนของ Commander */}
       {activeSubTab === 'live' && currentUserRole === 'Commander' && (
         <div className="bg-slate-800/60 border-2 border-cyan-500/50 p-4 md:p-6 rounded-[1.5rem] shadow-[0_0_20px_rgba(6,182,212,0.15)]">
           <h3 className="text-[20px] md:text-[24px] font-black text-cyan-400 mb-4 md:mb-6 flex items-center gap-2">
@@ -372,114 +523,90 @@ export default function AttendanceView({ sysTime, currentUserRole, currentUserNa
         </div>
       )}
 
-      {/* 🌟 ปุ่มหน้าหลัก/ออกระบบ 🌟 */}
-      <div className="w-full mt-6 pt-6 border-t border-slate-700/50 flex justify-center gap-4 relative z-[99]">
-        <button onClick={() => { if(setActiveTab) setActiveTab('hub'); }} className="flex-1 max-w-[200px] bg-slate-800 hover:bg-slate-700 text-cyan-400 border border-cyan-500/50 py-3 md:py-4 rounded-xl font-black transition-all active:scale-95 shadow-sm flex items-center justify-center gap-2 cursor-pointer">
+      {/* 🌟 ฟันธง: ปุ่มหน้าหลักและออกระบบ จัดเรียงขนานกรอบเป๊ะๆ ทั้ง PC และ Mobile 🌟 */}
+      <div className="flex flex-row w-full gap-3 md:gap-4 mt-6 pt-6 border-t-[2px] border-dashed border-slate-700/50 relative z-[99]">
+        <button onClick={() => { if(setActiveTab) setActiveTab('hub'); }} className="flex-1 bg-slate-900 border-[2px] border-cyan-600/50 hover:bg-cyan-900/40 hover:border-cyan-400 text-cyan-400 py-3.5 md:py-4 rounded-xl flex items-center justify-center gap-2 font-black transition-all shadow-sm hover:shadow-[0_0_15px_rgba(34,211,238,0.4)] active:scale-95 text-[14px] md:text-[16px]">
           <Home size={20} /> หน้าหลัก
         </button>
-        <button onClick={() => { if(onGoHome) onGoHome(); }} className="flex-1 max-w-[200px] bg-rose-500/20 hover:bg-rose-500/40 text-rose-400 border border-rose-500/50 py-3 md:py-4 rounded-xl font-black transition-all active:scale-95 shadow-sm flex items-center justify-center gap-2 cursor-pointer">
+        <button onClick={() => { if(onGoHome) onGoHome(); }} className="flex-1 bg-slate-900 border-[2px] border-rose-600/50 hover:bg-rose-900/40 hover:border-rose-400 text-rose-400 py-3.5 md:py-4 rounded-xl flex items-center justify-center gap-2 font-black transition-all shadow-sm hover:shadow-[0_0_15px_rgba(244,63,94,0.4)] active:scale-95 text-[14px] md:text-[16px]">
           <LogOut size={20} /> ออกจากระบบ
         </button>
       </div>
 
-      {/* 🌟 1. ฟันธง: Custom Alert Modal (Sci-Fi Pop-up) แทน Alert ขาวๆ โง่ๆ 🌟 */}
+      {/* 🌟 Custom Alert Modal */}
       {alertConfig.show && (
         <div className="fixed inset-0 z-[999999] bg-slate-900/80 backdrop-blur-md flex items-center justify-center p-4 animate-in fade-in" onClick={closeAlert}>
-          <div className={`bg-slate-800 border-2 rounded-3xl p-6 md:p-8 max-w-md w-full transform transition-all ${
-            alertConfig.type === 'error' ? 'border-rose-500 shadow-[0_0_40px_rgba(225,29,72,0.4)]' :
-            alertConfig.type === 'success' ? 'border-emerald-500 shadow-[0_0_40px_rgba(16,185,129,0.4)]' :
-            'border-cyan-500 shadow-[0_0_40px_rgba(6,182,212,0.4)]'
-          }`} onClick={e => e.stopPropagation()}>
+          <div className={`bg-slate-800 border-2 rounded-3xl p-6 md:p-8 max-w-md w-full transform transition-all ${alertConfig.type === 'error' ? 'border-rose-500 shadow-[0_0_40px_rgba(225,29,72,0.4)]' : alertConfig.type === 'success' ? 'border-emerald-500 shadow-[0_0_40px_rgba(16,185,129,0.4)]' : 'border-cyan-500 shadow-[0_0_40px_rgba(6,182,212,0.4)]'}`} onClick={e => e.stopPropagation()}>
             <div className="flex flex-col items-center text-center gap-4">
-              {/* เรืองแสงไอคอน */}
-              <div className={`p-4 rounded-full border-2 bg-slate-900 ${
-                alertConfig.type === 'error' ? 'border-rose-500 text-rose-500 shadow-[0_0_20px_rgba(225,29,72,0.5)]' :
-                alertConfig.type === 'success' ? 'border-emerald-500 text-emerald-500 shadow-[0_0_20px_rgba(16,185,129,0.5)]' :
-                'border-cyan-500 text-cyan-500 shadow-[0_0_20px_rgba(6,182,212,0.5)]'
-              }`}>
+              <div className={`p-4 rounded-full border-2 bg-slate-900 ${alertConfig.type === 'error' ? 'border-rose-500 text-rose-500 shadow-[0_0_20px_rgba(225,29,72,0.5)]' : alertConfig.type === 'success' ? 'border-emerald-500 text-emerald-500 shadow-[0_0_20px_rgba(16,185,129,0.5)]' : 'border-cyan-500 text-cyan-500 shadow-[0_0_20px_rgba(6,182,212,0.5)]'}`}>
                 {alertConfig.type === 'error' && <AlertCircle size={48} className="animate-pulse" />}
                 {alertConfig.type === 'success' && <ShieldCheck size={48} />}
                 {alertConfig.type === 'info' && <MapPin size={48} className="animate-bounce" />}
               </div>
-
-              <h3 className={`text-[20px] font-black mb-1 ${
-                alertConfig.type === 'error' ? 'text-rose-400' :
-                alertConfig.type === 'success' ? 'text-emerald-400' : 'text-cyan-400'
-              }`}>
-                {alertConfig.type === 'error' ? 'ข้อความแจ้งเตือน' : alertConfig.type === 'success' ? 'ดำเนินการสำเร็จ' : 'ระบบกำลังทำงาน'}
-              </h3>
-              
-              <p className="text-white text-[15px] md:text-[16px] font-bold whitespace-pre-line leading-relaxed text-slate-300">
-                {alertConfig.message}
-              </p>
-
-              <button onClick={closeAlert} className={`mt-6 w-full py-3 md:py-4 font-black rounded-xl text-white text-[18px] transition-all active:scale-95 shadow-lg ${
-                alertConfig.type === 'error' ? 'bg-rose-500 hover:bg-rose-600' :
-                alertConfig.type === 'success' ? 'bg-emerald-500 hover:bg-emerald-600' :
-                'bg-cyan-500 hover:bg-cyan-600'
-              }`}>
-                รับทราบ / ตกลง
-              </button>
+              <h3 className={`text-[20px] font-black mb-1 ${alertConfig.type === 'error' ? 'text-rose-400' : alertConfig.type === 'success' ? 'text-emerald-400' : 'text-cyan-400'}`}>{alertConfig.type === 'error' ? 'ข้อความแจ้งเตือน' : alertConfig.type === 'success' ? 'ดำเนินการสำเร็จ' : 'ระบบกำลังทำงาน'}</h3>
+              <p className="text-white text-[15px] md:text-[16px] font-bold whitespace-pre-line leading-relaxed text-slate-300">{alertConfig.message}</p>
+              <button onClick={closeAlert} className={`mt-6 w-full py-3 md:py-4 font-black rounded-xl text-white text-[18px] transition-all active:scale-95 shadow-lg ${alertConfig.type === 'error' ? 'bg-rose-500 hover:bg-rose-600' : alertConfig.type === 'success' ? 'bg-emerald-500 hover:bg-emerald-600' : 'bg-cyan-500 hover:bg-cyan-600'}`}>รับทราบ / ตกลง</button>
             </div>
           </div>
         </div>
       )}
 
-      {/* 🌟 2. ฟันธง: Custom Time Picker Modal (Sci-Fi Bottom Sheet) แทน <select> 🌟 */}
+      {/* 🌟 Custom Time Picker Modal */}
       {showTimePicker && (
         <div className="fixed inset-0 z-[999998] bg-slate-900/90 backdrop-blur-sm flex items-end md:items-center justify-center p-4 md:p-0 animate-in fade-in" onClick={() => setShowTimePicker(false)}>
           <div className="bg-[#1e293b] border-2 border-orange-500 rounded-[2rem] w-full max-w-sm flex flex-col shadow-[0_0_40px_rgba(249,115,22,0.3)] animate-in slide-in-from-bottom-10 md:slide-in-from-bottom-0" onClick={e => e.stopPropagation()}>
             <div className="p-6 border-b border-slate-700/50 flex justify-between items-center bg-slate-800/50 rounded-t-[2rem]">
-              <h3 className="text-[20px] font-black text-orange-400 flex items-center gap-2">
-                <Clock size={24} /> ระบุเวลา (ETA)
-              </h3>
+              <h3 className="text-[20px] font-black text-orange-400 flex items-center gap-2"><Clock size={24} /> ระบุเวลา (ETA)</h3>
               <button onClick={() => setShowTimePicker(false)} className="text-slate-400 hover:text-white bg-slate-800 p-2 rounded-full transition-all active:scale-95"><X size={20} /></button>
             </div>
-            
             <div className="p-4 max-h-[50vh] overflow-y-auto space-y-2 [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]">
               {timeOptions.map(time => (
-                <button key={time} onClick={() => { setLateEta(time); setShowTimePicker(false); }} className={`w-full py-4 rounded-2xl font-mono text-[18px] font-bold transition-all active:scale-95 ${lateEta === time ? 'bg-orange-500 text-white shadow-[0_0_15px_rgba(249,115,22,0.5)] border-2 border-orange-400' : 'bg-slate-800/80 border-2 border-transparent text-slate-300 hover:bg-slate-700 hover:text-white hover:border-slate-500'}`}>
-                  {time} น.
-                </button>
+                <button key={time} onClick={() => { setLateEta(time); setShowTimePicker(false); }} className={`w-full py-4 rounded-2xl font-mono text-[18px] font-bold transition-all active:scale-95 ${lateEta === time ? 'bg-orange-500 text-white shadow-[0_0_15px_rgba(249,115,22,0.5)] border-2 border-orange-400' : 'bg-slate-800/80 border-2 border-transparent text-slate-300 hover:bg-slate-700 hover:text-white hover:border-slate-500'}`}>{time} น.</button>
               ))}
             </div>
           </div>
         </div>
       )}
 
-      {/* 🌟 ป๊อปอัปเลือกรูป */}
-      {showImagePicker && (
-        <div className="fixed inset-0 z-[99999] bg-slate-900/90 backdrop-blur-sm flex items-center justify-center p-4 animate-in fade-in" onClick={() => setShowImagePicker(false)}>
-          <div className="bg-[#1e293b] border-[2px] border-orange-500 rounded-3xl p-6 w-full max-w-sm shadow-[0_0_30px_rgba(249,115,22,0.3)]" onClick={(e) => e.stopPropagation()}>
-            <h3 className="text-xl font-black text-white mb-6 text-center flex items-center justify-center gap-2">
-              <Monitor className="w-6 h-6 text-orange-400" /> เลือกรูปภาพ/วิดีโอ
-            </h3>
+      {/* 🌟 ฟันธง: แยกโหมด PC และ Mobile สำหรับป๊อบอัพเลือกรูปภาพ 🌟 */}
+      {showImagePicker && typeof document !== 'undefined' ? createPortal(
+        <div className="fixed inset-0 z-[999999] flex items-center justify-center p-4 bg-slate-800/80 backdrop-blur-md animate-in fade-in duration-300" onClick={() => setShowImagePicker(false)}>
+          <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[450px] h-[450px] bg-cyan-600/30 rounded-full blur-[100px] animate-pulse pointer-events-none z-0"></div>
+          <div className="relative z-10 bg-slate-900/90 backdrop-blur-sm border-[3px] border-solid border-cyan-500 rounded-[1.5rem] p-6 w-full max-w-sm shadow-[0_0_60px_rgba(6,182,212,0.5)] text-center animate-in zoom-in-95 duration-300" onClick={e => e.stopPropagation()}>
+            <h3 className="text-xl font-black text-cyan-100 mb-6 tracking-widest flex items-center justify-center gap-2 drop-shadow-[0_0_10px_rgba(6,182,212,1)]"><Monitor size={22} className="text-cyan-400" /> เลือกรูปภาพ/วิดีโอ</h3>
+            
+            {/* 📱 โหมดมือถือ (Mobile View) */}
             <div className="flex md:hidden flex-col gap-3">
               <div className="grid grid-cols-2 gap-3">
-                <button onClick={() => { document.getElementById('camera-img-leave').click(); setShowImagePicker(false); }} className="bg-[#ea580c] hover:bg-[#f97316] p-5 rounded-2xl flex flex-col items-center justify-center gap-2 transition-transform active:scale-95 shadow-md">
-                  <Camera className="text-white w-8 h-8" /> <span className="font-bold text-white text-[15px]">ถ่ายรูป</span>
+                <button onClick={() => { document.getElementById('camera-img-leave').click(); setShowImagePicker(false); }} className="bg-gradient-to-b from-blue-500 to-blue-700 p-4 rounded-[1rem] flex flex-col items-center justify-center gap-2 border-[2px] border-white/60 shadow-[0_0_15px_rgba(59,130,246,0.5)] transition-transform active:scale-95">
+                  <Camera className="text-white w-8 h-8 drop-shadow-md" /> <span className="font-black text-white text-[14px] drop-shadow-md">ถ่ายรูป</span>
                 </button>
-                <button onClick={() => { document.getElementById('camera-vid-leave').click(); setShowImagePicker(false); }} className="bg-[#8b5cf6] hover:bg-[#a78bfa] p-5 rounded-2xl flex flex-col items-center justify-center gap-2 transition-transform active:scale-95 shadow-md">
-                  <Video className="text-white w-8 h-8" /> <span className="font-bold text-white text-[15px]">ถ่ายวิดีโอ</span>
+                <button onClick={() => { document.getElementById('camera-vid-leave').click(); setShowImagePicker(false); }} className="bg-gradient-to-b from-purple-500 to-purple-700 p-4 rounded-[1rem] flex flex-col items-center justify-center gap-2 border-[2px] border-white/60 shadow-[0_0_15px_rgba(168,85,247,0.5)] transition-transform active:scale-95">
+                  <Video className="text-white w-8 h-8 drop-shadow-md" /> <span className="font-black text-white text-[14px] drop-shadow-md">ถ่ายวิดีโอ</span>
                 </button>
               </div>
-              <button onClick={() => { document.getElementById('gallery-input-leave').click(); setShowImagePicker(false); }} className="w-full bg-[#10b981] hover:bg-[#34d399] p-4 rounded-2xl flex items-center justify-center gap-3 transition-transform active:scale-95 shadow-md">
-                <Monitor className="text-white w-6 h-6" /> <span className="font-bold text-white text-[16px]">เลือกคลังภาพ/วิดีโอ</span>
+              <button onClick={() => { document.getElementById('gallery-input-leave').click(); setShowImagePicker(false); }} className="w-full bg-gradient-to-b from-emerald-500 to-emerald-700 p-4 rounded-[1rem] flex items-center justify-center gap-3 border-[2px] border-white/60 shadow-[0_0_15px_rgba(16,185,129,0.5)] transition-transform active:scale-95 mt-1">
+                <Monitor className="text-white w-6 h-6 drop-shadow-md" /> <span className="font-black text-white text-[16px] drop-shadow-md">เลือกคลังภาพ/วิดีโอ</span>
               </button>
-              <button onClick={() => setShowImagePicker(false)} className="w-full py-4 bg-[#1e293b] text-slate-300 font-bold rounded-2xl border-2 border-slate-600 hover:bg-slate-700 hover:text-white transition-colors shadow-md mt-1">ยกเลิก</button>
             </div>
-            <div className="hidden md:flex flex-col gap-3">
-              <button onClick={() => { document.getElementById('gallery-input-leave').click(); setShowImagePicker(false); }} className="bg-emerald-600 hover:bg-emerald-500 border-2 border-emerald-400/80 p-4 rounded-2xl flex items-center justify-center gap-3 transition-transform active:scale-95 shadow-lg">
-                <ImageIcon className="text-white w-6 h-6" /> <span className="font-bold text-white text-[16px]">เลือกจากคลังภาพ</span>
+
+            {/* 💻 โหมดคอมพิวเตอร์ (PC View) */}
+            <div className="hidden md:flex flex-col gap-4">
+              <button onClick={() => { document.getElementById('gallery-input-leave').click(); setShowImagePicker(false); }} className="flex flex-col items-center justify-center bg-gradient-to-b from-emerald-500 to-emerald-700 p-8 rounded-xl border-[2px] border-white/60 shadow-[0_0_20px_rgba(16,185,129,0.4)] hover:scale-105 group transition-all">
+                <div className="flex gap-4 mb-3"><Camera size={40} className="text-white drop-shadow-md group-hover:scale-110 transition-all" /><Video size={40} className="text-white drop-shadow-md group-hover:scale-110 transition-all" /></div>
+                <span className="text-white font-black text-lg drop-shadow-lg group-hover:scale-105 transition-all">เลือกรูปภาพ/วิดีโอ</span>
+                <span className="text-emerald-100 text-sm mt-1 font-bold group-hover:text-white">คลิกเพื่ออัปโหลดจากคอมพิวเตอร์</span>
               </button>
-              <button onClick={() => { handleClipboardPaste(); setShowImagePicker(false); }} className="bg-slate-700 hover:bg-slate-600 border-2 border-slate-500 p-4 rounded-2xl flex items-center justify-center gap-3 transition-transform active:scale-95 shadow-lg">
-                <ClipboardList className="text-sky-400 w-6 h-6" /> <span className="font-bold text-white text-[16px]">วางรูปที่แคปไว้ (Paste)</span>
+              <button type="button" onClick={handleClipboardPaste} className="flex items-center justify-center gap-3 bg-slate-900 border-[2px] border-cyan-500/60 p-4 rounded-xl cursor-pointer transition-all shadow-[0_0_15px_rgba(6,182,212,0.2)] hover:bg-slate-800 hover:border-cyan-400 hover:scale-[1.02] active:scale-95 group">
+                <ClipboardList className="text-cyan-400 w-6 h-6 drop-shadow-md group-hover:scale-110 group-hover:text-cyan-300 transition-all" />
+                <div className="flex flex-col items-start text-left"><span className="text-cyan-400 font-black text-[16px] tracking-wide group-hover:text-cyan-300">แคปหน้าจอเสร็จแล้วกดปุ่มนี้</span><span className="text-slate-400 text-[13px] font-bold mt-0.5">กด Win + Shift + S หรือ PRT SC</span></div>
               </button>
-              <button onClick={() => setShowImagePicker(false)} className="w-full py-4 bg-slate-800 text-white font-bold rounded-2xl border-2 border-slate-600 hover:bg-slate-700 transition-colors shadow-lg">ยกเลิก</button>
             </div>
+            
+            <button onClick={() => setShowImagePicker(false)} className="w-full mt-6 py-4 bg-slate-800 text-slate-200 font-bold rounded-xl border-[2px] border-white/40 transition-all duration-300 shadow-[0_0_10px_rgba(244,63,94,0.3)] hover:bg-rose-700 hover:text-white active:scale-95 uppercase tracking-widest">ยกเลิก</button>
           </div>
-        </div>
-      )}
+        </div>, document.body
+      ) : null}
 
       {/* 🌟 กล้องลับ */}
       <input type="file" id="live-snap-checkin" accept="image/*" capture="user" onChange={handleLiveSnapSubmit} className="hidden" />

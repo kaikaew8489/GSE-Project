@@ -1,5 +1,6 @@
-import React, { useRef } from 'react';
-import { X, Camera, ShieldCheck, CheckCircle, PauseCircle, Wrench, FileText, PlusCircle, XCircle, Search, User, Check } from 'lucide-react';
+import React, { useRef, useState } from 'react'; // 🌟 ฟันธง 1: เพิ่ม useState ตรงนี้!
+import { createPortal } from 'react-dom'; // 🌟 ฟันธง 2: ต้อง Import createPortal ด้วย เพราะป๊อบอัพใช้
+import { X, Camera, ShieldCheck, CheckCircle, PauseCircle, Wrench, FileText, PlusCircle, XCircle, Search, User, Check, Monitor, Video } from 'lucide-react'; // 🌟 ฟันธง 3: เพิ่มไอคอน Monitor, Video
 
 export default function ActionModal({
   isOpen, onClose, type, ticketId, 
@@ -8,6 +9,9 @@ export default function ActionModal({
   executeActionModal, selectedTech, currentUserName
 }) {
   const fileInputRef = useRef(null);
+  
+  // 🌟 ฟันธง 4: ประกาศสวิตช์ปิดเปิดป๊อบอัพฝังไว้ตรงนี้!
+  const [showImagePicker, setShowImagePicker] = useState(false);
 
   if (!isOpen) return null;
 
@@ -139,7 +143,7 @@ export default function ActionModal({
 
                 {(!actionAttachments || actionAttachments.length === 0) ? (
                   <button 
-                    onClick={() => fileInputRef.current?.click()} 
+                    onClick={() => setShowImagePicker(true)} 
                     className={`w-full py-8 flex flex-col items-center justify-center gap-3 rounded-2xl border-[2px] border-dashed ${modalConfig.borderColor} bg-slate-900/50 text-slate-400 hover:text-white hover:bg-slate-800 transition-all shadow-inner hover:shadow-[0_0_15px_currentColor]`}
                   >
                     <Camera size={40} className={modalConfig.color} />
@@ -160,7 +164,7 @@ export default function ActionModal({
                     
                     {(actionAttachments.length < 6) && (
                       <button 
-                        onClick={() => fileInputRef.current?.click()} 
+                        onClick={() => setShowImagePicker(true)} 
                         className={`w-20 h-20 md:w-24 md:h-24 rounded-xl border-2 border-dashed ${modalConfig.borderColor} flex items-center justify-center text-slate-400 hover:text-white hover:bg-slate-800 transition-colors shadow-inner`}
                       >
                         <PlusCircle size={28} className={modalConfig.color} />
@@ -168,6 +172,7 @@ export default function ActionModal({
                     )}
                   </div>
                 )}
+                {/* ซ่อน Native Input ไว้ ให้ป๊อบอัพเราทำงานแทน */}
                 <input type="file" multiple accept="image/*,video/*" className="hidden" ref={fileInputRef} onChange={handleFileChange} />
               </div>
             )}
@@ -223,7 +228,6 @@ export default function ActionModal({
               </div>
             )}
 
-            {/* 🌟 ฟันธงแก้งาน: ปรับป้ายชื่อให้เป็น Inline-flex เรียงชิดกันสวยงาม ไม่เละ ไม่ล้น 100% 🌟 */}
             {selectedHelpers && selectedHelpers.length > 0 && (
               <div className="flex flex-wrap justify-start items-center gap-1.5 mt-2 bg-slate-900/40 p-2.5 rounded-xl border border-slate-700/50 w-full overflow-hidden">
                 {selectedHelpers.map((h, i) => (
@@ -258,6 +262,59 @@ export default function ActionModal({
         </div>
 
       </div>
+
+      {/* 🌟 ฟันธง: เติมก้อนนี้เข้ามา เพื่อให้แสดงป๊อบอัพสวยๆ แบบหน้าแจ้งซ่อม 🌟 */}
+      {showImagePicker && typeof document !== 'undefined' ? createPortal(
+        <div className="fixed inset-0 z-[999999] flex items-center justify-center p-4 bg-slate-800/80 backdrop-blur-md animate-in fade-in duration-300" onClick={() => setShowImagePicker(false)}>
+          <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[450px] h-[450px] bg-blue-600/30 rounded-full blur-[100px] animate-pulse pointer-events-none z-0"></div>
+          <div className="relative z-10 bg-slate-900/90 backdrop-blur-sm border-[3px] border-solid border-blue-500 rounded-[1.5rem] p-6 w-full max-w-sm shadow-[0_0_60px_rgba(59,130,246,0.5)] text-center animate-in zoom-in-95 duration-300" onClick={e => e.stopPropagation()}>
+            <h3 className="text-xl font-black text-blue-100 mb-6 tracking-widest flex items-center justify-center gap-2 drop-shadow-[0_0_10px_rgba(59,130,246,1)]"><Monitor size={22} className="text-blue-400" /> เลือกรูปภาพ/วิดีโอ</h3>
+            {/* 🌟 ฟันธง: แยก Layout มือถือ กับ PC ให้เหมือนหน้าแจ้งซ่อมเป๊ะ! 🌟 */}
+            <div className="w-full flex flex-col gap-3">
+                {/* 📱 โหมดมือถือ (Mobile View) - จะโชว์แค่ในจอมือถือ */}
+                <div className="md:hidden flex flex-col gap-3">
+                  <div className="grid grid-cols-2 gap-3">
+                    <label className="flex flex-col items-center justify-center bg-gradient-to-b from-blue-500 to-blue-700 p-4 rounded-[1rem] cursor-pointer border-[2px] border-solid border-white/60 transition-all duration-300 shadow-[0_0_15px_rgba(59,130,246,0.5)] hover:scale-105 active:scale-95"><input type="file" accept="image/*" capture="environment" className="hidden" onChange={(e) => { handleFileChange(e); setShowImagePicker(false); }} /><Camera size={32} className="text-white mb-2 drop-shadow-md" /><span className="text-white font-black text-sm drop-shadow-md">ถ่ายรูป</span></label>
+                    <label className="flex flex-col items-center justify-center bg-gradient-to-b from-purple-500 to-purple-700 p-4 rounded-[1rem] cursor-pointer border-[2px] border-solid border-white/60 transition-all duration-300 shadow-[0_0_15px_rgba(168,85,247,0.5)] hover:scale-105 active:scale-95"><input type="file" accept="video/*" capture="environment" className="hidden" onChange={(e) => { handleFileChange(e); setShowImagePicker(false); }} /><Video size={32} className="text-white mb-2 drop-shadow-md" /><span className="text-white font-black text-sm drop-shadow-md">ถ่ายวิดีโอ</span></label>
+                  </div>
+                  <label className="flex items-center justify-center bg-gradient-to-b from-emerald-500 to-emerald-700 p-4 rounded-[1rem] cursor-pointer border-[2px] border-solid border-white/60 transition-all duration-300 shadow-[0_0_15px_rgba(16,185,129,0.5)] hover:scale-[1.02] active:scale-95"><input type="file" accept="image/*, video/*" multiple className="hidden" onChange={(e) => { handleFileChange(e); setShowImagePicker(false); }} /><Monitor size={24} className="text-white mr-2 drop-shadow-md" /><span className="text-white font-black text-[14px] drop-shadow-md">เลือกคลังภาพ/วิดีโอ</span></label>
+                </div>
+
+                {/* 💻 โหมดคอมพิวเตอร์ (PC View) - จะโชว์แค่ในจอคอมพ์ */}
+                <div className="hidden md:flex flex-col gap-4">
+                  <label className="flex flex-col items-center justify-center bg-gradient-to-b from-emerald-500 to-emerald-700 p-8 rounded-xl cursor-pointer border-[2px] border-solid border-white/60 transition-all duration-300 shadow-[0_0_20px_rgba(16,185,129,0.4)] hover:scale-105 group">
+                    <input type="file" accept="image/*, video/*" multiple className="hidden" onChange={(e) => { handleFileChange(e); setShowImagePicker(false); }} />
+                    <div className="flex gap-4 mb-3"><Camera size={40} className="text-white drop-shadow-md transition-all group-hover:scale-110" /><Video size={40} className="text-white drop-shadow-md transition-all group-hover:scale-110" /></div>
+                    <span className="text-white font-black text-lg drop-shadow-lg group-hover:scale-105 transition-all">เลือกรูปภาพ/วิดีโอ</span>
+                    <span className="text-emerald-100 text-sm mt-1 font-bold group-hover:text-white">คลิกเพื่ออัปโหลดจากคอมพิวเตอร์</span>
+                  </label>
+                  
+                  <button type="button" onClick={async () => {
+                    try {
+                      const clipboardItems = await navigator.clipboard.read();
+                      for (const clipboardItem of clipboardItems) {
+                        const imageTypes = clipboardItem.types.filter(type => type.startsWith('image/'));
+                        if (imageTypes.length > 0) {
+                          const blob = await clipboardItem.getType(imageTypes[0]);
+                          const reader = new FileReader();
+                          reader.onloadend = () => { setActionAttachments(prev => [...(prev || []), reader.result]); setShowImagePicker(false); };
+                          reader.readAsDataURL(blob);
+                          return;
+                        }
+                      }
+                      alert("⚠️ ไม่พบรูปภาพในคลิปบอร์ดครับ โปรดแคปหน้าจอใหม่อีกครั้ง");
+                    } catch (err) { alert("⚠️ เบราว์เซอร์ไม่อนุญาตให้ดึงรูปจากคลิปบอร์ดครับ โปรดตรวจสอบการอนุญาตของเบราว์เซอร์"); }
+                  }} className="flex items-center justify-center gap-3 bg-slate-900 border-[2px] border-purple-500/60 p-4 rounded-xl cursor-pointer transition-all duration-300 shadow-[0_0_15px_rgba(168,85,247,0.2)] hover:bg-slate-800 hover:border-purple-400 hover:scale-[1.02] active:scale-95 group">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-purple-400 drop-shadow-md group-hover:scale-110 group-hover:text-purple-300 transition-all"><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"></path><rect x="8" y="2" width="8" height="4" rx="1" ry="1"></rect></svg>
+                    <div className="flex flex-col items-start text-left"><span className="text-purple-400 font-black text-[16px] tracking-wide group-hover:text-purple-300 leading-tight">แคปหน้าจอเสร็จแล้วกดปุ่มนี้</span><span className="text-orange-400/80 text-[15px] font-bold mt-0.5">กด Win + Shift + S หรือ PRT SC</span></div>
+                  </button>
+                </div>
+              </div>
+            <button onClick={() => setShowImagePicker(false)} className="w-full mt-6 py-4 bg-slate-800 text-slate-200 font-bold rounded-xl border-[2px] border-white/40 transition-all duration-300 shadow-[0_0_10px_rgba(244,63,94,0.3)] hover:bg-rose-700 hover:text-white active:scale-95 uppercase tracking-widest">ยกเลิก</button>
+          </div>
+        </div>, document.body
+      ) : null}
+      
     </div>
   );
 }
