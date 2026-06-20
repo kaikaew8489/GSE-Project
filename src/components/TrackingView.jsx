@@ -5,7 +5,7 @@ import {
   AlertCircle, Wrench, ShieldCheck, CheckCircle, 
   RotateCcw, PauseCircle, XCircle, AlertTriangle, 
   Building, MapPin, ChevronRight, Star, PhoneCall, Camera, Video,
-  ShieldAlert // 🌟 ฟันธง: เติมตัวนี้เข้ามาแล้วครับ! 🌟
+  ShieldAlert 
 } from 'lucide-react';
 import { formatDisplayPhone, formatDateTimeString, formatMinutesToText, getMinutesDiff } from '../lib/utils';
 
@@ -59,7 +59,6 @@ export default function TrackingView({
             ทุกวัน
           </button>
 
-          {/* ระบุวัน */}
           <div className="relative flex-1">
             <button onClick={() => setShowTrackDatePicker(true)} className={`w-full h-full py-2 md:py-3.5 rounded-lg md:rounded-xl font-black text-[14px] md:text-[18px] flex items-center justify-center gap-1.5 md:gap-2 transition-all duration-300 whitespace-nowrap ${trackTimeframe === 'custom_date' ? 'bg-gradient-to-r from-cyan-600 to-blue-600 text-white shadow-[0_0_15px_rgba(6,182,212,0.8)] border-[2px] border-solid border-cyan-300 scale-[1.02] z-10' : 'bg-slate-950 text-cyan-300 border-[2px] border-solid border-cyan-400/30 shadow-[0_0_8px_rgba(34,211,238,0.4)] hover:bg-cyan-900/60 hover:text-white hover:border-cyan-300 hover:shadow-[0_0_20px_rgba(34,211,238,1)] hover:-translate-y-1'}`}>
               <Calendar size={14} className={`md:w-5 md:h-5 ${trackTimeframe === 'custom_date' ? 'text-white animate-pulse' : 'text-cyan-400'}`}/> ระบุวัน
@@ -118,7 +117,6 @@ export default function TrackingView({
             )}
           </div>
 
-          {/* ระบุเดือน */}
           <div className="relative flex-1">
             <button onClick={() => setShowTrackMonthPicker(true)} className={`w-full h-full py-2 md:py-3.5 rounded-lg md:rounded-xl font-black text-[14px] md:text-[18px] flex items-center justify-center gap-1.5 md:gap-2 transition-all duration-300 whitespace-nowrap ${trackTimeframe === 'custom_month' ? 'bg-gradient-to-r from-cyan-600 to-blue-600 text-white shadow-[0_0_15px_rgba(6,182,212,0.8)] border-[2px] border-solid border-cyan-300 scale-[1.02] z-10' : 'bg-slate-950 text-cyan-300 border-[2px] border-solid border-cyan-400/30 shadow-[0_0_8px_rgba(34,211,238,0.4)] hover:bg-cyan-900/60 hover:text-white hover:border-cyan-300 hover:shadow-[0_0_20px_rgba(34,211,238,1)] hover:-translate-y-1'}`}>
               <Calendar size={14} className={`md:w-5 md:h-5 ${trackTimeframe === 'custom_month' ? 'text-white animate-pulse' : 'text-cyan-400'}`}/> ระบุเดือน
@@ -207,6 +205,8 @@ export default function TrackingView({
 
             return (
               <div key={t.dbId || t.id} className={`bg-white rounded-[1rem] md:rounded-[2rem] border-l-[6px] md:border-l-[12px] ${styleColor.split(' ')[0]} overflow-hidden shadow-sm border-t border-r border-b border-2 border-orange-400/70 transition-all ${isCancelled ? 'opacity-70' : ''}`}>
+                
+                {/* 🌟 1. Header Block 🌟 */}
                 <div className="p-5 md:p-8 md:px-10 border-b border-slate-100 bg-slate-50/50">
                   <div className="flex justify-between items-start mb-4 md:mb-6">
                     <div className="flex items-center">
@@ -232,14 +232,13 @@ export default function TrackingView({
                             {[1, 2, 3, 4, 5].map((s) => (<Star key={s} className={`w-[18px] h-[18px] sm:w-5 sm:h-5 md:w-8 md:h-8 transition-all duration-300 ${t.rating >= s ? `${rColor.text} drop-shadow-[0_0_8px_rgba(255,255,255,0.4)] scale-110` : 'text-slate-700/50'}`} fill={t.rating >= s ? rColor.starFill : "none"} stroke={t.rating >= s ? "none" : "#475569"} strokeWidth={t.rating >= s ? 0 : 2} />))}
                           </div>
                         </div>
-                       {/* 🌟 ฟันธงแก้จุดเดียว: แสดงทั้ง Tags ความประทับใจ และ ข้อความเสนอแนะ 🌟 */}
                        {(t.ratingComment || (t.ratingTags && t.ratingTags.length > 0)) && (
                           <div className={`relative bg-slate-900 border-[3px] border-dashed ${rColor.border} rounded-xl md:rounded-[1rem] p-5 md:p-6 w-full text-left mb-2 md:mb-4 ${rColor.glow} overflow-hidden mt-2 md:mt-4`}>
                             <div className={`absolute inset-0 m-auto w-[150%] h-[150%] rounded-full blur-[50px] md:blur-[70px] opacity-20 pointer-events-none z-0 ${rColor.flare}`}></div>
                             <div className="relative z-10 flex flex-col gap-3 md:gap-4">
                               <span className={`block text-[16px] md:text-[24px] font-black uppercase tracking-widest ${rColor.text} drop-shadow-md`}>💬 สิ่งที่ประทับใจ / ข้อเสนอแนะ:</span>
                               
-                              {/* ส่วนแสดง Tags (ถ้ามีการกดเลือกมา) */}
+                              {/* ส่วนแสดง Tags */}
                               {t.ratingTags && t.ratingTags.length > 0 && (
                                 <div className="flex flex-wrap gap-2 mb-1">
                                   {t.ratingTags.map((tag, i) => (
@@ -250,7 +249,7 @@ export default function TrackingView({
                                 </div>
                               )}
 
-                              {/* ส่วนแสดงข้อความ (ถ้ามีการพิมพ์มา) */}
+                              {/* ส่วนแสดงข้อความ */}
                               {t.ratingComment && (
                                 <p className={`text-white text-[14px] md:text-[20px] font-bold leading-relaxed drop-shadow-sm ${(t.ratingTags && t.ratingTags.length > 0) ? 'border-t-[1.5px] border-dashed border-slate-700/80 pt-3 md:pt-4 mt-1' : ''}`}>
                                   "{String(t.ratingComment)}"
@@ -345,294 +344,222 @@ export default function TrackingView({
                   )}
                 </div>
 
-                {currentUserRole !== 'reporter' && (t.status === 'completed' || t.status === 'verified') ? (
-                  <div className="bg-emerald-50 border-2 border-solid border-emerald-500/40 rounded-2xl md:rounded-[1rem] p-4 md:p-8 mt-2 md:mt-4 mb-4 md:mb-8 w-auto mx-5 md:mx-10 shadow-sm">
-                    {(() => {
-                      const startMs = new Date(t.date).getTime();
-                      const endMs = new Date(t.completedAt).getTime();
-                      const holdMs = t.totalPauseMs || 0; 
-                      let netDurationMs = endMs - startMs - holdMs;
-                      if (netDurationMs < 0) netDurationMs = 0;
-                      const slaLimitHours = 4; 
-                      const slaLimitMs = slaLimitHours * 60 * 60 * 1000; 
-                      const isSLAPassed = netDurationMs <= slaLimitMs;
-                      const msToText = (ms) => {
-                        if(ms === 0) return "-";
-                        const d = Math.floor(ms / (1000 * 60 * 60 * 24));
-                        const h = Math.floor((ms % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
-                        const m = Math.floor((ms % (1000 * 60 * 60)) / (1000 * 60));
-                        let res = [];
-                        if(d>0) res.push(`${d} วัน`);
-                        if(h>0) res.push(`${h} ชม.`);
-                        if(m>0) res.push(`${m} นาที`);
-                        return res.length > 0 ? res.join(' ') : "น้อยกว่า 1 นาที";
-                      };
+                {/* 🌟 2. Body Block 🌟 */}
+                <div className="px-5 md:px-10 pb-5 md:pb-10 pt-2 flex flex-col w-full relative z-10">
+                  
+                  {/* Cancel Reason */}
+                  {t.status === 'cancelled' && t.cancelReason && (
+                    <div className="bg-rose-100/70 border-l-[4px] border-2 border-solid border-rose-600 rounded-xl md:rounded-2xl p-3 md:p-5 flex gap-3 md:gap-4 w-full mt-4 md:mt-6">
+                      <XCircle className="w-5 h-5 md:w-8 md:h-8 shrink-0 mt-0.5 text-rose-600" />
+                      <div className="w-full">
+                        <span className="block mb-1 text-rose-600/80 text-[16px] md:text-[22px] font-bold uppercase">เหตุผลที่ยกเลิก:</span>
+                        <span className="text-[16px] md:text-[26px] text-rose-900 font-bold">{String(t.cancelReason)}</span>
+                      </div>
+                    </div>
+                  )}
 
-                      return (
-                        <>
-                          <div className="flex items-start justify-between mb-3 md:mb-6 border-b border-emerald-500/20 pb-4 md:pb-6">
-                            <div className="flex items-center gap-2 md:gap-3 mt-1">
-                              <Clock className="w-[18px] h-[18px] md:w-8 md:h-8 text-emerald-600" />
-                              <span className="text-[14px] md:text-[24px] font-black text-orange-500 uppercase tracking-widest">สรุป SLA</span>
+                  {/* History Log */}
+                  {t.historyLog && t.historyLog.length > 0 && (
+                    <div className="flex flex-col w-full gap-4 md:gap-6 mt-6">
+                      {t.historyLog.map((log, index) => {
+                        if (log.type !== 'hold' && log.type !== 'resume') return null;
+                        if (!log.timestamp) return null;
+
+                        const isHold = log.type === 'hold';
+                        const holdCount = t.historyLog.slice(0, index + 1).filter(l => l.type === 'hold').length;
+                        const resumeCount = t.historyLog.slice(0, index + 1).filter(l => l.type === 'resume').length;
+                        const displayCount = isHold ? holdCount : resumeCount;
+                        const currentTime = index < t.historyLog.length - 1 ? new Date(t.historyLog[index + 1].timestamp).getTime() : new Date().getTime();
+                        const startTime = new Date(log.timestamp).getTime();
+                        const durationMs = Math.max(0, currentTime - startTime);
+                        const pad = (num) => String(num).padStart(2, '0');
+                        const hours = Math.floor(durationMs / 3600000);
+                        const minutes = Math.floor((durationMs % 3600000) / 60000);
+                        const seconds = Math.floor((durationMs % 60000) / 1000);
+                        const formattedTime = `${pad(hours)}:${pad(minutes)}:${pad(seconds)}`;
+                        const eventDate = new Date(log.timestamp);
+                        const eventDateString = `${eventDate.getDate()} ${['ม.ค.','ก.พ.','มี.ค.','เม.ย.','พ.ค.','มิ.ย.','ก.ค.','ส.ค.','ก.ย.','ต.ค.','พ.ย.','ธ.ค.'][eventDate.getMonth()]} ${eventDate.getFullYear() + 543}`;
+                        const eventTimeString = `${pad(eventDate.getHours())}:${pad(eventDate.getMinutes())} น.`;
+
+                        return (
+                          <div key={index} className={`w-full rounded-2xl md:rounded-[2rem] border-[2px] border-solid overflow-hidden ${isHold ? 'bg-purple-50 border-purple-400' : 'bg-orange-50 border-orange-400'}`}>
+                            <div className="p-4 md:p-6 flex items-center gap-3">
+                              {isHold ? <PauseCircle className="w-6 h-6 md:w-8 md:h-8 text-purple-600" /> : <Wrench className="w-6 h-6 md:w-8 md:h-8 text-orange-600" />}
+                              <span className={`font-black text-[15px] md:text-[22px] uppercase tracking-wider ${isHold ? 'text-purple-800' : 'text-orange-800'}`}>
+                                {isHold ? 'แจ้งเหตุขัดข้อง' : 'ดำเนินการต่อ'}
+                              </span>
                             </div>
-                            <div className={`px-3 py-1.5 md:px-6 md:py-3 rounded-2xl text-[12px] md:text-[20px] font-black tracking-widest flex items-center gap-1.5 md:gap-3 border-2 shadow-lg -mt-1 ${isSLAPassed ? 'bg-gradient-to-r from-emerald-500 to-teal-500 text-white border-emerald-300 shadow-emerald-500/40' : 'bg-gradient-to-r from-rose-500 to-red-500 text-white border-rose-300 shadow-rose-500/40'}`}>
-                              {isSLAPassed ? (
-                                <><CheckCircle className="w-4 h-4 md:w-6 md:h-6 text-white drop-shadow-md" strokeWidth={3} /><span className="drop-shadow-sm mt-0.5">ผ่านเกณฑ์</span></>
-                              ) : (
-                                <><XCircle className="w-4 h-4 md:w-6 md:h-6 text-white animate-pulse drop-shadow-md" strokeWidth={3} /><span className="drop-shadow-sm mt-0.5">เกินเวลา SLA</span></>
-                              )}
+                            <div className="px-4 md:px-6 pb-2 md:pb-4">
+                              <p className="font-bold text-[16px] md:text-[24px] text-emerald-600 leading-snug">{String(log.reason)}</p>
                             </div>
-                          </div>
-                          <div className="space-y-2.5 md:space-y-5 text-[13px] md:text-[22px]">
-                            <div className="flex justify-between items-center">
-                              <span className="text-slate-600 font-bold">วันที่แจ้งซ่อม:</span>
-                              <span className="text-slate-800 font-black">{new Date(t.date).toLocaleString('th-TH')}</span>
-                            </div>
-                            <div className="flex justify-between items-center">
-                              <span className="text-slate-600 font-bold">วันที่ซ่อมเสร็จ:</span>
-                              <span className="text-slate-800 font-black">{t.completedAt ? new Date(t.completedAt).toLocaleString('th-TH') : '-'}</span>
-                            </div>
-                            {holdMs > 0 && (
-                              <div className="flex justify-between items-center bg-purple-100/60 p-2 md:p-4 rounded-lg md:rounded-2xl border border-purple-200 mt-1 md:mt-3">
-                                <span className="text-purple-700 font-bold flex items-center gap-1.5 md:gap-3"><PauseCircle className="w-[14px] h-[14px] md:w-6 md:h-6 animate-pulse"/> หักเวลารออะไหล่/ขัดข้อง:</span>
-                                <span className="text-purple-800 font-black">{msToText(holdMs)}</span>
+                            {log.attachments && log.attachments.length > 0 && (
+                              <div className="px-4 md:px-6 pb-4 md:pb-6 w-full">
+                                <label className={`text-[13px] md:text-[16px] font-black flex items-center gap-1.5 mb-2 ${isHold ? 'text-purple-700' : 'text-orange-700'}`}>
+                                  <Camera className={`w-6 h6 md:w-8 md:h-8 ${isHold ? 'text-purple-600' : 'text-orange-600'}`} /> 
+                                  {isHold ? 'ภาพหลักฐานเหตุขัดข้อง:' : 'ภาพหลักฐานอะไหล่/ดำเนินการต่อ:'}
+                                </label>
+                                <div className="flex flex-wrap gap-2 pb-2 w-full">
+                                  {log.attachments.map((url, idx) => (
+                                    <div key={`timeline-img-${index}-${idx}`} className={`relative w-20 h-20 md:w-24 md:h-24 shrink-0 rounded-lg overflow-hidden border shadow-sm cursor-pointer hover:scale-105 transition-all ${isHold ? 'border-purple-300' : 'border-orange-300'}`} onClick={(e) => { e.stopPropagation(); setLightboxImg(url); }}>
+                                      {url.includes('video') || url.includes('.mp4') ? (
+                                        <><video src={url} className="w-full h-full object-cover opacity-80" /><div className="absolute inset-0 flex items-center justify-center bg-black/30"><svg viewBox="0 0 24 24" fill="white" className="w-8 h-8 drop-shadow-md"><path d="M5 3l14 9-14 9V3z" /></svg></div></>
+                                      ) : ( <img src={url} className="w-full h-full object-cover" /> )}
+                                    </div>
+                                  ))}
+                                </div>
                               </div>
                             )}
-                            <div className="flex justify-between items-baseline pt-2 md:pt-6 mt-2 md:mt-6 border-t border-emerald-500/20">
-                              <span className="text-emerald-900 font-black">ใช้เวลาซ่อมสุทธิ:</span>
-                              <span className={`text-[18px] md:text-[34px] font-black drop-shadow-sm ${isSLAPassed ? 'text-emerald-600' : 'text-rose-600'}`}>{msToText(netDurationMs)}</span>
-                            </div>
-                            <div className="text-right text-[11px] md:text-[16px] text-rose-800/80 font-bold mt-1 md:mt-3">
-                              * ประเมินจากเกณฑ์ชั่วคราว: ภายใน {slaLimitHours} ชั่วโมง
-                            </div>
-                          </div>
-                        </>
-                      );
-                    })()}
-                  </div>
-                ) : null}
-
-                <div className="px-5 md:px-10 pb-5 md:pb-10 pt-2 flex flex-col w-full relative z-10">
-                  <div className="flex flex-col w-full relative z-10">
-                    
-                    {t.status === 'cancelled' && t.cancelReason && (
-                      <div className="bg-rose-100/70 border-l-[4px] border-2 border-solid border-rose-600 rounded-xl md:rounded-2xl p-3 md:p-5 flex gap-3 md:gap-4 w-full mt-4 md:mt-6">
-                        <XCircle className="w-5 h-5 md:w-8 md:h-8 shrink-0 mt-0.5 text-rose-600" />
-                        <div className="w-full">
-                          <span className="block mb-1 text-rose-600/80 text-[16px] md:text-[22px] font-bold uppercase">เหตุผลที่ยกเลิก:</span>
-                          <span className="text-[16px] md:text-[26px] text-rose-900 font-bold">{String(t.cancelReason)}</span>
-                        </div>
-                      </div>
-                    )}
-
-                    {t.historyLog && t.historyLog.length > 0 && (
-                      <div className="flex flex-col w-full gap-4 md:gap-6 mt-6">
-                        {t.historyLog.map((log, index) => {
-                          const isHold = log.type === 'hold';
-                          const holdCount = t.historyLog.slice(0, index + 1).filter(l => l.type === 'hold').length;
-                          const resumeCount = t.historyLog.slice(0, index + 1).filter(l => l.type === 'resume').length;
-                          const displayCount = isHold ? holdCount : resumeCount;
-                          const currentTime = index < t.historyLog.length - 1 ? new Date(t.historyLog[index + 1].timestamp).getTime() : new Date().getTime();
-                          const startTime = new Date(log.timestamp).getTime();
-                          const durationMs = Math.max(0, currentTime - startTime);
-                          const pad = (num) => String(num).padStart(2, '0');
-                          const hours = Math.floor(durationMs / 3600000);
-                          const minutes = Math.floor((durationMs % 3600000) / 60000);
-                          const seconds = Math.floor((durationMs % 60000) / 1000);
-                          const formattedTime = `${pad(hours)}:${pad(minutes)}:${pad(seconds)}`;
-                          const eventDate = new Date(log.timestamp);
-                          const eventDateString = `${eventDate.getDate()} ${['ม.ค.','ก.พ.','มี.ค.','เม.ย.','พ.ค.','มิ.ย.','ก.ค.','ส.ค.','ก.ย.','ต.ค.','พ.ย.','ธ.ค.'][eventDate.getMonth()]} ${eventDate.getFullYear() + 543}`;
-                          const eventTimeString = `${pad(eventDate.getHours())}:${pad(eventDate.getMinutes())} น.`;
-
-                          return (
-                            <div key={index} className={`w-full rounded-2xl md:rounded-[2rem] border-[2px] border-solid overflow-hidden ${isHold ? 'bg-purple-50 border-purple-400' : 'bg-orange-50 border-orange-400'}`}>
-                              <div className="p-4 md:p-6 flex items-center gap-3">
-                                {isHold ? <PauseCircle className="w-6 h-6 md:w-8 md:h-8 text-purple-600" /> : <Wrench className="w-6 h-6 md:w-8 md:h-8 text-orange-600" />}
-                                <span className={`font-black text-[15px] md:text-[22px] uppercase tracking-wider ${isHold ? 'text-purple-800' : 'text-orange-800'}`}>
-                                  {isHold ? 'แจ้งเหตุขัดข้อง' : 'ดำเนินการต่อ'}
-                                </span>
-                              </div>
-                              <div className="px-4 md:px-6 pb-2 md:pb-4">
-                                <p className="font-bold text-[16px] md:text-[24px] text-emerald-600 leading-snug">{String(log.reason)}</p>
-                              </div>
-                              {log.attachments && log.attachments.length > 0 && (
-                                <div className="px-4 md:px-6 pb-4 md:pb-6 w-full">
-                                  <label className={`text-[13px] md:text-[16px] font-black flex items-center gap-1.5 mb-2 ${isHold ? 'text-purple-700' : 'text-orange-700'}`}>
-                                    <Camera className={`w-6 h6 md:w-8 md:h-8 ${isHold ? 'text-purple-600' : 'text-orange-600'}`} /> 
-                                   {isHold ? 'ภาพหลักฐานเหตุขัดข้อง:' : 'ภาพหลักฐานอะไหล่/ดำเนินการต่อ:'}
-                                  </label>
-                                  <div className="flex flex-wrap gap-2 pb-2 w-full">
-                                    {log.attachments.map((url, idx) => (
-                                      <div key={`timeline-img-${index}-${idx}`} className={`relative w-20 h-20 md:w-24 md:h-24 shrink-0 rounded-lg overflow-hidden border shadow-sm cursor-pointer hover:scale-105 transition-all ${isHold ? 'border-purple-300' : 'border-orange-300'}`} onClick={(e) => { e.stopPropagation(); setLightboxImg(url); }}>
-                                        {url.includes('video') || url.includes('.mp4') ? (
-                                          <><video src={url} className="w-full h-full object-cover opacity-80" /><div className="absolute inset-0 flex items-center justify-center bg-black/30"><svg viewBox="0 0 24 24" fill="white" className="w-8 h-8 drop-shadow-md"><path d="M5 3l14 9-14 9V3z" /></svg></div></>
-                                        ) : ( <img src={url} className="w-full h-full object-cover" /> )}
-                                      </div>
-                                    ))}
+                            <div className={`px-4 md:px-6 py-4 md:py-5 border-t-[1.5px] border-dashed ${isHold ? 'border-purple-400' : 'border-orange-400'} bg-white/50 flex justify-between items-center gap-2`}>
+                                <div className="flex flex-col gap-1 md:gap-2">
+                                  <span className={`text-[15px] md:text-[22px] font-black opacity-90 uppercase tracking-widest ${isHold ? 'text-purple-700' : 'text-orange-700'}`}>
+                                    {isHold ? `ระยะเวลาที่หยุด (ครั้งที่ ${displayCount})` : `ระยะเวลาที่ซ่อม (ครั้งที่ ${displayCount})`}
+                                  </span>
+                                  <div className={`text-[13px] md:text-[20px] font-bold flex items-center gap-1.5 opacity-80 ${isHold ? 'text-purple-800' : 'text-orange-800'}`}>
+                                    <Clock className="w-4 h-4 md:w-5 md:h-5" /> บันทึกเมื่อ: {eventDateString} | {eventTimeString}
                                   </div>
                                 </div>
-                              )}
-                              <div className={`px-4 md:px-6 py-4 md:py-5 border-t-[1.5px] border-dashed ${isHold ? 'border-purple-400' : 'border-orange-400'} bg-white/50 flex justify-between items-center gap-2`}>
-                                 <div className="flex flex-col gap-1 md:gap-2">
-                                   <span className={`text-[15px] md:text-[22px] font-black opacity-90 uppercase tracking-widest ${isHold ? 'text-purple-700' : 'text-orange-700'}`}>
-                                      {isHold ? `ระยะเวลาที่หยุด (ครั้งที่ ${displayCount})` : `ระยะเวลาที่ซ่อม (ครั้งที่ ${displayCount})`}
-                                   </span>
-                                   <div className={`text-[13px] md:text-[20px] font-bold flex items-center gap-1.5 opacity-80 ${isHold ? 'text-purple-800' : 'text-orange-800'}`}>
-                                      <Clock className="w-4 h-4 md:w-5 md:h-5" /> บันทึกเมื่อ: {eventDateString} | {eventTimeString}
-                                   </div>
-                                 </div>
-                                 <span className={`font-mono font-black text-[16px] md:text-[24px] px-4 py-2 md:px-6 md:py-2.5 rounded-xl border-[2px] border-solid shadow-sm tracking-widest shrink-0 ${isHold ? 'bg-purple-600 text-white border-purple-400' : 'bg-orange-600 text-white border-orange-400'}`}>
-                                    {formattedTime}
-                                 </span>
-                              </div>
-                            </div>
-                          );
-                        })}
-                      </div>
-                    )}
-
-                    {( (t.images && t.images.length > 0) || (t.videos && t.videos.length > 0) ) && (
-                      <div className="bg-slate-100 border-2 border-solid border-emerald-500 p-4 md:p-6 rounded-2xl md:rounded-[1.5rem] shadow-sm w-full mt-4 md:mt-6">
-                        <span className="text-[14px] md:text-[22px] font-black text-rose-700 mb-3 md:mb-4 flex items-center gap-2">📸 ภาพประกอบและวิดีโอการแจ้งซ่อม:</span>
-                        <div className="grid grid-cols-4 sm:grid-cols-5 md:grid-cols-6 gap-2 md:gap-3 mt-2">
-                          {t.images && t.images.map((img, i) => (
-                            <img key={`img-${i}`} src={img} alt={`ภาพประกอบ ${i+1}`} className="rounded-lg md:rounded-xl w-full aspect-square object-cover border border-slate-300 shadow-sm hover:scale-110 transition-transform cursor-pointer" onClick={() => setLightboxImg(img)} />
-                          ))}
-                          {t.videos && t.videos.map((vid, i) => (
-                            <div key={`main-vid-${i}`} className="relative rounded-lg md:rounded-xl w-full aspect-square overflow-hidden border border-slate-300 shadow-sm bg-slate-900 group">
-                              <video src={vid} className="w-full h-full object-cover opacity-90 transition-opacity group-hover:opacity-100" />
-                              <div className="absolute inset-0 flex items-center justify-center bg-black/40 hover:bg-black/20 transition-colors z-10 cursor-pointer" onClick={() => setLightboxImg(vid)}>
-                                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="white" className="w-12 h-12 md:w-16 md:h-16 drop-shadow-[0_2px_10px_rgba(0,0,0,0.8)] hover:scale-110 transition-transform ml-1 md:ml-1.5"><path d="M5 3l14 9-14 9V3z" /></svg>
-                              </div>
-                            </div>
-                          ))}
-                        </div>
-                      </div>
-                    )}
-
-                    <div className="bg-orange-100/70 border-l-[4px] border-2 border-solid border-indigo-600 rounded-xl md:rounded-2xl p-3 md:p-5 flex gap-3 md:gap-4 w-full mt-4 md:mt-6">
-                      <div className="mb-2 md:mb-4">
-                        <span className="text-[13px] md:text-[22px] font-black text-indigo-600 uppercase tracking-widest flex items-center gap-1.5 md:gap-3">
-                          <AlertCircle className="w-3 h-3 md:w-6 md:h-6 text-rose-600" /> รายละเอียดอาการเสีย:
-                        </span>
-                        <p className={`text-[14px] md:text-[26px] font-black mt-1.5 md:mt-3 leading-relaxed pl-1 md:pl-2 ${isCancelled ? 'text-slate-400 line-through' : 'text-rose-600 drop-shadow-sm'}`}>
-                          "{String(t.description)}"
-                        </p>
-                      </div>
-                      {t.assetNumber && (
-                        <div className="mt-3 md:mt-5 pt-3 md:pt-5 border-t border-slate-200">
-                          <p className="text-[12px] md:text-[20px] text-slate-500 font-mono mt-0 mb-0">
-                            <span className="font-bold text-slate-400">Asset No:</span> {t.assetNumber}
-                          </p>
-                        </div>
-                      )}
-                    </div>
-
-                    <div className="flex flex-col gap-4 md:gap-6 mt-6 w-full">
-                      <div className="bg-emerald-50/40 border-2 border-solid border-emerald-400 p-4 md:p-6 rounded-2xl md:rounded-[1.5rem] shadow-sm flex flex-col w-full transition-all hover:shadow-md">
-                        <span className="text-[16px] md:text-[20px] font-black text-emerald-700 mb-2 md:mb-4 flex items-center gap-1.5 md:gap-2 uppercase tracking-wider">
-                          <User className="w-4 h-4 md:w-5 md:h-5" /> ผู้แจ้งปัญหา
-                        </span>
-                        <div className="flex items-center justify-between mb-3">
-                          <span className="font-black text-emerald-950 flex items-center gap-2 text-[16px] md:text-[28px]">{String(t.reporter)}</span>
-                        </div>
-                        <div className="flex flex-col md:flex-row md:items-center justify-between mt-auto pt-3 border-t-[1.5px] border-dashed border-emerald-400/50 gap-3">
-                          <span className="text-[16px] md:text-[22px] font-bold text-blue-600 flex items-center gap-1.5">
-                            <Clock className="w-3 h-3 md:w-4 md:h-4 text-emerald-600" />{formatDateTimeString(t.date)}
-                          </span>
-                          <a href={`tel:${String(t.reporterContact).replace(/\D/g, '')}`} className="font-mono text-[16px] md:text-[22px] font-bold bg-emerald-100 px-3 py-1.5 rounded-lg text-emerald-800 border border-emerald-300 shadow-sm hover:bg-emerald-200 transition-colors flex items-center gap-1.5 active:scale-95 w-fit md:w-auto">
-                            <Phone className="w-5 h-5 md:w-6 md:h-6 text-emerald-600" />{formatDisplayPhone(t.reporterContact)}
-                          </a>
-                        </div>
-                      </div>
-
-                      <div className="bg-orange-50/40 border-2 border-solid border-orange-400 p-4 md:p-6 rounded-2xl md:rounded-[1.5rem] shadow-sm flex flex-col w-full transition-all hover:shadow-md">
-                        <span className="text-[16px] md:text-[20px] font-black text-orange-600 mb-2 md:mb-4 flex items-center gap-1.5 md:gap-2 uppercase tracking-wider">
-                          <Wrench className="w-5 h-5 md:w-6 md:h-6" /> ผู้รับผิดชอบหลัก
-                        </span>
-                        <div className="flex flex-col mb-3">
-                          <span className="font-black text-orange-950 flex items-center gap-2 text-[16px] md:text-[28px]">
-                            {t.techName && t.techName !== 'รอเจ้าหน้าที่รับงาน' ? String(t.techName) : "ทีมช่าง ฝวด."}
-                          </span>
-                          {t.equipmentCategory && (
-                            <span className="text-[15px] md:text-[18px] font-bold text-orange-700/80 mt-1 md:mt-2">ผู้รับผิดชอบ: {t.equipmentCategory}</span>
-                          )}
-                        </div>
-                        <div className="flex flex-col md:flex-row md:items-center justify-between mt-auto pt-3 border-t-[1.5px] border-dashed border-orange-400/50 gap-3">
-                          {t.acceptedAt ? (
-                            <div className="flex items-center gap-1.5 md:gap-2 flex-wrap">
-                              <span className="text-[14px] md:text-[18px] font-bold text-slate-500 flex items-center gap-1.5"><Clock className="w-4 h-4 md:w-5 md:h-5 text-orange-500" /> เวลากดรับงาน:</span>
-                              <span className="text-[16px] md:text-[22px] font-black text-blue-600 drop-shadow-sm">{formatDateTimeString(t.acceptedAt)}</span>
-                            </div>
-                          ) : (
-                            <span className="text-[14px] md:text-[18px] font-bold text-slate-400 flex items-center gap-1.5 flex-wrap italic"><Clock className="w-4 h-4 md:w-5 md:h-5 text-slate-400 shrink-0" /> รอผู้รับผิดชอบหลักกดรับงาน</span>
-                          )}
-                          <a href={`tel:${String(t.techPhone || '').replace(/\D/g, '')}`} className="font-mono text-[16px] md:text-[22px] font-bold bg-orange-100 px-3 py-1.5 rounded-lg text-orange-900 border border-orange-300 shadow-sm hover:bg-orange-200 transition-colors flex items-center gap-1.5 active:scale-95 w-fit md:w-auto shrink-0">
-                            <Phone className="w-5 h-5 md:w-6 md:h-6 text-orange-600" />{formatDisplayPhone(t.techPhone) || 'ไม่มีเบอร์โทร'}
-                          </a>
-                        </div>
-                      </div>
-
-                      {t.isOutOfHours && (() => {
-                        const tDateObj = new Date(t.date);
-                        const dayOfWeek = tDateObj.getDay();
-                        const dateStr = tDateObj.toISOString().split('T')[0];
-                        const rosterInfo = allRosters.find(r => r.date === dateStr);
-                        const isSpecialHoliday = rosterInfo && rosterInfo.isHoliday;
-                        let theme = { bg: 'bg-purple-50/80', border: 'border-purple-400', textHead: 'text-purple-700', textName: 'text-purple-950', icon: 'text-purple-500', btnBg: 'bg-purple-100', btnBorder: 'border-purple-300', btnText: 'text-purple-800' };
-                        if (isSpecialHoliday) { theme = { bg: 'bg-orange-50/80', border: 'border-orange-400', textHead: 'text-orange-700', textName: 'text-orange-950', icon: 'text-orange-500', btnBg: 'bg-orange-100', btnBorder: 'border-orange-300', btnText: 'text-orange-800' }; }
-                        else if (dayOfWeek === 0) { theme = { bg: 'bg-rose-50/80', border: 'border-rose-400', textHead: 'text-rose-700', textName: 'text-rose-950', icon: 'text-rose-500', btnBg: 'bg-rose-100', btnBorder: 'border-rose-300', btnText: 'text-rose-800' }; }
-                        else if (dayOfWeek === 6) { theme = { bg: 'bg-blue-50/80', border: 'border-blue-400', textHead: 'text-blue-700', textName: 'text-blue-950', icon: 'text-blue-500', btnBg: 'bg-blue-100', btnBorder: 'border-blue-300', btnText: 'text-blue-800' }; }
-                        
-                        return (
-                          <div className={`${theme.bg} border-2 border-solid ${theme.border} p-4 md:p-6 rounded-2xl md:rounded-[1.5rem] shadow-sm w-full transition-all hover:shadow-md`}>
-                            <div className="flex flex-col">
-                              <span className={`text-[15px] md:text-[20px] font-black ${theme.textHead} mb-2 md:mb-4 flex items-center gap-1.5 md:gap-2 uppercase tracking-wider`}>
-                                <AlertTriangle className="w-4 h-4 md:w-5 md:h-5 animate-pulse" /> เจ้าหน้าที่เวร SSC ประจำวันหยุด
-                              </span>
-                              <div className="flex items-center justify-between mb-3">
-                                <span className={`font-black ${theme.textName} flex items-center gap-2 text-[16px] md:text-[26px]`}>
-                                  <User className={`w-5 h-5 md:w-6 md:h-6 ${theme.icon}`} />{sscName || t.sscTechName || "ยังไม่ระบุเวร"}
+                                <span className={`font-mono font-black text-[16px] md:text-[24px] px-4 py-2 md:px-6 md:py-2.5 rounded-xl border-[2px] border-solid shadow-sm tracking-widest shrink-0 ${isHold ? 'bg-purple-600 text-white border-purple-400' : 'bg-orange-600 text-white border-orange-400'}`}>
+                                  {formattedTime}
                                 </span>
-                              </div>
-                              <div className={`flex flex-col md:flex-row md:items-center justify-between mt-auto pt-3 border-t-[1.5px] border-dashed ${theme.border.replace('border-', 'border-').replace('400', '300')} gap-3`}>
-                                <span className={`text-[15px] md:text-[20px] font-bold ${theme.btnText} flex items-center gap-1.5`}><Clock className={`w-5 h-5 md:w-6 md:h-6 ${theme.icon}`} /> วันที่: {new Date(t.date).toLocaleDateString('th-TH', { day: 'numeric', month: 'long', year: 'numeric' })}</span>
-                                {(sscPhone || t.sscTechPhone) && (sscPhone || t.sscTechPhone) !== '-' && (
-                                  <a href={`tel:${String(sscPhone || t.sscTechPhone).replace(/\D/g, '')}`} className={`font-mono text-[15px] md:text-[20px] font-bold ${theme.btnBg} px-3 py-1.5 rounded-lg ${theme.btnText} border ${theme.btnBorder} shadow-sm transition-colors flex items-center gap-1.5 active:scale-95 w-fit md:w-auto`}>
-                                    <Phone className={`w-5 h-5 md:w-6 md:h-6 ${theme.icon}`} />{formatDisplayPhone(sscPhone || t.sscTechPhone)}
-                                  </a>
-                                )}
-                              </div>
-                              {t.sscNote && (
-                                <div className={`mt-3 pt-3 border-t-[1.5px] border-dashed ${theme.border.replace('border-', 'border-').replace('400', '300')}`}>
-                                  <div className="flex flex-col w-full">
-                                    <div className="flex items-center gap-2 mb-1 flex-wrap">
-                                      <span className={`text-[11px] md:text-[14px] font-bold uppercase ${theme.textHead} opacity-80`}>บันทึกการแก้ไขเบื้องต้น (เวร SSC):</span>
-                                      {t.updatedAt && <span className={`text-[10px] md:text-[12px] font-bold bg-white/60 px-2 py-0.5 rounded-md ${theme.textHead}`}>⏱️ {new Date(t.updatedAt).toLocaleString('th-TH', { dateStyle: 'short', timeStyle: 'short' })} น.</span>}
-                                    </div>
-                                    <span className={`text-[13px] md:text-[18px] font-bold ${theme.textName}`}>{String(t.sscNote)}</span>
-                                    {t.sscAttachments && t.sscAttachments.length > 0 && (
-                                      <div className="flex gap-2 mt-3 overflow-x-auto pb-2 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
-                                        {t.sscAttachments.map((file, idx) => (
-                                          <div key={`ssc-media-${idx}`} className={`relative w-20 h-20 md:w-24 md:h-24 shrink-0 rounded-xl overflow-hidden border-2 border-solid ${theme.border} cursor-pointer hover:scale-105 transition-transform shadow-sm bg-slate-900`}>
-                                            {file.includes('video') || file.includes('.mp4') ? (
-                                              <><video src={file} className="w-full h-full object-cover opacity-80" /><div className="absolute inset-0 flex items-center justify-center bg-black/40 hover:bg-black/20 transition-colors z-10" onClick={() => setLightboxImg(file)}><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="white" className="w-10 h-10 md:w-14 md:h-14 drop-shadow-[0_2px_8px_rgba(0,0,0,0.8)] hover:scale-110 transition-transform ml-1"><path d="M5 3l14 9-14 9V3z" /></svg></div></>
-                                            ) : ( <img src={file} onClick={() => setLightboxImg(file)} className="w-full h-full object-cover" /> )}
-                                          </div>
-                                        ))}
-                                      </div>
-                                    )}
-                                  </div>
-                                </div>
-                              )}
                             </div>
                           </div>
                         );
-                      })()}
+                      })}
                     </div>
+                  )}
+
+                  {/* Images & Videos */}
+                  {( (t.images && t.images.length > 0) || (t.videos && t.videos.length > 0) ) && (
+                    <div className="bg-slate-100 border-2 border-solid border-emerald-500 p-4 md:p-6 rounded-2xl md:rounded-[1.5rem] shadow-sm w-full mt-4 md:mt-6">
+                      <span className="text-[14px] md:text-[22px] font-black text-rose-700 mb-3 md:mb-4 flex items-center gap-2">📸 ภาพประกอบและวิดีโอการแจ้งซ่อม:</span>
+                      <div className="grid grid-cols-4 sm:grid-cols-5 md:grid-cols-6 gap-2 md:gap-3 mt-2">
+                        {t.images && t.images.map((img, i) => (
+                          <img key={`img-${i}`} src={img} alt={`ภาพประกอบ ${i+1}`} className="rounded-lg md:rounded-xl w-full aspect-square object-cover border border-slate-300 shadow-sm hover:scale-110 transition-transform cursor-pointer" onClick={() => setLightboxImg(img)} />
+                        ))}
+                        {t.videos && t.videos.map((vid, i) => (
+                          <div key={`main-vid-${i}`} className="relative rounded-lg md:rounded-xl w-full aspect-square overflow-hidden border border-slate-300 shadow-sm bg-slate-900 group">
+                            <video src={vid} className="w-full h-full object-cover opacity-90 transition-opacity group-hover:opacity-100" />
+                            <div className="absolute inset-0 flex items-center justify-center bg-black/40 hover:bg-black/20 transition-colors z-10 cursor-pointer" onClick={() => setLightboxImg(vid)}>
+                              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="white" className="w-12 h-12 md:w-16 md:h-16 drop-shadow-[0_2px_10px_rgba(0,0,0,0.8)] hover:scale-110 transition-transform ml-1 md:ml-1.5"><path d="M5 3l14 9-14 9V3z" /></svg>
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+
+                  {/* Description & Asset */}
+                  <div className="bg-orange-100/70 border-l-[4px] border-2 border-solid border-indigo-600 rounded-xl md:rounded-2xl p-3 md:p-5 flex gap-3 md:gap-4 w-full mt-4 md:mt-6">
+                    <div className="mb-2 md:mb-4">
+                      <span className="text-[13px] md:text-[22px] font-black text-indigo-600 uppercase tracking-widest flex items-center gap-1.5 md:gap-3">
+                        <AlertCircle className="w-3 h-3 md:w-6 md:h-6 text-rose-600" /> รายละเอียดอาการเสีย:
+                      </span>
+                      <p className={`text-[14px] md:text-[26px] font-black mt-1.5 md:mt-3 leading-relaxed pl-1 md:pl-2 ${isCancelled ? 'text-slate-400 line-through' : 'text-rose-600 drop-shadow-sm'}`}>
+                        "{String(t.description)}"
+                      </p>
+                    </div>
+                    {t.assetNumber && (
+                      <div className="mt-3 md:mt-5 pt-3 md:pt-5 border-t border-slate-200">
+                        <p className="text-[12px] md:text-[20px] text-slate-500 font-mono mt-0 mb-0">
+                          <span className="font-bold text-slate-400">Asset No:</span> {t.assetNumber}
+                        </p>
+                      </div>
+                    )}
                   </div>
-                  
-                  {/* ปุ่ม Action ช่าง: รอดำเนินการ, กำลังซ่อม, แจ้งขัดข้อง */}
+
+                  {/* Team Info Container */}
+                  <div className="flex flex-col gap-4 md:gap-6 mt-6 w-full">
+                    
+                    {/* Reporter */}
+                    <div className="bg-emerald-50/40 border-2 border-solid border-emerald-400 p-4 md:p-6 rounded-2xl md:rounded-[1.5rem] shadow-sm flex flex-col w-full transition-all hover:shadow-md">
+                      <span className="text-[16px] md:text-[20px] font-black text-emerald-700 mb-2 md:mb-4 flex items-center gap-1.5 md:gap-2 uppercase tracking-wider">
+                        <User className="w-4 h-4 md:w-5 md:h-5" /> ผู้แจ้งปัญหา
+                      </span>
+                      <div className="flex items-center justify-between mb-3">
+                        <span className="font-black text-emerald-950 flex items-center gap-2 text-[16px] md:text-[28px]">{String(t.reporter)}</span>
+                      </div>
+                      <div className="flex flex-col md:flex-row md:items-center justify-between mt-auto pt-3 border-t-[1.5px] border-dashed border-emerald-400/50 gap-3">
+                        <span className="text-[16px] md:text-[22px] font-bold text-blue-600 flex items-center gap-1.5">
+                          <Clock className="w-3 h-3 md:w-4 md:h-4 text-emerald-600" />{formatDateTimeString(t.date)}
+                        </span>
+                        <a href={`tel:${String(t.reporterContact).replace(/\D/g, '')}`} className="font-mono text-[16px] md:text-[22px] font-bold bg-emerald-100 px-3 py-1.5 rounded-lg text-emerald-800 border border-emerald-300 shadow-sm hover:bg-emerald-200 transition-colors flex items-center gap-1.5 active:scale-95 w-fit md:w-auto">
+                          <Phone className="w-5 h-5 md:w-6 md:h-6 text-emerald-600" />{formatDisplayPhone(t.reporterContact)}
+                        </a>
+                      </div>
+                    </div>
+
+                    {/* Primary Tech */}
+                    <div className="bg-orange-50/40 border-2 border-solid border-orange-400 p-4 md:p-6 rounded-2xl md:rounded-[1.5rem] shadow-sm flex flex-col w-full transition-all hover:shadow-md">
+                      <span className="text-[16px] md:text-[20px] font-black text-orange-600 mb-2 md:mb-4 flex items-center gap-1.5 md:gap-2 uppercase tracking-wider">
+                        <Wrench className="w-5 h-5 md:w-6 md:h-6" /> ผู้รับผิดชอบหลัก
+                      </span>
+                      <div className="flex flex-col mb-3">
+                        <span className="font-black text-orange-950 flex items-center gap-2 text-[16px] md:text-[28px]">
+                          {t.techName && t.techName !== 'รอเจ้าหน้าที่รับงาน' ? String(t.techName) : "ทีมช่าง ฝวด."}
+                        </span>
+                        {t.equipmentCategory && (
+                          <span className="text-[15px] md:text-[18px] font-bold text-orange-700/80 mt-1 md:mt-2">ผู้รับผิดชอบ: {t.equipmentCategory}</span>
+                        )}
+                      </div>
+                      <div className="flex flex-col md:flex-row md:items-center justify-between mt-auto pt-3 border-t-[1.5px] border-dashed border-orange-400/50 gap-3">
+                        {t.acceptedAt ? (
+                          <div className="flex items-center gap-1.5 md:gap-2 flex-wrap">
+                            <span className="text-[14px] md:text-[18px] font-bold text-slate-500 flex items-center gap-1.5"><Clock className="w-4 h-4 md:w-5 md:h-5 text-orange-500" /> เวลากดรับงาน:</span>
+                            <span className="text-[16px] md:text-[22px] font-black text-blue-600 drop-shadow-sm">{formatDateTimeString(t.acceptedAt)}</span>
+                          </div>
+                        ) : (
+                          <span className="text-[14px] md:text-[18px] font-bold text-slate-400 flex items-center gap-1.5 flex-wrap italic"><Clock className="w-4 h-4 md:w-5 md:h-5 text-slate-400 shrink-0" /> รอผู้รับผิดชอบหลักกดรับงาน</span>
+                        )}
+                        <a href={`tel:${String(t.techPhone || '').replace(/\D/g, '')}`} className="font-mono text-[16px] md:text-[22px] font-bold bg-orange-100 px-3 py-1.5 rounded-lg text-orange-900 border border-orange-300 shadow-sm hover:bg-orange-200 transition-colors flex items-center gap-1.5 active:scale-95 w-fit md:w-auto shrink-0">
+                          <Phone className="w-5 h-5 md:w-6 md:h-6 text-orange-600" />{formatDisplayPhone(t.techPhone) || 'ไม่มีเบอร์โทร'}
+                        </a>
+                      </div>
+                    </div>
+
+                    {/* SSC Note */}
+                    {t.sscNote && (
+                      <div className="bg-blue-50/40 border-2 border-solid border-blue-400 p-4 md:p-6 rounded-2xl md:rounded-[1.5rem] shadow-sm flex flex-col w-full transition-all hover:shadow-md mt-2">
+                        <span className="text-[16px] md:text-[20px] font-black text-blue-600 mb-2 md:mb-4 flex items-center gap-1.5 md:gap-2 uppercase tracking-wider">
+                          <ShieldAlert className="w-5 h-5 md:w-6 md:h-6" /> บันทึกการแก้ไขเบื้องต้น (เวร SSC)
+                        </span>
+                        <div className="flex flex-col mb-3">
+                          <span className="font-black text-blue-950 flex items-center gap-2 text-[16px] md:text-[28px]">
+                            {t.sscTechName || sscName || "เจ้าหน้าที่เวร SSC"}
+                          </span>
+                          <span className="text-[15px] md:text-[18px] font-bold text-blue-700/80 mt-1 md:mt-2">ผู้ปฏิบัติงาน: นอกเวลาราชการ/วันหยุด</span>
+                        </div>
+                        <div className="flex flex-col md:flex-row md:items-center justify-between mt-auto pt-3 border-t-[1.5px] border-dashed border-blue-400/50 gap-3">
+                          <div className="flex items-center gap-1.5 md:gap-2 flex-wrap">
+                            <span className="text-[14px] md:text-[18px] font-bold text-slate-500 flex items-center gap-1.5"><Clock className="w-4 h-4 md:w-5 md:h-5 text-blue-500" /> เวลากดรับงาน:</span>
+                            <span className="text-[16px] md:text-[22px] font-black text-blue-600 drop-shadow-sm">{t.updatedAt ? formatDateTimeString(t.updatedAt) : formatDateTimeString(t.date)}</span>
+                          </div>
+                          {(sscPhone || t.sscTechPhone) && (sscPhone || t.sscTechPhone) !== '-' && (
+                            <a href={`tel:${String(sscPhone || t.sscTechPhone).replace(/\D/g, '')}`} className="font-mono text-[16px] md:text-[22px] font-bold bg-blue-100 px-3 py-1.5 rounded-lg text-blue-900 border border-blue-300 shadow-sm hover:bg-blue-200 transition-colors flex items-center gap-1.5 active:scale-95 w-fit md:w-auto shrink-0">
+                              <Phone className="w-5 h-5 md:w-6 md:h-6 text-blue-600" />{formatDisplayPhone(sscPhone || t.sscTechPhone)}
+                            </a>
+                          )}
+                        </div>
+                        <div className="bg-white/80 border border-blue-200 p-4 md:p-6 rounded-xl shadow-inner mt-4 md:mt-5">
+                          <p className="text-[15px] md:text-[22px] font-bold text-blue-900 leading-relaxed whitespace-pre-wrap">
+                            "{String(t.sscNote)}"
+                          </p>
+                          {t.sscAttachments && t.sscAttachments.length > 0 && (
+                            <div className="flex gap-2 mt-4 pt-4 border-t-[1.5px] border-dashed border-blue-200 overflow-x-auto pb-2 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
+                              {t.sscAttachments.map((file, idx) => (
+                                <div key={`ssc-media-${idx}`} className="relative w-20 h-20 md:w-24 md:h-24 shrink-0 rounded-xl overflow-hidden border-2 border-solid border-blue-300 cursor-pointer hover:scale-105 transition-transform shadow-sm bg-slate-900" onClick={() => setLightboxImg(file)}>
+                                  {file.includes('video') || file.includes('.mp4') || file.includes('data:video') ? (
+                                    <><video src={file} className="w-full h-full object-cover opacity-80" /><div className="absolute inset-0 flex items-center justify-center bg-black/40 hover:bg-black/20 transition-colors z-10"><Video className="w-6 h-6 text-white opacity-80" /></div></>
+                                  ) : ( <img src={file} className="w-full h-full object-cover" /> )}
+                                </div>
+                              ))}
+                            </div>
+                          )}
+                        </div>
+                      </div>
+                    )}
+                  </div> {/* End Team Info */}
+
+                  {/* Tech Actions */}
                   {(currentUserRole !== 'reporter') && !isCancelled && (
                     <div className="flex flex-col gap-2.5 md:gap-6 mt-4 md:mt-8">
                       {isPending && (
@@ -657,10 +584,10 @@ export default function TrackingView({
                                 if (isSSCToday || isCommander) { showOrange = true; enableOrange = true; }
                                 if (isPrimary || isCommander) { showGreen = true; enableGreen = isCommander; greenText = isCommander ? "รับงานซ่อม (แอดมินข้ามคิว SSC)" : "รอเวร SSC ตรวจสอบเบื้องต้น..."; }
                               } else {
-                                if (isPrimary || isCommander) { showGreen = true; enableGreen = true; greenText = "รับงานต่อจากเวร SSC (เริ่มปฏิบัติงาน)"; }
+                                if (isPrimary || isCommander) { showGreen = true; enableGreen = true; greenText = "รับงานต่อจากเวร SSC (เริ่มซ่อมจริง)"; }
                               }
                             } else {
-                              if (isPrimary || isCommander || (isSamePerson && isSSCToday)) { showGreen = true; enableGreen = true; }
+                              if (isPrimary || isCommander || (isSamePerson && isSSCToday)) { showGreen = true; enableGreen = true; greenText = "รับงานซ่อม (เริ่มปฏิบัติงาน)"; }
                             }
 
                             return (
@@ -672,7 +599,7 @@ export default function TrackingView({
                                 )}
                                 {showOrange && (
                                   <button disabled={!enableOrange} onClick={() => setActionModal({ isOpen: true, ticketId: t.id, type: 'ssc' })} className={`w-full font-black text-[16px] md:text-[20px] py-3.5 md:py-4 rounded-xl transition-all flex items-center justify-center gap-2 ${enableOrange ? 'bg-orange-500/90 hover:bg-orange-400 text-white shadow-[0_0_15px_rgba(249,115,22,0.4)] active:scale-95' : 'bg-slate-800 border-2 border-dashed border-orange-900/50 text-orange-800/50 cursor-not-allowed grayscale'}`}>
-                                    <ShieldAlert className="w-5 h-5 md:w-6 md:h-6" /> รับงานและแก้ไขเบื้องต้น (ในฐานะเวร SSC)
+                                    <ShieldAlert className="w-5 h-5 md:w-6 md:h-6" /> บันทึกการแก้ไขเบื้องต้น (ในฐานะเวร SSC)
                                   </button>
                                 )}
                                 {!showGreen && !showOrange && (
@@ -709,7 +636,7 @@ export default function TrackingView({
                     </div>
                   )}
 
-                  {/* ปุ่ม Action ผู้แจ้ง: ยกเลิก / โทรด่วน */}
+                  {/* Reporter Actions */}
                   {currentUserRole === 'reporter' && !isCancelled && (
                     <div className="flex flex-col gap-2.5 md:gap-6 mt-4 md:mt-8">
                       {isPending && (
@@ -730,7 +657,7 @@ export default function TrackingView({
                     </div>
                   )}
 
-                  {/* 🟢 บล็อคเขียว: สรุปผลงานที่ซ่อมเสร็จแล้ว */}
+                  {/* Completed Box */}
                   {['completed', 'verified'].includes(t.status) && (
                     <div className="relative bg-gradient-to-b from-emerald-50 to-white backdrop-blur-xl border-[2px] border-solid border-emerald-400/80 rounded-[1.5rem] p-5 md:p-8 shadow-[0_10px_30px_rgba(16,185,129,0.15)] overflow-hidden mt-6 w-full">
                       <div className="absolute -top-24 -right-24 w-48 h-48 bg-emerald-400/20 rounded-full blur-[60px] pointer-events-none z-0"></div>
@@ -776,7 +703,7 @@ export default function TrackingView({
                     </div>
                   )}
 
-                  {/* 🌟 ฟันธง: ปุ่ม Action ตอนท้ายสุดของใบงาน (ดึงงานกลับมาแก้ไข / ประเมินให้คะแนน) 🌟 */}
+                  {/* Final Actions */}
                   <div className="w-full mt-4 md:mt-6 animate-in slide-in-from-bottom-4 fade-in duration-500">
                     
                     {/* ของช่าง/แอดมิน */}

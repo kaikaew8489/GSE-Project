@@ -1,16 +1,15 @@
-import React, { useRef, useState } from 'react'; // 🌟 ฟันธง 1: เพิ่ม useState ตรงนี้!
-import { createPortal } from 'react-dom'; // 🌟 ฟันธง 2: ต้อง Import createPortal ด้วย เพราะป๊อบอัพใช้
-import { X, Camera, ShieldCheck, CheckCircle, PauseCircle, Wrench, FileText, PlusCircle, XCircle, Search, User, Check, Monitor, Video } from 'lucide-react'; // 🌟 ฟันธง 3: เพิ่มไอคอน Monitor, Video
+import React, { useRef, useState } from 'react';
+import { createPortal } from 'react-dom';
+import { X, Camera, ShieldCheck, CheckCircle, PauseCircle, Wrench, FileText, PlusCircle, XCircle, Search, User, Check, Monitor, Video } from 'lucide-react';
 
 export default function ActionModal({
   isOpen, onClose, type, ticketId, 
   actionText, setActionText, actionAttachments, setActionAttachments,
   selectedHelpers, setSelectedHelpers, helperSearch, setHelperSearch, employeeList,
-  executeActionModal, selectedTech, currentUserName
+  executeActionModal, selectedTech, currentUserName,
+  setLightboxImg
 }) {
   const fileInputRef = useRef(null);
-  
-  // 🌟 ฟันธง 4: ประกาศสวิตช์ปิดเปิดป๊อบอัพฝังไว้ตรงนี้!
   const [showImagePicker, setShowImagePicker] = useState(false);
 
   if (!isOpen) return null;
@@ -84,12 +83,12 @@ export default function ActionModal({
   }
 
   return (
-    <div className="fixed inset-0 z-[99999] bg-slate-950/90 backdrop-blur-md flex items-center justify-center p-4 animate-in fade-in">
+    <div className="fixed inset-0 w-full h-[100dvh] bg-slate-950/90 backdrop-blur-md flex items-center justify-center p-4 animate-in fade-in z-[99999]">
       {/* 🌟 แสง Flare Background เรืองแสงทะลุทะลวง */}
       <div className={`absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[300px] h-[300px] md:w-[450px] md:h-[450px] ${modalConfig.bgGlow} blur-[80px] md:blur-[120px] rounded-full pointer-events-none z-0`}></div>
       
       {/* 🌟 กรอบสีสันชัดเจน 100% พร้อมเงาเรืองแสงสุดๆ */}
-      <div className={`bg-[#0f172a] border-[2px] md:border-[3px] ${modalConfig.borderColor} rounded-[2rem] p-6 md:p-8 w-full max-w-md ${modalConfig.shadowGlow} relative flex flex-col max-h-[90vh] overflow-y-auto animate-in zoom-in-95 [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]`}>
+      <div className={`bg-[#0f172a] border-[2px] md:border-[3px] ${modalConfig.borderColor} rounded-[2rem] p-6 md:p-8 w-full max-w-md ${modalConfig.shadowGlow} relative flex flex-col max-h-[90vh] overflow-y-auto animate-in zoom-in-95 z-10 [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]`}>
         <button onClick={onClose} className="absolute top-4 right-4 text-slate-400 hover:text-rose-400 transition-colors z-20"><X size={28}/></button>
 
         <div className="flex flex-col items-center text-center relative z-10 mb-6 shrink-0">
@@ -151,16 +150,23 @@ export default function ActionModal({
                   </button>
                 ) : (
                   <div className="w-full flex flex-wrap gap-3">
-                    {(actionAttachments || []).map((file, idx) => (
-                      <div key={idx} className={`relative w-20 h-20 md:w-24 md:h-24 rounded-xl overflow-hidden border-2 ${modalConfig.borderColor} bg-slate-800 group shadow-sm`}>
-                        {file.includes('video') || file.includes('mp4') || file.includes('data:video') ? (
-                          <video src={file} className="w-full h-full object-cover opacity-80 group-hover:opacity-100 transition-opacity" />
-                        ) : (
-                          <img src={file} className="w-full h-full object-cover opacity-80 group-hover:opacity-100 transition-opacity" alt="preview" />
-                        )}
-                        <button onClick={() => removeAttachment(idx)} className="absolute top-1 right-1 bg-rose-500 text-white rounded-full p-0.5 opacity-80 hover:opacity-100 shadow-md"><X size={14}/></button>
-                      </div>
-                    ))}
+                    {(actionAttachments || []).map((file, idx) => {
+                      {/* 🌟 จุดแก้ไข: ใช้เงื่อนไขที่เป๊ะที่สุด สแกนหาคำว่า data:video เท่านั้น ป้องกันรูปภาพแอบอ้าง! 🌟 */}
+                      const isVid = typeof file === 'string' && (file.startsWith('data:video') || file.includes('.mp4'));
+                      return (
+                        <div key={idx} onClick={() => setLightboxImg(file)} className={`relative w-20 h-20 md:w-24 md:h-24 rounded-xl overflow-hidden border-2 ${modalConfig.borderColor} bg-slate-800 group shadow-sm cursor-pointer hover:scale-105 transition-all duration-300`}>
+                          {isVid ? (
+                            <div className="w-full h-full relative">
+                              <video src={file} className="w-full h-full object-cover opacity-80" />
+                              <div className="absolute inset-0 flex items-center justify-center bg-black/30"><Video size={20} className="text-white opacity-70" /></div>
+                            </div>
+                          ) : (
+                            <img src={file} className="w-full h-full object-cover opacity-80 group-hover:opacity-100 transition-opacity" alt="preview" />
+                          )}
+                          <button onClick={(e) => { e.stopPropagation(); removeAttachment(idx); }} className="absolute top-1 right-1 bg-rose-500 text-white rounded-full p-0.5 opacity-80 hover:opacity-100 shadow-md z-20"><X size={14}/></button>
+                        </div>
+                      );
+                    })}
                     
                     {(actionAttachments.length < 6) && (
                       <button 
@@ -172,7 +178,6 @@ export default function ActionModal({
                     )}
                   </div>
                 )}
-                {/* ซ่อน Native Input ไว้ ให้ป๊อบอัพเราทำงานแทน */}
                 <input type="file" multiple accept="image/*,video/*" className="hidden" ref={fileInputRef} onChange={handleFileChange} />
               </div>
             )}
@@ -197,11 +202,10 @@ export default function ActionModal({
               />
             </div>
 
-            {/* แสดงรายชื่อ "เฉพาะตอนที่มีการพิมพ์ค้นหา" เท่านั้น */}
             {helperSearch && helperSearch.trim() !== '' && (
               <div className="animate-in slide-in-from-top-2 fade-in duration-200">
                 {!isExactMatch && (
-                  <div onClick={() => toggleHelper({ name: helperSearch.trim(), position: 'บุคคลภายนอก', department: '-' })} className="flex items-center justify-between p-3 rounded-xl cursor-pointer transition-all bg-orange-500/10 border-[2px] border-orange-500/50 hover:bg-orange-500/20 mb-2 shadow-sm">
+                  <div onClick={() => toggleHelper({ name: helperSearch.trim(), position: 'บุคคลภายนอก', department: '-' })} className="flex items-center justify-between p-3 rounded-xl cursor-pointer transition-all bg-orange-500/10 border-[2px] border-solid border-orange-500/50 hover:bg-orange-500/20 mb-2 shadow-sm">
                     <div>
                       <p className="text-[14px] md:text-[16px] font-black text-orange-400 flex items-center gap-2"><PlusCircle size={16}/> เพิ่ม "{helperSearch.trim()}"</p>
                       <p className="text-[11px] md:text-[13px] text-orange-500/80 font-bold mt-0.5">บุคคลภายนอก / ไม่ระบุสังกัด</p>
@@ -242,7 +246,6 @@ export default function ActionModal({
           </div>
         )}
 
-        {/* 🌟 ปุ่มกดยกเลิกและยืนยัน */}
         <div className="flex w-full gap-3 mt-8 relative z-10 shrink-0">
           <button onClick={onClose} className="flex-[1] py-3.5 md:py-4 rounded-2xl font-black text-slate-300 bg-slate-800 border border-slate-600 hover:bg-slate-700 hover:text-white transition-all shadow-[0_0_10px_rgba(255,255,255,0.05)] hover:shadow-[0_0_15px_rgba(244,63,94,0.4)] active:scale-95 text-[16px] md:text-[18px]">
             ยกเลิก
@@ -263,15 +266,12 @@ export default function ActionModal({
 
       </div>
 
-      {/* 🌟 ฟันธง: เติมก้อนนี้เข้ามา เพื่อให้แสดงป๊อบอัพสวยๆ แบบหน้าแจ้งซ่อม 🌟 */}
       {showImagePicker && typeof document !== 'undefined' ? createPortal(
         <div className="fixed inset-0 z-[999999] flex items-center justify-center p-4 bg-slate-800/80 backdrop-blur-md animate-in fade-in duration-300" onClick={() => setShowImagePicker(false)}>
           <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[450px] h-[450px] bg-blue-600/30 rounded-full blur-[100px] animate-pulse pointer-events-none z-0"></div>
           <div className="relative z-10 bg-slate-900/90 backdrop-blur-sm border-[3px] border-solid border-blue-500 rounded-[1.5rem] p-6 w-full max-w-sm shadow-[0_0_60px_rgba(59,130,246,0.5)] text-center animate-in zoom-in-95 duration-300" onClick={e => e.stopPropagation()}>
             <h3 className="text-xl font-black text-blue-100 mb-6 tracking-widest flex items-center justify-center gap-2 drop-shadow-[0_0_10px_rgba(59,130,246,1)]"><Monitor size={22} className="text-blue-400" /> เลือกรูปภาพ/วิดีโอ</h3>
-            {/* 🌟 ฟันธง: แยก Layout มือถือ กับ PC ให้เหมือนหน้าแจ้งซ่อมเป๊ะ! 🌟 */}
             <div className="w-full flex flex-col gap-3">
-                {/* 📱 โหมดมือถือ (Mobile View) - จะโชว์แค่ในจอมือถือ */}
                 <div className="md:hidden flex flex-col gap-3">
                   <div className="grid grid-cols-2 gap-3">
                     <label className="flex flex-col items-center justify-center bg-gradient-to-b from-blue-500 to-blue-700 p-4 rounded-[1rem] cursor-pointer border-[2px] border-solid border-white/60 transition-all duration-300 shadow-[0_0_15px_rgba(59,130,246,0.5)] hover:scale-105 active:scale-95"><input type="file" accept="image/*" capture="environment" className="hidden" onChange={(e) => { handleFileChange(e); setShowImagePicker(false); }} /><Camera size={32} className="text-white mb-2 drop-shadow-md" /><span className="text-white font-black text-sm drop-shadow-md">ถ่ายรูป</span></label>
@@ -280,7 +280,6 @@ export default function ActionModal({
                   <label className="flex items-center justify-center bg-gradient-to-b from-emerald-500 to-emerald-700 p-4 rounded-[1rem] cursor-pointer border-[2px] border-solid border-white/60 transition-all duration-300 shadow-[0_0_15px_rgba(16,185,129,0.5)] hover:scale-[1.02] active:scale-95"><input type="file" accept="image/*, video/*" multiple className="hidden" onChange={(e) => { handleFileChange(e); setShowImagePicker(false); }} /><Monitor size={24} className="text-white mr-2 drop-shadow-md" /><span className="text-white font-black text-[14px] drop-shadow-md">เลือกคลังภาพ/วิดีโอ</span></label>
                 </div>
 
-                {/* 💻 โหมดคอมพิวเตอร์ (PC View) - จะโชว์แค่ในจอคอมพ์ */}
                 <div className="hidden md:flex flex-col gap-4">
                   <label className="flex flex-col items-center justify-center bg-gradient-to-b from-emerald-500 to-emerald-700 p-8 rounded-xl cursor-pointer border-[2px] border-solid border-white/60 transition-all duration-300 shadow-[0_0_20px_rgba(16,185,129,0.4)] hover:scale-105 group">
                     <input type="file" accept="image/*, video/*" multiple className="hidden" onChange={(e) => { handleFileChange(e); setShowImagePicker(false); }} />
