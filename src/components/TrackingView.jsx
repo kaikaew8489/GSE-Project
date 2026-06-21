@@ -59,6 +59,7 @@ export default function TrackingView({
             ทุกวัน
           </button>
 
+          {/* ระบุวัน */}
           <div className="relative flex-1">
             <button onClick={() => setShowTrackDatePicker(true)} className={`w-full h-full py-2 md:py-3.5 rounded-lg md:rounded-xl font-black text-[14px] md:text-[18px] flex items-center justify-center gap-1.5 md:gap-2 transition-all duration-300 whitespace-nowrap ${trackTimeframe === 'custom_date' ? 'bg-gradient-to-r from-cyan-600 to-blue-600 text-white shadow-[0_0_15px_rgba(6,182,212,0.8)] border-[2px] border-solid border-cyan-300 scale-[1.02] z-10' : 'bg-slate-950 text-cyan-300 border-[2px] border-solid border-cyan-400/30 shadow-[0_0_8px_rgba(34,211,238,0.4)] hover:bg-cyan-900/60 hover:text-white hover:border-cyan-300 hover:shadow-[0_0_20px_rgba(34,211,238,1)] hover:-translate-y-1'}`}>
               <Calendar size={14} className={`md:w-5 md:h-5 ${trackTimeframe === 'custom_date' ? 'text-white animate-pulse' : 'text-cyan-400'}`}/> ระบุวัน
@@ -117,6 +118,7 @@ export default function TrackingView({
             )}
           </div>
 
+          {/* ระบุเดือน */}
           <div className="relative flex-1">
             <button onClick={() => setShowTrackMonthPicker(true)} className={`w-full h-full py-2 md:py-3.5 rounded-lg md:rounded-xl font-black text-[14px] md:text-[18px] flex items-center justify-center gap-1.5 md:gap-2 transition-all duration-300 whitespace-nowrap ${trackTimeframe === 'custom_month' ? 'bg-gradient-to-r from-cyan-600 to-blue-600 text-white shadow-[0_0_15px_rgba(6,182,212,0.8)] border-[2px] border-solid border-cyan-300 scale-[1.02] z-10' : 'bg-slate-950 text-cyan-300 border-[2px] border-solid border-cyan-400/30 shadow-[0_0_8px_rgba(34,211,238,0.4)] hover:bg-cyan-900/60 hover:text-white hover:border-cyan-300 hover:shadow-[0_0_20px_rgba(34,211,238,1)] hover:-translate-y-1'}`}>
               <Calendar size={14} className={`md:w-5 md:h-5 ${trackTimeframe === 'custom_month' ? 'text-white animate-pulse' : 'text-cyan-400'}`}/> ระบุเดือน
@@ -480,7 +482,11 @@ export default function TrackingView({
                       </div>
                       <div className="flex flex-col md:flex-row md:items-center justify-between mt-auto pt-3 border-t-[1.5px] border-dashed border-emerald-400/50 gap-3">
                         <span className="text-[16px] md:text-[22px] font-bold text-blue-600 flex items-center gap-1.5">
-                          <Clock className="w-3 h-3 md:w-4 md:h-4 text-emerald-600" />{formatDateTimeString(t.date)}
+                          <Clock className="w-3 h-3 md:w-4 md:h-4 text-emerald-600" />
+                          {(() => {
+                            const d = new Date(t.date);
+                            return isNaN(d.getTime()) ? '' : `${d.toLocaleDateString('th-TH', { day: 'numeric', month: 'short', year: 'numeric' })} | ${d.toLocaleTimeString('th-TH', { hour: '2-digit', minute: '2-digit', second: '2-digit' })} น.`;
+                          })()}
                         </span>
                         <a href={`tel:${String(t.reporterContact).replace(/\D/g, '')}`} className="font-mono text-[16px] md:text-[22px] font-bold bg-emerald-100 px-3 py-1.5 rounded-lg text-emerald-800 border border-emerald-300 shadow-sm hover:bg-emerald-200 transition-colors flex items-center gap-1.5 active:scale-95 w-fit md:w-auto">
                           <Phone className="w-5 h-5 md:w-6 md:h-6 text-emerald-600" />{formatDisplayPhone(t.reporterContact)}
@@ -505,7 +511,12 @@ export default function TrackingView({
                         {t.acceptedAt ? (
                           <div className="flex items-center gap-1.5 md:gap-2 flex-wrap">
                             <span className="text-[14px] md:text-[18px] font-bold text-slate-500 flex items-center gap-1.5"><Clock className="w-4 h-4 md:w-5 md:h-5 text-orange-500" /> เวลากดรับงาน:</span>
-                            <span className="text-[16px] md:text-[22px] font-black text-blue-600 drop-shadow-sm">{formatDateTimeString(t.acceptedAt)}</span>
+                            <span className="text-[16px] md:text-[22px] font-black text-blue-600 drop-shadow-sm">
+                              {(() => {
+                                const d = new Date(t.acceptedAt);
+                                return isNaN(d.getTime()) ? '' : `${d.toLocaleDateString('th-TH', { day: 'numeric', month: 'short', year: 'numeric' })} | ${d.toLocaleTimeString('th-TH', { hour: '2-digit', minute: '2-digit', second: '2-digit' })} น.`;
+                              })()}
+                            </span>
                           </div>
                         ) : (
                           <span className="text-[14px] md:text-[18px] font-bold text-slate-400 flex items-center gap-1.5 flex-wrap italic"><Clock className="w-4 h-4 md:w-5 md:h-5 text-slate-400 shrink-0" /> รอผู้รับผิดชอบหลักกดรับงาน</span>
@@ -531,15 +542,30 @@ export default function TrackingView({
                         <div className="flex flex-col md:flex-row md:items-center justify-between mt-auto pt-3 border-t-[1.5px] border-dashed border-blue-400/50 gap-3">
                           <div className="flex items-center gap-1.5 md:gap-2 flex-wrap">
                             <span className="text-[14px] md:text-[18px] font-bold text-slate-500 flex items-center gap-1.5"><Clock className="w-4 h-4 md:w-5 md:h-5 text-blue-500" /> เวลากดรับงาน:</span>
-                            <span className="text-[16px] md:text-[22px] font-black text-blue-600 drop-shadow-sm">{t.updatedAt ? formatDateTimeString(t.updatedAt) : formatDateTimeString(t.date)}</span>
+                            <span className="text-[16px] md:text-[22px] font-black text-blue-600 drop-shadow-sm">
+                              {(() => {
+                                const d = t.updatedAt ? (t.updatedAt.toDate ? t.updatedAt.toDate() : new Date(t.updatedAt)) : new Date(t.date);
+                                return isNaN(d.getTime()) ? 'รอเวร SSC บันทึก' : `${d.toLocaleDateString('th-TH', { day: 'numeric', month: 'short', year: 'numeric' })} | ${d.toLocaleTimeString('th-TH', { hour: '2-digit', minute: '2-digit', second: '2-digit' })} น.`;
+                              })()}
+                            </span>
                           </div>
-                          {(sscPhone || t.sscTechPhone) && (sscPhone || t.sscTechPhone) !== '-' && (
-                            <a href={`tel:${String(sscPhone || t.sscTechPhone).replace(/\D/g, '')}`} className="font-mono text-[16px] md:text-[22px] font-bold bg-blue-100 px-3 py-1.5 rounded-lg text-blue-900 border border-blue-300 shadow-sm hover:bg-blue-200 transition-colors flex items-center gap-1.5 active:scale-95 w-fit md:w-auto shrink-0">
-                              <Phone className="w-5 h-5 md:w-6 md:h-6 text-blue-600" />{formatDisplayPhone(sscPhone || t.sscTechPhone)}
-                            </a>
-                          )}
+                          {(() => {
+                             let displaySscPhone = t.sscTechPhone || sscPhone;
+                             if (!displaySscPhone || displaySscPhone === '-') {
+                               const techInfo = technicianList.find(tech => tech.name === (t.sscTechName || sscName));
+                               if (techInfo && techInfo.phone) displaySscPhone = techInfo.phone;
+                             }
+                             if (displaySscPhone && displaySscPhone !== '-') {
+                               return (
+                                 <a href={`tel:${String(displaySscPhone).replace(/\D/g, '')}`} className="font-mono text-[16px] md:text-[22px] font-bold bg-blue-100 px-3 py-1.5 rounded-lg text-blue-900 border border-blue-300 shadow-sm hover:bg-blue-200 transition-colors flex items-center gap-1.5 active:scale-95 w-fit md:w-auto shrink-0">
+                                   <Phone className="w-5 h-5 md:w-6 md:h-6 text-blue-600" />{formatDisplayPhone(displaySscPhone)}
+                                 </a>
+                               );
+                             }
+                             return null;
+                          })()}
                         </div>
-                        <div className="bg-white/80 border border-blue-200 p-4 md:p-6 rounded-xl shadow-inner mt-4 md:mt-5">
+                        <div className="bg-white/80 border border-blue-200 p-4 md:p-6 rounded-xl shadow-inner mt-4 md:mt-5 relative">
                           <p className="text-[15px] md:text-[22px] font-bold text-blue-900 leading-relaxed whitespace-pre-wrap">
                             "{String(t.sscNote)}"
                           </p>
