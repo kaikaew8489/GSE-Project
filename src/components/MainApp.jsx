@@ -19,6 +19,9 @@ import Dashboard from './Dashboard';
 import ReportView from './ReportView';
 import DailyReportView from './DailyReportView';
 import TrackingView from './TrackingView';
+
+import TaskBoardView from './TaskBoardView'; 
+
 import { ThaiDateFormatter, ErrorBoundary, SearchableDropdown, SciFiSelectModal, SarabunFontEmbed } from './SharedUI';
 
 import { employeeList, techMapping, equipmentCategories, buildingList, technicianList, fixedHolidays, dynamicHolidays } from '../lib/systemData';
@@ -165,11 +168,6 @@ export default function MainApp({ onGoHome, initialRole }) {
   }, []);
 
   useEffect(() => {
-    const timer = setInterval(() => setSysTime(new Date()), 1000);
-    return () => clearInterval(timer);
-  }, []);
-
-  useEffect(() => {
     const checkOutOfHours = () => {
       const now = sysTime;
       const hours = now.getHours();
@@ -187,12 +185,12 @@ export default function MainApp({ onGoHome, initialRole }) {
     const unsub = onSnapshot(q, (snap) => {
       const data = snap.docs.map(doc => ({ ...doc.data(), date: doc.id }));
       setAllRosters(data);
-      const todayStr = sysTime.toISOString().split('T')[0];
+      const todayStr = new Date().toISOString().split('T')[0];
       const todayRoster = data.find(r => r.date === todayStr);
       setIsHoliday(!!(todayRoster && todayRoster.isHoliday));
     });
     return () => unsub();
-  }, [sysTime]);
+  }, []); 
 
   const handleResetForm = () => {
     let savedName = localStorage.getItem('gse_remembered_name') || currentUserName || '';
@@ -365,13 +363,11 @@ export default function MainApp({ onGoHome, initialRole }) {
         localStorage.setItem('gse_remembered_name', newTicket.reporter);
       }
 
-      // 🌟 ------------------------------------------------------------- 🌟
-      // 🌟 จุดที่เพิ่มที่ 1: ยิงข้อมูลไปหา Apps Script เพื่อแจ้งเตือนเมื่อสร้างงานใหม่ (NEW) 🌟
       const APPS_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbxBoB_e637WkWMeSuX9NP3BSKcSiE8J3dSXmlzNV9aeiq6DRUvn81bSp6w-B0nzCVA5/exec"; 
       
       fetch(APPS_SCRIPT_URL, {
         method: 'POST',
-        mode: 'no-cors', // ⚠️ ป้องกัน Error ข้ามโดเมน
+        mode: 'no-cors',
         headers: {
           'Content-Type': 'application/json'
         },
@@ -387,7 +383,6 @@ export default function MainApp({ onGoHome, initialRole }) {
           status: "NEW" 
         })
       }).catch(err => console.error("LINE Notify Error:", err));
-      // 🌟 ------------------------------------------------------------- 🌟
 
       setShowSuccess(true);
       setTimeout(() => {
@@ -432,7 +427,7 @@ export default function MainApp({ onGoHome, initialRole }) {
       }
 
       let updateData = {};
-      let pushStatusLine = ""; // ตัวแปรบอกสถานะเพื่อยิง LINE
+      let pushStatusLine = ""; 
 
       if (type === 'hold') {
         const log = { type: 'hold', timestamp: sysTime.toISOString(), reason: actionText || 'รออะไหล่/อุปกรณ์', attachments: finalUrls };
@@ -457,8 +452,6 @@ export default function MainApp({ onGoHome, initialRole }) {
       
       await updateDoc(doc(db, "tickets", ticket.dbId), { ...updateData, updatedAt: serverTimestamp() });
 
-      // 🌟 ------------------------------------------------------------- 🌟
-      // 🌟 จุดที่เพิ่มที่ 2: ยิงข้อมูลไปหา Apps Script เพื่อแจ้งเตือนตอนรับงาน หรือ ซ่อมเสร็จ 🌟
       if (pushStatusLine) {
         const APPS_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbxBoB_e637WkWMeSuX9NP3BSKcSiE8J3dSXmlzNV9aeiq6DRUvn81bSp6w-B0nzCVA5/exec"; 
         
@@ -479,7 +472,6 @@ export default function MainApp({ onGoHome, initialRole }) {
           })
         }).catch(e => console.error("LINE Notify Update Error:", e));
       }
-      // 🌟 ------------------------------------------------------------- 🌟
       
       setActionModal({ isOpen: false, ticketId: null, type: null });
       setActionText('');
@@ -634,12 +626,12 @@ export default function MainApp({ onGoHome, initialRole }) {
 
   const renderHub = () => {
     const apps = [
-      { id: 'dashboard', name: 'แผงควบคุม', desc: 'จัดการงานซ่อม', icon: <Wrench size={28} className="drop-shadow-md" />, color: 'orange', active: true, themeClasses: 'from-orange-500 to-amber-600 border-orange-500 shadow-orange-500/40 text-orange-400 hover:border-orange-400' },
-      { id: 'daily_report', name: 'Daily Report', desc: 'รายงานผลปฏิบัติงาน', icon: <FileText size={28} className="drop-shadow-md" />, color: 'purple', active: true, themeClasses: 'from-purple-500 to-fuchsia-600 border-purple-500 shadow-purple-500/40 text-purple-400 hover:border-purple-400' },
+      { id: 'dashboard', name: 'จัดการงานซ่อม', desc: 'DashBoard', icon: <Wrench size={28} className="drop-shadow-md" />, color: 'orange', active: true, themeClasses: 'from-orange-500 to-amber-600 border-orange-500 shadow-orange-500/40 text-orange-400 hover:border-orange-400' },
+      { id: 'daily_report', name: 'รายงานประจำวัน', desc: 'Daily Report', icon: <FileText size={28} className="drop-shadow-md" />, color: 'purple', active: true, themeClasses: 'from-purple-500 to-fuchsia-600 border-purple-500 shadow-purple-500/40 text-purple-400 hover:border-purple-400' },
+      { id: 'pm', name: 'มอบหมายงาน', desc: 'Task Board', icon: <ClipboardList size={28} className="drop-shadow-md" />, color: 'emerald', active: true, themeClasses: 'from-emerald-500 to-teal-600 border-emerald-500 shadow-emerald-500/40 text-emerald-400 hover:border-emerald-400' },
       { id: 'leave', name: 'วันลา/เข้าสาย', desc: 'ระบบบุคคล', icon: <Calendar size={28} className="drop-shadow-md" />, color: 'rose', active: true, themeClasses: 'from-rose-500 to-red-600 border-rose-500 shadow-rose-500/40 text-rose-400 hover:border-rose-400' },
       { id: 'monitoring', name: 'IoT Monitor', desc: 'สถานะ UPS', icon: <Activity size={28} className="drop-shadow-md" />, color: 'cyan', active: true, themeClasses: 'from-cyan-500 to-blue-600 border-cyan-500 shadow-cyan-500/40 text-cyan-400 hover:border-cyan-400' },
       { id: 'satellite', name: 'Sat Signals', desc: 'สถานะสัญญาณดาวเทียม', icon: <Globe size={28} className="drop-shadow-md" />, color: 'purple', active: true, themeClasses: 'from-fuchsia-500 to-purple-600 border-fuchsia-500 shadow-fuchsia-500/40 text-fuchsia-400 hover:border-fuchsia-400' },
-      { id: 'pm', name: 'ระบบ PM', desc: 'บำรุงรักษา', icon: <CheckSquare size={28} className="drop-shadow-md" />, color: 'emerald', active: false, themeClasses: 'from-emerald-500 to-teal-600 border-emerald-500 shadow-emerald-500/40 text-emerald-400 hover:border-emerald-400' },
       { id: 'inventory', name: 'อะไหล่/ครุภัณฑ์', desc: 'บริการงานจัดการ', icon: <Package size={28} className="drop-shadow-md" />, color: 'indigo', active: false, themeClasses: 'from-indigo-500 to-violet-600 border-indigo-500 shadow-indigo-500/40 text-indigo-400 hover:border-indigo-400' },
       { id: 'procurement', name: 'งานจัดซื้อจัดจ้าง', desc: 'จัดการเอกสาร/เบิก', icon: <Briefcase size={28} className="drop-shadow-md" />, color: 'blue', active: false, themeClasses: 'from-blue-500 to-sky-600 border-blue-500 shadow-blue-500/40 text-blue-400 hover:border-blue-400' },
       { id: 's3ee', name: 'งานบริการ S3EE', desc: 'ระบบบริการลูกค้า', icon: <Globe size={28} className="drop-shadow-md" />, color: 'pink', active: false, themeClasses: 'from-pink-500 to-rose-600 border-pink-500 shadow-pink-500/40 text-pink-400 hover:border-pink-400' },
@@ -692,16 +684,19 @@ export default function MainApp({ onGoHome, initialRole }) {
       <div className={`relative z-10 flex flex-col h-[100dvh] w-full max-w-md md:max-w-5xl backdrop-blur-md overflow-hidden text-slate-100 font-sans select-none bg-slate-900/40 border-x border-solid transition-all duration-1000 ${
         activeTab === 'dashboard' ? 'shadow-[0_0_60px_-5px_rgba(249,115,22,1)] border-orange-500/50' :
         activeTab === 'report' ? 'shadow-[0_0_60px_-5px_rgba(16,185,129,1)] border-emerald-500/50' :
+        activeTab === 'pm' ? 'shadow-[0_0_60px_-5px_rgba(16,185,129,1)] border-emerald-500/50' : 
         (activeTab === 'tracking' && currentUserRole !== 'reporter' ? 'shadow-[0_0_60px_-5px_rgba(6,182,212,1)] border-cyan-500/50' :
         'shadow-[0_0_60px_-5px_rgba(244,63,94,1)] border-rose-500/50')
       }`}>
 
+        {/* 🌟 ฟันธง: กำหนดหัวหน้าต่าง Header สำหรับหน้า Task Board ที่นี่ 🌟 */}
         {activeTab !== 'hub' && (() => {
           const getHeaderProps = (tab, role) => {
             switch(tab) {
               case 'dashboard': return { title: 'แผงควบคุมหลัก', sub: 'MAIN DASHBOARD', icon: <LayoutDashboard className="w-8 h-8 md:w-6 md:h-6" strokeWidth={2.5}/>, border: 'border-orange-500', bgIcon: 'text-orange-500 border-orange-300', glow: 'shadow-[0_0_20px_rgba(249,115,22,0.4)]', text: 'text-orange-400' };
               case 'report': return { title: 'แจ้งซ่อมระบบ/อุปกรณ์', sub: 'MAINTENANCE REQUEST', icon: <PlusCircle className="w-8 h-8 md:w-6 md:h-6" strokeWidth={2.5}/>, border: 'border-emerald-500', bgIcon: 'text-emerald-500 border-emerald-300', glow: 'shadow-[0_0_20px_rgba(16,185,129,0.4)]', text: 'text-emerald-400' };
               case 'daily_report': return { title: 'รายงานผลปฏิบัติงาน', sub: 'DAILY REPORT', icon: <FileText className="w-8 h-8 md:w-6 md:h-6" strokeWidth={2.5}/>, border: 'border-purple-500', bgIcon: 'text-purple-500 border-purple-300', glow: 'shadow-[0_0_20px_rgba(168,85,247,0.4)]', text: 'text-purple-400' };
+              case 'pm': return { title: 'มอบหมาย/ติดตามงาน', sub: 'TASK BOARD', icon: <ClipboardList className="w-8 h-8 md:w-6 md:h-6" strokeWidth={2.5}/>, border: 'border-emerald-500', bgIcon: 'text-emerald-500 border-emerald-300', glow: 'shadow-[0_0_20px_rgba(16,185,129,0.4)]', text: 'text-emerald-400' };
               case 'leave': return { title: 'ระบบลงเวลาและวันลา', sub: 'ATTENDANCE & LEAVE', icon: <Calendar className="w-8 h-8 md:w-6 md:h-6" strokeWidth={2.5}/>, border: 'border-rose-500', bgIcon: 'text-rose-500 border-rose-300', glow: 'shadow-[0_0_20px_rgba(244,63,94,0.4)]', text: 'text-rose-400' };
               case 'monitoring': return { title: 'ศูนย์มอนิเตอร์สถานะ UPS', sub: 'POWER MONITORING', icon: <Activity className="w-8 h-8 md:w-6 md:h-6" strokeWidth={2.5}/>, border: 'border-yellow-500', bgIcon: 'text-yellow-500 border-yellow-300', glow: 'shadow-[0_0_20px_rgba(234,179,8,0.4)]', text: 'text-yellow-400' };
               case 'satellite': return { title: 'สถานะสัญญาณดาวเทียม', sub: 'SATELLITE SIGNALS', icon: <Globe className="w-8 h-8 md:w-6 md:h-6" strokeWidth={2.5}/>, border: 'border-indigo-500', bgIcon: 'text-indigo-500 border-indigo-300', glow: 'shadow-[0_0_20px_rgba(99,102,241,0.4)]', text: 'text-indigo-400' };
@@ -749,6 +744,20 @@ export default function MainApp({ onGoHome, initialRole }) {
 
               {activeTab === 'daily_report' && (<DailyReportView sysTime={sysTime} currentUserRole={currentUserRole} currentUserName={currentUserName} setActiveTab={setActiveTab} onGoHome={onGoHome} />)}
 
+              {/* 🌟 ฟันธง: ส่ง setActiveTab และ onGoHome ให้ TaskBoardView ด้วย 🌟 */}
+              {activeTab === 'pm' && (
+                <div className="w-full [&>div]:!max-w-full h-full min-h-[80vh]">
+                  <TaskBoardView 
+                    sysTime={sysTime} 
+                    currentUserRole={currentUserRole} 
+                    currentUserName={currentUserName} 
+                    technicianList={technicianList} 
+                    setActiveTab={setActiveTab} 
+                    onGoHome={onGoHome} 
+                  />
+                </div>
+              )}
+
               {activeTab === 'dashboard' && (currentUserRole !== 'reporter') && (
                 <div className="w-full [&>div]:!max-w-full">
                   <Dashboard sysTime={sysTime} stats={dashStats} tickets={filteredTickets_forDashboard} allRosters={allRosters} technicianList={technicianList} dashTimeframe={dashTimeframe} setDashTimeframe={setDashTimeframe} customMonth={customMonth} setCustomMonth={setCustomMonth} showMonthPicker={showMonthPicker} setShowMonthPicker={setShowMonthPicker} pickerYear={pickerYear} setPickerYear={setPickerYear} customDate={customDate} setCustomDate={setCustomDate} showDatePicker={showDatePicker} setShowDatePicker={setShowDatePicker} calMonth={calMonth} setCalMonth={setCalMonth} calYear={calYear} setCalYear={setCalYear} currentUserRole={currentUserRole} currentUserName={currentUserName} handleNavigateToTracking={handleNavigateToTracking} setShowAdminRoster={setShowAdminRoster} />
@@ -770,7 +779,8 @@ export default function MainApp({ onGoHome, initialRole }) {
           )}
         </div>
 
-        {activeTab !== 'hub' && activeTab !== 'satellite' && activeTab !== 'monitoring' && activeTab !== 'leave' && activeTab !== 'daily_report' && (
+        {/* 🌟 ฟันธง: ซ่อนแถบเมนูด้านล่างตอนเข้า Task Board เพื่อให้บอร์ดเต็มจอ 🌟 */}
+        {activeTab !== 'hub' && activeTab !== 'satellite' && activeTab !== 'monitoring' && activeTab !== 'leave' && activeTab !== 'daily_report' && activeTab !== 'pm' && (
           <div className={`fixed left-1/2 -translate-x-1/2 w-[calc(100%-2rem)] md:w-[calc(100%-3rem)] md:max-w-[976px] py-2 md:py-3 bg-slate-900/95 backdrop-blur-xl border-2 md:border-[3px] border-solid border-orange-500 shadow-[0_10px_30px_rgba(249,115,22,0.4)] rounded-2xl md:rounded-[1.2rem] z-[9999] transform-gpu transition-all duration-500 ease-in-out ${isNavVisible ? 'bottom-4 md:bottom-6 opacity-100 translate-y-0' : '-bottom-32 opacity-0 translate-y-full pointer-events-none'}`}>
             <div className="w-full flex justify-evenly items-center px-1 md:px-8">
               
@@ -958,7 +968,7 @@ export default function MainApp({ onGoHome, initialRole }) {
         <div className="fixed inset-0 z-[99999] bg-black/90 backdrop-blur-sm flex items-center justify-center p-4 animate-in fade-in" onClick={() => setLightboxImg(null)}>
           <button className="absolute top-5 right-5 text-slate-400 hover:text-white p-2 rounded-full bg-slate-800 border border-slate-700 active:scale-95" onClick={() => setLightboxImg(null)}><X size={24} /></button>
           
-          {(lightboxImg.includes('video') || lightboxImg.includes('.mp4')) ? (
+          {(typeof lightboxImg === 'string' && (lightboxImg.includes('video') || lightboxImg.includes('.mp4') || lightboxImg.includes('data:video'))) ? (
             <video 
               src={lightboxImg} 
               controls 
