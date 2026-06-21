@@ -718,7 +718,7 @@ export default function MainApp({ onGoHome, initialRole }) {
                     {hc.title}
                   </h1>
                   <span className={`text-[13px] md:text-[16px] font-bold mt-1 tracking-wide ${hc.text} opacity-90 animate-in fade-in duration-300`}>
-                    👋 สวัสดีครับ, <span className="text-white">คุณ{currentUserName || 'ผู้ใช้งาน'}</span>
+                  สวัสดีครับ, <span className="text-white">คุณ{currentUserName || 'ผู้ใช้งาน'}</span>
                   </span>
                 </div>
               </div>

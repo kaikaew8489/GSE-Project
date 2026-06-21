@@ -46,6 +46,10 @@ export default function TaskBoardView({ sysTime, currentUserRole, currentUserNam
   const [isUploading, setIsUploading] = useState(false);
   const [mediaPickerFor, setMediaPickerFor] = useState(null); 
 
+  // 🌟 ฟันธง: เพิ่ม State สำหรับตรวจจับการเลื่อนจอ เพื่อซ่อน/โชว์ เมนูด้านล่าง 🌟
+  const [isNavVisible, setIsNavVisible] = useState(true);
+  const [lastScrollY, setLastScrollY] = useState(window.scrollY);
+
   const thaiMonths = ['ม.ค.', 'ก.พ.', 'มี.ค.', 'เม.ย.', 'พ.ค.', 'มิ.ย.', 'ก.ค.', 'ส.ค.', 'ก.ย.', 'ต.ค.', 'พ.ย.', 'ธ.ค.'];
   const thaiMonthsFull = ['มกราคม', 'กุมภาพันธ์', 'มีนาคม', 'เมษายน', 'พฤษภาคม', 'มิถุนายน', 'กรกฎาคม', 'สิงหาคม', 'กันยายน', 'ตุลาคม', 'พฤศจิกายน', 'ธันวาคม'];
   const thaiDays = ['อาทิตย์', 'จันทร์', 'อังคาร', 'พุธ', 'พฤหัสบดี', 'ศุกร์', 'เสาร์'];
@@ -53,6 +57,25 @@ export default function TaskBoardView({ sysTime, currentUserRole, currentUserNam
   const [newTask, setNewTask] = useState({ 
     title: '', description: '', assignee: '', dueDate: '', priority: 'medium', attachments: [] 
   });
+
+  // 🌟 ฟันธง: เพิ่ม Logic ตรวจจับการเลื่อนหน้าจอ (Auto-Hide Navigation) 🌟
+  useEffect(() => {
+    const handleScroll = () => {
+      const currentScrollY = window.scrollY;
+
+      if (currentScrollY > lastScrollY && currentScrollY > 50) {
+        // Scrolling down - hide the nav
+        setIsNavVisible(false);
+      } else if (currentScrollY < lastScrollY) {
+        // Scrolling up - show the nav
+        setIsNavVisible(true);
+      }
+      setLastScrollY(currentScrollY);
+    };
+
+    window.addEventListener('scroll', handleScroll, { passive: true });
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, [lastScrollY]);
 
   useEffect(() => {
     const unsub = onSnapshot(collection(db, 'pm_tasks'), (snapshot) => {
@@ -135,6 +158,14 @@ export default function TaskBoardView({ sysTime, currentUserRole, currentUserNam
     }
   };
 
+  const handleMediaClick = (file) => {
+    if (file.type && file.type.startsWith('image/')) {
+      window.open(file.url, '_blank');
+    } else {
+      window.open(file.url, '_blank');
+    }
+  };
+
   const renderThumbnails = (filesArray, onRemoveFile) => {
     return filesArray.map((file, idx) => {
       const isImage = file.type && file.type.startsWith('image/');
@@ -142,7 +173,7 @@ export default function TaskBoardView({ sysTime, currentUserRole, currentUserNam
 
       return (
         <div key={idx} className="relative w-20 h-20 md:w-24 md:h-24 rounded-2xl overflow-hidden border-[2px] border-slate-700 hover:border-emerald-400 group shadow-[0_0_10px_rgba(0,0,0,0.5)] transition-all bg-slate-800 shrink-0">
-          <div className="w-full h-full cursor-pointer" onClick={() => window.open(file.url, '_blank')} title="คลิกเพื่อดูรูปเต็ม">
+          <div className="w-full h-full cursor-pointer" onClick={() => handleMediaClick(file)} title="คลิกเพื่อดูไฟล์เต็ม">
             {isImage ? (
               <img src={file.url} alt="thumbnail" className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-300" />
             ) : isVideo ? (
@@ -286,20 +317,35 @@ export default function TaskBoardView({ sysTime, currentUserRole, currentUserNam
       result = result.filter(t => t.status === filterStatus);
     }
     if (filterDateType === 'date' && filterDate) {
-      result = result.filter(t => t.createdAt && new Date(t.createdAt.toMillis()).toISOString().split('T')[0] === filterDate);
+      result = result.filter(t => {
+        if (!t.createdAt) return false;
+        const d = new Date(t.createdAt.toMillis());
+        const localDate = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
+        return localDate === filterDate;
+      });
     } else if (filterDateType === 'month' && filterMonth) {
-      result = result.filter(t => t.createdAt && new Date(t.createdAt.toMillis()).toISOString().substring(0, 7) === filterMonth);
+      result = result.filter(t => {
+        if (!t.createdAt) return false;
+        const d = new Date(t.createdAt.toMillis());
+        const localMonth = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}`;
+        return localMonth === filterMonth;
+      });
     }
 
     return result;
   }, [tasks, searchTerm, filterStatus, filterDateType, filterDate, filterMonth, currentUserRole, currentUserName]);
 
-  const filteredTechs = (technicianList || []).filter(t => (t.name || '').toLowerCase().includes(techSearch.toLowerCase()));
+  // กรองรายชื่อช่าง (คุณวิชญ์ภาส)
+  const filteredTechs = (technicianList || [])
+    .filter(t => !t.name.includes('วิชญ์ภาส'))
+    .filter(t => (t.name || '').toLowerCase().includes(techSearch.toLowerCase()));
+    
   const getDaysInMonth = (month, year) => new Date(year, month + 1, 0).getDate();
   const getFirstDayOfMonth = (month, year) => new Date(year, month, 1).getDay();
 
   return (
-    <div className="p-4 md:p-8 animate-in fade-in duration-500 font-sans h-full flex flex-col w-full relative z-0">
+    // 🌟 ฟันธง: เพิ่ม pb-32 เพื่อเว้นพื้นที่ด้านล่างสำหรับการ์ดใบสุดท้าย ไม่ให้โดน Floating Menu บังบนมือถือ 🌟
+    <div className="p-4 md:p-8 animate-in fade-in duration-500 font-sans h-full flex flex-col w-full relative z-0 pb-32">
       
       <input 
         type="file" 
@@ -309,6 +355,7 @@ export default function TaskBoardView({ sysTime, currentUserRole, currentUserNam
         onChange={(e) => handleFileUpload(e, mediaPickerFor === 'assign' ? 'init' : 'action')} 
       />
 
+      {/* 🌟 Live Clock 🌟 */}
       <div className="relative w-full mb-4">
         <div className="absolute inset-0 bg-cyan-500/10 blur-xl rounded-2xl pointer-events-none"></div>
         <div className="bg-[#0f172a]/90 border-[2px] border-cyan-500/60 rounded-2xl p-4 md:p-5 flex items-center justify-center shadow-[0_0_30px_rgba(6,182,212,0.3)] relative overflow-hidden">
@@ -324,46 +371,43 @@ export default function TaskBoardView({ sysTime, currentUserRole, currentUserNam
         </div>
       </div>
 
-      <div className="w-full flex flex-col gap-4 mb-6">
-        <div className="relative w-full">
-          <div className="absolute inset-0 bg-emerald-500/10 blur-xl rounded-2xl pointer-events-none"></div>
-          <div className="bg-[#0f172a]/80 border-[2px] border-emerald-500/50 rounded-2xl p-4 flex flex-col md:flex-row justify-between items-center gap-4 shadow-[0_0_20px_rgba(16,185,129,0.2)] relative z-10">
-            
-            <div className="relative w-full flex-1">
-              <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-emerald-400 w-5 h-5" />
-              <input 
-                type="text" 
-                placeholder="ค้นหารหัสงาน หรือ ชื่อโปรเจกต์..." 
-                className="w-full bg-[#1e293b] border-[2px] border-slate-600 rounded-xl py-3 pl-12 pr-4 text-white focus:border-emerald-400 outline-none transition-all text-[15px] shadow-inner"
-                value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
-              />
-            </div>
-            
-            {(currentUserRole === 'Commander' || currentUserRole === 'admin') && (
-              <button onClick={() => { setIsNewTaskModalOpen(true); setFormError(''); }} className="w-full md:w-auto bg-gradient-to-r from-emerald-600 to-teal-600 hover:brightness-110 text-white font-black py-3 px-8 rounded-xl border-[2px] border-emerald-400 shadow-[0_0_25px_rgba(16,185,129,0.5)] flex items-center justify-center gap-2 active:scale-95 transition-all text-[15px] shrink-0">
-                <PlusCircle className="w-5 h-5" /> มอบหมายงาน
-              </button>
-            )}
+      <div className="w-full flex flex-col mb-6 relative z-10">
+        <div className="absolute top-0 left-1/2 -translate-x-1/2 w-full h-full bg-cyan-500/5 blur-[80px] pointer-events-none rounded-full z-0"></div>
+
+        <div className="flex flex-col sm:flex-row gap-4 mb-4 relative z-10 w-full">
+          <div className="relative w-full flex-1">
+            <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-cyan-400 w-5 h-5" />
+            <input 
+              type="text" 
+              placeholder="ค้นหา รหัส หรือ ชื่อโปรเจกต์..." 
+              className="w-full bg-[#0f172a]/90 border-[2px] border-cyan-500/50 hover:border-cyan-400 focus:border-cyan-400 rounded-2xl py-3.5 pl-12 pr-4 text-white outline-none transition-all text-[15px] shadow-[0_0_15px_rgba(6,182,212,0.2)] focus:shadow-[0_0_25px_rgba(6,182,212,0.4)]"
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+            />
           </div>
+          {(currentUserRole === 'Commander' || currentUserRole === 'admin') && (
+            <button onClick={() => { setIsNewTaskModalOpen(true); setFormError(''); }} className="w-full sm:w-auto bg-gradient-to-r from-emerald-600 to-teal-600 hover:brightness-110 text-white font-black py-3.5 px-8 rounded-2xl border-[2px] border-emerald-400 shadow-[0_0_25px_rgba(16,185,129,0.5)] flex items-center justify-center gap-2 active:scale-95 transition-all text-[15px]">
+              <PlusCircle className="w-6 h-6" /> มอบหมายงาน
+            </button>
+          )}
         </div>
 
-        <div className="flex flex-wrap gap-3 mt-2">
+        <div className="flex overflow-x-auto gap-3 pb-2 w-full [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none] relative z-10">
           {[
-            { id: 'all', label: 'ทั้งหมด', color: 'slate' },
-            { id: 'todo', label: 'รอดำเนินการ', color: 'slate' },
-            { id: 'doing', label: 'กำลังทำ', color: 'blue' },
-            { id: 'blocked', label: 'ติดปัญหา/รอของ', color: 'rose' },
-            { id: 'pending_verify', label: 'รอ หน. ยืนยัน', color: 'orange' },
-            { id: 'done', label: 'เสร็จสิ้น', color: 'emerald' },
+            { id: 'all', label: 'ทั้งหมด' },
+            { id: 'todo', label: 'รอดำเนินการ' },
+            { id: 'doing', label: 'กำลังทำ' },
+            { id: 'blocked', label: 'ติดปัญหา/รอของ' },
+            { id: 'pending_verify', label: 'รอ หน. ยืนยัน' },
+            { id: 'done', label: 'เสร็จสิ้น' },
           ].map(f => (
             <button 
               key={f.id} 
               onClick={() => setFilterStatus(f.id)}
-              className={`px-4 py-2 rounded-xl font-bold text-[13px] md:text-[14px] transition-all border-[2px] active:scale-95 ${
+              className={`whitespace-nowrap shrink-0 px-5 py-2.5 rounded-xl font-bold text-[14px] transition-all border-[2px] active:scale-95 ${
                 filterStatus === f.id 
-                ? `bg-${f.color}-500/20 text-${f.color}-400 border-${f.color}-500 shadow-[0_0_15px_rgba(currentColor,0.4)]` 
-                : 'bg-[#1e293b] text-slate-400 border-slate-700 hover:border-slate-500'
+                ? `bg-gradient-to-b from-orange-500 to-orange-600 text-white border-orange-400 shadow-[0_0_15px_rgba(249,115,22,0.6)]` 
+                : 'bg-[#0f172a]/80 text-slate-400 border-slate-700 hover:border-slate-500 hover:text-slate-200'
               }`}
             >
               {f.label}
@@ -371,18 +415,19 @@ export default function TaskBoardView({ sysTime, currentUserRole, currentUserNam
           ))}
         </div>
 
-        <div className="flex flex-wrap gap-3">
-          <button onClick={() => { setFilterDateType('all'); setFilterDate(''); setFilterMonth(''); }} className={`px-5 py-2.5 rounded-xl font-bold text-[14px] transition-all border-[2px] ${filterDateType === 'all' ? 'bg-cyan-600 text-white border-cyan-400 shadow-[0_0_15px_rgba(6,182,212,0.5)]' : 'bg-[#1e293b] text-slate-400 border-slate-700 hover:border-cyan-500 hover:text-cyan-400'}`}>
+        <div className="flex overflow-x-auto gap-3 pb-2 mt-1 w-full [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none] relative z-10">
+          <button onClick={() => { setFilterDateType('all'); setFilterDate(''); setFilterMonth(''); }} className={`whitespace-nowrap shrink-0 px-6 py-2.5 rounded-xl font-bold text-[14px] transition-all border-[2px] active:scale-95 ${filterDateType === 'all' ? 'bg-gradient-to-b from-cyan-500 to-blue-600 text-white border-cyan-400 shadow-[0_0_15px_rgba(6,182,212,0.6)]' : 'bg-[#0f172a]/80 text-slate-400 border-slate-700 hover:border-cyan-500 hover:text-cyan-400'}`}>
             ทุกวัน
           </button>
-          <button onClick={() => setShowFilterDateModal(true)} className={`px-5 py-2.5 rounded-xl font-bold text-[14px] transition-all border-[2px] flex items-center gap-2 ${filterDateType === 'date' ? 'bg-[#0f172a] text-cyan-400 border-cyan-500 shadow-[0_0_15px_rgba(6,182,212,0.3)]' : 'bg-[#0f172a] text-slate-400 border-slate-700 hover:border-cyan-500 hover:text-cyan-400'}`}>
+          <button onClick={() => setShowFilterDateModal(true)} className={`whitespace-nowrap shrink-0 px-5 py-2.5 rounded-xl font-bold text-[14px] transition-all border-[2px] flex items-center gap-2 active:scale-95 ${filterDateType === 'date' ? 'bg-[#0f172a] text-cyan-400 border-cyan-400 shadow-[0_0_15px_rgba(6,182,212,0.4)]' : 'bg-[#0f172a]/80 text-slate-400 border-slate-700 hover:border-cyan-500 hover:text-cyan-400'}`}>
              <Calendar size={16} /> ระบุวัน
           </button>
-          <button onClick={() => setShowFilterMonthModal(true)} className={`px-5 py-2.5 rounded-xl font-bold text-[14px] transition-all border-[2px] flex items-center gap-2 ${filterDateType === 'month' ? 'bg-[#0f172a] text-cyan-400 border-cyan-500 shadow-[0_0_15px_rgba(6,182,212,0.3)]' : 'bg-[#0f172a] text-slate-400 border-slate-700 hover:border-cyan-500 hover:text-cyan-400'}`}>
+          <button onClick={() => setShowFilterMonthModal(true)} className={`whitespace-nowrap shrink-0 px-5 py-2.5 rounded-xl font-bold text-[14px] transition-all border-[2px] flex items-center gap-2 active:scale-95 ${filterDateType === 'month' ? 'bg-[#0f172a] text-cyan-400 border-cyan-400 shadow-[0_0_15px_rgba(6,182,212,0.4)]' : 'bg-[#0f172a]/80 text-slate-400 border-slate-700 hover:border-cyan-500 hover:text-cyan-400'}`}>
              <Calendar size={16} /> ระบุเดือน
           </button>
         </div>
-        <div className="mt-1 text-orange-500 text-[13px] font-bold flex items-center gap-1.5">
+        
+        <div className="mt-2 text-orange-500 text-[13px] font-bold flex items-center gap-1.5 relative z-10 drop-shadow-md">
           <Clock size={16}/> แสดงข้อมูล: {filterDateType === 'all' ? 'ทั้งหมด (ทุกวัน)' : filterDateType === 'date' && filterDate ? `ประจำวันที่ ${new Date(filterDate).toLocaleDateString('th-TH')}` : filterDateType === 'month' && filterMonth ? `ประจำเดือน ${thaiMonthsFull[parseInt(filterMonth.split('-')[1])-1]} ${parseInt(filterMonth.split('-')[0])+543}` : ''}
         </div>
       </div>
@@ -433,7 +478,7 @@ export default function TaskBoardView({ sysTime, currentUserRole, currentUserNam
                 <div className="p-5 md:p-6 flex flex-col md:flex-row gap-5">
                   <div className="flex-1 flex flex-col">
                     <div className="flex items-center gap-3 mb-3">
-                      <span className="bg-emerald-100 dark:bg-emerald-500/20 text-emerald-700 dark:text-emerald-400 px-3 py-1 rounded-lg font-mono font-black text-[13px] border border-emerald-300 dark:border-emerald-500/50">
+                      <span className="bg-emerald-100 dark:bg-emerald-500/20 text-emerald-700 dark:text-emerald-400 px-3 py-1 rounded-lg font-mono font-black text-[13px] border border-emerald-300 dark:border-emerald-500/50 shadow-[0_0_10px_rgba(16,185,129,0.2)]">
                         {task.taskId || 'PM-XXXX'}
                       </span>
                       <span className={`px-3 py-1 rounded-lg font-black text-[13px] border shadow-sm ${getStatusColor(task.status)}`}>
@@ -454,10 +499,10 @@ export default function TaskBoardView({ sysTime, currentUserRole, currentUserNam
                     </p>
 
                     <div className="flex flex-wrap gap-4 mt-auto">
-                      <div className="flex items-center gap-2 text-slate-600 dark:text-slate-300 bg-slate-100 dark:bg-[#1e293b] px-3 py-1.5 rounded-lg border border-slate-200 dark:border-slate-700">
+                      <div className="flex items-center gap-2 text-slate-600 dark:text-slate-300 bg-slate-100 dark:bg-[#1e293b] px-3 py-1.5 rounded-lg border border-slate-200 dark:border-slate-700 shadow-sm">
                         <User size={16} className="text-cyan-500"/> <span className="font-bold text-[13px]">{task.assignee}</span>
                       </div>
-                      <div className="flex items-center gap-2 text-slate-600 dark:text-slate-300 bg-slate-100 dark:bg-[#1e293b] px-3 py-1.5 rounded-lg border border-slate-200 dark:border-slate-700">
+                      <div className="flex items-center gap-2 text-slate-600 dark:text-slate-300 bg-slate-100 dark:bg-[#1e293b] px-3 py-1.5 rounded-lg border border-slate-200 dark:border-slate-700 shadow-sm">
                         <Calendar size={16} className="text-rose-500"/> <span className="font-bold text-[13px]">Due: {task.dueDate ? new Date(task.dueDate).toLocaleDateString('th-TH') : '-'}</span>
                       </div>
                     </div>
@@ -476,7 +521,7 @@ export default function TaskBoardView({ sysTime, currentUserRole, currentUserNam
                       </div>
                       <div className="flex justify-between items-center pt-2 border-t border-orange-200 dark:border-orange-500/30 relative z-10 mt-1">
                          <span className="text-orange-800 dark:text-orange-300 font-black text-[14px]">เวลารวมทั้งหมด</span>
-                         <span className="font-mono font-black text-orange-600 dark:text-orange-400 text-[16px]">{formatDuration(waitTime + workTime)}</span>
+                         <span className="font-mono font-black text-orange-600 dark:text-orange-400 text-[16px] drop-shadow-[0_0_5px_rgba(249,115,22,0.8)]">{formatDuration(waitTime + workTime)}</span>
                       </div>
                     </div>
 
@@ -486,7 +531,7 @@ export default function TaskBoardView({ sysTime, currentUserRole, currentUserNam
                            {log.type === 'block' ? <PauseCircle size={16}/> : <RotateCcw size={16}/>} 
                            {log.type === 'block' ? 'แจ้งเหตุขัดข้อง' : 'ส่งกลับแก้ไข (หน.)'}
                          </h4>
-                         <p className="text-slate-600 dark:text-slate-300 text-[13px] font-bold bg-white dark:bg-slate-900 p-2 rounded-lg border border-inherit">สาเหตุ: {log.reason}</p>
+                         <p className="text-slate-600 dark:text-slate-300 text-[13px] font-bold bg-white dark:bg-slate-900 p-2 rounded-lg border border-inherit shadow-inner">สาเหตุ: {log.reason}</p>
                          <p className="text-[11px] text-slate-500 mt-2 flex items-center gap-1"><Clock size={12}/> {new Date(log.timestamp).toLocaleString('th-TH')}</p>
                        </div>
                     ))}
@@ -506,7 +551,7 @@ export default function TaskBoardView({ sysTime, currentUserRole, currentUserNam
                              const isImage = file.type && file.type.startsWith('image/');
                              const isVideo = file.type && file.type.startsWith('video/');
                              return (
-                               <div key={idx} onClick={() => window.open(file.url, '_blank')} className="cursor-pointer w-16 h-16 md:w-20 md:h-20 rounded-xl overflow-hidden border-[2px] border-slate-300 dark:border-slate-600 hover:border-emerald-400 group bg-slate-200 dark:bg-slate-800 transition-all">
+                               <div key={idx} onClick={() => handleMediaClick(file)} className="cursor-pointer w-16 h-16 md:w-20 md:h-20 rounded-xl overflow-hidden border-[2px] border-slate-300 dark:border-slate-600 hover:border-emerald-400 group bg-slate-200 dark:bg-slate-800 transition-all">
                                  {isImage ? <img src={file.url} className="w-full h-full object-cover group-hover:scale-110 transition-transform" /> : 
                                   isVideo ? <div className="w-full h-full flex items-center justify-center relative"><video src={file.url} className="w-full h-full object-cover opacity-30"/><PlayCircle className="absolute text-white w-6 h-6"/></div> : 
                                   <div className="w-full h-full flex flex-col items-center justify-center p-1"><FileText className="text-emerald-400 w-6 h-6"/><span className="text-[8px] text-slate-500 dark:text-slate-400 w-full truncate text-center">{file.name}</span></div>}
@@ -530,7 +575,7 @@ export default function TaskBoardView({ sysTime, currentUserRole, currentUserNam
                                   const isImage = file.type && file.type.startsWith('image/');
                                   const isVideo = file.type && file.type.startsWith('video/');
                                   return (
-                                    <div key={idx} onClick={() => window.open(file.url, '_blank')} className="cursor-pointer w-16 h-16 md:w-20 md:h-20 rounded-xl overflow-hidden border-[2px] border-slate-300 dark:border-slate-600 hover:border-cyan-400 group bg-slate-200 dark:bg-slate-800 transition-all">
+                                    <div key={idx} onClick={() => handleMediaClick(file)} className="cursor-pointer w-16 h-16 md:w-20 md:h-20 rounded-xl overflow-hidden border-[2px] border-slate-300 dark:border-slate-600 hover:border-cyan-400 group bg-slate-200 dark:bg-slate-800 transition-all">
                                       {isImage ? <img src={file.url} className="w-full h-full object-cover group-hover:scale-110 transition-transform" /> : 
                                        isVideo ? <div className="w-full h-full flex items-center justify-center relative"><video src={file.url} className="w-full h-full object-cover opacity-30"/><PlayCircle className="absolute text-white w-6 h-6"/></div> : 
                                        <div className="w-full h-full flex flex-col items-center justify-center p-1"><FileText className="text-cyan-400 w-6 h-6"/><span className="text-[8px] text-slate-500 dark:text-slate-400 w-full truncate text-center">{file.name}</span></div>}
@@ -551,21 +596,21 @@ export default function TaskBoardView({ sysTime, currentUserRole, currentUserNam
                 <div className="bg-slate-100 dark:bg-[#1e293b] p-4 flex flex-col sm:flex-row items-center justify-end gap-3 border-t border-slate-200 dark:border-slate-700">
                     {(currentUserRole === 'reporter' && task.assignee === currentUserName) && (
                       <>
-                        {task.status === 'todo' && <button onClick={() => setActionModal({isOpen: true, type: 'start', dbId: task.dbId})} className="w-full sm:w-auto bg-blue-600 hover:bg-blue-500 text-white font-black px-6 py-2.5 rounded-xl shadow-[0_0_15px_rgba(37,99,235,0.4)] flex items-center justify-center gap-2"><PlayCircle size={18}/> เริ่มปฏิบัติงาน</button>}
+                        {task.status === 'todo' && <button onClick={() => setActionModal({isOpen: true, type: 'start', dbId: task.dbId})} className="w-full sm:w-auto bg-blue-600 hover:bg-blue-500 text-white font-black px-6 py-2.5 rounded-xl shadow-[0_0_15px_rgba(37,99,235,0.4)] flex items-center justify-center gap-2 active:scale-95 transition-all"><PlayCircle size={18}/> เริ่มปฏิบัติงาน</button>}
                         {task.status === 'doing' && (
                           <>
-                            <button onClick={() => setActionModal({isOpen: true, type: 'block', dbId: task.dbId})} className="w-full sm:w-auto bg-rose-600 hover:bg-rose-500 text-white font-black px-4 py-2.5 rounded-xl shadow-[0_0_15px_rgba(225,29,72,0.4)] flex items-center justify-center gap-2"><PauseCircle size={18}/> แจ้งขัดข้อง</button>
-                            <button onClick={() => setActionModal({isOpen: true, type: 'submit', dbId: task.dbId})} className="w-full sm:w-auto bg-emerald-600 hover:bg-emerald-500 text-white font-black px-6 py-2.5 rounded-xl shadow-[0_0_15px_rgba(16,185,129,0.4)] flex items-center justify-center gap-2"><Send size={18}/> ส่งงาน (รอตรวจ)</button>
+                            <button onClick={() => setActionModal({isOpen: true, type: 'block', dbId: task.dbId})} className="w-full sm:w-auto bg-rose-600 hover:bg-rose-500 text-white font-black px-4 py-2.5 rounded-xl shadow-[0_0_15px_rgba(225,29,72,0.4)] flex items-center justify-center gap-2 active:scale-95 transition-all"><PauseCircle size={18}/> แจ้งขัดข้อง</button>
+                            <button onClick={() => setActionModal({isOpen: true, type: 'submit', dbId: task.dbId})} className="w-full sm:w-auto bg-gradient-to-r from-emerald-600 to-teal-600 hover:brightness-110 text-white font-black px-6 py-2.5 rounded-xl shadow-[0_0_15px_rgba(16,185,129,0.4)] flex items-center justify-center gap-2 active:scale-95 transition-all"><Send size={18}/> ส่งงาน (รอตรวจ)</button>
                           </>
                         )}
-                        {task.status === 'blocked' && <button onClick={() => setActionModal({isOpen: true, type: 'resume', dbId: task.dbId})} className="w-full sm:w-auto bg-blue-600 hover:bg-blue-500 text-white font-black px-6 py-2.5 rounded-xl shadow-[0_0_15px_rgba(37,99,235,0.4)] flex items-center justify-center gap-2"><PlayCircle size={18}/> ดำเนินการต่อ</button>}
+                        {task.status === 'blocked' && <button onClick={() => setActionModal({isOpen: true, type: 'resume', dbId: task.dbId})} className="w-full sm:w-auto bg-blue-600 hover:bg-blue-500 text-white font-black px-6 py-2.5 rounded-xl shadow-[0_0_15px_rgba(37,99,235,0.4)] flex items-center justify-center gap-2 active:scale-95 transition-all"><PlayCircle size={18}/> ดำเนินการต่อ</button>}
                       </>
                     )}
 
                     {(currentUserRole === 'Commander' || currentUserRole === 'admin') && task.status === 'pending_verify' && (
                       <>
-                        <button onClick={() => setActionModal({isOpen: true, type: 'reject', dbId: task.dbId})} className="w-full sm:w-auto bg-rose-600 hover:bg-rose-500 text-white font-black px-5 py-2.5 rounded-xl shadow-[0_0_15px_rgba(225,29,72,0.4)] flex items-center justify-center gap-2"><RotateCcw size={18}/> ส่งกลับแก้ไข</button>
-                        <button onClick={() => setActionModal({isOpen: true, type: 'verify', dbId: task.dbId})} className="w-full sm:w-auto bg-emerald-600 hover:bg-emerald-500 text-white font-black px-6 py-2.5 rounded-xl shadow-[0_0_15px_rgba(16,185,129,0.4)] flex items-center justify-center gap-2"><ShieldCheck size={18}/> อนุมัติผ่าน</button>
+                        <button onClick={() => setActionModal({isOpen: true, type: 'reject', dbId: task.dbId})} className="w-full sm:w-auto bg-rose-600 hover:bg-rose-500 text-white font-black px-5 py-2.5 rounded-xl shadow-[0_0_15px_rgba(225,29,72,0.4)] flex items-center justify-center gap-2 active:scale-95 transition-all"><RotateCcw size={18}/> ส่งกลับแก้ไข</button>
+                        <button onClick={() => setActionModal({isOpen: true, type: 'verify', dbId: task.dbId})} className="w-full sm:w-auto bg-emerald-600 hover:bg-emerald-500 text-white font-black px-6 py-2.5 rounded-xl shadow-[0_0_15px_rgba(16,185,129,0.4)] flex items-center justify-center gap-2 active:scale-95 transition-all"><ShieldCheck size={18}/> อนุมัติผ่าน</button>
                       </>
                     )}
                 </div>
@@ -576,14 +621,29 @@ export default function TaskBoardView({ sysTime, currentUserRole, currentUserNam
         )}
       </div>
 
-      <div className="flex flex-col sm:flex-row gap-4 w-full mt-6 pt-6 border-t-[2px] border-slate-700/80">
-        <button onClick={onGoHome} className="flex-1 py-4 bg-slate-800/80 text-rose-400 font-black rounded-2xl hover:bg-rose-900/50 border-[2px] border-slate-700 hover:border-rose-500 transition-all flex justify-center items-center gap-2 active:scale-95 text-[16px] md:text-[18px] shadow-lg">
-          <LogOut size={22}/> ออกจากระบบ
-        </button>
-        <button onClick={() => setActiveTab('hub')} className="flex-[2] py-4 bg-gradient-to-r from-emerald-600 to-teal-600 text-white font-black rounded-2xl border-[2px] border-emerald-400 hover:brightness-110 shadow-[0_0_20px_rgba(16,185,129,0.4)] transition-all flex justify-center items-center gap-2 active:scale-95 text-[16px] md:text-[18px]">
-          <Home size={22}/> กลับหน้าหลัก
-        </button>
-      </div>
+      {/* 🌟 ฟันธง: Floating Bottom Navbar (Sci-Fi Theme กว้างเท่ากรอบบน เหมือนแผงควบคุมหลัก 100%) 🌟 */}
+      {createPortal(
+        <div className={`fixed bottom-6 left-1/2 -translate-x-1/2 w-[95%] md:w-full md:max-w-4xl z-[50] transition-all duration-500 ease-in-out ${isNavVisible ? 'translate-y-0 opacity-100' : 'translate-y-[150%] opacity-0'}`}>
+          <div className="bg-[#0f172a]/95 backdrop-blur-xl border-[2px] border-solid border-orange-400/90 rounded-[1rem] p-2 flex justify-between items-center shadow-[0_10px_40px_rgba(0,0,0,0.8),0_0_20px_rgba(249,115,22,0.3)]">
+          
+
+            {/* 1. ปุ่มหน้าหลัก (ตรงกลาง - ใหญ่สุด) */}
+            <button onClick={() => setActiveTab('hub')} className="flex-[1.2] flex flex-col items-center justify-center py-3 text-emerald-400 hover:text-emerald-300 rounded-[1.5rem] hover:bg-emerald-500/10 transition-all active:scale-95 group relative">
+              <div className="absolute inset-0 bg-emerald-500/5 rounded-xl blur-md pointer-events-none group-hover:bg-emerald-500/20"></div>
+              <Home className="w-6 h-6 md:w-8 md:h-8 mb-1 drop-shadow-[0_0_10px_rgba(16,185,129,0.8)] group-hover:scale-110 transition-transform" />
+              <span className="text-[11px] md:text-[13px] font-black drop-shadow-md">หน้าหลัก</span>
+            </button>
+
+                {/* 2. ปุ่มออกจากระบบ (ซ้ายสุด) */}
+            <button onClick={onGoHome} className="flex-1 flex flex-col items-center justify-center py-3 text-slate-400 hover:text-rose-400 rounded-xl hover:bg-slate-800/80 transition-all active:scale-95 group">
+              <LogOut className="w-5 h-5 md:w-6 md:h-6 mb-1 group-hover:drop-shadow-[0_0_8px_rgba(225,29,72,0.8)]" />
+              <span className="text-[10px] md:text-[12px] font-black">ออกจากระบบ</span>
+            </button>
+
+
+          </div>
+        </div>
+      , document.body)}
 
       {/* 🌟 ACTION MODAL กลาง (ครอบจักรวาล) 🌟 */}
       {actionModal.isOpen && createPortal(
@@ -593,7 +653,7 @@ export default function TaskBoardView({ sysTime, currentUserRole, currentUserNam
             actionModal.type === 'submit' || actionModal.type === 'verify' ? 'border-emerald-500 shadow-[0_0_50px_rgba(16,185,129,0.4)]' : 
             'border-blue-500 shadow-[0_0_50px_rgba(59,130,246,0.4)]'
           }`}>
-            <button onClick={closeActionModal} className="absolute top-5 right-5 text-slate-400 hover:text-white transition-colors z-20 bg-slate-800 p-2 rounded-full hover:bg-slate-700"><X size={24}/></button>
+            <button onClick={closeActionModal} className="absolute top-5 right-5 text-slate-400 hover:text-white transition-colors z-20 bg-slate-800 p-2 rounded-full hover:bg-slate-700 border border-slate-600"><X size={24}/></button>
             
             <h2 className={`text-[22px] md:text-[26px] font-black mb-5 flex items-center gap-3 border-b border-slate-700/50 pb-4 ${
               actionModal.type === 'reject' || actionModal.type === 'block' ? 'text-rose-400' : 
@@ -609,7 +669,7 @@ export default function TaskBoardView({ sysTime, currentUserRole, currentUserNam
 
             <form onSubmit={executeTaskAction} className="space-y-5">
               {formError && (
-                <div className="bg-rose-500/10 border border-rose-500 rounded-xl p-3 text-rose-400 font-bold text-[14px]">{formError}</div>
+                <div className="bg-rose-500/10 border border-rose-500 rounded-xl p-3 text-rose-400 font-bold text-[14px] shadow-[0_0_15px_rgba(225,29,72,0.3)]">{formError}</div>
               )}
 
               {(actionModal.type === 'block' || actionModal.type === 'reject' || actionModal.type === 'submit') && (
@@ -617,20 +677,21 @@ export default function TaskBoardView({ sysTime, currentUserRole, currentUserNam
                   <label className="block text-slate-300 text-[14px] font-bold mb-2">
                     {actionModal.type === 'block' ? 'สาเหตุที่ติดปัญหา *' : actionModal.type === 'reject' ? 'สาเหตุที่ส่งกลับแก้ไข *' : 'บันทึกย่อการส่งงาน'}
                   </label>
-                  <textarea rows="3" autoFocus required={actionModal.type !== 'submit'} className="w-full bg-[#020617]/60 border-[2px] border-slate-600 rounded-xl p-3.5 text-white outline-none focus:border-cyan-400 transition-all resize-none text-[15px]" value={actionReason} onChange={e => setActionReason(e.target.value)}></textarea>
+                  <textarea rows="3" autoFocus required={actionModal.type !== 'submit'} className={`w-full bg-[#020617]/60 border-[2px] border-slate-600 rounded-xl p-3.5 text-white outline-none focus:border-cyan-400 transition-all resize-none text-[15px] ${formError ? 'border-rose-500' : ''}`} value={actionReason} onChange={e => {setActionReason(e.target.value); setFormError('');}}></textarea>
                 </div>
               )}
 
               {actionModal.type === 'submit' && (
                 <div>
-                  <label className="block text-slate-300 text-[14px] font-bold mb-2">แนบหลักฐานการทำงาน</label>
+                  <label className="block text-slate-300 text-[14px] font-bold mb-2">แนบหลักฐาน (รูปถ่าย/เอกสาร)</label>
+                  
                   {isUploading ? (
                      <div className="w-full bg-emerald-900/10 border-[2px] border-dashed border-emerald-500/50 rounded-xl p-6 flex flex-col items-center justify-center text-emerald-400">
                        <Loader2 className="w-8 h-8 animate-spin mb-2" />
                        <span className="font-bold text-[14px]">กำลังอัปโหลด...</span>
                      </div>
                   ) : (
-                     <button type="button" onClick={() => setMediaPickerFor('action')} className="w-full bg-emerald-900/10 border-[2px] border-dashed border-emerald-500/50 shadow-sm rounded-xl p-4 flex flex-col items-center justify-center gap-2 hover:border-emerald-400 transition-all">
+                     <button type="button" onClick={() => setMediaPickerFor('action')} className="w-full bg-emerald-900/10 border-[2px] border-dashed border-emerald-500/50 shadow-sm rounded-xl p-4 flex flex-col items-center justify-center gap-2 hover:border-emerald-400 hover:shadow-[0_0_15px_rgba(16,185,129,0.3)] transition-all">
                        <Camera size={32} className="text-emerald-400/80 drop-shadow-md" />
                        <span className="text-emerald-300/80 font-bold text-[14px]">แตะเพื่อเลือก รูปภาพ / วิดีโอ</span>
                      </button>
@@ -644,19 +705,15 @@ export default function TaskBoardView({ sysTime, currentUserRole, currentUserNam
                 </div>
               )}
 
-              {actionModal.type === 'verify' && (
-                 <p className="text-slate-300 font-bold text-center py-4 text-[16px]">ยืนยันว่างานนี้เสร็จสมบูรณ์ 100%?</p>
-              )}
-              {(actionModal.type === 'start' || actionModal.type === 'resume') && (
-                 <p className="text-slate-300 font-bold text-center py-4 text-[16px]">ระบบจะเริ่มจับเวลาการทำงานของคุณ</p>
-              )}
+              {actionModal.type === 'verify' && <p className="text-slate-300 font-bold text-center py-4 text-[16px]">ยืนยันว่างานนี้เสร็จสมบูรณ์ 100%?</p>}
+              {(actionModal.type === 'start' || actionModal.type === 'resume') && <p className="text-slate-300 font-bold text-center py-4 text-[16px]">ระบบจะเริ่มจับเวลาการทำงานของคุณ</p>}
 
               <div className="flex gap-3 pt-4 border-t border-slate-700/50">
-                <button type="button" onClick={closeActionModal} className="flex-[1] py-3.5 bg-slate-800 text-white font-black rounded-xl hover:bg-slate-700 transition-colors">ยกเลิก</button>
-                <button type="submit" disabled={isUploading} className={`flex-[1.5] py-3.5 text-white font-black rounded-xl shadow-lg transition-all ${isUploading ? 'opacity-50' : 'hover:brightness-110 active:scale-95'} ${
-                  actionModal.type === 'reject' || actionModal.type === 'block' ? 'bg-gradient-to-r from-rose-600 to-red-600 border-rose-400' : 
-                  actionModal.type === 'submit' || actionModal.type === 'verify' ? 'bg-gradient-to-r from-emerald-600 to-teal-600 border-emerald-400' : 
-                  'bg-gradient-to-r from-blue-600 to-cyan-600 border-blue-400'
+                <button type="button" onClick={closeActionModal} className="flex-[1] py-3.5 bg-slate-800 text-white font-black rounded-xl hover:bg-slate-700 border border-slate-600 transition-colors active:scale-95">ยกเลิก</button>
+                <button type="submit" disabled={isUploading} className={`flex-[1.5] py-3.5 text-white font-black rounded-xl shadow-lg transition-all active:scale-95 ${isUploading ? 'opacity-50' : 'hover:brightness-110'} ${
+                  actionModal.type === 'reject' || actionModal.type === 'block' ? 'bg-gradient-to-r from-rose-600 to-red-600 border border-rose-400' : 
+                  actionModal.type === 'submit' || actionModal.type === 'verify' ? 'bg-gradient-to-r from-emerald-600 to-teal-600 border border-emerald-400' : 
+                  'bg-gradient-to-r from-blue-600 to-cyan-600 border border-blue-400'
                 }`}>
                   ยืนยัน
                 </button>
@@ -666,7 +723,7 @@ export default function TaskBoardView({ sysTime, currentUserRole, currentUserNam
         </div>
       , document.body)}
 
-      {/* 🌟 Modal 1: สร้างงานใหม่ (ของเดิม คงความ Sci-Fi) 🌟 */}
+      {/* 🌟 Modal 1: สร้างงานใหม่ 🌟 */}
       {isNewTaskModalOpen && createPortal(
         <div className="fixed inset-0 z-[9999999] bg-[#020617]/95 backdrop-blur-md flex items-center justify-center p-4 animate-in fade-in">
           <div className="bg-[#0f172a]/95 border-[2px] border-emerald-500/80 rounded-[2rem] p-6 md:p-8 w-full max-w-2xl shadow-[0_0_50px_rgba(16,185,129,0.4),inset_0_0_20px_rgba(16,185,129,0.15)] relative animate-in zoom-in-95 max-h-[95vh] overflow-y-auto [&::-webkit-scrollbar]:hidden overflow-hidden">
@@ -724,14 +781,14 @@ export default function TaskBoardView({ sysTime, currentUserRole, currentUserNam
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-5 relative z-40">
                 <div className="relative">
                   <label className="block text-slate-300 text-[14px] font-bold mb-2">ผู้รับผิดชอบ <span className="text-rose-500">*</span></label>
-                  <button type="button" onClick={() => {setShowTechPickerModal(true); setShowDatePickerModal(false); setFormError('');}} className={`w-full bg-[#020617]/60 border-[2px] ${formError.includes('รับผิดชอบ') ? 'border-rose-500/80' : 'border-emerald-500/50 hover:border-orange-400'} rounded-xl p-3.5 text-white font-bold outline-none text-left flex justify-between items-center text-[15px]`}>
+                  <button type="button" onClick={() => {setShowTechPickerModal(true); setShowDatePickerModal(false); setFormError('');}} className={`w-full bg-[#020617]/60 border-[2px] ${formError.includes('รับผิดชอบ') ? 'border-rose-500/80 shadow-[0_0_15px_rgba(225,29,72,0.3)]' : 'border-emerald-500/50 hover:border-orange-400'} rounded-xl p-3.5 text-white font-bold outline-none text-left flex justify-between items-center text-[15px]`}>
                     {newTask.assignee ? <span>{newTask.assignee}</span> : <span className="text-slate-400 font-normal">-- เลือกผู้รับผิดชอบ --</span>}
                     <ChevronDown className="w-5 h-5 text-emerald-400/80" />
                   </button>
                 </div>
                 <div className="relative">
                   <label className="block text-slate-300 text-[14px] font-bold mb-2">กำหนดเสร็จสิ้น <span className="text-rose-500">*</span></label>
-                  <button type="button" onClick={() => {setShowDatePickerModal(true); setShowTechPickerModal(false); setFormError('');}} className={`w-full bg-[#020617]/60 border-[2px] ${formError.includes('วันที่') ? 'border-rose-500/80' : 'border-emerald-500/50 hover:border-cyan-400'} rounded-xl p-3.5 text-white font-bold outline-none text-left flex justify-between items-center text-[15px]`}>
+                  <button type="button" onClick={() => {setShowDatePickerModal(true); setShowTechPickerModal(false); setFormError('');}} className={`w-full bg-[#020617]/60 border-[2px] ${formError.includes('วันที่') ? 'border-rose-500/80 shadow-[0_0_15px_rgba(225,29,72,0.3)]' : 'border-emerald-500/50 hover:border-cyan-400'} rounded-xl p-3.5 text-white font-bold outline-none text-left flex justify-between items-center text-[15px]`}>
                     <div className="flex items-center gap-2">
                       <Calendar className="w-5 h-5 text-emerald-400/80" />
                       {newTask.dueDate ? <span>{new Date(newTask.dueDate).toLocaleDateString('th-TH')}</span> : <span className="text-slate-400 font-normal">dd/mm/yyyy</span>}
@@ -766,7 +823,7 @@ export default function TaskBoardView({ sysTime, currentUserRole, currentUserNam
         </div>
       , document.body)}
 
-      {/* 🌟 ฟันธง: Media Picker Modal (อัปเกรดแยก PC/Mobile) 🌟 */}
+      {/* 🌟 Media Picker Modal 🌟 */}
       {mediaPickerFor && createPortal(
         <div className="fixed inset-0 z-[10000000] w-screen h-[100dvh] bg-[#020617]/95 backdrop-blur-3xl flex items-center justify-center p-4 animate-in fade-in zoom-in">
           <div className="bg-[#0f172a] border-[2px] border-orange-500 rounded-[2.5rem] p-6 md:p-8 w-full max-w-sm shadow-[0_0_60px_rgba(249,115,22,0.6),inset_0_0_30px_rgba(249,115,22,0.2)] relative flex flex-col items-center">
@@ -778,9 +835,7 @@ export default function TaskBoardView({ sysTime, currentUserRole, currentUserNam
              </div>
 
              <div className="w-full space-y-4 relative z-10">
-                
-                {/* 📱 โหมด Mobile (md:hidden) */}
-                <div className="flex flex-col gap-4 md:hidden">
+                <div className="flex flex-col gap-4">
                   <div className="grid grid-cols-2 gap-4">
                     <button type="button" onClick={() => document.getElementById('global-file-input').click()} className="bg-gradient-to-b from-orange-500 to-orange-600 hover:brightness-110 text-white rounded-2xl p-4 flex flex-col items-center justify-center gap-2 border-[2px] border-orange-300 shadow-[0_0_20px_rgba(249,115,22,0.5)] active:scale-95 transition-all">
                       <Camera className="w-8 h-8" />
@@ -796,24 +851,15 @@ export default function TaskBoardView({ sysTime, currentUserRole, currentUserNam
                   </button>
                 </div>
 
-                {/* 💻 โหมด PC (hidden md:flex) */}
+                {/* 💻 โหมด PC (hidden md:flex) มีปุ่มแคปหน้าจอ */}
                 <div className="hidden md:flex flex-col gap-4">
-                   <button type="button" onClick={() => document.getElementById('global-file-input').click()} className="w-full bg-gradient-to-b from-emerald-500 to-emerald-600 hover:brightness-110 text-white rounded-2xl p-6 flex flex-col items-center justify-center gap-2 border-[2px] border-emerald-300 shadow-[0_0_20px_rgba(16,185,129,0.5)] active:scale-95 transition-all">
-                      <div className="flex gap-3 mb-1">
-                         <Camera className="w-8 h-8" /> <Video className="w-8 h-8" />
-                      </div>
-                      <span className="font-black text-[18px]">เลือกรูปภาพ/วิดีโอ</span>
-                      <span className="text-[12px] font-bold text-emerald-100">วิดีโอความยาวไม่เกิน 8 วินาที</span>
+                   <button type="button" onClick={handleClipboardPaste} className="w-full bg-[#1e293b] hover:bg-slate-800 text-purple-400 rounded-2xl p-4 flex flex-col items-center justify-center gap-1.5 border-[2px] border-purple-500/50 shadow-[0_0_15px_rgba(168,85,247,0.2)] active:scale-95 transition-all">
+                     <div className="flex items-center gap-2">
+                        <ClipboardPaste className="w-5 h-5" /> <span className="font-black text-[15px]">แคปหน้าจอเสร็จแล้วกดปุ่มนี้</span>
+                     </div>
+                     <span className="text-[11px] text-slate-400 font-bold">กด <span className="text-orange-400">Win + Shift + S</span> หรือ <span className="text-orange-400">PRT SC</span></span>
                    </button>
                 </div>
-                
-                {/* 📋 ปุ่มวาง Clipboard (Both) */}
-                <button type="button" onClick={handleClipboardPaste} className="w-full bg-[#1e293b] hover:bg-slate-800 text-purple-400 rounded-2xl p-4 flex flex-col items-center justify-center gap-1.5 border-[2px] border-purple-500/50 shadow-[0_0_15px_rgba(168,85,247,0.2)] active:scale-95 transition-all">
-                  <div className="flex items-center gap-2">
-                     <ClipboardPaste className="w-5 h-5" /> <span className="font-black text-[15px]">แคปหน้าจอเสร็จแล้วกดปุ่มนี้</span>
-                  </div>
-                  <span className="text-[11px] text-slate-400 font-bold">กด <span className="text-orange-400">Win + Shift + S</span> หรือ <span className="text-orange-400">PRT SC</span></span>
-                </button>
              </div>
 
              <button type="button" onClick={() => setMediaPickerFor(null)} className="mt-8 w-full py-4 bg-slate-900 text-slate-300 font-black text-[16px] rounded-2xl border-[2px] border-slate-600 hover:border-rose-500 hover:text-rose-400 hover:shadow-[0_0_20px_rgba(225,29,72,0.3)] transition-all active:scale-95 relative z-10">
@@ -829,16 +875,17 @@ export default function TaskBoardView({ sysTime, currentUserRole, currentUserNam
           <div className="bg-[#0f172a] border-[2px] border-orange-500 rounded-[2rem] p-6 w-full max-w-sm shadow-[0_0_60px_rgba(249,115,22,0.5)] flex flex-col max-h-[85vh]">
             <h3 className="text-[18px] md:text-[20px] font-black text-orange-400 mb-4 text-center drop-shadow-[0_0_8px_rgba(249,115,22,0.8)]">เลือกผู้รับผิดชอบ</h3>
             <div className="mb-4">
-              <input type="text" placeholder="พิมพ์ค้นหาชื่อ..." autoFocus className="w-full bg-[#1e293b] border border-slate-600 rounded-xl px-4 py-3 text-white outline-none focus:border-orange-500 transition-colors" value={techSearch} onChange={(e) => setTechSearch(e.target.value)} />
+              <input type="text" placeholder="พิมพ์ค้นหาชื่อ..." autoFocus className="w-full bg-[#1e293b] border border-slate-600 rounded-xl px-4 py-3 text-white outline-none focus:border-orange-500 transition-colors shadow-inner" value={techSearch} onChange={(e) => setTechSearch(e.target.value)} />
             </div>
-            <div className="flex-1 overflow-y-auto space-y-2 pr-1 [&::-webkit-scrollbar]:w-1.5 [&::-webkit-scrollbar-thumb]:bg-orange-500">
+            <div className="flex-1 overflow-y-auto space-y-2 pr-1 [&::-webkit-scrollbar]:w-1.5 [&::-webkit-scrollbar-thumb]:bg-orange-500 [&::-webkit-scrollbar-thumb]:rounded-full">
               {filteredTechs.map((t, idx) => (
-                <button type="button" key={idx} onClick={() => { setNewTask({...newTask, assignee: t.name}); setShowTechPickerModal(false); setTechSearch(''); setFormError(''); }} className="w-full text-left px-4 py-3.5 bg-[#1e293b] border border-slate-700 hover:border-orange-500 hover:bg-orange-500/20 text-slate-200 hover:text-orange-400 rounded-xl text-[15px] font-bold transition-all">
+                <button type="button" key={idx} onClick={() => { setNewTask({...newTask, assignee: t.name}); setShowTechPickerModal(false); setTechSearch(''); setFormError(''); }} className="w-full text-left px-4 py-3.5 bg-[#1e293b] border border-slate-700 hover:border-orange-500 hover:bg-orange-500/20 text-slate-200 hover:text-orange-400 cursor-pointer rounded-xl text-[15px] font-bold transition-all active:scale-95 shadow-sm">
                   {t.name}
                 </button>
               ))}
+              {filteredTechs.length === 0 && <div className="p-4 text-center text-slate-500 text-sm font-bold">ไม่พบรายชื่อช่าง</div>}
             </div>
-            <button type="button" onClick={() => setShowTechPickerModal(false)} className="mt-5 w-full py-4 bg-[#1e293b] text-slate-300 font-black rounded-2xl border border-slate-600 hover:bg-slate-800 transition-colors">ยกเลิก</button>
+            <button type="button" onClick={() => setShowTechPickerModal(false)} className="mt-5 w-full py-4 bg-[#1e293b] text-slate-300 font-black text-[16px] rounded-2xl border border-slate-600 hover:bg-slate-800 hover:text-white transition-colors active:scale-95">ยกเลิก</button>
           </div>
         </div>
       , document.body)}
@@ -848,12 +895,12 @@ export default function TaskBoardView({ sysTime, currentUserRole, currentUserNam
         <div className="fixed inset-0 z-[9999999] w-screen h-[100dvh] bg-[#020617]/95 backdrop-blur-2xl flex items-center justify-center p-4 animate-in fade-in">
           <div className="bg-[#0f172a] border-[2px] border-cyan-500 rounded-[2rem] p-6 w-full max-w-sm shadow-[0_0_60px_rgba(6,182,212,0.5)]">
             <div className="flex justify-between items-center mb-6">
-              <button type="button" onClick={() => { if (calMonth === 0) { setCalMonth(11); setCalYear(calYear-1); } else setCalMonth(calMonth-1); }} className="w-10 h-10 bg-[#1e293b] hover:bg-slate-700 flex items-center justify-center rounded-xl text-white transition-colors border border-slate-600"><ChevronLeft size={20}/></button>
+              <button type="button" onClick={() => { if (calMonth === 0) { setCalMonth(11); setCalYear(calYear-1); } else setCalMonth(calMonth-1); }} className="w-10 h-10 bg-[#1e293b] hover:bg-slate-700 flex items-center justify-center rounded-xl text-white transition-colors border border-slate-600 active:scale-95"><ChevronLeft size={20}/></button>
               <div className="flex flex-col items-center">
                 <span className="text-slate-400 text-[12px] font-bold tracking-widest uppercase mb-1">เลือกวันที่</span>
                 <span className="text-cyan-400 font-black text-[22px] tracking-wide drop-shadow-[0_0_10px_rgba(6,182,212,0.8)]">{thaiMonthsFull[calMonth]} {calYear + 543}</span>
               </div>
-              <button type="button" onClick={() => { if (calMonth === 11) { setCalMonth(0); setCalYear(calYear+1); } else setCalMonth(calMonth+1); }} className="w-10 h-10 bg-[#1e293b] hover:bg-slate-700 flex items-center justify-center rounded-xl text-white transition-colors border border-slate-600"><ChevronRight size={20}/></button>
+              <button type="button" onClick={() => { if (calMonth === 11) { setCalMonth(0); setCalYear(calYear+1); } else setCalMonth(calMonth+1); }} className="w-10 h-10 bg-[#1e293b] hover:bg-slate-700 flex items-center justify-center rounded-xl text-white transition-colors border border-slate-600 active:scale-95"><ChevronRight size={20}/></button>
             </div>
             
             <div className="grid grid-cols-7 gap-2 text-center mb-3">
@@ -871,7 +918,7 @@ export default function TaskBoardView({ sysTime, currentUserRole, currentUserNam
                     type="button" 
                     key={d} 
                     onClick={() => { setNewTask({...newTask, dueDate: dateStr}); setShowDatePickerModal(false); setFormError(''); }} 
-                    className={`aspect-square rounded-[1rem] flex items-center justify-center text-[15px] font-black transition-all border ${isSelected ? 'bg-orange-500 text-white shadow-[0_0_15px_rgba(249,115,22,0.8)] border-orange-300' : 'bg-transparent text-slate-300 border-slate-700 hover:border-cyan-400 hover:text-cyan-300'}`}
+                    className={`aspect-square rounded-[1rem] flex items-center justify-center text-[15px] font-black transition-all active:scale-90 border ${isSelected ? 'bg-orange-500 text-white shadow-[0_0_15px_rgba(249,115,22,0.8)] border-orange-300' : 'bg-transparent text-slate-300 border-slate-700 hover:border-cyan-400 hover:text-cyan-300'}`}
                   >
                     {d}
                   </button>
@@ -879,7 +926,7 @@ export default function TaskBoardView({ sysTime, currentUserRole, currentUserNam
               })}
             </div>
 
-            <button type="button" onClick={() => setShowDatePickerModal(false)} className="w-full py-4 bg-cyan-600 text-white font-black text-[16px] rounded-2xl shadow-[0_0_20px_rgba(6,182,212,0.4)] hover:bg-cyan-500 transition-all">ยกเลิก</button>
+            <button type="button" onClick={() => setShowDatePickerModal(false)} className="w-full py-4 bg-cyan-600 text-white font-black text-[16px] rounded-2xl shadow-[0_0_20px_rgba(6,182,212,0.4)] hover:bg-cyan-500 transition-all active:scale-95">ยกเลิก</button>
           </div>
         </div>
       , document.body)}
