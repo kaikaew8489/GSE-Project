@@ -624,60 +624,6 @@ export default function MainApp({ onGoHome, initialRole }) {
     lastScrollY.current = currentScrollY;
   };
 
-  const renderHub = () => {
-    const apps = [
-      { id: 'dashboard', name: 'จัดการงานซ่อม', desc: 'DashBoard', icon: <Wrench size={28} className="drop-shadow-md" />, color: 'orange', active: true, themeClasses: 'from-orange-500 to-amber-600 border-orange-500 shadow-orange-500/40 text-orange-400 hover:border-orange-400' },
-      { id: 'daily_report', name: 'รายงานประจำวัน', desc: 'Daily Report', icon: <FileText size={28} className="drop-shadow-md" />, color: 'purple', active: true, themeClasses: 'from-purple-500 to-fuchsia-600 border-purple-500 shadow-purple-500/40 text-purple-400 hover:border-purple-400' },
-      { id: 'pm', name: 'มอบหมายงาน', desc: 'Task Board', icon: <ClipboardList size={28} className="drop-shadow-md" />, color: 'emerald', active: true, themeClasses: 'from-emerald-500 to-teal-600 border-emerald-500 shadow-emerald-500/40 text-emerald-400 hover:border-emerald-400' },
-      { id: 'leave', name: 'วันลา/เข้าสาย', desc: 'ระบบบุคคล', icon: <Calendar size={28} className="drop-shadow-md" />, color: 'rose', active: true, themeClasses: 'from-rose-500 to-red-600 border-rose-500 shadow-rose-500/40 text-rose-400 hover:border-rose-400' },
-      { id: 'monitoring', name: 'IoT Monitor', desc: 'สถานะ UPS', icon: <Activity size={28} className="drop-shadow-md" />, color: 'cyan', active: true, themeClasses: 'from-cyan-500 to-blue-600 border-cyan-500 shadow-cyan-500/40 text-cyan-400 hover:border-cyan-400' },
-      { id: 'satellite', name: 'Sat Signals', desc: 'สถานะสัญญาณดาวเทียม', icon: <Globe size={28} className="drop-shadow-md" />, color: 'purple', active: true, themeClasses: 'from-fuchsia-500 to-purple-600 border-fuchsia-500 shadow-fuchsia-500/40 text-fuchsia-400 hover:border-fuchsia-400' },
-      { id: 'inventory', name: 'อะไหล่/ครุภัณฑ์', desc: 'บริการงานจัดการ', icon: <Package size={28} className="drop-shadow-md" />, color: 'indigo', active: false, themeClasses: 'from-indigo-500 to-violet-600 border-indigo-500 shadow-indigo-500/40 text-indigo-400 hover:border-indigo-400' },
-      { id: 'procurement', name: 'งานจัดซื้อจัดจ้าง', desc: 'จัดการเอกสาร/เบิก', icon: <Briefcase size={28} className="drop-shadow-md" />, color: 'blue', active: false, themeClasses: 'from-blue-500 to-sky-600 border-blue-500 shadow-blue-500/40 text-blue-400 hover:border-blue-400' },
-      { id: 's3ee', name: 'งานบริการ S3EE', desc: 'ระบบบริการลูกค้า', icon: <Globe size={28} className="drop-shadow-md" />, color: 'pink', active: false, themeClasses: 'from-pink-500 to-rose-600 border-pink-500 shadow-pink-500/40 text-pink-400 hover:border-pink-400' },
-    ];
-
-    return (
-      <div className="p-4 md:p-8 pb-32 flex flex-col items-center justify-center min-h-[85vh] relative w-full">
-        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[350px] h-[350px] md:w-[900px] md:h-[600px] bg-red-500/20 blur-[130px] rounded-[100%] pointer-events-none z-0"></div>
-        <div className="w-full max-w-md md:max-w-5xl bg-slate-900/80 backdrop-blur-md border-[2px] md:border-[3px] border-solid border-orange-500/90 rounded-[2rem] md:rounded-[2.5rem] p-6 md:p-10 shadow-[0_0_50px_rgba(239,68,68,0.5),inset_0_0_30px_rgba(249,115,22,0.2)] relative z-10 flex flex-col items-center animate-in zoom-in-95 duration-500 mt-6">
-          <div className="w-full mb-8 md:mb-10 mt-2">
-            <div className="bg-slate-900/90 backdrop-blur-md border-[2px] md:border-[3px] border-solid border-cyan-400 rounded-2xl md:rounded-3xl py-3 md:py-4 px-4 text-center shadow-[0_0_25px_rgba(34,211,238,0.6),inset_0_0_10px_rgba(34,211,238,0.3)] relative flex flex-col items-center justify-center">
-              <h2 className="text-[18px] md:text-[24px] font-black tracking-widest leading-tight flex items-center justify-center gap-2 md:gap-3 flex-wrap">
-                <span className="text-cyan-300 drop-shadow-[0_0_8px_rgba(34,211,238,0.8)]">ศูนย์ปฏิบัติการ</span>
-                <span className="text-orange-400 drop-shadow-[0_0_8px_rgba(249,115,22,0.8)]">ฝวด.</span>
-              </h2>
-              <div className="mt-2 md:mt-3 flex items-center justify-center gap-3 w-[90%] opacity-80">
-                <div className="h-[1px] flex-1 bg-gradient-to-r from-transparent to-slate-400/60"></div>
-                <h3 className="text-[10px] md:text-[12px] font-bold text-slate-300 tracking-[0.25em] uppercase drop-shadow-md">GSE Operations Hub</h3>
-                <div className="h-[1px] flex-1 bg-gradient-to-l from-transparent to-slate-400/60"></div>
-              </div>
-            </div>
-          </div>
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-3 md:gap-6 w-full">
-            {apps.map((app, idx) => (
-              <button key={idx} onClick={() => app.active ? setActiveTab(app.id) : alert('🚀 ล็อกเป้าหมายเรียบร้อย! กำลังพัฒนาระบบใน Phase ถัดไปครับ!')} 
-                className={`relative p-4 md:p-6 rounded-[1rem] md:rounded-[1.5rem] border-[2px] flex flex-col items-center justify-center text-center transition-all duration-300 group overflow-hidden ${app.active ? `bg-slate-900/80 backdrop-blur-md border-slate-700 hover:bg-slate-800 hover:scale-[1.05] ${app.themeClasses.split(' ').find(c => c.startsWith('hover:border-'))} hover:shadow-[0_0_25px_rgba(255,255,255,0.1)] cursor-pointer` : 'bg-slate-900/40 backdrop-blur-sm border-slate-700/50 grayscale opacity-60 hover:opacity-100 hover:grayscale-0 hover:scale-[1.02] cursor-not-allowed'}`}
-              >
-                <div className={`absolute inset-0 bg-gradient-to-br ${app.themeClasses.split(' ').filter(c => c.startsWith('from-') || c.startsWith('to-')).join(' ')} opacity-0 ${app.active ? 'group-hover:opacity-15' : 'group-hover:opacity-5'} transition-opacity duration-300`}></div>
-                <div className={`w-12 h-12 md:w-16 md:h-16 rounded-xl md:rounded-2xl flex items-center justify-center mb-2 md:mb-4 transition-transform duration-500 ${app.active ? 'group-hover:scale-110 group-hover:rotate-3' : ''} ${app.active ? `bg-gradient-to-br ${app.themeClasses.split(' ').filter(c => c.startsWith('from-') || c.startsWith('to-')).join(' ')} text-white shadow-lg` : 'bg-slate-800 text-slate-500 border border-slate-600'}`}>{app.icon}</div>
-                <h3 className={`text-[13px] md:text-[17px] font-black tracking-wide mb-1 md:mb-1.5 leading-tight ${app.active ? 'text-white' : 'text-slate-400'}`}>{app.name}</h3>
-                <p className={`text-[10px] md:text-[12px] font-bold leading-tight ${app.active ? app.themeClasses.split(' ').find(c => c.startsWith('text-')) : 'text-slate-500'}`}>{app.desc}</p>
-                {!app.active && (<div className="absolute top-2 right-2 bg-slate-800 border border-slate-600 px-2 py-0.5 rounded text-[8px] md:text-[10px] font-black text-slate-400 uppercase shadow-md">Soon</div>)}
-              </button>
-            ))}
-          </div>
-          <div className="w-full md:w-3/5 mt-8 md:mt-12 pt-6 md:pt-8 border-t border-orange-500/30 flex justify-center relative">
-            <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[80%] h-[60px] bg-rose-500/20 blur-[30px] rounded-full pointer-events-none z-0"></div>
-            <button onClick={onGoHome} className="w-full max-w-[280px] md:max-w-[320px] relative z-10 bg-slate-900/90 border-[2px] border-rose-500 text-rose-400 hover:bg-rose-600 hover:text-white hover:border-rose-400 py-3 md:py-4 rounded-2xl flex items-center justify-center gap-3 font-black transition-all shadow-[0_0_20px_rgba(225,29,72,0.6)] hover:shadow-[0_0_30px_rgba(225,29,72,0.9)] active:scale-95 backdrop-blur-md">
-              <LogOut size={22} className="w-6 h-6" /> <span className="tracking-widest uppercase text-[16px] md:text-[18px]">ออกจากระบบ</span>
-            </button>
-          </div>
-        </div>
-      </div>
-    );
-  };
-
   return (
     <div className="fixed inset-0 w-full h-[100dvh] bg-slate-900 flex justify-center overflow-hidden">
       <div className="absolute inset-0 z-0 bg-cover bg-center bg-no-repeat opacity-40 pointer-events-none" style={{ backgroundImage: "url('/bg-earth-new.webp')" }}></div>
@@ -689,8 +635,22 @@ export default function MainApp({ onGoHome, initialRole }) {
         'shadow-[0_0_60px_-5px_rgba(244,63,94,1)] border-rose-500/50')
       }`}>
 
-        {/* 🌟 ฟันธง: กำหนดหัวหน้าต่าง Header สำหรับหน้า Task Board ที่นี่ 🌟 */}
-        {activeTab !== 'hub' && (() => {
+        {/* 🌟 ฟันธง: กำหนดหัวหน้าต่าง Header สำหรับทุกหน้า (รวมหน้า Hub ให้ซ้าย-ขวาเท่าเมนูล่างเป๊ะ และตรึง Sticky) 🌟 */}
+        {activeTab === 'hub' ? (
+          <div className="sticky top-4 w-[calc(100%-2rem)] md:w-[calc(100%-3rem)] md:max-w-[976px] mx-auto bg-slate-900/95 backdrop-blur-xl border-2 md:border-[3px] border-solid border-cyan-500 rounded-2xl md:rounded-[1.2rem] py-4 md:py-6 px-6 shadow-[0_10px_30px_rgba(6,182,212,0.3)] mt-4 md:mt-3 mb-2 flex flex-col items-center justify-center relative overflow-hidden group transition-all duration-500 z-50 shrink-0">
+            <div className="absolute -top-10 -left-10 w-32 h-32 bg-cyan-500/20 blur-[50px] rounded-full pointer-events-none group-hover:bg-cyan-400/30 transition-all"></div>
+            <div className="absolute -bottom-10 -right-10 w-32 h-32 bg-blue-500/20 blur-[50px] rounded-full pointer-events-none group-hover:bg-blue-400/30 transition-all"></div>
+            
+            <h1 className="text-[24px] md:text-[36px] font-black text-transparent bg-clip-text bg-gradient-to-r from-cyan-300 via-cyan-400 to-blue-500 tracking-widest drop-shadow-[0_0_15px_rgba(6,182,212,0.8)] relative z-10 text-center leading-tight mb-2">
+              ศูนย์ปฏิบัติการ ฝวด.
+            </h1>
+            <div className="flex items-center justify-center gap-4 w-full relative z-10">
+              <div className="h-[2px] w-12 md:w-24 bg-gradient-to-r from-transparent to-cyan-500/50 rounded-full"></div>
+              <span className="text-slate-400 text-[11px] md:text-[13px] font-black tracking-[0.2em] uppercase">GSE Operations Hub</span>
+              <div className="h-[2px] w-12 md:w-24 bg-gradient-to-l from-transparent to-cyan-500/50 rounded-full"></div>
+            </div>
+          </div>
+        ) : (() => {
           const getHeaderProps = (tab, role) => {
             switch(tab) {
               case 'dashboard': return { title: 'แผงควบคุมหลัก', sub: 'MAIN DASHBOARD', icon: <LayoutDashboard className="w-8 h-8 md:w-6 md:h-6" strokeWidth={2.5}/>, border: 'border-orange-500', bgIcon: 'text-orange-500 border-orange-300', glow: 'shadow-[0_0_20px_rgba(249,115,22,0.4)]', text: 'text-orange-400' };
@@ -699,7 +659,7 @@ export default function MainApp({ onGoHome, initialRole }) {
               case 'pm': return { title: 'มอบหมาย/ติดตามงาน', sub: 'TASK BOARD', icon: <ClipboardList className="w-8 h-8 md:w-6 md:h-6" strokeWidth={2.5}/>, border: 'border-emerald-500', bgIcon: 'text-emerald-500 border-emerald-300', glow: 'shadow-[0_0_20px_rgba(16,185,129,0.4)]', text: 'text-emerald-400' };
               case 'leave': return { title: 'ระบบลงเวลาและวันลา', sub: 'ATTENDANCE & LEAVE', icon: <Calendar className="w-8 h-8 md:w-6 md:h-6" strokeWidth={2.5}/>, border: 'border-rose-500', bgIcon: 'text-rose-500 border-rose-300', glow: 'shadow-[0_0_20px_rgba(244,63,94,0.4)]', text: 'text-rose-400' };
               case 'monitoring': return { title: 'ศูนย์มอนิเตอร์สถานะ UPS', sub: 'POWER MONITORING', icon: <Activity className="w-8 h-8 md:w-6 md:h-6" strokeWidth={2.5}/>, border: 'border-yellow-500', bgIcon: 'text-yellow-500 border-yellow-300', glow: 'shadow-[0_0_20px_rgba(234,179,8,0.4)]', text: 'text-yellow-400' };
-              case 'satellite': return { title: 'สถานะสัญญาณดาวเทียม', sub: 'SATELLITE SIGNALS', icon: <Globe className="w-8 h-8 md:w-6 md:h-6" strokeWidth={2.5}/>, border: 'border-indigo-500', bgIcon: 'text-indigo-500 border-indigo-300', glow: 'shadow-[0_0_20px_rgba(99,102,241,0.4)]', text: 'text-indigo-400' };
+              case 'satellite': return { title: 'สถานะสัญญาณดาวเทียม', sub: 'SATELLITE SIGNALS', icon: <Globe className="w-8 h-8 md:w-6 h-6" strokeWidth={2.5}/>, border: 'border-indigo-500', bgIcon: 'text-indigo-500 border-indigo-300', glow: 'shadow-[0_0_20px_rgba(99,102,241,0.4)]', text: 'text-indigo-400' };
               case 'tracking': 
               case 'manage': return { title: role !== 'reporter' ? 'จัดการงานซ่อม' : 'ติดตามสถานะ', sub: 'TICKET TRACKING', icon: role !== 'reporter' ? <Wrench className="w-8 h-8 md:w-6 md:h-6" strokeWidth={2.5}/> : <ClipboardCheck className="w-8 h-8 md:w-6 md:h-6" strokeWidth={2.5}/>, border: 'border-blue-500', bgIcon: 'text-blue-500 border-blue-300', glow: 'shadow-[0_0_20px_rgba(59,130,246,0.4)]', text: 'text-blue-400' };
               default: return { title: 'ศูนย์ปฏิบัติการ', sub: 'OPERATIONS', icon: <Monitor className="w-8 h-8 md:w-6 md:h-6" strokeWidth={2.5}/>, border: 'border-slate-500', bgIcon: 'text-slate-500 border-slate-300', glow: 'shadow-[0_0_20px_rgba(255,255,255,0.1)]', text: 'text-slate-400' };
@@ -708,7 +668,7 @@ export default function MainApp({ onGoHome, initialRole }) {
           const hc = getHeaderProps(activeTab, currentUserRole);
           
           return (
-            <div className={`bg-slate-900/85 backdrop-blur-xl pl-5 md:pl-8 pr-4 py-4 md:py-6 flex items-center justify-between sticky top-4 z-50 border-[2px] border-solid ${hc.border} rounded-2xl md:rounded-[1.2rem] mt-4 md:mt-3 transition-all duration-500 ${hc.glow} mx-4 md:mx-6 mb-4`}>
+            <div className={`bg-slate-900/85 backdrop-blur-xl pl-5 md:pl-8 pr-4 py-4 md:py-6 flex items-center justify-between sticky top-4 z-50 border-[2px] border-solid ${hc.border} rounded-2xl md:rounded-[1.2rem] mt-4 md:mt-3 transition-all duration-500 ${hc.glow} mx-4 md:mx-6 mb-4 shrink-0`}>
               <div className="flex items-center gap-3.5 md:gap-5 z-10">
                 <div className={`bg-white w-14 h-14 md:w-16 md:h-16 rounded-2xl md:rounded-xl shadow-inner border-[2px] border-solid flex items-center justify-center shrink-0 ${hc.bgIcon}`}>
                   {hc.icon}
@@ -719,18 +679,16 @@ export default function MainApp({ onGoHome, initialRole }) {
                     {hc.title}
                   </h1>
                   <span className={`text-[13px] md:text-[16px] font-bold mt-1 tracking-wide ${hc.text} opacity-90 animate-in fade-in duration-300`}>
-                  {/* 🌟 ฟันธง: ใช้ Regex กวาดล้างคำนำหน้า นาย, นาง, นางสาว, น.ส. ออกให้หมดก่อนเอาไปแสดงผล 🌟 */}
                   สวัสดีครับ, <span className="text-white">คุณ{currentUserName ? currentUserName.replace(/^\s*(นาย|นางสาว|นาง|น\.ส\.|นส\.)\s*/g, '') : 'ผู้ใช้งาน'}</span>
                   </span>
                 </div>
-
-                
               </div>
             </div>
           );
         })()}
 
         <div id="gse-main-scroll" onScroll={handleMainScroll} className="relative z-10 flex-1 overflow-y-auto overflow-x-hidden w-full [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none] pb-32 md:pb-40 px-0 md:px-6">
+          <ErrorBoundary>
           {isLoading ? (
             <div className="flex flex-col items-center justify-center py-40 text-slate-400 opacity-80">
               <Loader2 size={60} className="animate-spin mb-4 text-orange-500" />
@@ -738,19 +696,138 @@ export default function MainApp({ onGoHome, initialRole }) {
             </div>
           ) : (
             <>
-              {activeTab === 'hub' && renderHub()}
+              {/* 🌟 หน้า Hub ส่วนเนื้อหากรอบสีส้ม 🌟 */}
+              {activeTab === 'hub' && (
+                <div className="w-full flex flex-col items-center pt-2 md:pt-4 pb-32 animate-in fade-in zoom-in-95 duration-500 relative z-10 px-4 md:px-0">
+                  <div className="w-full md:w-[calc(100%-3rem)] md:max-w-[976px] mx-auto bg-[#0f172a]/60 backdrop-blur-xl border-2 md:border-[3px] border-solid border-orange-500/80 rounded-2xl md:rounded-[1.2rem] p-6 md:p-10 shadow-[0_0_50px_rgba(249,115,22,0.2),inset_0_0_30px_rgba(249,115,22,0.05)] relative overflow-hidden">
+                    <div className="absolute inset-0 bg-[url('https://www.transparenttextures.com/patterns/cubes.png')] opacity-[0.03] pointer-events-none mix-blend-overlay"></div>
+                    <div className="grid grid-cols-2 md:grid-cols-4 gap-4 md:gap-6 relative z-10">
+                      
+                      {/* 🌟 ปุ่ม 1: จัดการงานซ่อม 🌟 */}
+                      <button onClick={() => setActiveTab('dashboard')} className="group relative aspect-square md:aspect-auto md:h-44 bg-slate-900/80 border-[2px] border-slate-700/80 rounded-3xl hover:border-orange-500 shadow-lg hover:shadow-[0_0_30px_rgba(249,115,22,0.4)] transition-all duration-300 flex flex-col items-center justify-center gap-3 overflow-hidden">
+                        <div className="absolute inset-0 bg-gradient-to-b from-orange-500/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity"></div>
+                        <div className="w-14 h-14 md:w-16 md:h-16 bg-gradient-to-br from-orange-400 to-orange-600 rounded-2xl flex items-center justify-center shadow-[0_0_20px_rgba(249,115,22,0.6)] group-hover:scale-110 transition-transform duration-300 z-10">
+                          <Wrench className="w-7 h-7 md:w-8 md:h-8 text-white" strokeWidth={2.5}/>
+                        </div>
+                        <div className="flex flex-col items-center z-10 mt-1">
+                          <span className="font-black text-white text-[14px] md:text-[16px] tracking-wide group-hover:text-orange-400 transition-colors">จัดการงานซ่อม</span>
+                          <span className="text-slate-400 text-[10px] md:text-[11px] font-bold tracking-wider uppercase mt-0.5">DashBoard</span>
+                        </div>
+                      </button>
 
-              {activeTab === 'satellite' && <SatelliteStatusCard setActiveTab={setActiveTab} onGoHome={onGoHome} />}
+                      <button onClick={() => setActiveTab('daily_report')} className="group relative aspect-square md:aspect-auto md:h-44 bg-slate-900/80 border-[2px] border-slate-700/80 rounded-3xl hover:border-purple-400 shadow-lg hover:shadow-[0_0_30px_rgba(168,85,247,0.4)] transition-all duration-300 flex flex-col items-center justify-center gap-3 overflow-hidden">
+                        <div className="absolute inset-0 bg-gradient-to-b from-purple-500/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity"></div>
+                        <div className="w-14 h-14 md:w-16 md:h-16 bg-gradient-to-br from-purple-400 to-purple-600 rounded-2xl flex items-center justify-center shadow-[0_0_20px_rgba(168,85,247,0.6)] group-hover:scale-110 transition-transform duration-300 z-10">
+                          <FileText className="w-7 h-7 md:w-8 md:h-8 text-white" strokeWidth={2.5}/>
+                        </div>
+                        <div className="flex flex-col items-center z-10 mt-1">
+                          <span className="font-black text-white text-[14px] md:text-[16px] tracking-wide group-hover:text-purple-300 transition-colors">รายงานประจำวัน</span>
+                          <span className="text-slate-400 text-[10px] md:text-[11px] font-bold tracking-wider uppercase mt-0.5">Daily Report</span>
+                        </div>
+                      </button>
 
-              {activeTab === 'monitoring' && <UPSStatusCard setActiveTab={setActiveTab} onGoHome={onGoHome} />}
+                      <button onClick={() => setActiveTab('pm')} className="group relative aspect-square md:aspect-auto md:h-44 bg-slate-900/80 border-[2px] border-slate-700/80 rounded-3xl hover:border-emerald-400 shadow-lg hover:shadow-[0_0_30px_rgba(16,185,129,0.4)] transition-all duration-300 flex flex-col items-center justify-center gap-3 overflow-hidden">
+                        <div className="absolute inset-0 bg-gradient-to-b from-emerald-500/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity"></div>
+                        <div className="w-14 h-14 md:w-16 md:h-16 bg-gradient-to-br from-emerald-400 to-teal-500 rounded-2xl flex items-center justify-center shadow-[0_0_20px_rgba(16,185,129,0.6)] group-hover:scale-110 transition-transform duration-300 z-10">
+                          <ClipboardList className="w-7 h-7 md:w-8 md:h-8 text-white" strokeWidth={2.5}/>
+                        </div>
+                        <div className="flex flex-col items-center z-10 mt-1">
+                          <span className="font-black text-white text-[14px] md:text-[16px] tracking-wide group-hover:text-emerald-400 transition-colors">มอบหมายงาน</span>
+                          <span className="text-slate-400 text-[10px] md:text-[11px] font-bold tracking-wider uppercase mt-0.5">Task Board</span>
+                        </div>
+                      </button>
 
-              {activeTab === 'report' && (<ReportView sysTime={sysTime} showSuccess={showSuccess} handleSubmit={handleSubmit} handleResetForm={handleResetForm} allRosters={allRosters} technicianList={technicianList} formData={formData} setFormData={setFormData} formErrors={formErrors} setFormErrors={setFormErrors} handleInputChange={handleInputChange} showImagePicker={showImagePicker} setShowImagePicker={setShowImagePicker} handleMediaUpload={handleMediaUpload} handleClipboardPaste={handleClipboardPaste} setLightboxImg={setLightboxImg} isSubmitting={isSubmitting} currentUserName={currentUserName} />)}
+                      <button onClick={() => setActiveTab('leave')} className="group relative aspect-square md:aspect-auto md:h-44 bg-slate-900/80 border-[2px] border-slate-700/80 rounded-3xl hover:border-rose-500 shadow-lg hover:shadow-[0_0_30px_rgba(225,29,72,0.4)] transition-all duration-300 flex flex-col items-center justify-center gap-3 overflow-hidden">
+                        <div className="absolute inset-0 bg-gradient-to-b from-rose-500/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity"></div>
+                        <div className="w-14 h-14 md:w-16 md:h-16 bg-gradient-to-br from-rose-500 to-rose-600 rounded-2xl flex items-center justify-center shadow-[0_0_20px_rgba(225,29,72,0.6)] group-hover:scale-110 transition-transform duration-300 z-10">
+                          <Calendar className="w-7 h-7 md:w-8 md:h-8 text-white" strokeWidth={2.5}/>
+                        </div>
+                        <div className="flex flex-col items-center z-10 mt-1">
+                          <span className="font-black text-white text-[14px] md:text-[16px] tracking-wide group-hover:text-rose-400 transition-colors">วันลา/เข้าสาย</span>
+                          <span className="text-slate-400 text-[10px] md:text-[11px] font-bold tracking-wider uppercase mt-0.5">ระบบบุคคล</span>
+                        </div>
+                      </button>
 
-              {activeTab === 'daily_report' && (<DailyReportView sysTime={sysTime} currentUserRole={currentUserRole} currentUserName={currentUserName} setActiveTab={setActiveTab} onGoHome={onGoHome} />)}
+                      <button onClick={() => setActiveTab('monitoring')} className="group relative aspect-square md:aspect-auto md:h-44 bg-slate-900/80 border-[2px] border-slate-700/80 rounded-3xl hover:border-sky-400 shadow-lg hover:shadow-[0_0_30px_rgba(14,165,233,0.4)] transition-all duration-300 flex flex-col items-center justify-center gap-3 overflow-hidden">
+                        <div className="absolute inset-0 bg-gradient-to-b from-sky-500/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity"></div>
+                        <div className="w-14 h-14 md:w-16 md:h-16 bg-gradient-to-br from-cyan-400 to-blue-500 rounded-2xl flex items-center justify-center shadow-[0_0_20px_rgba(6,182,212,0.6)] group-hover:scale-110 transition-transform duration-300 z-10">
+                          <Activity className="w-7 h-7 md:w-8 md:h-8 text-white" strokeWidth={2.5}/>
+                        </div>
+                        <div className="flex flex-col items-center z-10 mt-1">
+                          <span className="font-black text-white text-[14px] md:text-[16px] tracking-wide group-hover:text-cyan-300 transition-colors">IoT Monitor</span>
+                          <span className="text-slate-400 text-[10px] md:text-[11px] font-bold tracking-wider uppercase mt-0.5 text-cyan-500">สถานะ UPS</span>
+                        </div>
+                      </button>
 
-              {/* 🌟 ฟันธง: ส่ง setActiveTab และ onGoHome ให้ TaskBoardView ด้วย 🌟 */}
+                      <button onClick={() => setActiveTab('satellite')} className="group relative aspect-square md:aspect-auto md:h-44 bg-slate-900/80 border-[2px] border-slate-700/80 rounded-3xl hover:border-indigo-400 shadow-lg hover:shadow-[0_0_30px_rgba(99,102,241,0.4)] transition-all duration-300 flex flex-col items-center justify-center gap-3 overflow-hidden">
+                        <div className="absolute inset-0 bg-gradient-to-b from-indigo-500/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity"></div>
+                        <div className="w-14 h-14 md:w-16 md:h-16 bg-gradient-to-br from-indigo-500 to-purple-600 rounded-2xl flex items-center justify-center shadow-[0_0_20px_rgba(99,102,241,0.6)] group-hover:scale-110 transition-transform duration-300 z-10">
+                          <Globe className="w-7 h-7 md:w-8 md:h-8 text-white" strokeWidth={2.5}/>
+                        </div>
+                        <div className="flex flex-col items-center z-10 mt-1">
+                          <span className="font-black text-white text-[14px] md:text-[16px] tracking-wide group-hover:text-indigo-300 transition-colors">Sat Signals</span>
+                          <span className="text-slate-400 text-[10px] md:text-[11px] font-bold tracking-wider uppercase mt-0.5 text-indigo-400">สถานะสัญญาณดาวเทียม</span>
+                        </div>
+                      </button>
+
+                      <button disabled className="group relative aspect-square md:aspect-auto md:h-44 bg-slate-900/30 border-[2px] border-slate-800 rounded-3xl flex flex-col items-center justify-center gap-3 opacity-60 cursor-not-allowed">
+                        <span className="absolute top-3 right-3 bg-slate-800 text-slate-400 text-[9px] font-black px-2 py-0.5 rounded-md tracking-widest">SOON</span>
+                        <div className="w-14 h-14 md:w-16 md:h-16 bg-slate-800 rounded-2xl flex items-center justify-center">
+                          <Package className="w-7 h-7 md:w-8 md:h-8 text-slate-600" strokeWidth={2}/>
+                        </div>
+                        <div className="flex flex-col items-center mt-1">
+                          <span className="font-bold text-slate-500 text-[14px] md:text-[16px]">อะไหล่/ครุภัณฑ์</span>
+                          <span className="text-slate-600 text-[10px] md:text-[11px] font-bold mt-0.5">บริการงานจัดการ</span>
+                        </div>
+                      </button>
+
+                      <button disabled className="group relative aspect-square md:aspect-auto md:h-44 bg-slate-900/30 border-[2px] border-slate-800 rounded-3xl flex flex-col items-center justify-center gap-3 opacity-60 cursor-not-allowed">
+                        <span className="absolute top-3 right-3 bg-slate-800 text-slate-400 text-[9px] font-black px-2 py-0.5 rounded-md tracking-widest">SOON</span>
+                        <div className="w-14 h-14 md:w-16 md:h-16 bg-slate-800 rounded-2xl flex items-center justify-center">
+                          <Briefcase className="w-7 h-7 md:w-8 md:h-8 text-slate-600" strokeWidth={2}/>
+                        </div>
+                        <div className="flex flex-col items-center mt-1">
+                          <span className="font-bold text-slate-500 text-[14px] md:text-[16px]">งานจัดซื้อจัดจ้าง</span>
+                          <span className="text-slate-600 text-[10px] md:text-[11px] font-bold mt-0.5">จัดการเอกสาร/เบิก</span>
+                        </div>
+                      </button>
+
+                      <button disabled className="group relative aspect-square md:aspect-auto md:h-44 bg-slate-900/30 border-[2px] border-slate-800 rounded-3xl flex flex-col items-center justify-center gap-3 opacity-60 cursor-not-allowed md:col-span-2">
+                        <span className="absolute top-3 right-3 bg-slate-800 text-slate-400 text-[9px] font-black px-2 py-0.5 rounded-md tracking-widest">SOON</span>
+                        <div className="w-14 h-14 md:w-16 md:h-16 bg-slate-800 rounded-2xl flex items-center justify-center">
+                          <Globe className="w-7 h-7 md:w-8 md:h-8 text-slate-600" strokeWidth={2}/>
+                        </div>
+                        <div className="flex flex-col items-center mt-1">
+                          <span className="font-bold text-slate-500 text-[14px] md:text-[16px]">งานบริการ S3EE</span>
+                          <span className="text-slate-600 text-[10px] md:text-[11px] font-bold mt-0.5">ระบบบริการลูกค้า</span>
+                        </div>
+                      </button>
+
+                    </div>
+                  </div>
+                </div>
+              )}
+
+              {activeTab === 'dashboard' && (currentUserRole !== 'reporter') && (
+                <div className="w-full [&>div]:!max-w-full px-4 md:px-6">
+                  <Dashboard sysTime={sysTime} stats={dashStats} tickets={filteredTickets_forDashboard} allRosters={allRosters} technicianList={technicianList} dashTimeframe={dashTimeframe} setDashTimeframe={setDashTimeframe} customMonth={customMonth} setCustomMonth={setCustomMonth} showMonthPicker={showMonthPicker} setShowMonthPicker={setShowMonthPicker} pickerYear={pickerYear} setPickerYear={setPickerYear} customDate={customDate} setCustomDate={setCustomDate} showDatePicker={showDatePicker} setShowDatePicker={setShowDatePicker} calMonth={calMonth} setCalMonth={setCalMonth} calYear={calYear} setCalYear={setCalYear} currentUserRole={currentUserRole} currentUserName={currentUserName} handleNavigateToTracking={handleNavigateToTracking} setShowAdminRoster={setShowAdminRoster} />
+                </div>
+              )}
+
+              {activeTab === 'report' && (
+                <div className="px-4 md:px-6">
+                  <ReportView sysTime={sysTime} showSuccess={showSuccess} handleSubmit={handleSubmit} handleResetForm={handleResetForm} allRosters={allRosters} technicianList={technicianList} formData={formData} setFormData={setFormData} formErrors={formErrors} setFormErrors={setFormErrors} handleInputChange={handleInputChange} showImagePicker={showImagePicker} setShowImagePicker={setShowImagePicker} handleMediaUpload={handleMediaUpload} handleClipboardPaste={handleClipboardPaste} setLightboxImg={setLightboxImg} isSubmitting={isSubmitting} currentUserName={currentUserName} />
+                </div>
+              )}
+
+              {activeTab === 'daily_report' && (
+                <div className="px-4 md:px-6">
+                  <DailyReportView sysTime={sysTime} currentUserRole={currentUserRole} currentUserName={currentUserName} setActiveTab={setActiveTab} onGoHome={onGoHome} />
+                </div>
+              )}
+
               {activeTab === 'pm' && (
-                <div className="w-full [&>div]:!max-w-full h-full min-h-[80vh]">
+                <div className="w-full [&>div]:!max-w-full h-full min-h-[80vh] px-4 md:px-6">
                   <TaskBoardView 
                     sysTime={sysTime} 
                     currentUserRole={currentUserRole} 
@@ -762,75 +839,101 @@ export default function MainApp({ onGoHome, initialRole }) {
                 </div>
               )}
 
-              {activeTab === 'dashboard' && (currentUserRole !== 'reporter') && (
-                <div className="w-full [&>div]:!max-w-full">
-                  <Dashboard sysTime={sysTime} stats={dashStats} tickets={filteredTickets_forDashboard} allRosters={allRosters} technicianList={technicianList} dashTimeframe={dashTimeframe} setDashTimeframe={setDashTimeframe} customMonth={customMonth} setCustomMonth={setCustomMonth} showMonthPicker={showMonthPicker} setShowMonthPicker={setShowMonthPicker} pickerYear={pickerYear} setPickerYear={setPickerYear} customDate={customDate} setCustomDate={setCustomDate} showDatePicker={showDatePicker} setShowDatePicker={setShowDatePicker} calMonth={calMonth} setCalMonth={setCalMonth} calYear={calYear} setCalYear={setCalYear} currentUserRole={currentUserRole} currentUserName={currentUserName} handleNavigateToTracking={handleNavigateToTracking} setShowAdminRoster={setShowAdminRoster} />
+              {activeTab === 'monitoring' && (
+                <div className="px-4 md:px-6">
+                  <UPSStatusCard sysTime={sysTime} />
                 </div>
               )}
 
-              {activeTab === 'tracking' && <TrackingView sysTime={sysTime} currentUserRole={currentUserRole} currentUserName={currentUserName} tickets={permittedTickets} filteredTickets={filteredTickets_forTracking} searchTerm={searchTerm} setSearchTerm={setSearchTerm} filterStatus={filterStatus} setFilterStatus={setFilterStatus} trackTimeframe={trackTimeframe} setTrackTimeframe={setTrackTimeframe} trackMonth={trackMonth} setTrackMonth={setTrackMonth} trackDate={trackDate} setTrackDate={setTrackDate} showTrackMonthPicker={showTrackMonthPicker} setShowTrackMonthPicker={setShowTrackMonthPicker} showTrackDatePicker={showTrackDatePicker} setShowTrackDatePicker={setShowTrackDatePicker} trackCalMonth={trackCalMonth} setTrackCalMonth={setTrackCalMonth} trackCalYear={trackCalYear} setTrackCalYear={setTrackCalYear} allRosters={allRosters} technicianList={technicianList} setActionModal={setActionModal} updateTicketStatus={updateTicketStatus} setRatingModal={setRatingModal} setLightboxImg={setLightboxImg} getLiveStopwatch={getLiveStopwatch} />}
+              {activeTab === 'satellite' && (
+                <div className="px-4 md:px-6">
+                  <SatelliteStatusCard sysTime={sysTime} />
+                </div>
+              )}
 
-              {activeTab === 'manage' && <TrackingView sysTime={sysTime} currentUserRole={currentUserRole} currentUserName={currentUserName} tickets={permittedTickets} filteredTickets={filteredTickets_forTracking} searchTerm={searchTerm} setSearchTerm={setSearchTerm} filterStatus={filterStatus} setFilterStatus={setFilterStatus} trackTimeframe={trackTimeframe} setTrackTimeframe={setTrackTimeframe} trackMonth={trackMonth} setTrackMonth={setTrackMonth} trackDate={trackDate} setTrackDate={setTrackDate} showTrackMonthPicker={showTrackMonthPicker} setShowTrackMonthPicker={setShowTrackMonthPicker} showTrackDatePicker={showTrackDatePicker} setShowTrackDatePicker={setShowTrackDatePicker} trackCalMonth={trackCalMonth} setTrackCalMonth={setTrackCalMonth} trackCalYear={trackCalYear} setTrackCalYear={setTrackCalYear} allRosters={allRosters} technicianList={technicianList} setActionModal={setActionModal} updateTicketStatus={updateTicketStatus} setRatingModal={setRatingModal} setLightboxImg={setLightboxImg} getLiveStopwatch={getLiveStopwatch} />}
+              {activeTab === 'tracking' && (
+                <div className="px-4 md:px-6">
+                  <TrackingView sysTime={sysTime} currentUserRole={currentUserRole} currentUserName={currentUserName} tickets={permittedTickets} filteredTickets={filteredTickets_forTracking} searchTerm={searchTerm} setSearchTerm={setSearchTerm} filterStatus={filterStatus} setFilterStatus={setFilterStatus} trackTimeframe={trackTimeframe} setTrackTimeframe={setTrackTimeframe} trackMonth={trackMonth} setTrackMonth={setTrackMonth} trackDate={trackDate} setTrackDate={setTrackDate} showTrackMonthPicker={showTrackMonthPicker} setShowTrackMonthPicker={setShowTrackMonthPicker} showTrackDatePicker={showTrackDatePicker} setShowTrackDatePicker={setShowTrackDatePicker} trackCalMonth={trackCalMonth} setTrackCalMonth={setTrackCalMonth} trackCalYear={trackCalYear} setTrackCalYear={setTrackCalYear} allRosters={allRosters} technicianList={technicianList} setActionModal={setActionModal} updateTicketStatus={updateTicketStatus} setRatingModal={setRatingModal} setLightboxImg={setLightboxImg} getLiveStopwatch={getLiveStopwatch} />
+                </div>
+              )}
+
+              {activeTab === 'manage' && (
+                <div className="px-4 md:px-6">
+                  <TrackingView sysTime={sysTime} currentUserRole={currentUserRole} currentUserName={currentUserName} tickets={permittedTickets} filteredTickets={filteredTickets_forTracking} searchTerm={searchTerm} setSearchTerm={setSearchTerm} filterStatus={filterStatus} setFilterStatus={setFilterStatus} trackTimeframe={trackTimeframe} setTrackTimeframe={setTrackTimeframe} trackMonth={trackMonth} setTrackMonth={setTrackMonth} trackDate={trackDate} setTrackDate={setTrackDate} showTrackMonthPicker={showTrackMonthPicker} setShowTrackMonthPicker={setShowTrackMonthPicker} showTrackDatePicker={showTrackDatePicker} setShowTrackDatePicker={setShowTrackDatePicker} trackCalMonth={trackCalMonth} setTrackCalMonth={setTrackCalMonth} trackCalYear={trackCalYear} setTrackCalYear={setTrackCalYear} allRosters={allRosters} technicianList={technicianList} setActionModal={setActionModal} updateTicketStatus={updateTicketStatus} setRatingModal={setRatingModal} setLightboxImg={setLightboxImg} getLiveStopwatch={getLiveStopwatch} />
+                </div>
+              )}
 
               {activeTab === 'leave' && (
-                <>
-                  <div className="px-4 md:px-6">
-                    <AttendanceView sysTime={sysTime} currentUserRole={currentUserRole} currentUserName={currentUserName} setActiveTab={setActiveTab} onGoHome={onGoHome} allRosters={allRosters} />
-                  </div>
-                </>
+                <div className="px-4 md:px-6">
+                  <AttendanceView sysTime={sysTime} currentUserRole={currentUserRole} currentUserName={currentUserName} setActiveTab={setActiveTab} onGoHome={onGoHome} allRosters={allRosters} />
+                </div>
               )}
             </>
           )}
+          </ErrorBoundary>
         </div>
 
-        {/* 🌟 ฟันธง: ซ่อนแถบเมนูด้านล่างตอนเข้า Task Board เพื่อให้บอร์ดเต็มจอ 🌟 */}
-        {activeTab !== 'hub' && activeTab !== 'satellite' && (
-          <div className={`fixed left-1/2 -translate-x-1/2 w-[calc(100%-2rem)] md:w-[calc(100%-3rem)] md:max-w-[976px] py-2 md:py-3 bg-slate-900/95 backdrop-blur-xl border-2 md:border-[3px] border-solid border-orange-500 shadow-[0_10px_30px_rgba(249,115,22,0.4)] rounded-2xl md:rounded-[1.2rem] z-[9999] transform-gpu transition-all duration-500 ease-in-out ${isNavVisible ? 'bottom-4 md:bottom-6 opacity-100 translate-y-0' : '-bottom-32 opacity-0 translate-y-full pointer-events-none'}`}>
+        {/* 🌟 ฟันธง: แสดงแถบเมนูล่างตลอดเวลาทุกหน้า พร้อมเปลี่ยนสีตามกรอบบน 🌟 */}
+        <div className={`fixed left-1/2 -translate-x-1/2 w-[calc(100%-2rem)] md:w-[calc(100%-3rem)] md:max-w-[976px] py-2 md:py-3 bg-slate-900/95 backdrop-blur-xl border-2 md:border-[3px] border-solid rounded-2xl md:rounded-[1.2rem] z-[9999] transform-gpu transition-all duration-500 ease-in-out ${
+          activeTab === 'pm' ? 'border-emerald-500 shadow-[0_10px_30px_rgba(16,185,129,0.3)]' : 
+          activeTab === 'report' ? 'border-emerald-500 shadow-[0_10px_30px_rgba(16,185,129,0.3)]' : 
+          activeTab === 'daily_report' ? 'border-purple-500 shadow-[0_10px_30px_rgba(168,85,247,0.3)]' : 
+          activeTab === 'leave' ? 'border-rose-500 shadow-[0_10px_30px_rgba(225,29,72,0.3)]' : 
+          activeTab === 'monitoring' ? 'border-yellow-500 shadow-[0_10px_30px_rgba(234,179,8,0.3)]' : 
+          activeTab === 'satellite' ? 'border-indigo-500 shadow-[0_10px_30px_rgba(99,102,241,0.3)]' : 
+          (activeTab === 'tracking' || activeTab === 'manage') ? 'border-blue-500 shadow-[0_10px_30px_rgba(59,130,246,0.3)]' : 
+          activeTab === 'hub' ? 'border-cyan-500 shadow-[0_10px_30px_rgba(6,182,212,0.3)]' : 
+          'border-orange-500 shadow-[0_10px_30px_rgba(249,115,22,0.3)]'
+        } ${isNavVisible ? 'bottom-4 md:bottom-6 opacity-100 translate-y-0' : '-bottom-32 opacity-0 translate-y-full pointer-events-none'}`}>
 
-            <div className="w-full flex justify-evenly items-center px-1 md:px-8">
-              <button onClick={onGoHome} className="flex flex-col items-center justify-center gap-1 md:gap-1.5 active:scale-95 transition-all shrink-0 group">
-                <div className="p-2 md:p-3 rounded-full bg-transparent text-slate-400 group-hover:text-rose-400 transition-colors"><LogOut className="w-6 h-6 md:w-7 md:h-7" /></div>
-                <span className="block text-[12px] md:text-[14px] font-black text-slate-400 group-hover:text-rose-400 tracking-widest whitespace-nowrap shrink-0 transition-colors">ออกจากระบบ</span>
-              </button>
-              
-      
-              {/* 🌟 ฟันธง: ถ้าเข้าหน้าวันลา (leave) ให้โชว์แค่ปุ่มหน้าหลักปุ่มเดียว! 🌟 */}
-              {(activeTab === 'leave' || activeTab === 'daily_report' || activeTab === 'pm' || activeTab === 'monitoring') ? (
-                <button onClick={() => setActiveTab('hub')} className="flex flex-col items-center justify-center gap-1 md:gap-1.5 transition-all shrink-0 active:scale-95 group">
-                  <div className="p-2 md:p-3 rounded-full transition-all bg-transparent text-slate-400 group-hover:text-cyan-300"><Home className="w-6 h-6 md:w-7 md:h-7" /></div>
-                  <span className="block text-[12px] md:text-[14px] font-black tracking-widest whitespace-nowrap shrink-0 transition-all text-slate-400 group-hover:text-cyan-300">หน้าหลัก</span>
-                </button>
-              ) : currentUserRole === 'reporter' ? (
-                <>
-                  <button onClick={() => setActiveTab('report')} className="flex flex-col items-center justify-center gap-1 md:gap-1.5 transition-all shrink-0 active:scale-95 group">
-                    <div className={`p-2 md:p-3 rounded-full transition-all ${activeTab === 'report' ? 'bg-gradient-to-b from-orange-400 to-orange-600 text-white shadow-[0_0_15px_rgba(249,115,22,0.8)] border-[2px] border-white scale-110' : 'bg-transparent text-slate-400 group-hover:text-orange-300'}`}><PlusCircle className={`w-6 h-6 md:w-7 md:h-7 ${activeTab === 'report' ? 'stroke-[3px]' : ''}`} /></div>
-                    <span className={`block text-[12px] md:text-[14px] font-black tracking-widest whitespace-nowrap shrink-0 transition-all ${activeTab === 'report' ? 'text-orange-400 drop-shadow-md' : 'text-slate-400 group-hover:text-orange-300'}`}>แจ้งซ่อม</span>
-                  </button>
-                  <button onClick={() => { setActiveTab('tracking'); setSearchTerm(''); }} className="flex flex-col items-center justify-center gap-1 md:gap-1.5 transition-all shrink-0 active:scale-95 group">
-                    <div className={`p-2 md:p-3 rounded-full transition-all ${activeTab === 'tracking' ? 'bg-gradient-to-b from-orange-400 to-orange-600 text-white shadow-[0_0_15px_rgba(249,115,22,0.8)] border-[2px] border-white scale-110' : 'bg-transparent text-slate-400 group-hover:text-orange-300'}`}><ClipboardCheck className={`w-6 h-6 md:w-7 md:h-7 ${activeTab === 'tracking' ? 'stroke-[3px]' : ''}`} /></div>
-                    <span className={`block text-[12px] md:text-[14px] font-black tracking-widest whitespace-nowrap shrink-0 transition-all ${activeTab === 'tracking' ? 'text-orange-400 drop-shadow-md' : 'text-slate-400 group-hover:text-orange-300'}`}>ติดตามสถานะ</span>
-                  </button>
-                </>
-              ) : (
-                <>
+          <div className="w-full flex justify-evenly items-center px-1 md:px-8">
+            
+            {/* 🌟 ปุ่มออกจากระบบ (ให้โชว์ตลอดเวลาทุกหน้า รวมถึงหน้า Hub) 🌟 */}
+            <button onClick={onGoHome} className="flex flex-col items-center justify-center gap-1 md:gap-1.5 active:scale-95 transition-all shrink-0 group">
+              <div className="p-2 md:p-3 rounded-full bg-transparent text-slate-400 group-hover:text-rose-400 transition-colors"><LogOut className="w-6 h-6 md:w-7 md:h-7" /></div>
+              <span className="block text-[12px] md:text-[14px] font-black text-slate-400 group-hover:text-rose-400 tracking-widest whitespace-nowrap shrink-0 transition-colors">ออกจากระบบ</span>
+            </button>
+            
+            {/* 🌟 ซ่อนปุ่มย่อยเฉพาะตอนอยู่หน้า Hub 🌟 */}
+            {activeTab !== 'hub' && (
+              <>
+                {(activeTab === 'leave' || activeTab === 'daily_report' || activeTab === 'pm' || activeTab === 'monitoring' || activeTab === 'satellite') ? (
                   <button onClick={() => setActiveTab('hub')} className="flex flex-col items-center justify-center gap-1 md:gap-1.5 transition-all shrink-0 active:scale-95 group">
                     <div className="p-2 md:p-3 rounded-full transition-all bg-transparent text-slate-400 group-hover:text-cyan-300"><Home className="w-6 h-6 md:w-7 md:h-7" /></div>
                     <span className="block text-[12px] md:text-[14px] font-black tracking-widest whitespace-nowrap shrink-0 transition-all text-slate-400 group-hover:text-cyan-300">หน้าหลัก</span>
                   </button>
-                  <button onClick={() => setActiveTab('dashboard')} className="flex flex-col items-center justify-center gap-1 md:gap-1.5 transition-all shrink-0 active:scale-95 group">
-                    <div className={`p-2 md:p-3 rounded-full transition-all ${activeTab === 'dashboard' ? 'bg-gradient-to-b from-orange-400 to-orange-600 text-white shadow-[0_0_15px_rgba(249,115,22,0.8)] border-[2px] border-white scale-110' : 'bg-transparent text-slate-400 group-hover:text-orange-300'}`}><LayoutDashboard className={`w-6 h-6 md:w-7 md:h-7 ${activeTab === 'dashboard' ? 'stroke-[3px]' : ''}`} /></div>
-                    <span className={`block text-[12px] md:text-[14px] font-black tracking-widest whitespace-nowrap shrink-0 transition-all ${activeTab === 'dashboard' ? 'text-orange-400 drop-shadow-md' : 'text-slate-400 group-hover:text-orange-300'}`}>แผงควบคุม</span>
-                  </button>
-                  <button onClick={() => setActiveTab('tracking')} className="flex flex-col items-center justify-center gap-1 md:gap-1.5 transition-all shrink-0 active:scale-95 group">
-                    <div className={`p-2 md:p-3 rounded-full transition-all ${activeTab === 'tracking' ? 'bg-gradient-to-b from-orange-400 to-orange-600 text-white shadow-[0_0_15px_rgba(249,115,22,0.8)] border-[2px] border-white scale-110' : 'bg-transparent text-slate-400 group-hover:text-orange-300'}`}><Wrench className={`w-6 h-6 md:w-7 md:h-7 ${activeTab === 'tracking' ? 'stroke-[3px]' : ''}`} /></div>
-                    <span className={`block text-[12px] md:text-[14px] font-black tracking-widest whitespace-nowrap shrink-0 transition-all ${activeTab === 'tracking' ? 'text-orange-400 drop-shadow-md' : 'text-slate-400 group-hover:text-orange-300'}`}>จัดการงาน</span>
-                  </button>
-                </>
-              )}
+                ) : currentUserRole === 'reporter' ? (
+                  <>
+                    <button onClick={() => setActiveTab('report')} className="flex flex-col items-center justify-center gap-1 md:gap-1.5 transition-all shrink-0 active:scale-95 group">
+                      <div className={`p-2 md:p-3 rounded-full transition-all ${activeTab === 'report' ? 'bg-gradient-to-b from-emerald-400 to-emerald-600 text-white shadow-[0_0_15px_rgba(16,185,129,0.8)] border-[2px] border-white scale-110' : 'bg-transparent text-slate-400 group-hover:text-emerald-300'}`}><PlusCircle className={`w-6 h-6 md:w-7 md:h-7 ${activeTab === 'report' ? 'stroke-[3px]' : ''}`} /></div>
+                      <span className={`block text-[12px] md:text-[14px] font-black tracking-widest whitespace-nowrap shrink-0 transition-all ${activeTab === 'report' ? 'text-emerald-400 drop-shadow-md' : 'text-slate-400 group-hover:text-emerald-300'}`}>แจ้งซ่อม</span>
+                    </button>
+                    <button onClick={() => { setActiveTab('tracking'); setSearchTerm(''); }} className="flex flex-col items-center justify-center gap-1 md:gap-1.5 transition-all shrink-0 active:scale-95 group">
+                      <div className={`p-2 md:p-3 rounded-full transition-all ${activeTab === 'tracking' ? 'bg-gradient-to-b from-blue-400 to-blue-600 text-white shadow-[0_0_15px_rgba(59,130,246,0.8)] border-[2px] border-white scale-110' : 'bg-transparent text-slate-400 group-hover:text-blue-300'}`}><ClipboardCheck className={`w-6 h-6 md:w-7 md:h-7 ${activeTab === 'tracking' ? 'stroke-[3px]' : ''}`} /></div>
+                      <span className={`block text-[12px] md:text-[14px] font-black tracking-widest whitespace-nowrap shrink-0 transition-all ${activeTab === 'tracking' ? 'text-blue-400 drop-shadow-md' : 'text-slate-400 group-hover:text-blue-300'}`}>ติดตามสถานะ</span>
+                    </button>
+                  </>
+                ) : (
+                  <>
+                    <button onClick={() => setActiveTab('hub')} className="flex flex-col items-center justify-center gap-1 md:gap-1.5 transition-all shrink-0 active:scale-95 group">
+                      <div className="p-2 md:p-3 rounded-full transition-all bg-transparent text-slate-400 group-hover:text-cyan-300"><Home className="w-6 h-6 md:w-7 md:h-7" /></div>
+                      <span className="block text-[12px] md:text-[14px] font-black tracking-widest whitespace-nowrap shrink-0 transition-all text-slate-400 group-hover:text-cyan-300">หน้าหลัก</span>
+                    </button>
+                    <button onClick={() => setActiveTab('dashboard')} className="flex flex-col items-center justify-center gap-1 md:gap-1.5 transition-all shrink-0 active:scale-95 group">
+                      <div className={`p-2 md:p-3 rounded-full transition-all ${activeTab === 'dashboard' ? 'bg-gradient-to-b from-orange-400 to-orange-600 text-white shadow-[0_0_15px_rgba(249,115,22,0.8)] border-[2px] border-white scale-110' : 'bg-transparent text-slate-400 group-hover:text-orange-300'}`}><LayoutDashboard className={`w-6 h-6 md:w-7 md:h-7 ${activeTab === 'dashboard' ? 'stroke-[3px]' : ''}`} /></div>
+                      <span className={`block text-[12px] md:text-[14px] font-black tracking-widest whitespace-nowrap shrink-0 transition-all ${activeTab === 'dashboard' ? 'text-orange-400 drop-shadow-md' : 'text-slate-400 group-hover:text-orange-300'}`}>แผงควบคุม</span>
+                    </button>
+                    <button onClick={() => setActiveTab('tracking')} className="flex flex-col items-center justify-center gap-1 md:gap-1.5 transition-all shrink-0 active:scale-95 group">
+                      <div className={`p-2 md:p-3 rounded-full transition-all ${activeTab === 'tracking' ? 'bg-gradient-to-b from-blue-400 to-blue-600 text-white shadow-[0_0_15px_rgba(59,130,246,0.8)] border-[2px] border-white scale-110' : 'bg-transparent text-slate-400 group-hover:text-blue-300'}`}><Wrench className={`w-6 h-6 md:w-7 md:h-7 ${activeTab === 'tracking' ? 'stroke-[3px]' : ''}`} /></div>
+                      <span className={`block text-[12px] md:text-[14px] font-black tracking-widest whitespace-nowrap shrink-0 transition-all ${activeTab === 'tracking' ? 'text-blue-400 drop-shadow-md' : 'text-slate-400 group-hover:text-blue-300'}`}>จัดการงาน</span>
+                    </button>
+                  </>
+                )}
+              </>
+            )}
 
-            </div>
           </div>
-        )}
+        </div>
       </div>
 
       <ActionModal 

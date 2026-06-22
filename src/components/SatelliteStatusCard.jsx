@@ -119,25 +119,6 @@ export default function SatelliteStatusCard({ setActiveTab, onGoHome }) {
 
         </div>
 
-        {/* แผงประตูทางออก (หน้าหลัก & ออกจากระบบ) */}
-        <div className="flex w-full gap-3 md:gap-4 mt-2 relative z-10 animate-in slide-in-from-bottom-5 duration-700">
-          <button
-            onClick={handleGoHub}
-            className="flex-[1] bg-slate-800/80 hover:bg-slate-700 backdrop-blur-md border-[2px] border-slate-600 hover:border-cyan-400 text-white py-4 rounded-2xl font-black tracking-widest flex items-center justify-center gap-2 md:gap-3 transition-all shadow-lg active:scale-95 text-[14px] md:text-[18px]"
-          >
-            <Home size={24} className="text-cyan-400" />
-            <span>หน้าหลัก (HOME)</span>
-          </button>
-
-          <button
-            onClick={handleLogout}
-            className="flex-[1] bg-rose-950/40 hover:bg-rose-900/60 backdrop-blur-md border-[2px] border-rose-900 hover:border-rose-500 text-rose-300 hover:text-white py-4 rounded-2xl font-black tracking-widest flex items-center justify-center gap-2 md:gap-3 transition-all shadow-lg active:scale-95 text-[14px] md:text-[18px]"
-          >
-            <LogOut size={24} className="text-rose-500" />
-            <span>ออกจากระบบ</span>
-          </button>
-        </div>
-
       </div>
     </div>
   );
