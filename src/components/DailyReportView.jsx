@@ -269,7 +269,7 @@ export default function DailyReportView({ sysTime, currentUserRole, currentUserN
           <div className="space-y-4 pt-4 mt-4 border-t-[2px] border-dashed border-purple-500/30">
             <div className="flex justify-between items-center ml-1 mb-2">
               <label className="text-[14px] md:text-[18px] font-black text-purple-300 uppercase tracking-wide flex items-center gap-1.5 md:gap-2">
-                <Camera className="md:w-5 md:h-5" /> แนบรูปและวิดีโอ <span className="text-slate-500 font-normal text-[12px]">(โชว์ผลงาน)</span>
+                <Camera className="md:w-5 md:h-5" /> แนบรูปและวิดีโอ 
               </label>
               <div className="flex gap-2">
                 <div className="bg-orange-950 border border-orange-500/80 text-orange-400 text-[10px] md:text-[12px] font-black px-2 py-1 rounded-lg shadow-[0_0_10px_rgba(249,115,22,0.8)] backdrop-blur-sm">รูป {evidenceFiles.filter(f => f.type === 'image').length}/6</div>
@@ -295,7 +295,7 @@ export default function DailyReportView({ sysTime, currentUserRole, currentUserN
                   <span className="text-cyan-300/50 group-hover:text-white text-[24px] md:text-[30px] font-light font-mono mx-1 transition-colors">/</span>
                   <Video size={32} className="text-purple-300/70 group-hover:text-purple-300 transition-all md:w-10 md:h-10 drop-shadow-md" />
                 </div>
-                <span className="font-black tracking-widest text-cyan-300/80 group-hover:text-cyan-300 text-[14px] md:text-[18px]">คลิกแนบรูป/วิดีโอ (วิดีโอยาวไม่เกิน 8 วินาที)</span>
+                <span className="font-black tracking-widest text-cyan-300/80 group-hover:text-cyan-300 text-[14px] md:text-[18px]">คลิกแนบรูป/วิดีโอ/ไฟล์</span>
               </button>
             )}
           </div>

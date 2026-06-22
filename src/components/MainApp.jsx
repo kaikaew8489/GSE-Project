@@ -713,14 +713,18 @@ export default function MainApp({ onGoHome, initialRole }) {
                 <div className={`bg-white w-14 h-14 md:w-16 md:h-16 rounded-2xl md:rounded-xl shadow-inner border-[2px] border-solid flex items-center justify-center shrink-0 ${hc.bgIcon}`}>
                   {hc.icon}
                 </div>
+
                 <div className="flex flex-col">
                   <h1 className="font-black text-white text-[24px] md:text-[36px] tracking-widest leading-tight drop-shadow-[0_2px_4px_rgba(0,0,0,0.5)]">
                     {hc.title}
                   </h1>
                   <span className={`text-[13px] md:text-[16px] font-bold mt-1 tracking-wide ${hc.text} opacity-90 animate-in fade-in duration-300`}>
-                  สวัสดีครับ, <span className="text-white">คุณ{currentUserName || 'ผู้ใช้งาน'}</span>
+                  {/* 🌟 ฟันธง: ใช้ Regex กวาดล้างคำนำหน้า นาย, นาง, นางสาว, น.ส. ออกให้หมดก่อนเอาไปแสดงผล 🌟 */}
+                  สวัสดีครับ, <span className="text-white">คุณ{currentUserName ? currentUserName.replace(/^\s*(นาย|นางสาว|นาง|น\.ส\.|นส\.)\s*/g, '') : 'ผู้ใช้งาน'}</span>
                   </span>
                 </div>
+
+                
               </div>
             </div>
           );
@@ -780,7 +784,7 @@ export default function MainApp({ onGoHome, initialRole }) {
         </div>
 
         {/* 🌟 ฟันธง: ซ่อนแถบเมนูด้านล่างตอนเข้า Task Board เพื่อให้บอร์ดเต็มจอ 🌟 */}
-        {activeTab !== 'hub' && activeTab !== 'satellite' && activeTab !== 'monitoring' && (
+        {activeTab !== 'hub' && activeTab !== 'satellite' && (
           <div className={`fixed left-1/2 -translate-x-1/2 w-[calc(100%-2rem)] md:w-[calc(100%-3rem)] md:max-w-[976px] py-2 md:py-3 bg-slate-900/95 backdrop-blur-xl border-2 md:border-[3px] border-solid border-orange-500 shadow-[0_10px_30px_rgba(249,115,22,0.4)] rounded-2xl md:rounded-[1.2rem] z-[9999] transform-gpu transition-all duration-500 ease-in-out ${isNavVisible ? 'bottom-4 md:bottom-6 opacity-100 translate-y-0' : '-bottom-32 opacity-0 translate-y-full pointer-events-none'}`}>
 
             <div className="w-full flex justify-evenly items-center px-1 md:px-8">
@@ -789,8 +793,9 @@ export default function MainApp({ onGoHome, initialRole }) {
                 <span className="block text-[12px] md:text-[14px] font-black text-slate-400 group-hover:text-rose-400 tracking-widest whitespace-nowrap shrink-0 transition-colors">ออกจากระบบ</span>
               </button>
               
+      
               {/* 🌟 ฟันธง: ถ้าเข้าหน้าวันลา (leave) ให้โชว์แค่ปุ่มหน้าหลักปุ่มเดียว! 🌟 */}
-              {(activeTab === 'leave' || activeTab === 'daily_report' || activeTab === 'pm') ? (
+              {(activeTab === 'leave' || activeTab === 'daily_report' || activeTab === 'pm' || activeTab === 'monitoring') ? (
                 <button onClick={() => setActiveTab('hub')} className="flex flex-col items-center justify-center gap-1 md:gap-1.5 transition-all shrink-0 active:scale-95 group">
                   <div className="p-2 md:p-3 rounded-full transition-all bg-transparent text-slate-400 group-hover:text-cyan-300"><Home className="w-6 h-6 md:w-7 md:h-7" /></div>
                   <span className="block text-[12px] md:text-[14px] font-black tracking-widest whitespace-nowrap shrink-0 transition-all text-slate-400 group-hover:text-cyan-300">หน้าหลัก</span>

@@ -383,7 +383,7 @@ export default function TaskBoardView({ sysTime, currentUserRole, currentUserNam
           )}
         </div>
 
-        <div className="flex overflow-x-auto gap-3 pb-2 w-full [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none] relative z-10">
+        <div className="flex md:grid md:grid-cols-6 overflow-x-auto gap-2 md:gap-3 w-full relative z-10 mb-2 pb-2 md:pb-0 [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none] snap-x">
           {[
             { id: 'all', label: 'ทั้งหมด' },
             { id: 'todo', label: 'รอดำเนินการ' },

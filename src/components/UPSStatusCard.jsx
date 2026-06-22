@@ -260,25 +260,6 @@ export default function UPSStatusCard({ setActiveTab, onGoHome }) {
         </div>
       </div>
 
-      {/* 🌟 ฟันธง: ดึงแผงปุ่มทางออก ของ UPS ให้ขยายออกไป 100% ทะลุกรอบเนื้อหาออกมา เพื่อตีกรอบให้เป็น Layer เดียวกับขอบจอด้านบน 🌟 */}
-      <div className="fixed bottom-4 md:bottom-6 left-1/2 -translate-x-1/2 w-[calc(100%-2rem)] md:w-full md:max-w-7xl flex gap-3 md:gap-4 z-[9999]">
-        <button
-          onClick={handleGoHub}
-          className="flex-[1] bg-slate-900/95 hover:bg-slate-800 backdrop-blur-xl border-2 md:border-[3px] border-cyan-500/80 hover:border-cyan-400 text-cyan-400 py-3 md:py-4 rounded-2xl md:rounded-[1.2rem] font-black tracking-widest flex items-center justify-center gap-3 transition-all shadow-[0_10px_30px_rgba(6,182,212,0.4)] active:scale-95 text-[14px] md:text-[18px]"
-        >
-          <Home size={24} className="text-cyan-400" />
-          <span>หน้าหลัก (HOME)</span>
-        </button>
-
-        <button
-          onClick={handleLogout}
-          className="flex-[1] bg-slate-900/95 hover:bg-rose-900/60 backdrop-blur-xl border-2 md:border-[3px] border-rose-600 hover:border-rose-400 text-rose-400 hover:text-rose-300 py-3 md:py-4 rounded-2xl md:rounded-[1.2rem] font-black tracking-widest flex items-center justify-center gap-3 transition-all shadow-[0_10px_30px_rgba(244,63,94,0.4)] active:scale-95 text-[14px] md:text-[18px]"
-        >
-          <LogOut size={24} className="text-rose-500" />
-          <span>ออกจากระบบ</span>
-        </button>
-      </div>
-
     </div>
   );
 }
