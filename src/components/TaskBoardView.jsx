@@ -46,9 +46,9 @@ export default function TaskBoardView({ sysTime, currentUserRole, currentUserNam
   const [isUploading, setIsUploading] = useState(false);
   const [mediaPickerFor, setMediaPickerFor] = useState(null); 
 
-  // 🌟 ฟันธง: เพิ่ม State สำหรับตรวจจับการเลื่อนจอ เพื่อซ่อน/โชว์ เมนูด้านล่าง 🌟
+  // 🌟 ฟันธง: State ตรวจจับการเลื่อนหน้าจอ (Auto-Hide Navbar) 🌟
   const [isNavVisible, setIsNavVisible] = useState(true);
-  const [lastScrollY, setLastScrollY] = useState(window.scrollY);
+  const [lastScrollY, setLastScrollY] = useState(typeof window !== 'undefined' ? window.scrollY : 0);
 
   const thaiMonths = ['ม.ค.', 'ก.พ.', 'มี.ค.', 'เม.ย.', 'พ.ค.', 'มิ.ย.', 'ก.ค.', 'ส.ค.', 'ก.ย.', 'ต.ค.', 'พ.ย.', 'ธ.ค.'];
   const thaiMonthsFull = ['มกราคม', 'กุมภาพันธ์', 'มีนาคม', 'เมษายน', 'พฤษภาคม', 'มิถุนายน', 'กรกฎาคม', 'สิงหาคม', 'กันยายน', 'ตุลาคม', 'พฤศจิกายน', 'ธันวาคม'];
@@ -58,16 +58,14 @@ export default function TaskBoardView({ sysTime, currentUserRole, currentUserNam
     title: '', description: '', assignee: '', dueDate: '', priority: 'medium', attachments: [] 
   });
 
-  // 🌟 ฟันธง: เพิ่ม Logic ตรวจจับการเลื่อนหน้าจอ (Auto-Hide Navigation) 🌟
+  // 🌟 ฟันธง Logic สมบูรณ์: จับ Event Scroll ยืดหยุ่นทั้ง PC และ Mobile 🌟
   useEffect(() => {
     const handleScroll = () => {
       const currentScrollY = window.scrollY;
-
+      // ถ้าเลื่อนลงเกิน 50px ให้ซ่อนเมนู / ถ้าเลื่อนขึ้นให้โชว์
       if (currentScrollY > lastScrollY && currentScrollY > 50) {
-        // Scrolling down - hide the nav
         setIsNavVisible(false);
       } else if (currentScrollY < lastScrollY) {
-        // Scrolling up - show the nav
         setIsNavVisible(true);
       }
       setLastScrollY(currentScrollY);
@@ -159,11 +157,7 @@ export default function TaskBoardView({ sysTime, currentUserRole, currentUserNam
   };
 
   const handleMediaClick = (file) => {
-    if (file.type && file.type.startsWith('image/')) {
-      window.open(file.url, '_blank');
-    } else {
-      window.open(file.url, '_blank');
-    }
+    window.open(file.url, '_blank');
   };
 
   const renderThumbnails = (filesArray, onRemoveFile) => {
@@ -335,16 +329,15 @@ export default function TaskBoardView({ sysTime, currentUserRole, currentUserNam
     return result;
   }, [tasks, searchTerm, filterStatus, filterDateType, filterDate, filterMonth, currentUserRole, currentUserName]);
 
-  // กรองรายชื่อช่าง (คุณวิชญ์ภาส)
+  // กรองรายชื่อช่าง (ลบเงื่อนไขเฉพาะบุคคลออก เพื่อให้ดึงข้อมูลทั้งหมดได้จริง)
   const filteredTechs = (technicianList || [])
-    .filter(t => !t.name.includes('วิชญ์ภาส'))
     .filter(t => (t.name || '').toLowerCase().includes(techSearch.toLowerCase()));
     
   const getDaysInMonth = (month, year) => new Date(year, month + 1, 0).getDate();
   const getFirstDayOfMonth = (month, year) => new Date(year, month, 1).getDay();
 
   return (
-    // 🌟 ฟันธง: เพิ่ม pb-32 เพื่อเว้นพื้นที่ด้านล่างสำหรับการ์ดใบสุดท้าย ไม่ให้โดน Floating Menu บังบนมือถือ 🌟
+    // 🌟 คงค่า pb-32 ไว้ เพื่อรับกับ Navbar ลอยตัว
     <div className="p-4 md:p-8 animate-in fade-in duration-500 font-sans h-full flex flex-col w-full relative z-0 pb-32">
       
       <input 
@@ -372,8 +365,6 @@ export default function TaskBoardView({ sysTime, currentUserRole, currentUserNam
       </div>
 
       <div className="w-full flex flex-col mb-6 relative z-10">
-        <div className="absolute top-0 left-1/2 -translate-x-1/2 w-full h-full bg-cyan-500/5 blur-[80px] pointer-events-none rounded-full z-0"></div>
-
         <div className="flex flex-col sm:flex-row gap-4 mb-4 relative z-10 w-full">
           <div className="relative w-full flex-1">
             <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-cyan-400 w-5 h-5" />
@@ -415,15 +406,16 @@ export default function TaskBoardView({ sysTime, currentUserRole, currentUserNam
           ))}
         </div>
 
-        <div className="flex overflow-x-auto gap-3 pb-2 mt-1 w-full [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none] relative z-10">
-          <button onClick={() => { setFilterDateType('all'); setFilterDate(''); setFilterMonth(''); }} className={`whitespace-nowrap shrink-0 px-6 py-2.5 rounded-xl font-bold text-[14px] transition-all border-[2px] active:scale-95 ${filterDateType === 'all' ? 'bg-gradient-to-b from-cyan-500 to-blue-600 text-white border-cyan-400 shadow-[0_0_15px_rgba(6,182,212,0.6)]' : 'bg-[#0f172a]/80 text-slate-400 border-slate-700 hover:border-cyan-500 hover:text-cyan-400'}`}>
+       {/* 🌟 ฟันธง: ปุ่มวันที่/เดือน กางเต็มพื้นที่ 3 ช่องสมมาตร 100% (ไม่ไถข้าง) สีฟ้าสว่างวาบเหมือนเดิม 🌟 */}
+       <div className="grid grid-cols-3 gap-2 md:gap-3 w-full relative z-10 mb-4">
+          <button onClick={() => { setFilterDateType('all'); setFilterDate(''); setFilterMonth(''); }} className={`w-full py-2.5 md:py-3 rounded-xl font-bold text-[13px] md:text-[14px] transition-all border-[2px] active:scale-95 flex items-center justify-center ${filterDateType === 'all' ? 'bg-gradient-to-b from-cyan-500 to-blue-600 text-white border-cyan-300 shadow-[0_0_15px_rgba(6,182,212,0.6)]' : 'bg-[#0f172a]/80 text-slate-400 border-slate-700 hover:border-cyan-500 hover:text-cyan-400'}`}>
             ทุกวัน
           </button>
-          <button onClick={() => setShowFilterDateModal(true)} className={`whitespace-nowrap shrink-0 px-5 py-2.5 rounded-xl font-bold text-[14px] transition-all border-[2px] flex items-center gap-2 active:scale-95 ${filterDateType === 'date' ? 'bg-[#0f172a] text-cyan-400 border-cyan-400 shadow-[0_0_15px_rgba(6,182,212,0.4)]' : 'bg-[#0f172a]/80 text-slate-400 border-slate-700 hover:border-cyan-500 hover:text-cyan-400'}`}>
-             <Calendar size={16} /> ระบุวัน
+          <button onClick={() => setShowFilterDateModal(true)} className={`w-full py-2.5 md:py-3 rounded-xl font-bold text-[13px] md:text-[14px] transition-all border-[2px] flex items-center justify-center gap-1 md:gap-1.5 active:scale-95 ${filterDateType === 'date' ? 'bg-gradient-to-b from-cyan-500 to-blue-600 text-white border-cyan-300 shadow-[0_0_15px_rgba(6,182,212,0.6)]' : 'bg-[#0f172a]/80 text-slate-400 border-slate-700 hover:border-cyan-500 hover:text-cyan-400'}`}>
+             <Calendar size={15} className={filterDateType === 'date' ? 'text-white' : ''}/> ระบุวัน
           </button>
-          <button onClick={() => setShowFilterMonthModal(true)} className={`whitespace-nowrap shrink-0 px-5 py-2.5 rounded-xl font-bold text-[14px] transition-all border-[2px] flex items-center gap-2 active:scale-95 ${filterDateType === 'month' ? 'bg-[#0f172a] text-cyan-400 border-cyan-400 shadow-[0_0_15px_rgba(6,182,212,0.4)]' : 'bg-[#0f172a]/80 text-slate-400 border-slate-700 hover:border-cyan-500 hover:text-cyan-400'}`}>
-             <Calendar size={16} /> ระบุเดือน
+          <button onClick={() => setShowFilterMonthModal(true)} className={`w-full py-2.5 md:py-3 rounded-xl font-bold text-[13px] md:text-[14px] transition-all border-[2px] flex items-center justify-center gap-1 md:gap-1.5 active:scale-95 ${filterDateType === 'month' ? 'bg-gradient-to-b from-cyan-500 to-blue-600 text-white border-cyan-300 shadow-[0_0_15px_rgba(6,182,212,0.6)]' : 'bg-[#0f172a]/80 text-slate-400 border-slate-700 hover:border-cyan-500 hover:text-cyan-400'}`}>
+             <Calendar size={15} className={filterDateType === 'month' ? 'text-white' : ''}/> ระบุเดือน
           </button>
         </div>
         
@@ -621,29 +613,6 @@ export default function TaskBoardView({ sysTime, currentUserRole, currentUserNam
         )}
       </div>
 
-      {/* 🌟 ฟันธง: Floating Bottom Navbar (Sci-Fi Theme กว้างเท่ากรอบบน เหมือนแผงควบคุมหลัก 100%) 🌟 */}
-      {createPortal(
-        <div className={`fixed bottom-6 left-1/2 -translate-x-1/2 w-[95%] md:w-full md:max-w-4xl z-[50] transition-all duration-500 ease-in-out ${isNavVisible ? 'translate-y-0 opacity-100' : 'translate-y-[150%] opacity-0'}`}>
-          <div className="bg-[#0f172a]/95 backdrop-blur-xl border-[2px] border-solid border-orange-400/90 rounded-[1rem] p-2 flex justify-between items-center shadow-[0_10px_40px_rgba(0,0,0,0.8),0_0_20px_rgba(249,115,22,0.3)]">
-          
-
-            {/* 1. ปุ่มหน้าหลัก (ตรงกลาง - ใหญ่สุด) */}
-            <button onClick={() => setActiveTab('hub')} className="flex-[1.2] flex flex-col items-center justify-center py-3 text-emerald-400 hover:text-emerald-300 rounded-[1.5rem] hover:bg-emerald-500/10 transition-all active:scale-95 group relative">
-              <div className="absolute inset-0 bg-emerald-500/5 rounded-xl blur-md pointer-events-none group-hover:bg-emerald-500/20"></div>
-              <Home className="w-6 h-6 md:w-8 md:h-8 mb-1 drop-shadow-[0_0_10px_rgba(16,185,129,0.8)] group-hover:scale-110 transition-transform" />
-              <span className="text-[11px] md:text-[13px] font-black drop-shadow-md">หน้าหลัก</span>
-            </button>
-
-                {/* 2. ปุ่มออกจากระบบ (ซ้ายสุด) */}
-            <button onClick={onGoHome} className="flex-1 flex flex-col items-center justify-center py-3 text-slate-400 hover:text-rose-400 rounded-xl hover:bg-slate-800/80 transition-all active:scale-95 group">
-              <LogOut className="w-5 h-5 md:w-6 md:h-6 mb-1 group-hover:drop-shadow-[0_0_8px_rgba(225,29,72,0.8)]" />
-              <span className="text-[10px] md:text-[12px] font-black">ออกจากระบบ</span>
-            </button>
-
-
-          </div>
-        </div>
-      , document.body)}
 
       {/* 🌟 ACTION MODAL กลาง (ครอบจักรวาล) 🌟 */}
       {actionModal.isOpen && createPortal(

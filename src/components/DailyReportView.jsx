@@ -400,24 +400,6 @@ export default function DailyReportView({ sysTime, currentUserRole, currentUserN
         </div>
       )}
 
-      <div className="flex flex-row w-full gap-3 md:gap-4 mt-8 pt-6 border-t-[2px] border-dashed border-slate-700/50 relative z-[99]">
-        <button 
-          type="button"
-          onClick={() => { if(setActiveTab) setActiveTab('hub'); }} 
-          className="flex-1 bg-slate-900 border-[2px] border-cyan-600/50 hover:bg-cyan-900/40 hover:border-cyan-400 text-cyan-400 py-4 md:py-5 rounded-xl md:rounded-2xl flex items-center justify-center gap-2 font-black transition-all shadow-sm hover:shadow-[0_0_15px_rgba(34,211,238,0.4)] active:scale-95 text-[14px] md:text-[18px]"
-        >
-          <Home size={20} className="md:w-6 md:h-6" /> หน้าหลัก (HOME)
-        </button>
-        
-        <button 
-          type="button"
-          onClick={() => { if(onGoHome) onGoHome(); }} 
-          className="flex-1 bg-slate-900 border-[2px] border-rose-600/50 hover:bg-rose-900/40 hover:border-rose-400 text-rose-400 py-4 md:py-5 rounded-xl md:rounded-2xl flex items-center justify-center gap-2 font-black transition-all shadow-sm hover:shadow-[0_0_15px_rgba(244,63,94,0.4)] active:scale-95 text-[14px] md:text-[18px]"
-        >
-          <LogOut size={20} className="md:w-6 md:h-6" /> ออกจากระบบ
-        </button>
-      </div>
-
       {showImagePicker && typeof document !== 'undefined' ? createPortal(
         <div className="fixed inset-0 z-[999999] flex items-center justify-center p-4 bg-slate-800/80 backdrop-blur-md animate-in fade-in duration-300" onClick={() => setShowImagePicker(false)}>
           <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[450px] h-[450px] bg-purple-600/30 rounded-full blur-[100px] animate-pulse pointer-events-none z-0"></div>
