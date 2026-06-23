@@ -21,6 +21,7 @@ import DailyReportView from './DailyReportView';
 import TrackingView from './TrackingView';
 
 import TaskBoardView from './TaskBoardView'; 
+import InventoryView from './InventoryView'; // 🌟 นำเข้า InventoryView 🌟
 
 import { ThaiDateFormatter, ErrorBoundary, SearchableDropdown, SciFiSelectModal, SarabunFontEmbed } from './SharedUI';
 
@@ -66,7 +67,6 @@ export default function MainApp({ onGoHome, initialRole }) {
   const [formData, setFormData] = useState({ reporter: '', reporterContact: '', position: '', department: '', bureau: 'สำนักปฏิบัติการดาวเทียม', equipment: '', description: '', assetNumber: '', building: '', room: '', equipmentCategory: '', images: [], videos: [], isSsc: false });
   const [formErrors, setFormErrors] = useState({});
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [showSuccess, setShowSuccess] = useState(false);
   const [showImagePicker, setShowImagePicker] = useState(false);
   
   const [actionModal, setActionModal] = useState({ isOpen: false, ticketId: null, type: null });
@@ -631,19 +631,17 @@ export default function MainApp({ onGoHome, initialRole }) {
         activeTab === 'dashboard' ? 'shadow-[0_0_60px_-5px_rgba(249,115,22,1)] border-orange-500/50' :
         activeTab === 'report' ? 'shadow-[0_0_60px_-5px_rgba(16,185,129,1)] border-emerald-500/50' :
         activeTab === 'pm' ? 'shadow-[0_0_60px_-5px_rgba(16,185,129,1)] border-emerald-500/50' : 
+        activeTab === 'inventory' ? 'shadow-[0_0_60px_-5px_rgba(99,102,241,1)] border-indigo-500/50' :
         (activeTab === 'tracking' && currentUserRole !== 'reporter' ? 'shadow-[0_0_60px_-5px_rgba(6,182,212,1)] border-cyan-500/50' :
         'shadow-[0_0_60px_-5px_rgba(244,63,94,1)] border-rose-500/50')
       }`}>
 
-        {/* 🌟 ฟันธง: กำหนดหัวหน้าต่าง Header สำหรับทุกหน้า (รวมหน้า Hub ให้ซ้าย-ขวาเท่าเมนูล่างเป๊ะ และตรึง Sticky) 🌟 */}
+        {/* 🌟 กำหนดหัวหน้าต่าง Header สำหรับทุกหน้า 🌟 */}
         {activeTab === 'hub' ? (
           <div className="sticky top-4 w-[calc(100%-2rem)] md:w-[calc(100%-3rem)] md:max-w-[976px] mx-auto bg-slate-900/95 backdrop-blur-xl border-2 md:border-[3px] border-solid border-cyan-500 rounded-2xl md:rounded-[1.2rem] py-4 md:py-6 px-6 shadow-[0_10px_30px_rgba(6,182,212,0.3)] mt-4 md:mt-3 mb-2 flex flex-col items-center justify-center relative overflow-hidden group transition-all duration-500 z-50 shrink-0">
             <div className="absolute -top-10 -left-10 w-32 h-32 bg-cyan-500/20 blur-[50px] rounded-full pointer-events-none group-hover:bg-cyan-400/30 transition-all"></div>
             <div className="absolute -bottom-10 -right-10 w-32 h-32 bg-blue-500/20 blur-[50px] rounded-full pointer-events-none group-hover:bg-blue-400/30 transition-all"></div>
-            
-            <h1 className="text-[24px] md:text-[36px] font-black text-transparent bg-clip-text bg-gradient-to-r from-cyan-300 via-cyan-400 to-blue-500 tracking-widest drop-shadow-[0_0_15px_rgba(6,182,212,0.8)] relative z-10 text-center leading-tight mb-2">
-              ศูนย์ปฏิบัติการ ฝวด.
-            </h1>
+            <h1 className="text-[24px] md:text-[36px] font-black text-transparent bg-clip-text bg-gradient-to-r from-cyan-300 via-cyan-400 to-blue-500 tracking-widest drop-shadow-[0_0_15px_rgba(6,182,212,0.8)] relative z-10 text-center leading-tight mb-2">ศูนย์ปฏิบัติการ ฝวด.</h1>
             <div className="flex items-center justify-center gap-4 w-full relative z-10">
               <div className="h-[2px] w-12 md:w-24 bg-gradient-to-r from-transparent to-cyan-500/50 rounded-full"></div>
               <span className="text-slate-400 text-[11px] md:text-[13px] font-black tracking-[0.2em] uppercase">GSE Operations Hub</span>
@@ -660,6 +658,7 @@ export default function MainApp({ onGoHome, initialRole }) {
               case 'leave': return { title: 'ระบบลงเวลาและวันลา', sub: 'ATTENDANCE & LEAVE', icon: <Calendar className="w-8 h-8 md:w-6 md:h-6" strokeWidth={2.5}/>, border: 'border-rose-500', bgIcon: 'text-rose-500 border-rose-300', glow: 'shadow-[0_0_20px_rgba(244,63,94,0.4)]', text: 'text-rose-400' };
               case 'monitoring': return { title: 'ศูนย์มอนิเตอร์สถานะ UPS', sub: 'POWER MONITORING', icon: <Activity className="w-8 h-8 md:w-6 md:h-6" strokeWidth={2.5}/>, border: 'border-yellow-500', bgIcon: 'text-yellow-500 border-yellow-300', glow: 'shadow-[0_0_20px_rgba(234,179,8,0.4)]', text: 'text-yellow-400' };
               case 'satellite': return { title: 'สถานะสัญญาณดาวเทียม', sub: 'SATELLITE SIGNALS', icon: <Globe className="w-8 h-8 md:w-6 h-6" strokeWidth={2.5}/>, border: 'border-indigo-500', bgIcon: 'text-indigo-500 border-indigo-300', glow: 'shadow-[0_0_20px_rgba(99,102,241,0.4)]', text: 'text-indigo-400' };
+              case 'inventory': return { title: 'บริหารจัดการครุภัณฑ์', sub: 'ASSET & INVENTORY MATRIX', icon: <Package className="w-8 h-8 md:w-6 md:h-6" strokeWidth={2.5}/>, border: 'border-indigo-500', bgIcon: 'text-indigo-500 border-indigo-300', glow: 'shadow-[0_0_20px_rgba(99,102,241,0.4)]', text: 'text-indigo-400' };
               case 'tracking': 
               case 'manage': return { title: role !== 'reporter' ? 'จัดการงานซ่อม' : 'ติดตามสถานะ', sub: 'TICKET TRACKING', icon: role !== 'reporter' ? <Wrench className="w-8 h-8 md:w-6 md:h-6" strokeWidth={2.5}/> : <ClipboardCheck className="w-8 h-8 md:w-6 md:h-6" strokeWidth={2.5}/>, border: 'border-blue-500', bgIcon: 'text-blue-500 border-blue-300', glow: 'shadow-[0_0_20px_rgba(59,130,246,0.4)]', text: 'text-blue-400' };
               default: return { title: 'ศูนย์ปฏิบัติการ', sub: 'OPERATIONS', icon: <Monitor className="w-8 h-8 md:w-6 md:h-6" strokeWidth={2.5}/>, border: 'border-slate-500', bgIcon: 'text-slate-500 border-slate-300', glow: 'shadow-[0_0_20px_rgba(255,255,255,0.1)]', text: 'text-slate-400' };
@@ -673,14 +672,9 @@ export default function MainApp({ onGoHome, initialRole }) {
                 <div className={`bg-white w-14 h-14 md:w-16 md:h-16 rounded-2xl md:rounded-xl shadow-inner border-[2px] border-solid flex items-center justify-center shrink-0 ${hc.bgIcon}`}>
                   {hc.icon}
                 </div>
-
                 <div className="flex flex-col">
-                  <h1 className="font-black text-white text-[24px] md:text-[36px] tracking-widest leading-tight drop-shadow-[0_2px_4px_rgba(0,0,0,0.5)]">
-                    {hc.title}
-                  </h1>
-                  <span className={`text-[13px] md:text-[16px] font-bold mt-1 tracking-wide ${hc.text} opacity-90 animate-in fade-in duration-300`}>
-                  สวัสดีครับ, <span className="text-white">คุณ{currentUserName ? currentUserName.replace(/^\s*(นาย|นางสาว|นาง|น\.ส\.|นส\.)\s*/g, '') : 'ผู้ใช้งาน'}</span>
-                  </span>
+                  <h1 className="font-black text-white text-[24px] md:text-[36px] tracking-widest leading-tight drop-shadow-[0_2px_4px_rgba(0,0,0,0.5)]">{hc.title}</h1>
+                  <span className={`text-[13px] md:text-[16px] font-bold mt-1 tracking-wide ${hc.text} opacity-90 animate-in fade-in duration-300`}>สวัสดีครับ, <span className="text-white">คุณ{currentUserName ? currentUserName.replace(/^\s*(นาย|นางสาว|นาง|น\.ส\.|นส\.)\s*/g, '') : 'ผู้ใช้งาน'}</span></span>
                 </div>
               </div>
             </div>
@@ -696,14 +690,13 @@ export default function MainApp({ onGoHome, initialRole }) {
             </div>
           ) : (
             <>
-              {/* 🌟 หน้า Hub ส่วนเนื้อหากรอบสีส้ม 🌟 */}
+              {/* 🌟 หน้า Hub 🌟 */}
               {activeTab === 'hub' && (
                 <div className="w-full flex flex-col items-center pt-2 md:pt-4 pb-32 animate-in fade-in zoom-in-95 duration-500 relative z-10 px-4 md:px-0">
                   <div className="w-full md:w-[calc(100%-3rem)] md:max-w-[976px] mx-auto bg-[#0f172a]/60 backdrop-blur-xl border-2 md:border-[3px] border-solid border-orange-500/80 rounded-2xl md:rounded-[1.2rem] p-6 md:p-10 shadow-[0_0_50px_rgba(249,115,22,0.2),inset_0_0_30px_rgba(249,115,22,0.05)] relative overflow-hidden">
                     <div className="absolute inset-0 bg-[url('https://www.transparenttextures.com/patterns/cubes.png')] opacity-[0.03] pointer-events-none mix-blend-overlay"></div>
                     <div className="grid grid-cols-2 md:grid-cols-4 gap-4 md:gap-6 relative z-10">
                       
-                      {/* 🌟 ปุ่ม 1: จัดการงานซ่อม 🌟 */}
                       <button onClick={() => setActiveTab('dashboard')} className="group relative aspect-square md:aspect-auto md:h-44 bg-slate-900/80 border-[2px] border-slate-700/80 rounded-3xl hover:border-orange-500 shadow-lg hover:shadow-[0_0_30px_rgba(249,115,22,0.4)] transition-all duration-300 flex flex-col items-center justify-center gap-3 overflow-hidden">
                         <div className="absolute inset-0 bg-gradient-to-b from-orange-500/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity"></div>
                         <div className="w-14 h-14 md:w-16 md:h-16 bg-gradient-to-br from-orange-400 to-orange-600 rounded-2xl flex items-center justify-center shadow-[0_0_20px_rgba(249,115,22,0.6)] group-hover:scale-110 transition-transform duration-300 z-10">
@@ -770,14 +763,14 @@ export default function MainApp({ onGoHome, initialRole }) {
                         </div>
                       </button>
 
-                      <button disabled className="group relative aspect-square md:aspect-auto md:h-44 bg-slate-900/30 border-[2px] border-slate-800 rounded-3xl flex flex-col items-center justify-center gap-3 opacity-60 cursor-not-allowed">
-                        <span className="absolute top-3 right-3 bg-slate-800 text-slate-400 text-[9px] font-black px-2 py-0.5 rounded-md tracking-widest">SOON</span>
-                        <div className="w-14 h-14 md:w-16 md:h-16 bg-slate-800 rounded-2xl flex items-center justify-center">
-                          <Package className="w-7 h-7 md:w-8 md:h-8 text-slate-600" strokeWidth={2}/>
+                      <button onClick={() => setActiveTab('inventory')} className="group relative aspect-square md:aspect-auto md:h-44 bg-slate-900/80 border-[2px] border-slate-700/80 rounded-3xl hover:border-indigo-400 shadow-lg hover:shadow-[0_0_30px_rgba(99,102,241,0.4)] transition-all duration-300 flex flex-col items-center justify-center gap-3 overflow-hidden">
+                        <div className="absolute inset-0 bg-gradient-to-b from-indigo-500/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity"></div>
+                        <div className="w-14 h-14 md:w-16 md:h-16 bg-gradient-to-br from-indigo-500 to-violet-600 rounded-2xl flex items-center justify-center shadow-[0_0_20px_rgba(99,102,241,0.6)] group-hover:scale-110 transition-transform duration-300 z-10">
+                          <Package className="w-7 h-7 md:w-8 md:h-8 text-white" strokeWidth={2.5}/>
                         </div>
-                        <div className="flex flex-col items-center mt-1">
-                          <span className="font-bold text-slate-500 text-[14px] md:text-[16px]">อะไหล่/ครุภัณฑ์</span>
-                          <span className="text-slate-600 text-[10px] md:text-[11px] font-bold mt-0.5">บริการงานจัดการ</span>
+                        <div className="flex flex-col items-center z-10 mt-1">
+                          <span className="font-black text-white text-[14px] md:text-[16px] tracking-wide group-hover:text-indigo-300 transition-colors">อะไหล่/ครุภัณฑ์</span>
+                          <span className="text-slate-400 text-[10px] md:text-[11px] font-bold tracking-wider uppercase mt-0.5 text-indigo-400">บริการงานจัดการ</span>
                         </div>
                       </button>
 
@@ -792,19 +785,17 @@ export default function MainApp({ onGoHome, initialRole }) {
                         </div>
                       </button>
 
-                      <button disabled className="group relative aspect-square md:aspect-auto md:h-44 bg-slate-900/30 border-[2px] border-slate-800 rounded-3xl flex flex-col items-center justify-center gap-3 opacity-60 cursor-not-allowed md:col-span-2">
-                        <span className="absolute top-3 right-3 bg-slate-800 text-slate-400 text-[9px] font-black px-2 py-0.5 rounded-md tracking-widest">SOON</span>
-                        <div className="w-14 h-14 md:w-16 md:h-16 bg-slate-800 rounded-2xl flex items-center justify-center">
-                          <Globe className="w-7 h-7 md:w-8 md:h-8 text-slate-600" strokeWidth={2}/>
-                        </div>
-                        <div className="flex flex-col items-center mt-1">
-                          <span className="font-bold text-slate-500 text-[14px] md:text-[16px]">งานบริการ S3EE</span>
-                          <span className="text-slate-600 text-[10px] md:text-[11px] font-bold mt-0.5">ระบบบริการลูกค้า</span>
-                        </div>
-                      </button>
-
                     </div>
                   </div>
+                </div>
+              )}
+
+              {/* 🌟 ฟันธง: ส่ง Props แบบทะลุทะลวงให้ทุก Component แก้บั๊กหาคำสั่งไม่เจอ 100% 🌟 */}
+              {activeTab === 'inventory' && (
+                <div className="px-4 md:px-6">
+                  <InventoryView 
+                    sysTime={sysTime} currentUserRole={currentUserRole} currentUserName={currentUserName} setActiveTab={setActiveTab} 
+                  />
                 </div>
               )}
 
@@ -816,7 +807,11 @@ export default function MainApp({ onGoHome, initialRole }) {
 
               {activeTab === 'report' && (
                 <div className="px-4 md:px-6">
-                  <ReportView sysTime={sysTime} showSuccess={showSuccess} handleSubmit={handleSubmit} handleResetForm={handleResetForm} allRosters={allRosters} technicianList={technicianList} formData={formData} setFormData={setFormData} formErrors={formErrors} setFormErrors={setFormErrors} handleInputChange={handleInputChange} showImagePicker={showImagePicker} setShowImagePicker={setShowImagePicker} handleMediaUpload={handleMediaUpload} handleClipboardPaste={handleClipboardPaste} setLightboxImg={setLightboxImg} isSubmitting={isSubmitting} currentUserName={currentUserName} />
+                  <ReportView 
+                    sysTime={sysTime} showSuccess={showSuccess} handleSubmit={handleSubmit} handleResetForm={handleResetForm} allRosters={allRosters} technicianList={technicianList} formData={formData} setFormData={setFormData} formErrors={formErrors} setFormErrors={setFormErrors} handleInputChange={handleInputChange} showImagePicker={showImagePicker} setShowImagePicker={setShowImagePicker} setLightboxImg={setLightboxImg} isSubmitting={isSubmitting} currentUserName={currentUserName} 
+                    handleMediaUpload={handleMediaUpload} 
+                    handleClipboardPaste={handleClipboardPaste} 
+                  />
                 </div>
               )}
 
@@ -829,12 +824,9 @@ export default function MainApp({ onGoHome, initialRole }) {
               {activeTab === 'pm' && (
                 <div className="w-full [&>div]:!max-w-full h-full min-h-[80vh] px-4 md:px-6">
                   <TaskBoardView 
-                    sysTime={sysTime} 
-                    currentUserRole={currentUserRole} 
-                    currentUserName={currentUserName} 
-                    technicianList={technicianList} 
-                    setActiveTab={setActiveTab} 
-                    onGoHome={onGoHome} 
+                    sysTime={sysTime} currentUserRole={currentUserRole} currentUserName={currentUserName} technicianList={technicianList} setActiveTab={setActiveTab} onGoHome={onGoHome} 
+                    handleClipboardPaste={handleClipboardPaste} 
+                    handleMediaUpload={handleMediaUpload} 
                   />
                 </div>
               )}
@@ -853,13 +845,13 @@ export default function MainApp({ onGoHome, initialRole }) {
 
               {activeTab === 'tracking' && (
                 <div className="px-4 md:px-6">
-                  <TrackingView sysTime={sysTime} currentUserRole={currentUserRole} currentUserName={currentUserName} tickets={permittedTickets} filteredTickets={filteredTickets_forTracking} searchTerm={searchTerm} setSearchTerm={setSearchTerm} filterStatus={filterStatus} setFilterStatus={setFilterStatus} trackTimeframe={trackTimeframe} setTrackTimeframe={setTrackTimeframe} trackMonth={trackMonth} setTrackMonth={setTrackMonth} trackDate={trackDate} setTrackDate={setTrackDate} showTrackMonthPicker={showTrackMonthPicker} setShowTrackMonthPicker={setShowTrackMonthPicker} showTrackDatePicker={showTrackDatePicker} setShowTrackDatePicker={setShowTrackDatePicker} trackCalMonth={trackCalMonth} setTrackCalMonth={setTrackCalMonth} trackCalYear={trackCalYear} setTrackCalYear={setTrackCalYear} allRosters={allRosters} technicianList={technicianList} setActionModal={setActionModal} updateTicketStatus={updateTicketStatus} setRatingModal={setRatingModal} setLightboxImg={setLightboxImg} getLiveStopwatch={getLiveStopwatch} />
+                  <TrackingView sysTime={sysTime} currentUserRole={currentUserRole} currentUserName={currentUserName} tickets={permittedTickets} filteredTickets={filteredTickets_forTracking} searchTerm={searchTerm} setSearchTerm={setSearchTerm} filterStatus={filterStatus} setFilterStatus={setFilterStatus} trackTimeframe={trackTimeframe} setTrackTimeframe={setTrackTimeframe} trackMonth={trackMonth} setTrackMonth={setTrackMonth} trackDate={trackDate} setTrackDate={setTrackDate} showTrackMonthPicker={showTrackMonthPicker} setShowTrackMonthPicker={setShowTrackMonthPicker} showTrackDatePicker={showTrackDatePicker} setShowTrackDatePicker={setShowTrackDatePicker} trackCalMonth={trackCalMonth} setTrackCalMonth={setTrackCalMonth} trackCalYear={trackCalYear} setTrackCalYear={setTrackCalYear} allRosters={allRosters} technicianList={technicianList} setActionModal={setActionModal} updateTicketStatus={updateTicketStatus} setRatingModal={setRatingModal} setLightboxImg={setLightboxImg} getLiveStopwatch={getLiveStopwatch} handleClipboardPaste={handleClipboardPaste} handleMediaUpload={handleMediaUpload} />
                 </div>
               )}
 
               {activeTab === 'manage' && (
                 <div className="px-4 md:px-6">
-                  <TrackingView sysTime={sysTime} currentUserRole={currentUserRole} currentUserName={currentUserName} tickets={permittedTickets} filteredTickets={filteredTickets_forTracking} searchTerm={searchTerm} setSearchTerm={setSearchTerm} filterStatus={filterStatus} setFilterStatus={setFilterStatus} trackTimeframe={trackTimeframe} setTrackTimeframe={setTrackTimeframe} trackMonth={trackMonth} setTrackMonth={setTrackMonth} trackDate={trackDate} setTrackDate={setTrackDate} showTrackMonthPicker={showTrackMonthPicker} setShowTrackMonthPicker={setShowTrackMonthPicker} showTrackDatePicker={showTrackDatePicker} setShowTrackDatePicker={setShowTrackDatePicker} trackCalMonth={trackCalMonth} setTrackCalMonth={setTrackCalMonth} trackCalYear={trackCalYear} setTrackCalYear={setTrackCalYear} allRosters={allRosters} technicianList={technicianList} setActionModal={setActionModal} updateTicketStatus={updateTicketStatus} setRatingModal={setRatingModal} setLightboxImg={setLightboxImg} getLiveStopwatch={getLiveStopwatch} />
+                  <TrackingView sysTime={sysTime} currentUserRole={currentUserRole} currentUserName={currentUserName} tickets={permittedTickets} filteredTickets={filteredTickets_forTracking} searchTerm={searchTerm} setSearchTerm={setSearchTerm} filterStatus={filterStatus} setFilterStatus={setFilterStatus} trackTimeframe={trackTimeframe} setTrackTimeframe={setTrackTimeframe} trackMonth={trackMonth} setTrackMonth={setTrackMonth} trackDate={trackDate} setTrackDate={setTrackDate} showTrackMonthPicker={showTrackMonthPicker} setShowTrackMonthPicker={setShowTrackMonthPicker} showTrackDatePicker={showTrackDatePicker} setShowTrackDatePicker={setShowTrackDatePicker} trackCalMonth={trackCalMonth} setTrackCalMonth={setTrackCalMonth} trackCalYear={trackCalYear} setTrackCalYear={setTrackCalYear} allRosters={allRosters} technicianList={technicianList} setActionModal={setActionModal} updateTicketStatus={updateTicketStatus} setRatingModal={setRatingModal} setLightboxImg={setLightboxImg} getLiveStopwatch={getLiveStopwatch} handleClipboardPaste={handleClipboardPaste} handleMediaUpload={handleMediaUpload} />
                 </div>
               )}
 
@@ -873,7 +865,7 @@ export default function MainApp({ onGoHome, initialRole }) {
           </ErrorBoundary>
         </div>
 
-        {/* 🌟 ฟันธง: แสดงแถบเมนูล่างตลอดเวลาทุกหน้า พร้อมเปลี่ยนสีตามกรอบบน 🌟 */}
+        {/* 🌟 แสดงแถบเมนูล่างตลอดเวลาทุกหน้า พร้อมเปลี่ยนสีให้ตรงกับกรอบบน 🌟 */}
         <div className={`fixed left-1/2 -translate-x-1/2 w-[calc(100%-2rem)] md:w-[calc(100%-3rem)] md:max-w-[976px] py-2 md:py-3 bg-slate-900/95 backdrop-blur-xl border-2 md:border-[3px] border-solid rounded-2xl md:rounded-[1.2rem] z-[9999] transform-gpu transition-all duration-500 ease-in-out ${
           activeTab === 'pm' ? 'border-emerald-500 shadow-[0_10px_30px_rgba(16,185,129,0.3)]' : 
           activeTab === 'report' ? 'border-emerald-500 shadow-[0_10px_30px_rgba(16,185,129,0.3)]' : 
@@ -881,23 +873,21 @@ export default function MainApp({ onGoHome, initialRole }) {
           activeTab === 'leave' ? 'border-rose-500 shadow-[0_10px_30px_rgba(225,29,72,0.3)]' : 
           activeTab === 'monitoring' ? 'border-yellow-500 shadow-[0_10px_30px_rgba(234,179,8,0.3)]' : 
           activeTab === 'satellite' ? 'border-indigo-500 shadow-[0_10px_30px_rgba(99,102,241,0.3)]' : 
+          activeTab === 'inventory' ? 'border-indigo-500 shadow-[0_10px_30px_rgba(99,102,241,0.3)]' : 
           (activeTab === 'tracking' || activeTab === 'manage') ? 'border-blue-500 shadow-[0_10px_30px_rgba(59,130,246,0.3)]' : 
           activeTab === 'hub' ? 'border-cyan-500 shadow-[0_10px_30px_rgba(6,182,212,0.3)]' : 
           'border-orange-500 shadow-[0_10px_30px_rgba(249,115,22,0.3)]'
         } ${isNavVisible ? 'bottom-4 md:bottom-6 opacity-100 translate-y-0' : '-bottom-32 opacity-0 translate-y-full pointer-events-none'}`}>
 
           <div className="w-full flex justify-evenly items-center px-1 md:px-8">
-            
-            {/* 🌟 ปุ่มออกจากระบบ (ให้โชว์ตลอดเวลาทุกหน้า รวมถึงหน้า Hub) 🌟 */}
             <button onClick={onGoHome} className="flex flex-col items-center justify-center gap-1 md:gap-1.5 active:scale-95 transition-all shrink-0 group">
               <div className="p-2 md:p-3 rounded-full bg-transparent text-slate-400 group-hover:text-rose-400 transition-colors"><LogOut className="w-6 h-6 md:w-7 md:h-7" /></div>
               <span className="block text-[12px] md:text-[14px] font-black text-slate-400 group-hover:text-rose-400 tracking-widest whitespace-nowrap shrink-0 transition-colors">ออกจากระบบ</span>
             </button>
             
-            {/* 🌟 ซ่อนปุ่มย่อยเฉพาะตอนอยู่หน้า Hub 🌟 */}
             {activeTab !== 'hub' && (
               <>
-                {(activeTab === 'leave' || activeTab === 'daily_report' || activeTab === 'pm' || activeTab === 'monitoring' || activeTab === 'satellite') ? (
+                {(activeTab === 'leave' || activeTab === 'daily_report' || activeTab === 'pm' || activeTab === 'monitoring' || activeTab === 'satellite' || activeTab === 'inventory') ? (
                   <button onClick={() => setActiveTab('hub')} className="flex flex-col items-center justify-center gap-1 md:gap-1.5 transition-all shrink-0 active:scale-95 group">
                     <div className="p-2 md:p-3 rounded-full transition-all bg-transparent text-slate-400 group-hover:text-cyan-300"><Home className="w-6 h-6 md:w-7 md:h-7" /></div>
                     <span className="block text-[12px] md:text-[14px] font-black tracking-widest whitespace-nowrap shrink-0 transition-all text-slate-400 group-hover:text-cyan-300">หน้าหลัก</span>
@@ -936,6 +926,7 @@ export default function MainApp({ onGoHome, initialRole }) {
         </div>
       </div>
 
+      {/* 🌟 ส่งตัวแปรทะลุ ActionModal ป้องกัน Error กดแคปหน้าจอตอนแนบไฟล์ 🌟 */}
       <ActionModal 
         isOpen={actionModal.isOpen} 
         onClose={() => {
@@ -945,24 +936,14 @@ export default function MainApp({ onGoHome, initialRole }) {
           setSelectedHelpers([]);
           setHelperSearch('');
         }} 
-        type={actionModal.type} 
-        ticketId={actionModal.ticketId} 
-        currentUserRole={currentUserRole} 
-        selectedTech={selectedTech} 
-        setSelectedTech={setSelectedTech} 
-        currentUserName={currentUserName} 
-        technicianList={technicianList} 
-        employeeList={employeeList} 
-        actionText={actionText} 
-        setActionText={setActionText} 
-        actionAttachments={actionAttachments} 
-        setActionAttachments={setActionAttachments} 
-        selectedHelpers={selectedHelpers} 
-        setSelectedHelpers={setSelectedHelpers} 
-        helperSearch={helperSearch} 
-        setHelperSearch={setHelperSearch} 
-        setLightboxImg={setLightboxImg} 
+        type={actionModal.type} ticketId={actionModal.ticketId} currentUserRole={currentUserRole} 
+        selectedTech={selectedTech} setSelectedTech={setSelectedTech} currentUserName={currentUserName} 
+        technicianList={technicianList} employeeList={employeeList} actionText={actionText} setActionText={setActionText} 
+        actionAttachments={actionAttachments} setActionAttachments={setActionAttachments} 
+        selectedHelpers={selectedHelpers} setSelectedHelpers={setSelectedHelpers} 
+        helperSearch={helperSearch} setHelperSearch={setHelperSearch} setLightboxImg={setLightboxImg} 
         executeActionModal={executeActionModal} 
+        handleClipboardPaste={handleClipboardPaste} handleMediaUpload={handleMediaUpload} 
       />
       
       {showAdminRoster && (
@@ -990,24 +971,14 @@ export default function MainApp({ onGoHome, initialRole }) {
         return (
           <div className="fixed inset-0 z-[99999] bg-slate-950/90 backdrop-blur-md flex items-center justify-center p-4 animate-in fade-in">
             <div className={`absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[350px] h-[350px] md:w-[500px] md:h-[500px] ${ratingColors.flare}/30 blur-[100px] md:blur-[120px] rounded-full pointer-events-none z-0 transition-colors duration-500`}></div>
-            
             <div className={`bg-[#0f172a] border-[2px] md:border-[3px] ${ratingColors.outline} rounded-[2rem] p-6 md:p-8 w-full max-w-md ${ratingColors.shadow} relative flex flex-col items-center overflow-y-auto max-h-[90vh] [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none] transition-all duration-500`}>
-              
               <button onClick={() => setRatingModal({ isOpen: false, ticketId: null, rating: 0, comment: '', techName: '', techPhotoUrl: '', tags: [] })} className="absolute top-4 right-4 md:top-6 md:right-6 text-slate-400 hover:text-rose-400 transition-colors z-20"><X size={28}/></button>
-              
               <div className={`w-20 h-20 md:w-24 md:h-24 rounded-full border-[3px] ${ratingColors.outline} overflow-hidden mb-3 md:mb-4 bg-slate-800 flex items-center justify-center shadow-inner shrink-0 transition-colors duration-500`}>
-                {ratingModal.techPhotoUrl ? (
-                  <img src={ratingModal.techPhotoUrl} alt="Tech" className="w-full h-full object-cover" />
-                ) : (
-                  <User size={40} className={ratingColors.star} />
-                )}
+                {ratingModal.techPhotoUrl ? <img src={ratingModal.techPhotoUrl} alt="Tech" className="w-full h-full object-cover" /> : <User size={40} className={ratingColors.star} />}
               </div>
-
               <h2 className="text-[20px] md:text-[24px] font-black text-white text-center mb-1 relative z-10">{ratingModal.techName || 'ช่างผู้รับผิดชอบ'}</h2>
               <p className="text-slate-400 text-[12px] md:text-[14px] mb-6 text-center relative z-10">ผู้รับผิดชอบรหัสงาน <span className={`${ratingColors.text} font-mono transition-colors duration-500`}>{ratingModal.ticketId}</span></p>
-
               <p className={`${ratingColors.text} font-bold text-[16px] md:text-[18px] mb-4 text-center relative z-10 transition-colors duration-500`}>คุณพึงพอใจการซ่อมระดับไหน?</p>
-
               <div className={`border-[2px] ${ratingColors.outline} rounded-2xl p-3 md:p-4 mb-3 flex gap-2 md:gap-3 bg-slate-900/80 shadow-inner w-full justify-center relative z-10 transition-colors duration-500`}>
                 {[1,2,3,4,5].map(star => (
                   <button key={star} onClick={() => setRatingModal({...ratingModal, rating: star})} className="focus:outline-none transition-transform hover:scale-125 active:scale-95">
@@ -1015,64 +986,25 @@ export default function MainApp({ onGoHome, initialRole }) {
                   </button>
                 ))}
               </div>
-
               <div className="h-8 mb-4 relative z-10">
-                {ratingModal.rating > 0 && (
-                  <span className={`text-[18px] md:text-[20px] font-black ${ratingColors.text} animate-in zoom-in flex items-center justify-center`}>
-                    {ratingColors.emojiText}
-                  </span>
-                )}
+                {ratingModal.rating > 0 && <span className={`text-[18px] md:text-[20px] font-black ${ratingColors.text} animate-in zoom-in flex items-center justify-center`}>{ratingColors.emojiText}</span>}
               </div>
-
               <p className="text-slate-300 font-bold text-[13px] md:text-[15px] mb-3 text-center relative z-10">ท่านประทับใจส่วนไหนเป็นพิเศษ? (เลือกได้หลายข้อ)</p>
               <div className="flex flex-col gap-2.5 w-full mb-6 px-2 relative z-10">
                 {['💡 ซ่อมเสร็จก่อนกำหนด', '🛠️ แก้ปัญหาเด็ดขาด', '🤝 บริการดีเยี่ยม/สุภาพ', '🛡️ ให้คำแนะนำป้องกัน'].map(tag => {
                   const isSelected = (ratingModal.tags || []).includes(tag);
                   return (
-                    <button
-                      key={tag}
-                      onClick={() => {
-                        const currentTags = ratingModal.tags || [];
-                        const newTags = isSelected ? currentTags.filter(t => t !== tag) : [...currentTags, tag];
-                        setRatingModal({...ratingModal, tags: newTags});
-                      }}
-                      className={`py-2.5 px-4 rounded-full text-[14px] md:text-[16px] font-bold border-[2px] transition-all active:scale-95 text-center ${
-                        isSelected
-                          ? `text-white ${ratingColors.tagActive} ${ratingColors.outline} shadow-[0_0_15px_currentColor]`
-                          : `bg-slate-800/50 text-slate-400 border-slate-700 hover:${ratingColors.outline}`
-                      }`}
-                    >
-                      {tag}
-                    </button>
+                    <button key={tag} onClick={() => { const currentTags = ratingModal.tags || []; const newTags = isSelected ? currentTags.filter(t => t !== tag) : [...currentTags, tag]; setRatingModal({...ratingModal, tags: newTags}); }} className={`py-2.5 px-4 rounded-full text-[14px] md:text-[16px] font-bold border-[2px] transition-all active:scale-95 text-center ${isSelected ? `text-white ${ratingColors.tagActive} ${ratingColors.outline} shadow-[0_0_15px_currentColor]` : `bg-slate-800/50 text-slate-400 border-slate-700 hover:${ratingColors.outline}`}`}>{tag}</button>
                   );
                 })}
               </div>
-
               <div className="w-full mb-6 relative z-10">
-                <textarea
-                  className={`w-full bg-slate-800/80 border-[2px] border-slate-700 focus:${ratingColors.outline} rounded-xl p-4 text-white placeholder-slate-500 outline-none transition-colors text-[14px] md:text-[16px] resize-none`}
-                  rows="3"
-                  placeholder="พิมพ์ข้อเสนอแนะเพิ่มเติม..."
-                  value={ratingModal.comment}
-                  onChange={(e) => setRatingModal({...ratingModal, comment: e.target.value})}
-                ></textarea>
+                <textarea className={`w-full bg-slate-800/80 border-[2px] border-slate-700 focus:${ratingColors.outline} rounded-xl p-4 text-white placeholder-slate-500 outline-none transition-colors text-[14px] md:text-[16px] resize-none`} rows="3" placeholder="พิมพ์ข้อเสนอแนะเพิ่มเติม..." value={ratingModal.comment} onChange={(e) => setRatingModal({...ratingModal, comment: e.target.value})}></textarea>
               </div>
-
               <div className="flex w-full gap-3 relative z-10">
-                <button
-                  onClick={() => setRatingModal({ isOpen: false, ticketId: null, rating: 0, comment: '', techName: '', techPhotoUrl: '', tags: [] })}
-                  className="flex-[1] py-3.5 md:py-4 rounded-xl font-black text-rose-400 bg-rose-950/30 border border-rose-900/50 hover:bg-rose-900/50 transition-colors active:scale-95 text-[16px]"
-                >
-                  ยกเลิก
-                </button>
-                <button
-                  onClick={submitRating}
-                  className={`flex-[1.5] py-3.5 md:py-4 rounded-xl font-black text-white ${ratingColors.mainBtn} ${ratingColors.shadow} transition-colors active:scale-95 text-[16px] border border-white/20`}
-                >
-                  ยืนยันการประเมิน
-                </button>
+                <button onClick={() => setRatingModal({ isOpen: false, ticketId: null, rating: 0, comment: '', techName: '', techPhotoUrl: '', tags: [] })} className="flex-[1] py-3.5 md:py-4 rounded-xl font-black text-rose-400 bg-rose-950/30 border border-rose-900/50 hover:bg-rose-900/50 transition-colors active:scale-95 text-[16px]">ยกเลิก</button>
+                <button onClick={submitRating} className={`flex-[1.5] py-3.5 md:py-4 rounded-xl font-black text-white ${ratingColors.mainBtn} ${ratingColors.shadow} transition-colors active:scale-95 text-[16px] border border-white/20`}>ยืนยันการประเมิน</button>
               </div>
-
             </div>
           </div>
         );
@@ -1081,21 +1013,10 @@ export default function MainApp({ onGoHome, initialRole }) {
       {lightboxImg && (
         <div className="fixed inset-0 z-[99999] bg-black/90 backdrop-blur-sm flex items-center justify-center p-4 animate-in fade-in" onClick={() => setLightboxImg(null)}>
           <button className="absolute top-5 right-5 text-slate-400 hover:text-white p-2 rounded-full bg-slate-800 border border-slate-700 active:scale-95" onClick={() => setLightboxImg(null)}><X size={24} /></button>
-          
           {(typeof lightboxImg === 'string' && (lightboxImg.includes('video') || lightboxImg.includes('.mp4') || lightboxImg.includes('data:video'))) ? (
-            <video 
-              src={lightboxImg} 
-              controls 
-              autoPlay 
-              className="max-w-full max-h-full rounded-2xl shadow-2xl border-2 border-slate-700" 
-              onClick={(e) => e.stopPropagation()} 
-            />
+            <video src={lightboxImg} controls autoPlay className="max-w-full max-h-full rounded-2xl shadow-2xl border-2 border-slate-700" onClick={(e) => e.stopPropagation()} />
           ) : (
-            <img 
-              src={lightboxImg} 
-              className="max-w-full max-h-full rounded-2xl shadow-2xl border-2 border-slate-700" 
-              alt="Full size view" 
-            />
+            <img src={lightboxImg} className="max-w-full max-h-full rounded-2xl shadow-2xl border-2 border-slate-700" alt="Full size view" />
           )}
         </div>
       )}

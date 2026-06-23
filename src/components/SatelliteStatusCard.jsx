@@ -33,16 +33,6 @@ export default function SatelliteStatusCard({ setActiveTab, onGoHome }) {
       <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[350px] h-[350px] md:w-[800px] md:h-[600px] bg-fuchsia-600/10 blur-[100px] md:blur-[120px] rounded-full pointer-events-none z-0"></div>
 
       <div className="w-full max-w-md md:max-w-4xl relative z-10 animate-in fade-in slide-in-from-bottom-5 duration-500 mt-6">
-        
-        {/* Header Card */}
-        <div className="bg-slate-900/80 backdrop-blur-xl border-2 border-fuchsia-500/50 rounded-[2rem] p-6 mb-6 shadow-[0_0_30px_rgba(217,70,239,0.2)] text-center relative overflow-hidden">
-          <div className="absolute -top-10 -right-10 text-fuchsia-500/10 rotate-12 pointer-events-none"><Globe size={180} /></div>
-          <h2 className="text-2xl md:text-3xl font-black text-white tracking-widest flex items-center justify-center gap-3">
-            <Radio className="text-fuchsia-400 animate-pulse" size={32} />
-            SATELLITE SIGNAL <span className="text-fuchsia-400">MONITOR</span>
-          </h2>
-          <p className="text-slate-400 mt-2 font-bold text-sm tracking-widest uppercase">GISTDA Ground Station Command Center</p>
-        </div>
 
         {/* 2 กรอบซ้าย-ขวา */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6 w-full mb-8">
