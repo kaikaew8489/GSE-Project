@@ -67,6 +67,9 @@ export default function MainApp({ onGoHome, initialRole }) {
   const [formData, setFormData] = useState({ reporter: '', reporterContact: '', position: '', department: '', bureau: 'สำนักปฏิบัติการดาวเทียม', equipment: '', description: '', assetNumber: '', building: '', room: '', equipmentCategory: '', images: [], videos: [], isSsc: false });
   const [formErrors, setFormErrors] = useState({});
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [showSuccess, setShowSuccess] = useState(false); 
+  const [isNavVisible, setIsNavVisible] = useState(true);
+  const lastScrollY = useRef(0);
   const [showImagePicker, setShowImagePicker] = useState(false);
   
   const [actionModal, setActionModal] = useState({ isOpen: false, ticketId: null, type: null });
@@ -615,8 +618,6 @@ export default function MainApp({ onGoHome, initialRole }) {
     };
   }, [filteredTickets_forDashboard]);
 
-  const [isNavVisible, setIsNavVisible] = useState(true);
-  const lastScrollY = useRef(0);
   const handleMainScroll = (e) => {
     const currentScrollY = e.target.scrollTop;
     if (currentScrollY > lastScrollY.current && currentScrollY > 20) setIsNavVisible(false);
@@ -695,8 +696,11 @@ export default function MainApp({ onGoHome, initialRole }) {
                 <div className="w-full flex flex-col items-center pt-2 md:pt-4 pb-32 animate-in fade-in zoom-in-95 duration-500 relative z-10 px-4 md:px-0">
                   <div className="w-full md:w-[calc(100%-3rem)] md:max-w-[976px] mx-auto bg-[#0f172a]/60 backdrop-blur-xl border-2 md:border-[3px] border-solid border-orange-500/80 rounded-2xl md:rounded-[1.2rem] p-6 md:p-10 shadow-[0_0_50px_rgba(249,115,22,0.2),inset_0_0_30px_rgba(249,115,22,0.05)] relative overflow-hidden">
                     <div className="absolute inset-0 bg-[url('https://www.transparenttextures.com/patterns/cubes.png')] opacity-[0.03] pointer-events-none mix-blend-overlay"></div>
+                    
+                    {/* 🌟 ฟันธง: ปรับแก้ไขสีปุ่มทางเข้าหลักทั้ง 7 ปุ่มให้แตกต่างสว่างวับแยกสีนีออนเด็ดขาด 🌟 */}
                     <div className="grid grid-cols-2 md:grid-cols-4 gap-4 md:gap-6 relative z-10">
                       
+                      {/* ปุ่มที่ 1: จัดการงานซ่อม (สีส้มแอมเบอร์) */}
                       <button onClick={() => setActiveTab('dashboard')} className="group relative aspect-square md:aspect-auto md:h-44 bg-slate-900/80 border-[2px] border-slate-700/80 rounded-3xl hover:border-orange-500 shadow-lg hover:shadow-[0_0_30px_rgba(249,115,22,0.4)] transition-all duration-300 flex flex-col items-center justify-center gap-3 overflow-hidden">
                         <div className="absolute inset-0 bg-gradient-to-b from-orange-500/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity"></div>
                         <div className="w-14 h-14 md:w-16 md:h-16 bg-gradient-to-br from-orange-400 to-orange-600 rounded-2xl flex items-center justify-center shadow-[0_0_20px_rgba(249,115,22,0.6)] group-hover:scale-110 transition-transform duration-300 z-10">
@@ -708,9 +712,10 @@ export default function MainApp({ onGoHome, initialRole }) {
                         </div>
                       </button>
 
+                      {/* ปุ่มที่ 2: รายงานประจำวัน (สีม่วงอเมทิสต์) */}
                       <button onClick={() => setActiveTab('daily_report')} className="group relative aspect-square md:aspect-auto md:h-44 bg-slate-900/80 border-[2px] border-slate-700/80 rounded-3xl hover:border-purple-400 shadow-lg hover:shadow-[0_0_30px_rgba(168,85,247,0.4)] transition-all duration-300 flex flex-col items-center justify-center gap-3 overflow-hidden">
                         <div className="absolute inset-0 bg-gradient-to-b from-purple-500/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity"></div>
-                        <div className="w-14 h-14 md:w-16 md:h-16 bg-gradient-to-br from-purple-400 to-purple-600 rounded-2xl flex items-center justify-center shadow-[0_0_20px_rgba(168,85,247,0.6)] group-hover:scale-110 transition-transform duration-300 z-10">
+                        <div className="w-14 h-14 md:w-16 md:h-16 bg-gradient-to-br from-purple-400 to-fuchsia-600 rounded-2xl flex items-center justify-center shadow-[0_0_20px_rgba(168,85,247,0.6)] group-hover:scale-110 transition-transform duration-300 z-10">
                           <FileText className="w-7 h-7 md:w-8 md:h-8 text-white" strokeWidth={2.5}/>
                         </div>
                         <div className="flex flex-col items-center z-10 mt-1">
@@ -719,6 +724,7 @@ export default function MainApp({ onGoHome, initialRole }) {
                         </div>
                       </button>
 
+                      {/* ปุ่มที่ 3: มอบหมายงาน (สีเขียวเอเมอรัลด์) */}
                       <button onClick={() => setActiveTab('pm')} className="group relative aspect-square md:aspect-auto md:h-44 bg-slate-900/80 border-[2px] border-slate-700/80 rounded-3xl hover:border-emerald-400 shadow-lg hover:shadow-[0_0_30px_rgba(16,185,129,0.4)] transition-all duration-300 flex flex-col items-center justify-center gap-3 overflow-hidden">
                         <div className="absolute inset-0 bg-gradient-to-b from-emerald-500/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity"></div>
                         <div className="w-14 h-14 md:w-16 md:h-16 bg-gradient-to-br from-emerald-400 to-teal-500 rounded-2xl flex items-center justify-center shadow-[0_0_20px_rgba(16,185,129,0.6)] group-hover:scale-110 transition-transform duration-300 z-10">
@@ -730,9 +736,10 @@ export default function MainApp({ onGoHome, initialRole }) {
                         </div>
                       </button>
 
+                      {/* ปุ่มที่ 4: วันลา/เข้าสาย (สีแดงทับทิม/โรส) */}
                       <button onClick={() => setActiveTab('leave')} className="group relative aspect-square md:aspect-auto md:h-44 bg-slate-900/80 border-[2px] border-slate-700/80 rounded-3xl hover:border-rose-500 shadow-lg hover:shadow-[0_0_30px_rgba(225,29,72,0.4)] transition-all duration-300 flex flex-col items-center justify-center gap-3 overflow-hidden">
                         <div className="absolute inset-0 bg-gradient-to-b from-rose-500/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity"></div>
-                        <div className="w-14 h-14 md:w-16 md:h-16 bg-gradient-to-br from-rose-500 to-rose-600 rounded-2xl flex items-center justify-center shadow-[0_0_20px_rgba(225,29,72,0.6)] group-hover:scale-110 transition-transform duration-300 z-10">
+                        <div className="w-14 h-14 md:w-16 md:h-16 bg-gradient-to-br from-rose-500 to-red-600 rounded-2xl flex items-center justify-center shadow-[0_0_20px_rgba(225,29,72,0.6)] group-hover:scale-110 transition-transform duration-300 z-10">
                           <Calendar className="w-7 h-7 md:w-8 md:h-8 text-white" strokeWidth={2.5}/>
                         </div>
                         <div className="flex flex-col items-center z-10 mt-1">
@@ -741,39 +748,43 @@ export default function MainApp({ onGoHome, initialRole }) {
                         </div>
                       </button>
 
-                      <button onClick={() => setActiveTab('monitoring')} className="group relative aspect-square md:aspect-auto md:h-44 bg-slate-900/80 border-[2px] border-slate-700/80 rounded-3xl hover:border-sky-400 shadow-lg hover:shadow-[0_0_30px_rgba(14,165,233,0.4)] transition-all duration-300 flex flex-col items-center justify-center gap-3 overflow-hidden">
-                        <div className="absolute inset-0 bg-gradient-to-b from-sky-500/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity"></div>
-                        <div className="w-14 h-14 md:w-16 md:h-16 bg-gradient-to-br from-cyan-400 to-blue-500 rounded-2xl flex items-center justify-center shadow-[0_0_20px_rgba(6,182,212,0.6)] group-hover:scale-110 transition-transform duration-300 z-10">
-                          <Activity className="w-7 h-7 md:w-8 md:h-8 text-white" strokeWidth={2.5}/>
+                      {/* ปุ่มที่ 5: IoT Monitor สถานة UPS (💥 ปรับปรุงเป็นสีเหลืองพลาสม่าวิศวกรรมสว่างชัดตามสั่งเป๊ะ! 💥) */}
+                      <button onClick={() => setActiveTab('monitoring')} className="group relative aspect-square md:aspect-auto md:h-44 bg-slate-900/80 border-[2px] border-slate-700/80 rounded-3xl hover:border-yellow-400 shadow-lg hover:shadow-[0_0_30px_rgba(234,179,8,0.5)] transition-all duration-300 flex flex-col items-center justify-center gap-3 overflow-hidden">
+                        <div className="absolute inset-0 bg-gradient-to-b from-yellow-500/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity"></div>
+                        <div className="w-14 h-14 md:w-16 md:h-16 bg-gradient-to-br from-yellow-400 to-amber-500 rounded-2xl flex items-center justify-center shadow-[0_0_20px_rgba(234,179,8,0.7)] group-hover:scale-110 transition-transform duration-300 z-10">
+                          <Activity className="w-7 h-7 md:w-8 md:h-8 text-slate-950" strokeWidth={3}/>
                         </div>
                         <div className="flex flex-col items-center z-10 mt-1">
-                          <span className="font-black text-white text-[14px] md:text-[16px] tracking-wide group-hover:text-cyan-300 transition-colors">IoT Monitor</span>
-                          <span className="text-slate-400 text-[10px] md:text-[11px] font-bold tracking-wider uppercase mt-0.5 text-cyan-500">สถานะ UPS</span>
+                          <span className="font-black text-white text-[14px] md:text-[16px] tracking-wide group-hover:text-yellow-400 transition-colors">IoT Monitor</span>
+                          <span className="text-yellow-500 text-[10px] md:text-[11px] font-bold tracking-wider uppercase mt-0.5">สถานะ UPS</span>
                         </div>
                       </button>
 
-                      <button onClick={() => setActiveTab('satellite')} className="group relative aspect-square md:aspect-auto md:h-44 bg-slate-900/80 border-[2px] border-slate-700/80 rounded-3xl hover:border-indigo-400 shadow-lg hover:shadow-[0_0_30px_rgba(99,102,241,0.4)] transition-all duration-300 flex flex-col items-center justify-center gap-3 overflow-hidden">
-                        <div className="absolute inset-0 bg-gradient-to-b from-indigo-500/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity"></div>
-                        <div className="w-14 h-14 md:w-16 md:h-16 bg-gradient-to-br from-indigo-500 to-purple-600 rounded-2xl flex items-center justify-center shadow-[0_0_20px_rgba(99,102,241,0.6)] group-hover:scale-110 transition-transform duration-300 z-10">
+                      {/* ปุ่มที่ 6: Sat Signals (สีฟ้าสกายบลู/ไซแอน ป้องกันการกลืนกับเฉดม่วง) */}
+                      <button onClick={() => setActiveTab('satellite')} className="group relative aspect-square md:aspect-auto md:h-44 bg-slate-900/80 border-[2px] border-slate-700/80 rounded-3xl hover:border-sky-400 shadow-lg hover:shadow-[0_0_30px_rgba(56,189,248,0.4)] transition-all duration-300 flex flex-col items-center justify-center gap-3 overflow-hidden">
+                        <div className="absolute inset-0 bg-gradient-to-b from-sky-500/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity"></div>
+                        <div className="w-14 h-14 md:w-16 md:h-16 bg-gradient-to-br from-cyan-400 to-sky-600 rounded-2xl flex items-center justify-center shadow-[0_0_20px_rgba(6,182,212,0.6)] group-hover:scale-110 transition-transform duration-300 z-10">
                           <Globe className="w-7 h-7 md:w-8 md:h-8 text-white" strokeWidth={2.5}/>
                         </div>
                         <div className="flex flex-col items-center z-10 mt-1">
-                          <span className="font-black text-white text-[14px] md:text-[16px] tracking-wide group-hover:text-indigo-300 transition-colors">Sat Signals</span>
-                          <span className="text-slate-400 text-[10px] md:text-[11px] font-bold tracking-wider uppercase mt-0.5 text-indigo-400">สถานะสัญญาณดาวเทียม</span>
+                          <span className="font-black text-white text-[14px] md:text-[16px] tracking-wide group-hover:text-sky-300 transition-colors">Sat Signals</span>
+                          <span className="text-sky-400 text-[10px] md:text-[11px] font-bold tracking-wider uppercase mt-0.5">สถานะดาวเทียม</span>
                         </div>
                       </button>
 
-                      <button onClick={() => setActiveTab('inventory')} className="group relative aspect-square md:aspect-auto md:h-44 bg-slate-900/80 border-[2px] border-slate-700/80 rounded-3xl hover:border-indigo-400 shadow-lg hover:shadow-[0_0_30px_rgba(99,102,241,0.4)] transition-all duration-300 flex flex-col items-center justify-center gap-3 overflow-hidden">
+                      {/* ปุ่มที่ 7: อะไหล่/ครุภัณฑ์ (สีน้ำเงินอินดิโก้/ไวโอเล็ตลุ่มลึก เข้มข้นชัดเจน) */}
+                      <button onClick={() => setActiveTab('inventory')} className="group relative aspect-square md:aspect-auto md:h-44 bg-slate-900/80 border-[2px] border-slate-700/80 rounded-3xl hover:border-indigo-500 shadow-lg hover:shadow-[0_0_30px_rgba(99,102,241,0.4)] transition-all duration-300 flex flex-col items-center justify-center gap-3 overflow-hidden">
                         <div className="absolute inset-0 bg-gradient-to-b from-indigo-500/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity"></div>
-                        <div className="w-14 h-14 md:w-16 md:h-16 bg-gradient-to-br from-indigo-500 to-violet-600 rounded-2xl flex items-center justify-center shadow-[0_0_20px_rgba(99,102,241,0.6)] group-hover:scale-110 transition-transform duration-300 z-10">
+                        <div className="w-14 h-14 md:w-16 md:h-16 bg-gradient-to-br from-indigo-500 to-violet-700 rounded-2xl flex items-center justify-center shadow-[0_0_20px_rgba(99,102,241,0.6)] group-hover:scale-110 transition-transform duration-300 z-10">
                           <Package className="w-7 h-7 md:w-8 md:h-8 text-white" strokeWidth={2.5}/>
                         </div>
                         <div className="flex flex-col items-center z-10 mt-1">
                           <span className="font-black text-white text-[14px] md:text-[16px] tracking-wide group-hover:text-indigo-300 transition-colors">อะไหล่/ครุภัณฑ์</span>
-                          <span className="text-slate-400 text-[10px] md:text-[11px] font-bold tracking-wider uppercase mt-0.5 text-indigo-400">บริการงานจัดการ</span>
+                          <span className="text-indigo-400 text-[10px] md:text-[11px] font-bold tracking-wider uppercase mt-0.5">บริการงานจัดการ</span>
                         </div>
                       </button>
 
+                      {/* ปุ่มที่ 8: Coming Soon */}
                       <button disabled className="group relative aspect-square md:aspect-auto md:h-44 bg-slate-900/30 border-[2px] border-slate-800 rounded-3xl flex flex-col items-center justify-center gap-3 opacity-60 cursor-not-allowed">
                         <span className="absolute top-3 right-3 bg-slate-800 text-slate-400 text-[9px] font-black px-2 py-0.5 rounded-md tracking-widest">SOON</span>
                         <div className="w-14 h-14 md:w-16 md:h-16 bg-slate-800 rounded-2xl flex items-center justify-center">
@@ -790,7 +801,6 @@ export default function MainApp({ onGoHome, initialRole }) {
                 </div>
               )}
 
-              {/* 🌟 ฟันธง: ส่ง Props แบบทะลุทะลวงให้ทุก Component แก้บั๊กหาคำสั่งไม่เจอ 100% 🌟 */}
               {activeTab === 'inventory' && (
                 <div className="px-4 md:px-6">
                   <InventoryView 
@@ -926,7 +936,7 @@ export default function MainApp({ onGoHome, initialRole }) {
         </div>
       </div>
 
-      {/* 🌟 ส่งตัวแปรทะลุ ActionModal ป้องกัน Error กดแคปหน้าจอตอนแนบไฟล์ 🌟 */}
+      {/* 🌟 ส่งตัวแปรทะลุ ActionModal ป้องกัน Error 🌟 */}
       <ActionModal 
         isOpen={actionModal.isOpen} 
         onClose={() => {

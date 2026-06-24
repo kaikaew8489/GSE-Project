@@ -3,7 +3,7 @@ import {
   Package, Search, Filter, Camera, Wrench, ShieldCheck, AlertTriangle, 
   MapPin, Hash, Calendar, DollarSign, Box, Cpu, Sofa, MonitorSmartphone,
   ChevronRight, X, CheckCircle2, Edit3, Save, Video, FileText, Monitor, ClipboardPaste, PlayCircle, Loader2,
-  Beaker, Building2, Home, LogOut, PlusCircle, User
+  Beaker, Building2, PlusCircle, User
 } from 'lucide-react';
 import { createPortal } from 'react-dom';
 import { db, storage } from '../lib/firebaseConfig';
@@ -44,7 +44,16 @@ export default function InventoryView({ sysTime, currentUserRole, currentUserNam
     'นายวิชญ์ภาส ตรบัณฑิต'
   ];
 
-  const [isNavVisible, setIsNavVisible] = useState(true);
+  // 🌟 ฟันธง: ลบ Other ออกจากสเปกสี 🌟
+  const catStyles = {
+    All: { iconColor: 'text-slate-300', textClass: 'text-slate-400', active: 'bg-slate-700 text-white border-slate-400 shadow-[0_0_15px_rgba(148,163,184,0.5)]', hover: 'hover:border-slate-500' },
+    Engineering: { iconColor: 'text-emerald-400', textClass: 'text-emerald-400', active: 'bg-emerald-600 text-white border-emerald-400 shadow-[0_0_15px_rgba(16,185,129,0.5)]', hover: 'hover:border-emerald-500' },
+    Facility: { iconColor: 'text-sky-400', textClass: 'text-sky-400', active: 'bg-sky-600 text-white border-sky-400 shadow-[0_0_15px_rgba(56,189,248,0.5)]', hover: 'hover:border-sky-500' },
+    Furniture: { iconColor: 'text-orange-400', textClass: 'text-orange-400', active: 'bg-orange-600 text-white border-orange-400 shadow-[0_0_15px_rgba(249,115,22,0.5)]', hover: 'hover:border-orange-500' },
+    IT: { iconColor: 'text-yellow-400', textClass: 'text-yellow-400', active: 'bg-yellow-500 text-slate-950 border-yellow-300 shadow-[0_0_15px_rgba(234,179,8,0.6)] font-black', hover: 'hover:border-yellow-400' },
+    Scientific: { iconColor: 'text-pink-400', textClass: 'text-pink-400', active: 'bg-pink-600 text-white border-pink-400 shadow-[0_0_15px_rgba(236,72,153,0.5)]', hover: 'hover:border-pink-500' },
+    Software: { iconColor: 'text-purple-400', textClass: 'text-purple-400', active: 'bg-purple-600 text-white border-purple-400 shadow-[0_0_15px_rgba(168,85,247,0.5)]', hover: 'hover:border-purple-500' }
+  };
 
   useEffect(() => {
     const unsub = onSnapshot(collection(db, 'assets'), (snapshot) => {
@@ -59,12 +68,13 @@ export default function InventoryView({ sysTime, currentUserRole, currentUserNam
             model: data.model || '-',
             priceStr: data.price || '0',
             location: data.storage_location || data.place_name || '-',
-            category: data.category || 'Other',
+            category: data.category || 'IT', // 🌟 เปลี่ยน Default เป็น IT 🌟
             status: data.status || 'active',
             year: data.purchase_date ? String(data.purchase_date).split(' ').pop() : (data.year || '-'),
             asset_class: data.asset_class || '',
             system_group: data.system_group || '',
             responsible_person: data.responsible_person || '-',
+            attachedFiles: data.attachedFiles || [],
             ...data 
           };
         });
@@ -78,30 +88,6 @@ export default function InventoryView({ sysTime, currentUserRole, currentUserNam
       }
     });
     return () => unsub();
-  }, []);
-
-  useEffect(() => {
-    let prevScrollPos = window.scrollY;
-
-    const handleScroll = (e) => {
-      const target = e.target === document ? window : e.target;
-      const currentScrollPos = target.scrollY !== undefined ? target.scrollY : target.scrollTop;
-      
-      if (currentScrollPos === undefined) return;
-      if (currentScrollPos <= 0) {
-        setIsNavVisible(true);
-        return;
-      }
-      if (currentScrollPos > prevScrollPos && currentScrollPos > 20) {
-        setIsNavVisible(false); 
-      } else if (currentScrollPos < prevScrollPos) {
-        setIsNavVisible(true);  
-      }
-      prevScrollPos = currentScrollPos;
-    };
-
-    window.addEventListener('scroll', handleScroll, { passive: true, capture: true });
-    return () => window.removeEventListener('scroll', handleScroll, { capture: true });
   }, []);
 
   const handleFileUpload = (e) => {
@@ -191,14 +177,15 @@ export default function InventoryView({ sysTime, currentUserRole, currentUserNam
   const totalValue = processedData.reduce((sum, item) => sum + item.numericPrice, 0);
 
   const getCategoryIcon = (cat) => {
+    const color = catStyles[cat]?.iconColor || 'text-slate-400';
     switch(cat) {
-      case 'IT': return <MonitorSmartphone size={16} className="text-cyan-400" />;
-      case 'Software': return <Cpu size={16} className="text-purple-400" />;
-      case 'Furniture': return <Sofa size={16} className="text-orange-400" />;
-      case 'Engineering': return <Wrench size={16} className="text-emerald-400" />;
-      case 'Scientific': return <Beaker size={16} className="text-pink-400" />;
-      case 'Facility': return <Building2 size={16} className="text-blue-400" />;
-      default: return <Box size={16} className="text-slate-400" />;
+      case 'IT': return <MonitorSmartphone size={16} className={color} />;
+      case 'Software': return <Cpu size={16} className={color} />;
+      case 'Furniture': return <Sofa size={16} className={color} />;
+      case 'Engineering': return <Wrench size={16} className={color} />;
+      case 'Scientific': return <Beaker size={16} className={color} />;
+      case 'Facility': return <Building2 size={16} className={color} />;
+      default: return <Box size={16} className={color} />;
     }
   };
 
@@ -284,7 +271,7 @@ export default function InventoryView({ sysTime, currentUserRole, currentUserNam
         price: addFormData.priceStr || '0',
         storage_location: addFormData.location || '-',
         responsible_person: addFormData.responsible_person || currentUserName || '-',
-        category: addFormData.category || 'Other',
+        category: addFormData.category || 'IT', // 🌟 เปลี่ยน Default เป็น IT 🌟
         status: 'active', 
         year: sysTime ? sysTime.getFullYear() + 543 : new Date().getFullYear() + 543, 
         attachedFiles: attachedFilesData,
@@ -367,15 +354,21 @@ export default function InventoryView({ sysTime, currentUserRole, currentUserNam
           </button>
         </div>
 
+        {/* 🌟 ฟันธง: ลบ Other ออกจากแถบปุ่ม Filter 🌟 */}
         <div className="flex w-full overflow-x-auto gap-2 pb-2 md:pb-0 [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]">
-          {['All', 'Engineering', 'Facility', 'Furniture', 'IT', 'Scientific', 'Software', 'Other'].map(cat => (
-            <button 
-              key={cat} onClick={() => setSelectedCategory(cat)}
-              className={`shrink-0 flex-1 px-4 py-2.5 rounded-xl font-bold text-[13px] md:text-[14px] border-[2px] transition-all active:scale-95 flex items-center justify-center gap-2 ${selectedCategory === cat ? 'bg-indigo-600 text-white border-indigo-400 shadow-[0_0_15px_rgba(99,102,241,0.5)]' : 'bg-slate-800 text-slate-400 border-slate-700 hover:border-indigo-500'}`}
-            >
-              {getCategoryIcon(cat)} <span className="whitespace-nowrap">{cat === 'All' ? 'ทั้งหมด' : cat}</span>
-            </button>
-          ))}
+          {['All', 'Engineering', 'Facility', 'Furniture', 'IT', 'Scientific', 'Software'].map(cat => {
+            const style = catStyles[cat] || catStyles.IT;
+            return (
+              <button 
+                key={cat} onClick={() => setSelectedCategory(cat)}
+                className={`shrink-0 flex-1 px-4 py-2.5 rounded-xl font-bold text-[13px] md:text-[14px] border-[2px] transition-all active:scale-95 flex items-center justify-center gap-2 ${
+                  selectedCategory === cat ? style.active : `bg-slate-800 text-slate-400 border-slate-700 ${style.hover}`
+                }`}
+              >
+                {getCategoryIcon(cat)} <span className="whitespace-nowrap">{cat === 'All' ? 'ทั้งหมด' : cat}</span>
+              </button>
+            );
+          })}
         </div>
       </div>
 
@@ -412,7 +405,7 @@ export default function InventoryView({ sysTime, currentUserRole, currentUserNam
         )}
       </div>
 
-      {/* 🌟 Modal: ฟอร์มเพิ่มครุภัณฑ์ใหม่ 🌟 */}
+      {/* Modal หน้าต่างฟอร์มเพิ่มครุภัณฑ์ใหม่ */}
       {showAddModal && createPortal(
         <div className="fixed inset-0 z-[999999] bg-[#020617]/95 backdrop-blur-2xl flex items-center justify-center p-4 animate-in fade-in zoom-in-95">
           <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[400px] h-[400px] bg-emerald-500/20 blur-[100px] rounded-full pointer-events-none"></div>
@@ -438,8 +431,9 @@ export default function InventoryView({ sysTime, currentUserRole, currentUserNam
                 </div>
                 <div>
                   <label className="text-emerald-400 text-[11px] font-bold">หมวดหมู่ (Category)</label>
+                  {/* 🌟 ฟันธง: ลบ Other ออกจาก Dropdown ตัวเลือก 🌟 */}
                   <select className="w-full bg-[#020617] border border-emerald-500/50 rounded-lg p-2 text-white font-bold text-[14px] outline-none mt-1 shadow-inner" value={addFormData.category} onChange={e => setAddFormData({...addFormData, category: e.target.value})}>
-                    {['Engineering', 'Facility', 'Furniture', 'IT', 'Scientific', 'Software', 'Other'].map(cat => (
+                    {['Engineering', 'Facility', 'Furniture', 'IT', 'Scientific', 'Software'].map(cat => (
                       <option key={cat} value={cat}>{cat}</option>
                     ))}
                   </select>
@@ -506,7 +500,7 @@ export default function InventoryView({ sysTime, currentUserRole, currentUserNam
         </div>
       , document.body)}
 
-      {/* 🌟 Modal: หน้าต่างข้อมูลครุภัณฑ์ (Edit/View) 🌟 */}
+      {/* Modal หน้าต่างข้อมูลครุภัณฑ์ (Edit/View) */}
       {selectedAsset && !showAddModal && createPortal(
         <div className="fixed inset-0 z-[999999] bg-[#020617]/95 backdrop-blur-2xl flex items-center justify-center p-4 animate-in fade-in zoom-in-95">
           <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[400px] h-[400px] bg-indigo-500/20 blur-[100px] rounded-full pointer-events-none"></div>
@@ -522,7 +516,9 @@ export default function InventoryView({ sysTime, currentUserRole, currentUserNam
             <div className="bg-slate-900 p-6 border-b border-slate-800 relative pt-12">
               <div className="flex items-center gap-2 mb-3">
                 {getCategoryIcon(selectedAsset.category)}
-                <span className="text-indigo-400 font-black tracking-widest uppercase text-[12px]">{selectedAsset.category || 'N/A'}</span>
+                <span className={`font-black tracking-widest uppercase text-[12px] ${catStyles[selectedAsset.category]?.textClass || 'text-slate-400'}`}>
+                  {selectedAsset.category || 'N/A'}
+                </span>
                 
                 {selectedAsset.asset_class && (
                   <span className="ml-2 bg-slate-800 border border-slate-700 px-2 py-0.5 rounded text-[10px] text-slate-400">{selectedAsset.asset_class}</span>
@@ -568,7 +564,6 @@ export default function InventoryView({ sysTime, currentUserRole, currentUserNam
                 </div>
               </div>
               
-              {/* 🌟 ฟันธง: ส่วนผู้รับผิดชอบ (เป็นปุ่มเมื่อเข้าโหมด Edit) 🌟 */}
               <div className="bg-slate-800/50 p-4 rounded-xl border border-slate-700 flex items-start gap-3">
                 <User className="text-blue-400 mt-0.5 shrink-0" size={18}/>
                 <div className="w-full">
@@ -587,7 +582,6 @@ export default function InventoryView({ sysTime, currentUserRole, currentUserNam
 
             <div className="p-6 border-t border-slate-800 flex flex-col gap-3 bg-slate-900">
               
-              {/* 🌟 ฟันธง: โชว์ภาพที่มีอยู่ (หรือโชว์ข้อความว่าไม่มีภาพในโหมด View) 🌟 */}
               {selectedAsset.attachedFiles && selectedAsset.attachedFiles.length > 0 ? (
                  <div className="mb-2">
                   <div className="text-slate-400 text-[11px] font-bold mb-2">ไฟล์แนบ / รูปภาพ</div>
@@ -606,7 +600,6 @@ export default function InventoryView({ sysTime, currentUserRole, currentUserNam
                 )
               )}
 
-              {/* ภาพใหม่ที่เตรียมอัปโหลด (โชว์เฉพาะ Edit) */}
               {isEditing && evidenceFiles.length > 0 && (
                 <div className="mb-2">
                   <div className="text-emerald-400 text-[11px] font-bold mb-2">ไฟล์ใหม่ที่เตรียมอัปโหลด</div>
@@ -623,7 +616,6 @@ export default function InventoryView({ sysTime, currentUserRole, currentUserNam
                 </div>
               )}
 
-              {/* 🌟 ฟันธง: ปุ่มแนบรูป โชว์เฉพาะ "โหมดแก้ไข" เท่านั้น 🌟 */}
               {!isUploading && isEditing && !showAuditModal && (
                 <button onClick={() => setShowMediaPicker(true)} className={`w-full bg-emerald-900/10 border-[2px] border-dashed border-emerald-500/50 shadow-[0_0_15px_rgba(16,185,129,0.1)] rounded-xl p-4 flex flex-col items-center justify-center gap-2 transition-all active:scale-95 hover:border-emerald-400 hover:shadow-[0_0_20px_rgba(16,185,129,0.2)]`}>
                   <div className="flex gap-3 text-emerald-400/80 drop-shadow-[0_0_5px_rgba(16,185,129,0.5)] mb-1">
@@ -641,7 +633,6 @@ export default function InventoryView({ sysTime, currentUserRole, currentUserNam
                 </div>
               )}
 
-              {/* 🌟 ฟันธง: ปุ่มควบคุมด้านล่าง (สลับตามโหมด View / Edit) 🌟 */}
               {isEditing ? (
                 <div className="flex w-full gap-3 mt-2">
                   <button onClick={() => { setIsEditing(false); setEvidenceFiles([]); setShowAuditModal(false); setEditFormData({}); }} className="flex-[1] py-3.5 rounded-xl font-black text-slate-300 bg-slate-800 border border-slate-600 hover:bg-slate-700 transition-all active:scale-95 text-[15px]">
@@ -667,7 +658,7 @@ export default function InventoryView({ sysTime, currentUserRole, currentUserNam
         </div>
       , document.body)}
 
-      {/* 🌟 Modal: เลือกรูปแบบ Media 🌟 */}
+      {/* Modal: เลือกรูปแบบ Media */}
       {showMediaPicker && createPortal(
         <div className="fixed inset-0 z-[10000000] w-screen h-[100dvh] bg-[#020617]/95 backdrop-blur-3xl flex items-center justify-center p-4 animate-in fade-in zoom-in">
           <div className="bg-[#0f172a] border-[2px] border-orange-500 rounded-[2.5rem] p-6 md:p-8 w-full max-w-sm shadow-[0_0_60px_rgba(249,115,22,0.6),inset_0_0_30px_rgba(249,115,22,0.2)] relative flex flex-col items-center">
@@ -713,7 +704,7 @@ export default function InventoryView({ sysTime, currentUserRole, currentUserNam
         </div>
       , document.body)}
 
-      {/* 🌟 ฟันธง: User Picker Modal (ป๊อปอัปเลือกรายชื่อทีมงาน) 🌟 */}
+      {/* Modal: เลือกรายชื่อทีมงาน (User Picker) */}
       {showUserPicker && createPortal(
         <div className="fixed inset-0 z-[10000000] w-screen h-[100dvh] bg-[#020617]/95 backdrop-blur-2xl flex items-center justify-center p-4 animate-in fade-in">
           <div className="bg-[#0f172a] border-[2px] border-orange-500 rounded-[2rem] p-6 w-full max-w-sm shadow-[0_0_60px_rgba(249,115,22,0.5)] flex flex-col max-h-[85vh] relative">
@@ -747,7 +738,7 @@ export default function InventoryView({ sysTime, currentUserRole, currentUserNam
 
       <input type="file" id="global-file-input" multiple className="hidden" onChange={handleFileUpload} />
 
-      {/* 🌟 Lightbox Modal 🌟 */}
+      {/* Lightbox มัลติมีเดียเต็มหน้าจอภายใน App */}
       {lightboxMedia && createPortal(
         <div className="fixed inset-0 z-[99999999] w-screen h-[100dvh] bg-[#020617]/95 backdrop-blur-3xl flex items-center justify-center p-4 animate-in fade-in zoom-in" onClick={() => setLightboxMedia(null)}>
           <button className="absolute top-5 right-5 text-slate-400 hover:text-rose-400 bg-slate-800 p-2 rounded-full border border-slate-600 z-50 transition-colors" onClick={() => setLightboxMedia(null)}>
