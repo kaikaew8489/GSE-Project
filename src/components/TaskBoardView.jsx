@@ -36,11 +36,16 @@ export default function TaskBoardView({ sysTime, currentUserRole, currentUserNam
   const [calMonth, setCalMonth] = useState(sysTime.getMonth());
   const [calYear, setCalYear] = useState(sysTime.getFullYear());
 
-  // Action Modals State
-  const [actionModal, setActionModal] = useState({ isOpen: false, type: null, dbId: null });
-  const [actionReason, setActionReason] = useState('');
-  const [actionFiles, setActionFiles] = useState([]);
-  const [formError, setFormError] = useState('');
+ // Action Modals State
+ const [actionModal, setActionModal] = useState({ isOpen: false, type: null, dbId: null });
+ const [actionReason, setActionReason] = useState('');
+ const [actionFiles, setActionFiles] = useState([]);
+ const [formError, setFormError] = useState('');
+
+ // 🌟 ฟันธง: State สำหรับเลือกผู้ช่วย (Helpers) ตอนส่งงาน
+ const [taskHelpers, setTaskHelpers] = useState([]);
+ const [showHelperPickerModal, setShowHelperPickerModal] = useState(false);
+ const [helperSearch, setHelperSearch] = useState('');
 
   // State ระบบอัปโหลดและ Media Picker
   const [isUploading, setIsUploading] = useState(false);
@@ -216,7 +221,8 @@ export default function TaskBoardView({ sysTime, currentUserRole, currentUserNam
         attachments: newTask.attachments,
         historyLog: [],
         reworkCount: 0,
-        totalPauseMs: 0
+        totalPauseMs: 0,
+        helpers: [] // 🌟 ฟันธง: จองพื้นที่ Array ว่างไว้เตรียมรับรายชื่อผู้ช่วยตอนลูกน้องปิดงาน
       });
       setIsNewTaskModalOpen(false);
       setNewTask({ title: '', description: '', assignee: '', dueDate: '', priority: 'medium', attachments: [] });
@@ -255,17 +261,23 @@ export default function TaskBoardView({ sysTime, currentUserRole, currentUserNam
           const pauseDuration = new Date().getTime() - task.lastBlockedAt.toMillis();
           updates.totalPauseMs = (task.totalPauseMs || 0) + pauseDuration;
         }
+
       } 
       else if (type === 'submit') {
         updates.status = 'pending_verify';
         newLog.note = actionReason;
         newLog.files = actionFiles;
-      } 
+        newLog.helpers = taskHelpers; // 🌟 บันทึกเครดิตผู้ช่วยลง History Log
+        updates.helpers = taskHelpers; // 🌟 อัปเดตฟิลด์หลักให้ดึงไปโชว์ง่ายๆ
+      }
+
+
       else if (type === 'reject') {
         updates.status = 'doing';
         updates.reworkCount = (task.reworkCount || 0) + 1;
         newLog.reason = actionReason;
       } 
+
       else if (type === 'verify') {
         updates.status = 'done';
         updates.completedAt = serverTimestamp();
@@ -285,6 +297,8 @@ export default function TaskBoardView({ sysTime, currentUserRole, currentUserNam
     setActionReason('');
     setActionFiles([]);
     setFormError('');
+    setTaskHelpers([]); // 🌟 เคลียร์ผู้ช่วยเมื่อปิดหน้าต่าง
+    setHelperSearch('');
   };
 
   const formatDuration = (ms) => {
@@ -585,10 +599,11 @@ export default function TaskBoardView({ sysTime, currentUserRole, currentUserNam
                   </div>
                 )}
 
-                <div className="bg-slate-100 dark:bg-[#1e293b] p-4 flex flex-col sm:flex-row items-center justify-end gap-3 border-t border-slate-200 dark:border-slate-700">
-                    {(currentUserRole === 'reporter' && task.assignee === currentUserName) && (
+                    <div className="bg-slate-100 dark:bg-[#1e293b] p-4 flex flex-col sm:flex-row items-center justify-end gap-3 border-t border-slate-200 dark:border-slate-700">
+                    {(task.assignee === currentUserName) && (
                       <>
                         {task.status === 'todo' && <button onClick={() => setActionModal({isOpen: true, type: 'start', dbId: task.dbId})} className="w-full sm:w-auto bg-blue-600 hover:bg-blue-500 text-white font-black px-6 py-2.5 rounded-xl shadow-[0_0_15px_rgba(37,99,235,0.4)] flex items-center justify-center gap-2 active:scale-95 transition-all"><PlayCircle size={18}/> เริ่มปฏิบัติงาน</button>}
+
                         {task.status === 'doing' && (
                           <>
                             <button onClick={() => setActionModal({isOpen: true, type: 'block', dbId: task.dbId})} className="w-full sm:w-auto bg-rose-600 hover:bg-rose-500 text-white font-black px-4 py-2.5 rounded-xl shadow-[0_0_15px_rgba(225,29,72,0.4)] flex items-center justify-center gap-2 active:scale-95 transition-all"><PauseCircle size={18}/> แจ้งขัดข้อง</button>
@@ -650,9 +665,25 @@ export default function TaskBoardView({ sysTime, currentUserRole, currentUserNam
                 </div>
               )}
 
-              {actionModal.type === 'submit' && (
-                <div>
-                  <label className="block text-slate-300 text-[14px] font-bold mb-2">แนบหลักฐาน (รูปถ่าย/เอกสาร)</label>
+            {actionModal.type === 'submit' && (
+                <div className="space-y-4 pt-2">
+                  {/* 🌟 ส่วนเลือกผู้ช่วย (Helpers) */}
+                  <div className="bg-[#1e293b]/50 border border-slate-700/50 rounded-xl p-3.5 shadow-inner">
+                    <label className="block text-cyan-400 text-[14px] font-bold mb-3 flex items-center gap-2"><User size={16}/> ผู้ช่วยปฏิบัติงาน (ให้เครดิตทีม)</label>
+                    <div className="flex flex-wrap gap-2">
+                      {taskHelpers.map((h, idx) => (
+                        <span key={idx} className="bg-cyan-500/20 text-cyan-300 border border-cyan-500/50 px-3 py-1.5 rounded-lg text-[13px] font-bold flex items-center gap-2 shadow-sm animate-in zoom-in">
+                          {h} <button type="button" onClick={() => setTaskHelpers(prev => prev.filter(x => x !== h))} className="text-cyan-400 hover:text-rose-400 transition-colors"><X size={14}/></button>
+                        </span>
+                      ))}
+                      <button type="button" onClick={() => setShowHelperPickerModal(true)} className="bg-slate-800 hover:bg-slate-700 border border-slate-600 border-dashed text-slate-300 px-4 py-1.5 rounded-lg text-[13px] font-bold flex items-center gap-1.5 transition-all active:scale-95">
+                        <PlusCircle size={15}/> เพิ่มชื่อเพื่อนร่วมงาน
+                      </button>
+                    </div>
+                  </div>
+
+                  <div>
+                    <label className="block text-slate-300 text-[14px] font-bold mb-2">แนบหลักฐาน (รูปถ่าย/เอกสาร)</label>
                   
                   {isUploading ? (
                      <div className="w-full bg-emerald-900/10 border-[2px] border-dashed border-emerald-500/50 rounded-xl p-6 flex flex-col items-center justify-center text-emerald-400">
@@ -666,14 +697,14 @@ export default function TaskBoardView({ sysTime, currentUserRole, currentUserNam
                      </button>
                   )}
 
-                  {actionFiles.length > 0 && (
+                    {actionFiles.length > 0 && (
                     <div className="mt-4 flex flex-wrap gap-3 p-3 bg-slate-900/50 rounded-2xl border border-slate-700/50">
                       {renderThumbnails(actionFiles, (idx) => setActionFiles(prev => prev.filter((_, i) => i !== idx)))}
                     </div>
                   )}
                 </div>
-              )}
-
+              </div>
+            )}
               {actionModal.type === 'verify' && <p className="text-slate-300 font-bold text-center py-4 text-[16px]">ยืนยันว่างานนี้เสร็จสมบูรณ์ 100%?</p>}
               {(actionModal.type === 'start' || actionModal.type === 'resume') && <p className="text-slate-300 font-bold text-center py-4 text-[16px]">ระบบจะเริ่มจับเวลาการทำงานของคุณ</p>}
 
@@ -837,6 +868,36 @@ export default function TaskBoardView({ sysTime, currentUserRole, currentUserNam
           </div>
         </div>
       , document.body)}
+
+
+      {/* 🌟 Popup เลือกผู้ช่วย (Sci-Fi Cyan Glow) 🌟 */}
+      {showHelperPickerModal && createPortal(
+        <div className="fixed inset-0 z-[99999999] w-screen h-[100dvh] bg-[#020617]/95 backdrop-blur-2xl flex items-center justify-center p-4 animate-in fade-in">
+          <div className="bg-[#0f172a] border-[2px] border-cyan-500 rounded-[2rem] p-6 w-full max-w-sm shadow-[0_0_60px_rgba(6,182,212,0.5)] flex flex-col max-h-[85vh] relative overflow-hidden">
+            <div className="absolute top-0 left-1/2 -translate-x-1/2 w-48 h-32 bg-cyan-500/20 blur-[60px] pointer-events-none rounded-full"></div>
+            
+            <h3 className="text-[18px] md:text-[20px] font-black text-cyan-400 mb-4 text-center drop-shadow-[0_0_8px_rgba(6,182,212,0.8)] relative z-10 flex justify-center items-center gap-2"><User size={20}/> เลือกผู้ช่วยปฏิบัติงาน</h3>
+            
+            <div className="mb-4 relative z-10">
+              <input type="text" placeholder="พิมพ์ค้นหาชื่อเพื่อน..." autoFocus className="w-full bg-[#1e293b] border border-slate-600 rounded-xl px-4 py-3 text-white outline-none focus:border-cyan-500 transition-colors shadow-inner text-[15px]" value={helperSearch} onChange={(e) => setHelperSearch(e.target.value)} />
+            </div>
+            
+            <div className="flex-1 overflow-y-auto space-y-2 pr-1 [&::-webkit-scrollbar]:w-1.5 [&::-webkit-scrollbar-thumb]:bg-cyan-500 [&::-webkit-scrollbar-thumb]:rounded-full relative z-10">
+              {(technicianList || [])
+                .filter(t => (t.name || '').toLowerCase().includes(helperSearch.toLowerCase()) && !taskHelpers.includes(t.name) && t.name !== currentUserName)
+                .map((t, idx) => (
+                <button type="button" key={idx} onClick={() => { setTaskHelpers(prev => [...prev, t.name]); setShowHelperPickerModal(false); setHelperSearch(''); }} className="w-full text-left px-4 py-3.5 bg-[#1e293b] border border-slate-700 hover:border-cyan-500 hover:bg-cyan-500/20 text-slate-200 hover:text-cyan-400 cursor-pointer rounded-xl text-[15px] font-bold transition-all active:scale-95 shadow-sm flex items-center gap-3">
+                  <PlusCircle size={16}/> {t.name}
+                </button>
+              ))}
+              {(technicianList || []).filter(t => (t.name || '').toLowerCase().includes(helperSearch.toLowerCase()) && !taskHelpers.includes(t.name) && t.name !== currentUserName).length === 0 && <div className="p-4 text-center text-slate-500 text-sm font-bold bg-slate-900/50 rounded-xl">ไม่พบรายชื่อ หรือถูกเลือกไปแล้ว</div>}
+            </div>
+            
+            <button type="button" onClick={() => setShowHelperPickerModal(false)} className="mt-5 w-full py-4 bg-[#1e293b] text-slate-300 font-black text-[16px] rounded-2xl border border-slate-600 hover:bg-slate-800 hover:text-white transition-colors active:scale-95 relative z-10">ปิดหน้าต่าง</button>
+          </div>
+        </div>
+      , document.body)}
+      
 
       {/* 🌟 Popup เลือกลูกน้อง (Sci-Fi Orange Glow) 🌟 */}
       {showTechPickerModal && createPortal(
