@@ -6,7 +6,7 @@ import { ref, uploadBytes, getDownloadURL } from 'firebase/storage';
 import { 
   PlusCircle, Clock, AlertTriangle, Search, User, ChevronRight, X, LogOut, Home, 
   Calendar, ChevronLeft, CheckCircle, ChevronDown, Activity, Paperclip, Loader2, 
-  Camera, UploadCloud, FileText, CheckCircle2, RotateCcw, ShieldCheck, PlayCircle, PauseCircle, Send, ClipboardPaste, Video, Monitor
+  Camera, UploadCloud, FileText, CheckCircle2, RotateCcw, ShieldCheck, PlayCircle, PauseCircle, Send, ClipboardPaste, Video, Monitor, ClipboardList, PhoneCall
 } from 'lucide-react';
 
 export default function TaskBoardView({ sysTime, currentUserRole, currentUserName, technicianList, setActiveTab, onGoHome }) {
@@ -36,22 +36,22 @@ export default function TaskBoardView({ sysTime, currentUserRole, currentUserNam
   const [calMonth, setCalMonth] = useState(sysTime.getMonth());
   const [calYear, setCalYear] = useState(sysTime.getFullYear());
 
- // Action Modals State
- const [actionModal, setActionModal] = useState({ isOpen: false, type: null, dbId: null });
- const [actionReason, setActionReason] = useState('');
- const [actionFiles, setActionFiles] = useState([]);
- const [formError, setFormError] = useState('');
+  // Action Modals State
+  const [actionModal, setActionModal] = useState({ isOpen: false, type: null, dbId: null });
+  const [actionReason, setActionReason] = useState('');
+  const [actionFiles, setActionFiles] = useState([]);
+  const [formError, setFormError] = useState('');
 
- // 🌟 ฟันธง: State สำหรับเลือกผู้ช่วย (Helpers) ตอนส่งงาน
- const [taskHelpers, setTaskHelpers] = useState([]);
- const [showHelperPickerModal, setShowHelperPickerModal] = useState(false);
- const [helperSearch, setHelperSearch] = useState('');
+  // State สำหรับเลือกผู้ช่วย (Helpers) ตอนส่งงาน
+  const [taskHelpers, setTaskHelpers] = useState([]);
+  const [showHelperPickerModal, setShowHelperPickerModal] = useState(false);
+  const [helperSearch, setHelperSearch] = useState('');
 
   // State ระบบอัปโหลดและ Media Picker
   const [isUploading, setIsUploading] = useState(false);
   const [mediaPickerFor, setMediaPickerFor] = useState(null); 
 
-  // 🌟 ฟันธง: State ตรวจจับการเลื่อนหน้าจอ (Auto-Hide Navbar) 🌟
+  // State ตรวจจับการเลื่อนหน้าจอ (Auto-Hide Navbar)
   const [isNavVisible, setIsNavVisible] = useState(true);
   const [lastScrollY, setLastScrollY] = useState(typeof window !== 'undefined' ? window.scrollY : 0);
 
@@ -63,11 +63,10 @@ export default function TaskBoardView({ sysTime, currentUserRole, currentUserNam
     title: '', description: '', assignee: '', dueDate: '', priority: 'medium', attachments: [] 
   });
 
-  // 🌟 ฟันธง Logic สมบูรณ์: จับ Event Scroll ยืดหยุ่นทั้ง PC และ Mobile 🌟
+  // จับ Event Scroll
   useEffect(() => {
     const handleScroll = () => {
       const currentScrollY = window.scrollY;
-      // ถ้าเลื่อนลงเกิน 50px ให้ซ่อนเมนู / ถ้าเลื่อนขึ้นให้โชว์
       if (currentScrollY > lastScrollY && currentScrollY > 50) {
         setIsNavVisible(false);
       } else if (currentScrollY < lastScrollY) {
@@ -75,7 +74,6 @@ export default function TaskBoardView({ sysTime, currentUserRole, currentUserNam
       }
       setLastScrollY(currentScrollY);
     };
-
     window.addEventListener('scroll', handleScroll, { passive: true });
     return () => window.removeEventListener('scroll', handleScroll);
   }, [lastScrollY]);
@@ -222,7 +220,7 @@ export default function TaskBoardView({ sysTime, currentUserRole, currentUserNam
         historyLog: [],
         reworkCount: 0,
         totalPauseMs: 0,
-        helpers: [] // 🌟 ฟันธง: จองพื้นที่ Array ว่างไว้เตรียมรับรายชื่อผู้ช่วยตอนลูกน้องปิดงาน
+        helpers: [] 
       });
       setIsNewTaskModalOpen(false);
       setNewTask({ title: '', description: '', assignee: '', dueDate: '', priority: 'medium', attachments: [] });
@@ -261,23 +259,19 @@ export default function TaskBoardView({ sysTime, currentUserRole, currentUserNam
           const pauseDuration = new Date().getTime() - task.lastBlockedAt.toMillis();
           updates.totalPauseMs = (task.totalPauseMs || 0) + pauseDuration;
         }
-
       } 
       else if (type === 'submit') {
         updates.status = 'pending_verify';
         newLog.note = actionReason;
         newLog.files = actionFiles;
-        newLog.helpers = taskHelpers; // 🌟 บันทึกเครดิตผู้ช่วยลง History Log
-        updates.helpers = taskHelpers; // 🌟 อัปเดตฟิลด์หลักให้ดึงไปโชว์ง่ายๆ
+        newLog.helpers = taskHelpers; 
+        updates.helpers = taskHelpers; 
       }
-
-
       else if (type === 'reject') {
         updates.status = 'doing';
         updates.reworkCount = (task.reworkCount || 0) + 1;
         newLog.reason = actionReason;
       } 
-
       else if (type === 'verify') {
         updates.status = 'done';
         updates.completedAt = serverTimestamp();
@@ -297,7 +291,7 @@ export default function TaskBoardView({ sysTime, currentUserRole, currentUserNam
     setActionReason('');
     setActionFiles([]);
     setFormError('');
-    setTaskHelpers([]); // 🌟 เคลียร์ผู้ช่วยเมื่อปิดหน้าต่าง
+    setTaskHelpers([]); 
     setHelperSearch('');
   };
 
@@ -309,6 +303,13 @@ export default function TaskBoardView({ sysTime, currentUserRole, currentUserNam
     const m = Math.floor((totalSec % 3600) / 60);
     const s = totalSec % 60;
     return `${d > 0 ? `${d} วัน ` : ''}${String(h).padStart(2,'0')}:${String(m).padStart(2,'0')}:${String(s).padStart(2,'0')}`;
+  };
+
+  const formatDisplayPhone = (phone) => {
+    if (!phone) return '-';
+    const p = String(phone).replace(/\D/g, '');
+    if (p.length === 10) return `${p.slice(0, 2)}-${p.slice(2, 5)}-${p.slice(5)}`;
+    return phone;
   };
 
   const filteredTasks = useMemo(() => {
@@ -343,7 +344,6 @@ export default function TaskBoardView({ sysTime, currentUserRole, currentUserNam
     return result;
   }, [tasks, searchTerm, filterStatus, filterDateType, filterDate, filterMonth, currentUserRole, currentUserName]);
 
-  // กรองรายชื่อช่าง (ลบเงื่อนไขเฉพาะบุคคลออก เพื่อให้ดึงข้อมูลทั้งหมดได้จริง)
   const filteredTechs = (technicianList || [])
     .filter(t => (t.name || '').toLowerCase().includes(techSearch.toLowerCase()));
     
@@ -351,7 +351,6 @@ export default function TaskBoardView({ sysTime, currentUserRole, currentUserNam
   const getFirstDayOfMonth = (month, year) => new Date(year, month, 1).getDay();
 
   return (
-    // 🌟 คงค่า pb-32 ไว้ เพื่อรับกับ Navbar ลอยตัว
     <div className="p-4 md:p-8 animate-in fade-in duration-500 font-sans h-full flex flex-col w-full relative z-0 pb-32">
       
       <input 
@@ -362,14 +361,13 @@ export default function TaskBoardView({ sysTime, currentUserRole, currentUserNam
         onChange={(e) => handleFileUpload(e, mediaPickerFor === 'assign' ? 'init' : 'action')} 
       />
 
-      {/* 🌟 Live Clock 🌟 */}
       <div className="relative w-full mb-4">
         <div className="absolute inset-0 bg-cyan-500/10 blur-xl rounded-2xl pointer-events-none"></div>
         <div className="bg-[#0f172a]/90 border-[2px] border-cyan-500/60 rounded-2xl p-4 md:p-5 flex items-center justify-center shadow-[0_0_30px_rgba(6,182,212,0.3)] relative overflow-hidden">
           <div className="absolute top-1/2 left-1/4 w-32 h-32 bg-cyan-400/20 blur-[50px] -translate-y-1/2 pointer-events-none"></div>
           <div className="absolute top-1/2 right-1/4 w-32 h-32 bg-blue-500/20 blur-[50px] -translate-y-1/2 pointer-events-none"></div>
           
-          <span className="text-cyan-400 text-[16px] md:text-[22px] font-black tracking-widest drop-shadow-[0_0_10px_rgba(6,182,212,0.8)] flex items-center gap-3 relative z-10">
+          <span className={`${['text-red-500', 'text-yellow-400', 'text-pink-400', 'text-green-500', 'text-orange-500', 'text-sky-400', 'text-purple-400'][sysTime.getDay()]} text-[16px] md:text-[22px] font-black tracking-widest drop-shadow-md flex items-center gap-3 relative z-10`}>
             <Clock className="w-6 h-6 md:w-7 md:h-7 animate-pulse"/> 
             วัน{thaiDays[sysTime.getDay()]}ที่ {sysTime.getDate()} {thaiMonthsFull[sysTime.getMonth()]} {sysTime.getFullYear() + 543} 
             <span className="text-slate-500 font-normal px-1 md:px-2">|</span> 
@@ -402,8 +400,8 @@ export default function TaskBoardView({ sysTime, currentUserRole, currentUserNam
             { id: 'all', label: 'ทั้งหมด' },
             { id: 'todo', label: 'รอดำเนินการ' },
             { id: 'doing', label: 'กำลังทำ' },
-            { id: 'blocked', label: 'ติดปัญหา/รอของ' },
-            { id: 'pending_verify', label: 'รอ หน. ยืนยัน' },
+            { id: 'blocked', label: 'ติดปัญหา' },
+            { id: 'pending_verify', label: 'รอยืนยัน' },
             { id: 'done', label: 'เสร็จสิ้น' },
           ].map(f => (
             <button 
@@ -420,7 +418,6 @@ export default function TaskBoardView({ sysTime, currentUserRole, currentUserNam
           ))}
         </div>
 
-       {/* 🌟 ฟันธง: ปุ่มวันที่/เดือน กางเต็มพื้นที่ 3 ช่องสมมาตร 100% (ไม่ไถข้าง) สีฟ้าสว่างวาบเหมือนเดิม 🌟 */}
        <div className="grid grid-cols-3 gap-2 md:gap-3 w-full relative z-10 mb-4">
           <button onClick={() => { setFilterDateType('all'); setFilterDate(''); setFilterMonth(''); }} className={`w-full py-2.5 md:py-3 rounded-xl font-bold text-[13px] md:text-[14px] transition-all border-[2px] active:scale-95 flex items-center justify-center ${filterDateType === 'all' ? 'bg-gradient-to-b from-cyan-500 to-blue-600 text-white border-cyan-300 shadow-[0_0_15px_rgba(6,182,212,0.6)]' : 'bg-[#0f172a]/80 text-slate-400 border-slate-700 hover:border-cyan-500 hover:text-cyan-400'}`}>
             ทุกวัน
@@ -455,179 +452,310 @@ export default function TaskBoardView({ sysTime, currentUserRole, currentUserNam
             const waitTime = tStart ? (tStart - tCreated) : (currentEnd - tCreated);
             
             let workTime = 0;
+            let totalHoldMs = task.totalPauseMs || 0; // ดึงเวลารวมที่ติดปัญหาทั้งหมด
+            
             if (tStart) {
-              let pauseAcc = task.totalPauseMs || 0;
               if (task.status === 'blocked' && task.lastBlockedAt) {
-                 pauseAcc += (sysTime.getTime() - task.lastBlockedAt.toMillis());
+                 totalHoldMs += (sysTime.getTime() - task.lastBlockedAt.toMillis());
               }
-              workTime = currentEnd - tStart - pauseAcc;
+              workTime = currentEnd - tStart - totalHoldMs;
             }
 
             const getStatusColor = (s) => {
-              if(s==='doing') return 'text-blue-400 bg-blue-500/10 border-blue-500';
-              if(s==='blocked') return 'text-rose-400 bg-rose-500/10 border-rose-500';
-              if(s==='pending_verify') return 'text-orange-400 bg-orange-500/10 border-orange-500';
-              if(s==='done') return 'text-emerald-400 bg-emerald-500/10 border-emerald-500';
-              return 'text-slate-400 bg-slate-500/10 border-slate-500';
+              if(s==='doing') return 'border-blue-500 text-blue-600 bg-blue-50';
+              if(s==='blocked') return 'border-rose-500 text-rose-600 bg-rose-50';
+              if(s==='pending_verify') return 'border-orange-500 text-orange-600 bg-orange-50';
+              if(s==='done') return 'border-emerald-500 text-emerald-600 bg-emerald-50';
+              return 'border-slate-400 text-slate-500 bg-slate-50';
             };
             const getStatusLabel = (s) => {
               if(s==='doing') return 'กำลังทำ';
               if(s==='blocked') return 'ติดปัญหา';
-              if(s==='pending_verify') return 'รอ หน. ยืนยัน';
-              if(s==='done') return 'เสร็จสิ้น';
+              if(s==='pending_verify') return 'รอยืนยัน';
+              if(s==='done') return 'เสร็จสิ้นสมบูรณ์';
               return 'รอดำเนินการ';
             };
 
+            const styleColor = getStatusColor(task.status);
+            
+            // ดึงข้อมูลเบอร์โทรช่างจาก systemData
+            const techInfo = (technicianList || []).find(t => t.name === task.assignee);
+            const techPhone = techInfo ? techInfo.phone : '-';
+
             return (
-              <div key={task.dbId} className="w-full bg-[#f8fafc] dark:bg-[#0f172a]/95 rounded-[1.5rem] border-[2px] border-slate-200 dark:border-slate-700 shadow-xl overflow-hidden animate-in fade-in zoom-in-95">
+              <div key={task.dbId} className={`w-full bg-white dark:bg-[#0f172a]/95 rounded-[2rem] border-l-[12px] ${styleColor.split(' ')[0]} shadow-lg overflow-hidden border-t border-r border-b border-2 transition-all animate-in fade-in zoom-in-95`}>
                 
-                <div className="p-5 md:p-6 flex flex-col md:flex-row gap-5">
-                  <div className="flex-1 flex flex-col">
-                    <div className="flex items-center gap-3 mb-3">
-                      <span className="bg-emerald-100 dark:bg-emerald-500/20 text-emerald-700 dark:text-emerald-400 px-3 py-1 rounded-lg font-mono font-black text-[13px] border border-emerald-300 dark:border-emerald-500/50 shadow-[0_0_10px_rgba(16,185,129,0.2)]">
+                <div className="p-5 md:p-8 flex flex-col gap-5">
+                  
+                  {/* 🌟 2. Header (รหัสงาน และ สถานะมุมขวา) 🌟 */}
+                  <div className="flex justify-between items-start">
+                    <div className="flex items-center">
+                      <span className="text-[12px] md:text-[18px] font-mono text-emerald-600 bg-emerald-100 px-3 py-1 md:px-4 md:py-1.5 rounded-lg md:rounded-xl font-black tracking-widest border border-emerald-200 shadow-sm">
                         {task.taskId || 'PM-XXXX'}
                       </span>
-                      <span className={`px-3 py-1 rounded-lg font-black text-[13px] border shadow-sm ${getStatusColor(task.status)}`}>
-                        {getStatusLabel(task.status)}
+                    </div>
+                    <div className={`px-3 py-1 md:px-5 md:py-2 rounded-lg md:rounded-xl text-[13px] md:text-[20px] font-bold border border-2 border-solid shadow-sm flex items-center gap-1.5 md:gap-2 ${styleColor}`}>
+                      {(task.status === 'todo' || task.status === 'doing' || task.status === 'blocked' || task.status === 'pending_verify') && <div className={`w-1.5 h-1.5 md:w-2.5 md:h-2.5 rounded-full animate-pulse ${task.status === 'todo' ? 'bg-slate-500' : task.status === 'doing' ? 'bg-blue-500' : task.status === 'blocked' ? 'bg-rose-500' : 'bg-orange-500'}`}></div>}
+                      {getStatusLabel(task.status)}
+                    </div>
+                  </div>
+                  
+                  <h2 className="text-[20px] md:text-[28px] font-black text-slate-800 dark:text-white leading-tight">
+                    {task.title}
+                  </h2>
+                  
+                  {/* 🌟 6. กล่องรายละเอียดงาน (สีกรอบฟ้า) 🌟 */}
+                  <div className="w-full bg-blue-50/50 dark:bg-[#1e293b] border-[2px] border-solid border-blue-200 dark:border-slate-700 rounded-xl md:rounded-2xl p-4 shadow-sm mt-2">
+                    <span className="text-[13px] md:text-[16px] font-black text-blue-700 uppercase tracking-widest flex items-center gap-1.5 mb-2">
+                      <ClipboardList className="w-4 h-4 md:w-5 md:h-5 text-blue-500" /> รายละเอียดงานที่ได้รับมอบหมาย:
+                    </span>
+                    <p className="text-[14px] md:text-[18px] font-bold text-slate-700 dark:text-slate-300 leading-relaxed pl-1">
+                      "{task.description || 'ไม่มีรายละเอียด'}"
+                    </p>
+                  </div>
+
+                  {/* 🌟 4. กล่องผู้รับผิดชอบ (เพิ่มตัวเตือนวันส่งงาน) 🌟 */}
+                  <div className="w-full bg-orange-50/40 border-[2px] border-solid border-orange-400 p-4 md:p-6 rounded-xl md:rounded-2xl shadow-sm flex flex-col transition-all hover:shadow-md mt-2">
+                    <span className="text-[14px] md:text-[18px] font-black text-orange-600 mb-2 md:mb-3 flex items-center gap-1.5 uppercase tracking-wider">
+                      <User className="w-4 h-4 md:w-5 md:h-5" /> ผู้รับผิดชอบงาน
+                    </span>
+                    <div className="flex flex-col mb-3 md:mb-4">
+                      <span className="font-black text-orange-950 flex items-center gap-2 text-[16px] md:text-[24px]">
+                        {task.assignee}
                       </span>
-                      {task.reworkCount > 0 && (
-                        <span className="bg-rose-100 dark:bg-rose-500/20 text-rose-600 dark:text-rose-400 px-2 py-1 rounded-lg font-bold text-[12px] border border-rose-300 animate-pulse">
-                          แก้ครั้งที่ {task.reworkCount}
-                        </span>
+                    </div>
+                    <div className="flex flex-col md:flex-row justify-between pt-3 border-t-[1.5px] border-dashed border-orange-400/50 gap-3">
+                      <div className="flex flex-col gap-1">
+                        <div className="flex items-center gap-1.5 flex-wrap">
+                          <span className="text-[13px] md:text-[16px] font-bold text-slate-500 flex items-center gap-1.5"><Calendar className="w-4 h-4 text-orange-500" /> กำหนดส่งมอบงาน:</span>
+                          <span className="text-[14px] md:text-[18px] font-black text-slate-800 drop-shadow-sm">
+                            {task.dueDate ? new Date(task.dueDate).toLocaleDateString('th-TH', { day: 'numeric', month: 'short', year: 'numeric' }) : '-'}
+                          </span>
+                        </div>
+                        {/* ระบบเตือนวัน */}
+                        {task.dueDate && task.status !== 'done' && (() => {
+                          const diffTime = new Date(task.dueDate).getTime() - sysTime.getTime();
+                          const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+                          return (
+                            <div className="font-bold text-[13px] md:text-[15px] text-slate-500 pl-[22px]">
+                              เหลือเวลาอีก <span className={`font-black text-[15px] md:text-[18px] ${diffDays <= 3 ? 'text-rose-600 animate-pulse' : 'text-emerald-600'}`}>{diffDays}</span> วัน
+                            </div>
+                          );
+                        })()}
+                      </div>
+                      
+                      {techPhone !== '-' && (
+                        <a href={`tel:${String(techPhone).replace(/\D/g, '')}`} className="font-mono text-[14px] md:text-[18px] font-bold bg-orange-100 px-3 py-1.5 rounded-lg text-orange-900 border border-orange-300 shadow-sm hover:bg-orange-200 transition-colors flex items-center justify-center gap-1.5 active:scale-95 w-fit h-fit shrink-0">
+                          <PhoneCall className="w-4 h-4 md:w-5 md:h-5 text-orange-600" />{formatDisplayPhone(techPhone)}
+                        </a>
                       )}
                     </div>
-                    
-                    <h2 className="text-[20px] md:text-[24px] font-black text-slate-800 dark:text-white mb-2 leading-tight">
-                      {task.title}
-                    </h2>
-                    <p className="text-[14px] text-slate-600 dark:text-slate-400 mb-4 bg-slate-100 dark:bg-slate-800/50 p-3 rounded-xl border border-slate-200 dark:border-slate-700">
-                      {task.description || 'ไม่มีรายละเอียด'}
-                    </p>
-
-                    <div className="flex flex-wrap gap-4 mt-auto">
-                      <div className="flex items-center gap-2 text-slate-600 dark:text-slate-300 bg-slate-100 dark:bg-[#1e293b] px-3 py-1.5 rounded-lg border border-slate-200 dark:border-slate-700 shadow-sm">
-                        <User size={16} className="text-cyan-500"/> <span className="font-bold text-[13px]">{task.assignee}</span>
-                      </div>
-                      <div className="flex items-center gap-2 text-slate-600 dark:text-slate-300 bg-slate-100 dark:bg-[#1e293b] px-3 py-1.5 rounded-lg border border-slate-200 dark:border-slate-700 shadow-sm">
-                        <Calendar size={16} className="text-rose-500"/> <span className="font-bold text-[13px]">Due: {task.dueDate ? new Date(task.dueDate).toLocaleDateString('th-TH') : '-'}</span>
-                      </div>
-                    </div>
                   </div>
 
-                  <div className="w-full md:w-[350px] flex flex-col gap-3 shrink-0">
-                    <div className="bg-orange-50 dark:bg-orange-950/20 border-[2px] border-orange-200 dark:border-orange-500/50 rounded-2xl p-4 shadow-sm relative overflow-hidden">
+                  {/* 🌟 5. ไฟล์แนบอ้างอิงตอนสั่งงาน (สีกรอบเขียว) 🌟 */}
+                  {task.attachments && task.attachments.length > 0 && (
+                    <div className="w-full bg-emerald-50/50 dark:bg-[#1e293b] border-[2px] border-solid border-emerald-200 dark:border-slate-700 p-4 md:p-5 rounded-xl md:rounded-2xl shadow-sm mt-2">
+                      <span className="text-[13px] md:text-[16px] font-black text-emerald-700 mb-3 flex items-center gap-1.5 tracking-wide">
+                        <Paperclip className="w-4 h-4 md:w-5 md:h-5" /> เอกสารประกอบการมอบหมายงาน:
+                      </span>
+                      <div className="flex flex-wrap gap-2 md:gap-3 mt-2">
+                        {task.attachments.map((file, idx) => {
+                            const isImage = file.type && file.type.startsWith('image/');
+                            const isVideo = file.type && file.type.startsWith('video/');
+                            return (
+                              <div key={idx} onClick={() => handleMediaClick(file)} className="cursor-pointer w-16 h-16 md:w-20 md:h-20 rounded-xl overflow-hidden border-[2px] border-emerald-200 dark:border-slate-600 hover:border-emerald-400 group bg-white dark:bg-slate-800 transition-all shadow-sm p-0.5">
+                                {isImage ? <img src={file.url} className="w-full h-full object-cover rounded-lg group-hover:scale-110 transition-transform" /> : 
+                                isVideo ? <div className="w-full h-full flex items-center justify-center relative"><video src={file.url} className="w-full h-full object-cover opacity-30 rounded-lg"/><PlayCircle className="absolute text-emerald-600 w-6 h-6"/></div> : 
+                                <div className="w-full h-full flex flex-col items-center justify-center p-1"><FileText className="text-emerald-500 w-6 h-6"/><span className="text-[8px] text-slate-500 dark:text-slate-400 w-full truncate text-center leading-tight mt-1">{file.name}</span></div>}
+                              </div>
+                            );
+                        })}
+                      </div>
+                    </div>
+                  )}
+
+                  {/* 🌟 Timeline ประวัติการทำงาน (ดีไซน์กล่องสี) 🌟 */}
+                  {task.historyLog && task.historyLog.length > 0 && (
+                    <div className="flex flex-col w-full gap-4 mt-2">
+                      {task.historyLog.map((log, index) => {
+                        const blockCount = task.historyLog.slice(0, index + 1).filter(l => l.type === 'block').length;
+                        const rejectCount = task.historyLog.slice(0, index + 1).filter(l => l.type === 'reject').length;
+                        const submitCount = task.historyLog.slice(0, index + 1).filter(l => l.type === 'submit').length;
+                        const startCount = task.historyLog.slice(0, index + 1).filter(l => l.type === 'start' || l.type === 'resume').length;
+                        
+                        let displayCount = '';
+                        if (log.type === 'block') displayCount = `(ครั้งที่ ${blockCount})`;
+                        if (log.type === 'reject') displayCount = `(ครั้งที่ ${rejectCount})`;
+                        if (log.type === 'submit') displayCount = `(ครั้งที่ ${submitCount})`;
+                        if (log.type === 'start' || log.type === 'resume') displayCount = `(ครั้งที่ ${startCount})`;
+
+                        const currentTime = index < task.historyLog.length - 1 ? new Date(task.historyLog[index + 1].timestamp).getTime() : sysTime.getTime();
+                        const startTime = new Date(log.timestamp).getTime();
+                        const durationMs = Math.max(0, currentTime - startTime);
+                        const hours = Math.floor(durationMs / 3600000);
+                        const minutes = Math.floor((durationMs % 3600000) / 60000);
+                        const seconds = Math.floor((durationMs % 60000) / 1000);
+                        const formattedTime = `${String(hours).padStart(2, '0')}:${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}`;
+                        
+                        const eventDate = new Date(log.timestamp);
+                        const eventDateString = `${eventDate.getDate()} ${thaiMonths[eventDate.getMonth()]} ${eventDate.getFullYear() + 543}`;
+                        const eventTimeString = `${String(eventDate.getHours()).padStart(2,'0')}:${String(eventDate.getMinutes()).padStart(2,'0')} น.`;
+
+                        let boxStyle = ""; let icon = null; let title = ""; let badgeColor = "";
+
+                        if (log.type === 'block') {
+                          boxStyle = "bg-purple-50 dark:bg-purple-900/10 border-purple-400";
+                          title = "แจ้งติดปัญหา";
+                          icon = <PauseCircle className="w-5 h-5 md:w-6 md:h-6 text-purple-600" />;
+                          badgeColor = "bg-purple-600 text-white border-purple-400";
+                        } else if (log.type === 'reject') {
+                          boxStyle = "bg-rose-50 dark:bg-rose-900/10 border-rose-400";
+                          title = "ส่งกลับแก้ไข (หน.)";
+                          icon = <RotateCcw className="w-5 h-5 md:w-6 md:h-6 text-rose-600" />;
+                          badgeColor = "bg-rose-600 text-white border-rose-400";
+                        } else if (log.type === 'submit') {
+                          boxStyle = "bg-cyan-50 dark:bg-cyan-900/10 border-cyan-400";
+                          title = "ส่งงาน (รอตรวจ)";
+                          icon = <Send className="w-5 h-5 md:w-6 md:h-6 text-cyan-600" />;
+                          badgeColor = "bg-cyan-600 text-white border-cyan-400";
+                        } else if (log.type === 'start' || log.type === 'resume') {
+                          boxStyle = "bg-orange-50 dark:bg-orange-900/10 border-orange-400";
+                          title = log.type === 'start' ? "เริ่มปฏิบัติงาน" : "ดำเนินการต่อ";
+                          icon = <PlayCircle className="w-5 h-5 md:w-6 md:h-6 text-orange-600" />;
+                          badgeColor = "bg-orange-600 text-white border-orange-400";
+                        } else if (log.type === 'verify') {
+                           boxStyle = "bg-emerald-50 dark:bg-emerald-900/10 border-emerald-400";
+                           title = "อนุมัติผ่าน (จบงาน)";
+                           icon = <ShieldCheck className="w-5 h-5 md:w-6 md:h-6 text-emerald-600" />;
+                           badgeColor = "bg-emerald-600 text-white border-emerald-400";
+                        }
+
+                        if (!boxStyle) return null;
+
+                        return (
+                          <div key={index} className={`w-full rounded-2xl border-[2px] border-solid overflow-hidden shadow-sm mb-2 ${boxStyle}`}>
+                            <div className="p-4 flex items-center gap-2.5 md:gap-3">
+                              {icon}
+                              <span className={`font-black text-[15px] md:text-[18px] uppercase tracking-wider ${boxStyle.includes('purple') ? 'text-purple-800 dark:text-purple-400' : boxStyle.includes('rose') ? 'text-rose-800 dark:text-rose-400' : boxStyle.includes('cyan') ? 'text-cyan-800 dark:text-cyan-400' : boxStyle.includes('emerald') ? 'text-emerald-800 dark:text-emerald-400' : 'text-orange-800 dark:text-orange-400'}`}>
+                                {title}
+                              </span>
+                            </div>
+
+                            {(log.reason || log.note) && (
+                              <div className="px-4 pb-3">
+                                <p className="font-bold text-[13px] md:text-[14px] text-slate-700 dark:text-slate-300 leading-snug bg-white dark:bg-[#0f172a] p-3 rounded-lg border border-slate-200 dark:border-slate-700 shadow-inner">
+                                  {log.type === 'submit' ? '📝 บันทึกส่งงาน: ' : 'สาเหตุ: '}{log.reason || log.note}
+                                </p>
+                              </div>
+                            )}
+
+                            {log.helpers && log.helpers.length > 0 && (
+                              <div className="px-4 pb-3">
+                                 <div className="flex flex-wrap gap-2 items-center">
+                                   <span className="text-cyan-600 dark:text-cyan-400 text-[12px] font-bold">ทีมงาน/ผู้ช่วย:</span>
+                                   {log.helpers.map((h, i) => (
+                                     <span key={i} className="text-[12px] font-bold bg-cyan-500/10 text-cyan-600 dark:text-cyan-400 border border-cyan-500/30 px-2.5 py-1 rounded-lg shadow-sm">{h}</span>
+                                   ))}
+                                 </div>
+                              </div>
+                            )}
+
+                            {log.files && log.files.length > 0 && (
+                              <div className="px-4 pb-4 w-full">
+                                <label className={`text-[12px] md:text-[13px] font-black flex items-center gap-1.5 mb-2 ${boxStyle.includes('purple') ? 'text-purple-700' : boxStyle.includes('rose') ? 'text-rose-700' : 'text-cyan-700'}`}>
+                                  <Camera className="w-4 h-4 md:w-5 md:h-5" /> ภาพหลักฐาน:
+                                </label>
+                                <div className="flex flex-wrap gap-2 w-full">
+                                  {log.files.map((file, idx) => {
+                                    const isImage = file.type && file.type.startsWith('image/');
+                                    const isVideo = file.type && file.type.startsWith('video/');
+                                    return (
+                                      <div key={idx} onClick={() => handleMediaClick(file)} className={`relative w-16 h-16 md:w-20 md:h-20 shrink-0 rounded-lg overflow-hidden border-2 shadow-sm cursor-pointer hover:scale-105 transition-all bg-slate-200 dark:bg-slate-800 ${boxStyle.includes('purple') ? 'border-purple-300' : boxStyle.includes('rose') ? 'border-rose-300' : 'border-cyan-300'}`}>
+                                         {isImage ? <img src={file.url} className="w-full h-full object-cover" /> : 
+                                          isVideo ? <div className="w-full h-full flex items-center justify-center relative"><video src={file.url} className="w-full h-full object-cover opacity-50"/><PlayCircle className="absolute text-white w-6 h-6"/></div> : 
+                                          <div className="w-full h-full flex flex-col items-center justify-center p-1"><FileText className="text-cyan-500 w-6 h-6"/><span className="text-[8px] text-slate-500 truncate w-full text-center">{file.name}</span></div>}
+                                      </div>
+                                    );
+                                  })}
+                                </div>
+                              </div>
+                            )}
+
+                            <div className={`px-4 py-3 border-t-[1.5px] border-dashed bg-white/50 dark:bg-black/10 flex justify-between items-center gap-2 ${boxStyle.includes('purple') ? 'border-purple-400' : boxStyle.includes('rose') ? 'border-rose-400' : boxStyle.includes('cyan') ? 'border-cyan-400' : boxStyle.includes('emerald') ? 'border-emerald-400' : 'border-orange-400'}`}>
+                                <div className="flex flex-col gap-1">
+                                  <span className={`text-[12px] md:text-[14px] font-black opacity-90 uppercase tracking-widest ${boxStyle.includes('purple') ? 'text-purple-700' : boxStyle.includes('rose') ? 'text-rose-700' : boxStyle.includes('cyan') ? 'text-cyan-700' : boxStyle.includes('emerald') ? 'text-emerald-700' : 'text-orange-700'}`}>
+                                    {log.type === 'start' || log.type === 'resume' ? `ระยะเวลาที่ทำ ${displayCount}` : log.type === 'verify' ? 'ปิดงานสำเร็จ' : `ระยะเวลาที่หยุด ${displayCount}`}
+                                  </span>
+                                  <div className="text-[11px] md:text-[13px] font-bold flex items-center gap-1.5 opacity-80 text-slate-600 dark:text-slate-400">
+                                    <Clock className="w-3.5 h-3.5" /> บันทึกเมื่อ: {eventDateString} | {eventTimeString}
+                                  </div>
+                                </div>
+                                <span className={`font-mono font-black text-[14px] md:text-[18px] px-3 py-1.5 md:px-4 md:py-2 rounded-xl border-[2px] border-solid shadow-sm tracking-widest shrink-0 ${badgeColor}`}>
+                                  {formattedTime}
+                                </span>
+                            </div>
+                          </div>
+                        );
+                      })}
+                    </div>
+                  )}
+
+                  {/* 🌟 1. กล่องสรุปเวลารวม (ย้ายมาลงล่างสุด ขยายเต็ม) 🌟 */}
+                  <div className="w-full mt-2">
+                    <div className="bg-orange-50 dark:bg-orange-950/20 border-[2px] border-orange-200 dark:border-orange-500/50 rounded-2xl p-4 md:p-6 shadow-sm relative overflow-hidden">
                       <div className="absolute right-0 top-0 w-32 h-32 bg-orange-200 dark:bg-orange-500/10 blur-[40px] pointer-events-none rounded-full"></div>
-                      <div className="flex justify-between items-center mb-2 relative z-10">
-                         <span className="text-orange-700 dark:text-orange-400 font-bold text-[13px] flex items-center gap-1.5"><Clock size={14}/> เวลารอดำเนินการ</span>
-                         <span className="font-mono font-black text-slate-700 dark:text-slate-300 text-[14px]">{formatDuration(waitTime)}</span>
+                      <div className="flex justify-between items-center mb-3 relative z-10">
+                         <span className="text-slate-500 font-bold text-[13px] md:text-[16px] flex items-center gap-1.5"><Clock size={16}/> เวลารอดำเนินการ</span>
+                         <span className="font-mono font-black text-slate-500 text-[14px] md:text-[18px]">{formatDuration(waitTime)}</span>
                       </div>
-                      <div className="flex justify-between items-center mb-2 relative z-10">
-                         <span className="text-orange-700 dark:text-orange-400 font-bold text-[13px] flex items-center gap-1.5"><Activity size={14}/> เวลาปฏิบัติงาน</span>
-                         <span className="font-mono font-black text-orange-600 dark:text-orange-400 text-[14px] drop-shadow-sm">{formatDuration(workTime)}</span>
+                      <div className="flex justify-between items-center mb-3 relative z-10">
+                         <span className="text-orange-700 dark:text-orange-400 font-bold text-[13px] md:text-[16px] flex items-center gap-1.5"><Activity size={16}/> เวลาปฏิบัติงาน</span>
+                         <span className="font-mono font-black text-orange-600 dark:text-orange-400 text-[14px] md:text-[18px] drop-shadow-sm">{formatDuration(workTime)}</span>
                       </div>
-                      <div className="flex justify-between items-center pt-2 border-t border-orange-200 dark:border-orange-500/30 relative z-10 mt-1">
-                         <span className="text-orange-800 dark:text-orange-300 font-black text-[14px]">เวลารวมทั้งหมด</span>
-                         <span className="font-mono font-black text-orange-600 dark:text-orange-400 text-[16px] drop-shadow-[0_0_5px_rgba(249,115,22,0.8)]">{formatDuration(waitTime + workTime)}</span>
+                      <div className="flex justify-between items-center mb-3 relative z-10">
+                         <span className="text-purple-700 dark:text-purple-400 font-bold text-[13px] md:text-[16px] flex items-center gap-1.5"><PauseCircle size={16}/> เวลาติดปัญหา</span>
+                         <span className="font-mono font-black text-purple-600 dark:text-purple-400 text-[14px] md:text-[18px] drop-shadow-sm">{formatDuration(totalHoldMs)}</span>
+                      </div>
+                      <div className="flex justify-between items-center pt-3 border-t border-orange-200 dark:border-orange-500/30 relative z-10 mt-2">
+                         <span className="text-emerald-700 dark:text-emerald-400 font-black text-[15px] md:text-[20px]">เวลารวมทั้งหมด</span>
+                         <span className="font-mono font-black text-emerald-600 dark:text-emerald-400 text-[16px] md:text-[22px] drop-shadow-[0_0_5px_rgba(16,185,129,0.8)]">{formatDuration(waitTime + workTime + totalHoldMs)}</span>
                       </div>
                     </div>
-
-                    {task.historyLog && task.historyLog.slice().reverse().filter(l => l.type === 'block' || l.type === 'reject').slice(0,1).map((log, idx) => (
-                       <div key={idx} className={`border-[2px] rounded-2xl p-4 shadow-sm ${log.type === 'block' ? 'bg-purple-50 dark:bg-purple-900/20 border-purple-200 dark:border-purple-500/50' : 'bg-rose-50 dark:bg-rose-950/20 border-rose-200 dark:border-rose-500/50'}`}>
-                         <h4 className={`font-black text-[14px] mb-1 flex items-center gap-1.5 ${log.type === 'block' ? 'text-purple-700 dark:text-purple-400' : 'text-rose-700 dark:text-rose-400'}`}>
-                           {log.type === 'block' ? <PauseCircle size={16}/> : <RotateCcw size={16}/>} 
-                           {log.type === 'block' ? 'แจ้งเหตุขัดข้อง' : 'ส่งกลับแก้ไข (หน.)'}
-                         </h4>
-                         <p className="text-slate-600 dark:text-slate-300 text-[13px] font-bold bg-white dark:bg-slate-900 p-2 rounded-lg border border-inherit shadow-inner">สาเหตุ: {log.reason}</p>
-                         <p className="text-[11px] text-slate-500 mt-2 flex items-center gap-1"><Clock size={12}/> {new Date(log.timestamp).toLocaleString('th-TH')}</p>
-                       </div>
-                    ))}
                   </div>
-                </div>
 
-                {((task.attachments && task.attachments.length > 0) || (task.historyLog && task.historyLog.find(l => l.type === 'submit'))) && (
-                  <div className="bg-slate-50 dark:bg-slate-900/50 p-4 border-t border-slate-200 dark:border-slate-700">
-                    
-                    {task.attachments && task.attachments.length > 0 && (
-                      <div className="mb-4">
-                        <div className="text-emerald-500 dark:text-emerald-400 text-[13px] font-bold mb-2 flex items-center gap-1.5">
-                          <Paperclip size={14}/> ไฟล์แนบอ้างอิงตอนสั่งงาน:
-                        </div>
-                        <div className="flex flex-wrap gap-3">
-                          {task.attachments.map((file, idx) => {
-                             const isImage = file.type && file.type.startsWith('image/');
-                             const isVideo = file.type && file.type.startsWith('video/');
-                             return (
-                               <div key={idx} onClick={() => handleMediaClick(file)} className="cursor-pointer w-16 h-16 md:w-20 md:h-20 rounded-xl overflow-hidden border-[2px] border-slate-300 dark:border-slate-600 hover:border-emerald-400 group bg-slate-200 dark:bg-slate-800 transition-all">
-                                 {isImage ? <img src={file.url} className="w-full h-full object-cover group-hover:scale-110 transition-transform" /> : 
-                                  isVideo ? <div className="w-full h-full flex items-center justify-center relative"><video src={file.url} className="w-full h-full object-cover opacity-30"/><PlayCircle className="absolute text-white w-6 h-6"/></div> : 
-                                  <div className="w-full h-full flex flex-col items-center justify-center p-1"><FileText className="text-emerald-400 w-6 h-6"/><span className="text-[8px] text-slate-500 dark:text-slate-400 w-full truncate text-center">{file.name}</span></div>}
-                               </div>
-                             );
-                          })}
-                        </div>
-                      </div>
-                    )}
+                  {/* 🌟 ปุ่ม Action ด้านล่างสุด 🌟 */}
+                  <div className="bg-slate-100 dark:bg-[#1e293b] p-4 rounded-xl flex flex-col sm:flex-row items-center justify-end gap-3 border border-slate-200 dark:border-slate-700 mt-2">
+                      {(task.assignee === currentUserName) && (
+                        <>
+                          {task.status === 'todo' && <button onClick={() => setActionModal({isOpen: true, type: 'start', dbId: task.dbId})} className="w-full sm:w-auto bg-blue-600 hover:bg-blue-500 text-white font-black px-6 py-2.5 rounded-xl shadow-[0_0_15px_rgba(37,99,235,0.4)] flex items-center justify-center gap-2 active:scale-95 transition-all"><PlayCircle size={18}/> เริ่มปฏิบัติงาน</button>}
+                          {task.status === 'doing' && (
+                            <>
+                              <button onClick={() => setActionModal({isOpen: true, type: 'block', dbId: task.dbId})} className="w-full sm:w-auto bg-rose-600 hover:bg-rose-500 text-white font-black px-4 py-2.5 rounded-xl shadow-[0_0_15px_rgba(225,29,72,0.4)] flex items-center justify-center gap-2 active:scale-95 transition-all"><PauseCircle size={18}/> แจ้งติดปัญหา</button>
+                              <button onClick={() => setActionModal({isOpen: true, type: 'submit', dbId: task.dbId})} className="w-full sm:w-auto bg-gradient-to-r from-emerald-600 to-teal-600 hover:brightness-110 text-white font-black px-6 py-2.5 rounded-xl shadow-[0_0_15px_rgba(16,185,129,0.4)] flex items-center justify-center gap-2 active:scale-95 transition-all"><Send size={18}/> ส่งงาน (รอตรวจ)</button>
+                            </>
+                          )}
+                          {task.status === 'blocked' && <button onClick={() => setActionModal({isOpen: true, type: 'resume', dbId: task.dbId})} className="w-full sm:w-auto bg-orange-600 hover:bg-orange-500 text-white font-black px-6 py-2.5 rounded-xl shadow-[0_0_15px_rgba(249,115,22,0.4)] flex items-center justify-center gap-2 active:scale-95 transition-all"><PlayCircle size={18}/> ดำเนินการต่อ</button>}
+                        </>
+                      )}
 
-                    {task.historyLog && task.historyLog.slice().reverse().find(l => l.type === 'submit') && (() => {
-                       const submitLog = task.historyLog.slice().reverse().find(l => l.type === 'submit');
-                       return (
-                         <div className="pt-3 border-t border-slate-200 dark:border-slate-700/50">
-                           <div className="text-cyan-600 dark:text-cyan-400 text-[13px] font-bold mb-2 flex items-center gap-1.5">
-                             <CheckCircle2 size={14}/> ไฟล์/หลักฐานการส่งงาน:
-                           </div>
-                           {submitLog.files && submitLog.files.length > 0 ? (
-                             <div className="flex flex-wrap gap-3">
-                               {submitLog.files.map((file, idx) => {
-                                  const isImage = file.type && file.type.startsWith('image/');
-                                  const isVideo = file.type && file.type.startsWith('video/');
-                                  return (
-                                    <div key={idx} onClick={() => handleMediaClick(file)} className="cursor-pointer w-16 h-16 md:w-20 md:h-20 rounded-xl overflow-hidden border-[2px] border-slate-300 dark:border-slate-600 hover:border-cyan-400 group bg-slate-200 dark:bg-slate-800 transition-all">
-                                      {isImage ? <img src={file.url} className="w-full h-full object-cover group-hover:scale-110 transition-transform" /> : 
-                                       isVideo ? <div className="w-full h-full flex items-center justify-center relative"><video src={file.url} className="w-full h-full object-cover opacity-30"/><PlayCircle className="absolute text-white w-6 h-6"/></div> : 
-                                       <div className="w-full h-full flex flex-col items-center justify-center p-1"><FileText className="text-cyan-400 w-6 h-6"/><span className="text-[8px] text-slate-500 dark:text-slate-400 w-full truncate text-center">{file.name}</span></div>}
-                                    </div>
-                                  );
-                               })}
-                             </div>
-                           ) : (
-                             <span className="text-slate-500 text-[12px]">- ไม่มีการแนบไฟล์ตอนส่งงาน -</span>
-                           )}
-                           {submitLog.note && <p className="text-slate-600 dark:text-slate-400 text-[13px] mt-3 bg-white dark:bg-[#0f172a] p-3 rounded-lg border border-slate-200 dark:border-slate-700 shadow-inner">📝 บันทึกส่งงาน: {submitLog.note}</p>}
-                         </div>
-                       );
-                    })()}
+                      {(currentUserRole === 'Commander' || currentUserRole === 'admin') && task.status === 'pending_verify' && (
+                        <>
+                          <button onClick={() => setActionModal({isOpen: true, type: 'reject', dbId: task.dbId})} className="w-full sm:w-auto bg-rose-600 hover:bg-rose-500 text-white font-black px-5 py-2.5 rounded-xl shadow-[0_0_15px_rgba(225,29,72,0.4)] flex items-center justify-center gap-2 active:scale-95 transition-all"><RotateCcw size={18}/> ส่งกลับแก้ไข</button>
+                          <button onClick={() => setActionModal({isOpen: true, type: 'verify', dbId: task.dbId})} className="w-full sm:w-auto bg-emerald-600 hover:bg-emerald-500 text-white font-black px-6 py-2.5 rounded-xl shadow-[0_0_15px_rgba(16,185,129,0.4)] flex items-center justify-center gap-2 active:scale-95 transition-all"><ShieldCheck size={18}/> อนุมัติผ่าน</button>
+                        </>
+                      )}
+                      
+                      {task.status === 'done' && (
+                          <div className="w-full bg-emerald-50 border-2 border-emerald-400 text-emerald-700 font-black text-[16px] md:text-[24px] text-center py-3.5 rounded-xl shadow-sm flex items-center justify-center gap-2 cursor-default"><CheckCircle className="w-[18px] h-[18px] md:w-8 md:h-8" /> ปิดงาน (เสร็จสิ้นสมบูรณ์)</div>
+                      )}
                   </div>
-                )}
 
-                    <div className="bg-slate-100 dark:bg-[#1e293b] p-4 flex flex-col sm:flex-row items-center justify-end gap-3 border-t border-slate-200 dark:border-slate-700">
-                    {(task.assignee === currentUserName) && (
-                      <>
-                        {task.status === 'todo' && <button onClick={() => setActionModal({isOpen: true, type: 'start', dbId: task.dbId})} className="w-full sm:w-auto bg-blue-600 hover:bg-blue-500 text-white font-black px-6 py-2.5 rounded-xl shadow-[0_0_15px_rgba(37,99,235,0.4)] flex items-center justify-center gap-2 active:scale-95 transition-all"><PlayCircle size={18}/> เริ่มปฏิบัติงาน</button>}
-
-                        {task.status === 'doing' && (
-                          <>
-                            <button onClick={() => setActionModal({isOpen: true, type: 'block', dbId: task.dbId})} className="w-full sm:w-auto bg-rose-600 hover:bg-rose-500 text-white font-black px-4 py-2.5 rounded-xl shadow-[0_0_15px_rgba(225,29,72,0.4)] flex items-center justify-center gap-2 active:scale-95 transition-all"><PauseCircle size={18}/> แจ้งขัดข้อง</button>
-                            <button onClick={() => setActionModal({isOpen: true, type: 'submit', dbId: task.dbId})} className="w-full sm:w-auto bg-gradient-to-r from-emerald-600 to-teal-600 hover:brightness-110 text-white font-black px-6 py-2.5 rounded-xl shadow-[0_0_15px_rgba(16,185,129,0.4)] flex items-center justify-center gap-2 active:scale-95 transition-all"><Send size={18}/> ส่งงาน (รอตรวจ)</button>
-                          </>
-                        )}
-                        {task.status === 'blocked' && <button onClick={() => setActionModal({isOpen: true, type: 'resume', dbId: task.dbId})} className="w-full sm:w-auto bg-blue-600 hover:bg-blue-500 text-white font-black px-6 py-2.5 rounded-xl shadow-[0_0_15px_rgba(37,99,235,0.4)] flex items-center justify-center gap-2 active:scale-95 transition-all"><PlayCircle size={18}/> ดำเนินการต่อ</button>}
-                      </>
-                    )}
-
-                    {(currentUserRole === 'Commander' || currentUserRole === 'admin') && task.status === 'pending_verify' && (
-                      <>
-                        <button onClick={() => setActionModal({isOpen: true, type: 'reject', dbId: task.dbId})} className="w-full sm:w-auto bg-rose-600 hover:bg-rose-500 text-white font-black px-5 py-2.5 rounded-xl shadow-[0_0_15px_rgba(225,29,72,0.4)] flex items-center justify-center gap-2 active:scale-95 transition-all"><RotateCcw size={18}/> ส่งกลับแก้ไข</button>
-                        <button onClick={() => setActionModal({isOpen: true, type: 'verify', dbId: task.dbId})} className="w-full sm:w-auto bg-emerald-600 hover:bg-emerald-500 text-white font-black px-6 py-2.5 rounded-xl shadow-[0_0_15px_rgba(16,185,129,0.4)] flex items-center justify-center gap-2 active:scale-95 transition-all"><ShieldCheck size={18}/> อนุมัติผ่าน</button>
-                      </>
-                    )}
                 </div>
-
               </div>
             );
           })
         )}
       </div>
-
 
       {/* 🌟 ACTION MODAL กลาง (ครอบจักรวาล) 🌟 */}
       {actionModal.isOpen && createPortal(
@@ -656,55 +784,71 @@ export default function TaskBoardView({ sysTime, currentUserRole, currentUserNam
                 <div className="bg-rose-500/10 border border-rose-500 rounded-xl p-3 text-rose-400 font-bold text-[14px] shadow-[0_0_15px_rgba(225,29,72,0.3)]">{formError}</div>
               )}
 
+              {/* 🌟 บล็อกรวมเนื้อหาของ Popup (รหัสงาน, เหตุผล, เลือกผู้ช่วย, อัปโหลดไฟล์) 🌟 */}
               {(actionModal.type === 'block' || actionModal.type === 'reject' || actionModal.type === 'submit') && (
-                <div>
-                  <label className="block text-slate-300 text-[14px] font-bold mb-2">
-                    {actionModal.type === 'block' ? 'สาเหตุที่ติดปัญหา *' : actionModal.type === 'reject' ? 'สาเหตุที่ส่งกลับแก้ไข *' : 'บันทึกย่อการส่งงาน'}
-                  </label>
-                  <textarea rows="3" autoFocus required={actionModal.type !== 'submit'} className={`w-full bg-[#020617]/60 border-[2px] border-slate-600 rounded-xl p-3.5 text-white outline-none focus:border-cyan-400 transition-all resize-none text-[15px] ${formError ? 'border-rose-500' : ''}`} value={actionReason} onChange={e => {setActionReason(e.target.value); setFormError('');}}></textarea>
+                <div className="space-y-4 pt-2">
+                  
+                  {/* แสดงรหัสงานที่หัว Popup */}
+                  <p className="text-orange-400 font-bold text-center text-[14px] mb-2">
+                    งานรหัส: {tasks.find(t => t.dbId === actionModal.dbId)?.taskId}
+                  </p>
+
+                  {/* กล่องเหตุผล */}
+                  <div>
+                    <label className="block text-slate-300 text-[14px] font-bold mb-2">
+                      {actionModal.type === 'block' ? 'สาเหตุที่ติดปัญหา *' : actionModal.type === 'reject' ? 'สาเหตุที่ส่งกลับแก้ไข *' : 'บันทึกย่อการส่งงาน'}
+                    </label>
+                    <textarea 
+                      rows="3" 
+                      autoFocus 
+                      required={actionModal.type !== 'submit'} 
+                      className={`w-full bg-[#020617]/60 border-[2px] border-slate-600 rounded-xl p-3.5 text-white outline-none ${actionModal.type === 'block' ? 'focus:border-rose-400' : 'focus:border-cyan-400'} transition-all resize-none text-[15px] ${formError ? 'border-rose-500' : ''}`} 
+                      value={actionReason} 
+                      onChange={e => {setActionReason(e.target.value); setFormError('');}}
+                    ></textarea>
+                  </div>
+
+                  {/* ส่วนเลือกผู้ช่วย (แสดงเฉพาะตอน Submit งาน) */}
+                  {actionModal.type === 'submit' && (
+                    <div className="bg-[#1e293b]/50 border border-slate-700/50 rounded-xl p-3.5 shadow-inner">
+                      <label className="block text-cyan-400 text-[14px] font-bold mb-3 flex items-center gap-2"><User size={16}/> ผู้ช่วยปฏิบัติงาน (ให้เครดิตทีม)</label>
+                      <div className="flex flex-wrap gap-2">
+                        {taskHelpers.map((h, idx) => (
+                          <span key={idx} className="bg-cyan-500/20 text-cyan-300 border border-cyan-500/50 px-3 py-1.5 rounded-lg text-[13px] font-bold flex items-center gap-2 shadow-sm animate-in zoom-in">
+                            {h} <button type="button" onClick={() => setTaskHelpers(prev => prev.filter(x => x !== h))} className="text-cyan-400 hover:text-rose-400 transition-colors"><X size={14}/></button>
+                          </span>
+                        ))}
+                        <button type="button" onClick={() => setShowHelperPickerModal(true)} className="bg-slate-800 hover:bg-slate-700 border border-slate-600 border-dashed text-slate-300 px-4 py-1.5 rounded-lg text-[13px] font-bold flex items-center gap-1.5 transition-all active:scale-95">
+                          <PlusCircle size={15}/> เพิ่มชื่อเพื่อนร่วมงาน
+                        </button>
+                      </div>
+                    </div>
+                  )}
+
+                  {/* ส่วนแนบหลักฐาน (แสดงทุก Type) */}
+                  <div className="pt-2">
+                    <label className="text-[13px] font-black text-slate-300 mb-2 flex items-center gap-2">
+                      <Camera size={16} className={actionModal.type === 'block' ? 'text-rose-400' : 'text-cyan-400'} /> แนบหลักฐาน (ถ้ามี)
+                    </label>
+                    {isUploading ? (
+                      <div className="w-full bg-slate-800 border-[2px] border-dashed border-slate-600 rounded-xl p-4 flex flex-col items-center justify-center text-slate-400">
+                        <Loader2 className="animate-spin mb-2"/> กำลังอัปโหลด...
+                      </div>
+                    ) : (
+                      <button type="button" onClick={() => setMediaPickerFor('action')} className="w-full h-20 border-[2px] border-dashed border-slate-600 hover:border-cyan-400 bg-slate-900/50 rounded-xl flex items-center justify-center gap-2 transition-all active:scale-95">
+                        <Camera size={24} className="text-slate-500" /> <span className="font-bold text-[13px] text-slate-400">คลิกเพื่อแนบรูปภาพ/วิดีโอ</span>
+                      </button>
+                    )}
+                    {actionFiles.length > 0 && (
+                      <div className="mt-3 flex flex-wrap gap-2">
+                        {renderThumbnails(actionFiles, (idx) => setActionFiles(prev => prev.filter((_, i) => i !== idx)))}
+                      </div>
+                    )}
+                  </div>
+
                 </div>
               )}
 
-            {actionModal.type === 'submit' && (
-                <div className="space-y-4 pt-2">
-                  {/* 🌟 ส่วนเลือกผู้ช่วย (Helpers) */}
-                  <div className="bg-[#1e293b]/50 border border-slate-700/50 rounded-xl p-3.5 shadow-inner">
-                    <label className="block text-cyan-400 text-[14px] font-bold mb-3 flex items-center gap-2"><User size={16}/> ผู้ช่วยปฏิบัติงาน (ให้เครดิตทีม)</label>
-                    <div className="flex flex-wrap gap-2">
-                      {taskHelpers.map((h, idx) => (
-                        <span key={idx} className="bg-cyan-500/20 text-cyan-300 border border-cyan-500/50 px-3 py-1.5 rounded-lg text-[13px] font-bold flex items-center gap-2 shadow-sm animate-in zoom-in">
-                          {h} <button type="button" onClick={() => setTaskHelpers(prev => prev.filter(x => x !== h))} className="text-cyan-400 hover:text-rose-400 transition-colors"><X size={14}/></button>
-                        </span>
-                      ))}
-                      <button type="button" onClick={() => setShowHelperPickerModal(true)} className="bg-slate-800 hover:bg-slate-700 border border-slate-600 border-dashed text-slate-300 px-4 py-1.5 rounded-lg text-[13px] font-bold flex items-center gap-1.5 transition-all active:scale-95">
-                        <PlusCircle size={15}/> เพิ่มชื่อเพื่อนร่วมงาน
-                      </button>
-                    </div>
-                  </div>
-
-                  <div>
-                    <label className="block text-slate-300 text-[14px] font-bold mb-2">แนบหลักฐาน (รูปถ่าย/เอกสาร)</label>
-                  
-                  {isUploading ? (
-                     <div className="w-full bg-emerald-900/10 border-[2px] border-dashed border-emerald-500/50 rounded-xl p-6 flex flex-col items-center justify-center text-emerald-400">
-                       <Loader2 className="w-8 h-8 animate-spin mb-2" />
-                       <span className="font-bold text-[14px]">กำลังอัปโหลด...</span>
-                     </div>
-                  ) : (
-                     <button type="button" onClick={() => setMediaPickerFor('action')} className="w-full bg-emerald-900/10 border-[2px] border-dashed border-emerald-500/50 shadow-sm rounded-xl p-4 flex flex-col items-center justify-center gap-2 hover:border-emerald-400 hover:shadow-[0_0_15px_rgba(16,185,129,0.3)] transition-all">
-                       <Camera size={32} className="text-emerald-400/80 drop-shadow-md" />
-                       <span className="text-emerald-300/80 font-bold text-[14px]">แตะเพื่อเลือก รูปภาพ / วิดีโอ</span>
-                     </button>
-                  )}
-
-                    {actionFiles.length > 0 && (
-                    <div className="mt-4 flex flex-wrap gap-3 p-3 bg-slate-900/50 rounded-2xl border border-slate-700/50">
-                      {renderThumbnails(actionFiles, (idx) => setActionFiles(prev => prev.filter((_, i) => i !== idx)))}
-                    </div>
-                  )}
-                </div>
-              </div>
-            )}
               {actionModal.type === 'verify' && <p className="text-slate-300 font-bold text-center py-4 text-[16px]">ยืนยันว่างานนี้เสร็จสมบูรณ์ 100%?</p>}
               {(actionModal.type === 'start' || actionModal.type === 'resume') && <p className="text-slate-300 font-bold text-center py-4 text-[16px]">ระบบจะเริ่มจับเวลาการทำงานของคุณ</p>}
 
@@ -836,7 +980,8 @@ export default function TaskBoardView({ sysTime, currentUserRole, currentUserNam
 
              <div className="w-full space-y-4 relative z-10">
                 <div className="flex flex-col gap-4">
-                  <div className="grid grid-cols-2 gap-4">
+                  {/* ซ่อนปุ่มถ่ายรูป/วิดีโอบนโหมด PC */}
+                  <div className="grid grid-cols-2 gap-4 md:hidden">
                     <button type="button" onClick={() => document.getElementById('global-file-input').click()} className="bg-gradient-to-b from-orange-500 to-orange-600 hover:brightness-110 text-white rounded-2xl p-4 flex flex-col items-center justify-center gap-2 border-[2px] border-orange-300 shadow-[0_0_20px_rgba(249,115,22,0.5)] active:scale-95 transition-all">
                       <Camera className="w-8 h-8" />
                       <span className="font-black text-[14px]">ถ่ายรูป</span>
@@ -851,7 +996,7 @@ export default function TaskBoardView({ sysTime, currentUserRole, currentUserNam
                   </button>
                 </div>
 
-                {/* 💻 โหมด PC (hidden md:flex) มีปุ่มแคปหน้าจอ */}
+                {/* โหมด PC มีปุ่มแคปหน้าจอ */}
                 <div className="hidden md:flex flex-col gap-4">
                    <button type="button" onClick={handleClipboardPaste} className="w-full bg-[#1e293b] hover:bg-slate-800 text-purple-400 rounded-2xl p-4 flex flex-col items-center justify-center gap-1.5 border-[2px] border-purple-500/50 shadow-[0_0_15px_rgba(168,85,247,0.2)] active:scale-95 transition-all">
                      <div className="flex items-center gap-2">
@@ -868,7 +1013,6 @@ export default function TaskBoardView({ sysTime, currentUserRole, currentUserNam
           </div>
         </div>
       , document.body)}
-
 
       {/* 🌟 Popup เลือกผู้ช่วย (Sci-Fi Cyan Glow) 🌟 */}
       {showHelperPickerModal && createPortal(
@@ -897,7 +1041,6 @@ export default function TaskBoardView({ sysTime, currentUserRole, currentUserNam
           </div>
         </div>
       , document.body)}
-      
 
       {/* 🌟 Popup เลือกลูกน้อง (Sci-Fi Orange Glow) 🌟 */}
       {showTechPickerModal && createPortal(
