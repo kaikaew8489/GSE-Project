@@ -748,43 +748,45 @@ export default function MainApp({ onGoHome, initialRole }) {
                         </div>
                       </button>
 
-                      {/* ปุ่มที่ 5: IoT Monitor สถานة UPS (💥 ปรับปรุงเป็นสีเหลืองพลาสม่าวิศวกรรมสว่างชัดตามสั่งเป๊ะ! 💥) */}
-                      <button onClick={() => setActiveTab('monitoring')} className="group relative aspect-square md:aspect-auto md:h-44 bg-slate-900/80 border-[2px] border-slate-700/80 rounded-3xl hover:border-yellow-400 shadow-lg hover:shadow-[0_0_30px_rgba(234,179,8,0.5)] transition-all duration-300 flex flex-col items-center justify-center gap-3 overflow-hidden">
-                        <div className="absolute inset-0 bg-gradient-to-b from-yellow-500/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity"></div>
-                        <div className="w-14 h-14 md:w-16 md:h-16 bg-gradient-to-br from-yellow-400 to-amber-500 rounded-2xl flex items-center justify-center shadow-[0_0_20px_rgba(234,179,8,0.7)] group-hover:scale-110 transition-transform duration-300 z-10">
-                          <Activity className="w-7 h-7 md:w-8 md:h-8 text-slate-950" strokeWidth={3}/>
+                      {/* 🌟 ปุ่มที่ 5: อะไหล่/ครุภัณฑ์ (ย้ายมาตรงนี้! ซ่อนไว้ให้เห็นเฉพาะ หน.ฝวด. และ Admin) 🌟 */}
+                      {(currentUserRole === 'Commander' || currentUserRole === 'admin') && (
+                        <button onClick={() => setActiveTab('inventory')} className="group relative aspect-square md:aspect-auto md:h-44 bg-slate-900/80 border-[2px] border-slate-700/80 rounded-3xl hover:border-indigo-500 shadow-lg hover:shadow-[0_0_30px_rgba(99,102,241,0.4)] transition-all duration-300 flex flex-col items-center justify-center gap-3 overflow-hidden">
+                          <div className="absolute inset-0 bg-gradient-to-b from-indigo-500/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity"></div>
+                          <div className="w-14 h-14 md:w-16 md:h-16 bg-gradient-to-br from-indigo-500 to-violet-700 rounded-2xl flex items-center justify-center shadow-[0_0_20px_rgba(99,102,241,0.6)] group-hover:scale-110 transition-transform duration-300 z-10">
+                            <Package className="w-7 h-7 md:w-8 md:h-8 text-white" strokeWidth={2.5}/>
+                          </div>
+                          <div className="flex flex-col items-center z-10 mt-1">
+                            <span className="font-black text-white text-[14px] md:text-[16px] tracking-wide group-hover:text-indigo-300 transition-colors">อะไหล่/ครุภัณฑ์</span>
+                            <span className="text-indigo-400 text-[10px] md:text-[11px] font-bold tracking-wider uppercase mt-0.5">บริการงานจัดการ</span>
+                          </div>
+                        </button>
+                      )}
+
+                      {/* ปุ่มที่ 6: IoT Monitor (ปิดชั่วคราวรอระบบเสถียร) */}
+                      <button disabled className="group relative aspect-square md:aspect-auto md:h-44 bg-slate-900/30 border-[2px] border-slate-800 rounded-3xl flex flex-col items-center justify-center gap-3 opacity-40 grayscale cursor-not-allowed">
+                        <span className="absolute top-3 right-3 bg-slate-800 text-slate-400 text-[9px] font-black px-2 py-0.5 rounded-md tracking-widest">SOON</span>
+                        <div className="w-14 h-14 md:w-16 md:h-16 bg-slate-800 rounded-2xl flex items-center justify-center">
+                          <Activity className="w-7 h-7 md:w-8 md:h-8 text-slate-600" strokeWidth={3}/>
                         </div>
-                        <div className="flex flex-col items-center z-10 mt-1">
-                          <span className="font-black text-white text-[14px] md:text-[16px] tracking-wide group-hover:text-yellow-400 transition-colors">IoT Monitor</span>
-                          <span className="text-yellow-500 text-[10px] md:text-[11px] font-bold tracking-wider uppercase mt-0.5">สถานะ UPS</span>
+                        <div className="flex flex-col items-center mt-1">
+                          <span className="font-bold text-slate-500 text-[14px] md:text-[16px]">IoT Monitor</span>
+                          <span className="text-slate-600 text-[10px] md:text-[11px] font-bold mt-0.5">สถานะ UPS</span>
                         </div>
                       </button>
 
-                      {/* ปุ่มที่ 6: Sat Signals (สีฟ้าสกายบลู/ไซแอน ป้องกันการกลืนกับเฉดม่วง) */}
-                      <button onClick={() => setActiveTab('satellite')} className="group relative aspect-square md:aspect-auto md:h-44 bg-slate-900/80 border-[2px] border-slate-700/80 rounded-3xl hover:border-sky-400 shadow-lg hover:shadow-[0_0_30px_rgba(56,189,248,0.4)] transition-all duration-300 flex flex-col items-center justify-center gap-3 overflow-hidden">
-                        <div className="absolute inset-0 bg-gradient-to-b from-sky-500/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity"></div>
-                        <div className="w-14 h-14 md:w-16 md:h-16 bg-gradient-to-br from-cyan-400 to-sky-600 rounded-2xl flex items-center justify-center shadow-[0_0_20px_rgba(6,182,212,0.6)] group-hover:scale-110 transition-transform duration-300 z-10">
-                          <Globe className="w-7 h-7 md:w-8 md:h-8 text-white" strokeWidth={2.5}/>
+                      {/* ปุ่มที่ 7: Sat Signals (ปิดชั่วคราวรอระบบเสถียร) */}
+                      <button disabled className="group relative aspect-square md:aspect-auto md:h-44 bg-slate-900/30 border-[2px] border-slate-800 rounded-3xl flex flex-col items-center justify-center gap-3 opacity-40 grayscale cursor-not-allowed">
+                        <span className="absolute top-3 right-3 bg-slate-800 text-slate-400 text-[9px] font-black px-2 py-0.5 rounded-md tracking-widest">SOON</span>
+                        <div className="w-14 h-14 md:w-16 md:h-16 bg-slate-800 rounded-2xl flex items-center justify-center">
+                          <Globe className="w-7 h-7 md:w-8 md:h-8 text-slate-600" strokeWidth={2.5}/>
                         </div>
-                        <div className="flex flex-col items-center z-10 mt-1">
-                          <span className="font-black text-white text-[14px] md:text-[16px] tracking-wide group-hover:text-sky-300 transition-colors">Sat Signals</span>
-                          <span className="text-sky-400 text-[10px] md:text-[11px] font-bold tracking-wider uppercase mt-0.5">สถานะดาวเทียม</span>
-                        </div>
-                      </button>
-
-                      {/* ปุ่มที่ 7: อะไหล่/ครุภัณฑ์ (สีน้ำเงินอินดิโก้/ไวโอเล็ตลุ่มลึก เข้มข้นชัดเจน) */}
-                      <button onClick={() => setActiveTab('inventory')} className="group relative aspect-square md:aspect-auto md:h-44 bg-slate-900/80 border-[2px] border-slate-700/80 rounded-3xl hover:border-indigo-500 shadow-lg hover:shadow-[0_0_30px_rgba(99,102,241,0.4)] transition-all duration-300 flex flex-col items-center justify-center gap-3 overflow-hidden">
-                        <div className="absolute inset-0 bg-gradient-to-b from-indigo-500/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity"></div>
-                        <div className="w-14 h-14 md:w-16 md:h-16 bg-gradient-to-br from-indigo-500 to-violet-700 rounded-2xl flex items-center justify-center shadow-[0_0_20px_rgba(99,102,241,0.6)] group-hover:scale-110 transition-transform duration-300 z-10">
-                          <Package className="w-7 h-7 md:w-8 md:h-8 text-white" strokeWidth={2.5}/>
-                        </div>
-                        <div className="flex flex-col items-center z-10 mt-1">
-                          <span className="font-black text-white text-[14px] md:text-[16px] tracking-wide group-hover:text-indigo-300 transition-colors">อะไหล่/ครุภัณฑ์</span>
-                          <span className="text-indigo-400 text-[10px] md:text-[11px] font-bold tracking-wider uppercase mt-0.5">บริการงานจัดการ</span>
+                        <div className="flex flex-col items-center mt-1">
+                          <span className="font-bold text-slate-500 text-[14px] md:text-[16px]">Sat Signals</span>
+                          <span className="text-slate-600 text-[10px] md:text-[11px] font-bold mt-0.5">สถานะดาวเทียม</span>
                         </div>
                       </button>
 
-                      {/* ปุ่มที่ 8: Coming Soon */}
+                      {/* ปุ่มที่ 8: Coming Soon (งานจัดซื้อจัดจ้าง) */}
                       <button disabled className="group relative aspect-square md:aspect-auto md:h-44 bg-slate-900/30 border-[2px] border-slate-800 rounded-3xl flex flex-col items-center justify-center gap-3 opacity-60 cursor-not-allowed">
                         <span className="absolute top-3 right-3 bg-slate-800 text-slate-400 text-[9px] font-black px-2 py-0.5 rounded-md tracking-widest">SOON</span>
                         <div className="w-14 h-14 md:w-16 md:h-16 bg-slate-800 rounded-2xl flex items-center justify-center">
