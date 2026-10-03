@@ -762,17 +762,29 @@ export default function MainApp({ onGoHome, initialRole }) {
                         </button>
                       )}
 
-                      {/* ปุ่มที่ 6: IoT Monitor (ปิดชั่วคราวรอระบบเสถียร) */}
-                      <button disabled className="group relative aspect-square md:aspect-auto md:h-44 bg-slate-900/30 border-[2px] border-slate-800 rounded-3xl flex flex-col items-center justify-center gap-3 opacity-40 grayscale cursor-not-allowed">
-                        <span className="absolute top-3 right-3 bg-slate-800 text-slate-400 text-[9px] font-black px-2 py-0.5 rounded-md tracking-widest">SOON</span>
-                        <div className="w-14 h-14 md:w-16 md:h-16 bg-slate-800 rounded-2xl flex items-center justify-center">
-                          <Activity className="w-7 h-7 md:w-8 md:h-8 text-slate-600" strokeWidth={3}/>
-                        </div>
-                        <div className="flex flex-col items-center mt-1">
-                          <span className="font-bold text-slate-500 text-[14px] md:text-[16px]">IoT Monitor</span>
-                          <span className="text-slate-600 text-[10px] md:text-[11px] font-bold mt-0.5">สถานะ UPS</span>
-                        </div>
-                      </button>
+                     {/* ปุ่มที่ 6: IoT Monitor (เปิดใช้งานเต็มระบบ) */}
+<button 
+  onClick={() => setActiveTab('monitoring')}
+  className="group relative aspect-square md:aspect-auto md:h-44 bg-slate-900/80 border-[2px] border-cyan-500/50 hover:border-cyan-400 rounded-3xl flex flex-col items-center justify-center gap-3 transition-all duration-300 hover:scale-105 hover:shadow-[0_0_25px_rgba(6,182,212,0.5)] active:scale-95 cursor-pointer overflow-hidden"
+>
+  {/* แสง Flare เรืองแสงด้านหลังเมื่อชี้เมาส์ */}
+  <div className="absolute inset-0 bg-cyan-500/10 opacity-0 group-hover:opacity-100 blur-xl transition-opacity pointer-events-none"></div>
+
+  {/* กล่องไอคอนคลื่นสัญญาณ (ธีมสีฟ้า Cyan ไฮเทค) */}
+  <div className="w-14 h-14 md:w-16 md:h-16 bg-gradient-to-tr from-cyan-500 to-blue-600 rounded-2xl flex items-center justify-center text-white shadow-[0_0_15px_rgba(6,182,212,0.6)] border border-cyan-300/40 group-hover:shadow-[0_0_25px_rgba(6,182,212,0.9)] transition-all">
+    <Activity className="w-7 h-7 md:w-8 md:h-8 animate-pulse text-white" strokeWidth={2.5}/>
+  </div>
+
+  {/* ข้อความและคำอธิบาย */}
+  <div className="flex flex-col items-center mt-1 relative z-10">
+    <span className="font-black text-white text-[14px] md:text-[16px] tracking-wide group-hover:text-cyan-300 transition-colors drop-shadow-sm">
+      IoT Monitor
+    </span>
+    <span className="text-cyan-400/90 text-[10px] md:text-[11px] font-bold mt-0.5 tracking-wider">
+      สถานะ UPS
+    </span>
+  </div>
+</button>
 
                       {/* ปุ่มที่ 7: Sat Signals (ปิดชั่วคราวรอระบบเสถียร) */}
                       <button disabled className="group relative aspect-square md:aspect-auto md:h-44 bg-slate-900/30 border-[2px] border-slate-800 rounded-3xl flex flex-col items-center justify-center gap-3 opacity-40 grayscale cursor-not-allowed">
