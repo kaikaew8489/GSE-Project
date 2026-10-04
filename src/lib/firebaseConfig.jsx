@@ -85,7 +85,7 @@ const resolvedAuthDomain =
 
 const firebaseConfig = {
   apiKey:
-    'AIzaSyD3440oEO-8MvilWbHd5DUHVnlHSjjH1rk',
+    'AIzaSyAH39hSKsJgkWN_HY9mA1Jaqq9zyZ91egk',
 
   authDomain:
     resolvedAuthDomain,
