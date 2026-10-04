@@ -4,6 +4,7 @@ import { Wrench, ShieldCheck, FileText, Phone, EyeOff, Eye, X, Maximize2, CheckC
 import { query, collection, where, getDocs, updateDoc, doc } from 'firebase/firestore';
 import { sendPasswordResetEmail } from 'firebase/auth';
 import { db, auth } from '../lib/firebaseConfig';
+import { signInWithGistdaGoogle, logoutGse } from '../lib/authService';
 import ReporterLoginPopup from './ReporterLoginPopup'; // 🌟 ดึง Popup ฝั่งผู้แจ้งซ่อมมาใช้ที่นี่
 
 export default function LandingPage({ onStart }) {
@@ -24,6 +25,63 @@ export default function LandingPage({ onStart }) {
   const [confirmStaffPin, setConfirmStaffPin] = useState(''); 
   const [isConfirmingStaffPin, setIsConfirmingStaffPin] = useState(false);
   const [isNewStaff, setIsNewStaff] = useState(false);
+
+  const handleGoogleStaffLogin = async () => {
+    setIsLoggingIn(true);
+    setLoginError('');
+
+    try {
+      const result = await signInWithGistdaGoogle();
+
+      // ช่วง Migration นี้ยังคงชื่อ Role แบบเดิม
+      // เพื่อไม่ให้ MainApp ปัจจุบันเสียพฤติกรรม
+      const legacyRoleMap = {
+        technician: 'Technician',
+        commander: 'Commander',
+        admin: 'admin',
+        reporter: 'reporter',
+      };
+
+      const resolvedRole = legacyRoleMap[result.role] || result.role;
+
+      // ปุ่มนี้เป็นทางเข้าเฉพาะเจ้าหน้าที่ ฝวด.
+      // บุคลากร GISTDA ทั่วไปที่ไม่มี staff_roles จะยังเป็น Reporter
+      if (result.role === 'reporter') {
+        await logoutGse();
+        setLoginError('บัญชีนี้ไม่ได้รับสิทธิ์สำหรับเจ้าหน้าที่ ฝวด.');
+        return;
+      }
+
+      // เก็บข้อมูลเพื่อ Compatibility กับระบบเดิมชั่วคราว
+      if (result.staffProfile?.phone) {
+        localStorage.setItem(
+          'gse_staff_phone',
+          String(result.staffProfile.phone).replace(/-/g, '')
+        );
+      }
+
+      closeStaffLogin();
+      onStart(resolvedRole);
+    } catch (error) {
+      console.error('Google Staff Login Error:', error);
+
+      if (error?.message === 'GISTDA_ACCOUNT_REQUIRED') {
+        setLoginError('กรุณาเข้าสู่ระบบด้วยบัญชี @gistda.or.th เท่านั้น');
+      } else if (error?.message === 'STAFF_DISABLED') {
+        setLoginError('บัญชีเจ้าหน้าที่นี้ถูกระงับสิทธิ์การใช้งาน');
+      } else if (error?.message === 'INVALID_STAFF_ROLE') {
+        setLoginError('ไม่พบสิทธิ์การใช้งานที่ถูกต้อง กรุณาติดต่อผู้ดูแลระบบ');
+      } else if (error?.code === 'auth/popup-closed-by-user') {
+        setLoginError('ยกเลิกการเข้าสู่ระบบ');
+      } else if (error?.code === 'auth/unauthorized-domain') {
+        setLoginError('โดเมนที่ใช้ทดสอบยังไม่ได้รับอนุญาตจาก Firebase');
+      } else {
+        setLoginError('ไม่สามารถเข้าสู่ระบบด้วย Google ได้ กรุณาลองใหม่');
+      }
+    } finally {
+      setIsLoggingIn(false);
+    }
+  };
 
   useEffect(() => {
     const initStaffLogin = async () => {
@@ -419,11 +477,42 @@ export default function LandingPage({ onStart }) {
         <div className="fixed inset-0 z-[300] bg-slate-950/90 backdrop-blur-md flex items-center justify-center p-4 animate-in fade-in duration-300">
           <div className="absolute w-[300px] h-[300px] bg-cyan-500/30 rounded-full blur-[100px] animate-pulse pointer-events-none z-0"></div>
           
-          <div className="relative z-10 w-full max-w-sm bg-slate-900 border-[3px] border-solid border-cyan-500 rounded-[2.5rem] p-6 shadow-[0_0_50px_rgba(34,211,238,0.5)] flex flex-col items-center gap-4 transform transition-all" onClick={e => e.stopPropagation()}>
-            <button onClick={closeStaffLogin} className="absolute top-5 right-5 text-slate-400 hover:text-rose-400 transition-colors z-20">
+          <div className="relative z-10 w-full max-w-sm max-h-[94dvh] overflow-y-auto overscroll-contain bg-slate-900 border-[3px] border-solid border-cyan-500 rounded-[2.5rem] p-6 shadow-[0_0_50px_rgba(34,211,238,0.5)] flex flex-col items-center gap-4 transform transition-all" onClick={e => e.stopPropagation()}>
+            <button onClick={closeStaffLogin} className="absolute top-5 right-5 text-slate-400 hover:text-rose-400 transition-colors z-20" aria-label="ปิดหน้าต่างเข้าสู่ระบบเจ้าหน้าที่">
               <X size={28} />
             </button>
-            <div className="relative mt-2">
+
+            {/* Phase 1 Migration: Google GISTDA Login เป็นทางเข้าหลัก โดยคง PIN เดิมไว้ชั่วคราว */}
+            <div className="w-full pt-8 sm:pt-6">
+              <button
+                type="button"
+                onClick={handleGoogleStaffLogin}
+                disabled={isLoggingIn}
+                className="w-full min-h-[58px] bg-white text-slate-900 rounded-2xl border-[2px] border-slate-200 shadow-[0_0_18px_rgba(255,255,255,0.16)] hover:border-cyan-300 hover:shadow-[0_0_24px_rgba(34,211,238,0.35)] active:scale-[0.98] transition-all disabled:opacity-60 disabled:cursor-not-allowed flex items-center justify-center gap-3 px-4 py-3"
+              >
+                <span className="w-9 h-9 shrink-0 rounded-full border border-slate-300 bg-white flex items-center justify-center font-black text-[20px] leading-none text-blue-600 shadow-sm">
+                  G
+                </span>
+                <span className="flex flex-col items-start text-left leading-tight min-w-0">
+                  <span className="font-black text-[14px] sm:text-[15px] text-slate-900">
+                    เข้าสู่ระบบด้วยบัญชี GISTDA
+                  </span>
+                  <span className="text-[11px] sm:text-xs font-bold text-slate-500">
+                    ใช้บัญชี Google @gistda.or.th
+                  </span>
+                </span>
+              </button>
+            </div>
+
+            <div className="w-full flex items-center gap-3" aria-hidden="true">
+              <div className="h-px flex-1 bg-slate-700"></div>
+              <span className="text-[10px] sm:text-xs font-bold text-slate-400 whitespace-nowrap">
+                หรือใช้ PIN เดิมชั่วคราว
+              </span>
+              <div className="h-px flex-1 bg-slate-700"></div>
+            </div>
+
+            <div className="relative mt-1">
               <div className="absolute inset-0 bg-cyan-500 blur-[20px] opacity-40 rounded-full"></div>
               <div className="relative w-16 h-16 bg-slate-950 border-[2px] border-cyan-400 rounded-full flex items-center justify-center shadow-[0_0_20px_rgba(34,211,238,0.6)]">
                 <Phone className="w-8 h-8 text-cyan-400 drop-shadow-[0_0_8px_rgba(34,211,238,0.8)]" />
