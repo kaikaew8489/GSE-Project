@@ -4,7 +4,11 @@ import { Wrench, ShieldCheck, FileText, Phone, EyeOff, Eye, X, Maximize2, CheckC
 import { query, collection, where, getDocs, updateDoc, doc } from 'firebase/firestore';
 import { sendPasswordResetEmail } from 'firebase/auth';
 import { db, auth } from '../lib/firebaseConfig';
-import { signInWithGistdaGoogle, logoutGse } from '../lib/authService';
+import {
+  startGistdaGoogleRedirect,
+  completeGistdaGoogleRedirect,
+  logoutGse,
+} from '../lib/authService';
 import ReporterLoginPopup from './ReporterLoginPopup'; // 🌟 ดึง Popup ฝั่งผู้แจ้งซ่อมมาใช้ที่นี่
 
 export default function LandingPage({ onStart }) {
@@ -25,67 +29,128 @@ export default function LandingPage({ onStart }) {
   const [confirmStaffPin, setConfirmStaffPin] = useState(''); 
   const [isConfirmingStaffPin, setIsConfirmingStaffPin] = useState(false);
   const [isNewStaff, setIsNewStaff] = useState(false);
+  const [showLegacyPin, setShowLegacyPin] = useState(false);
 
   const handleGoogleStaffLogin = async () => {
     setIsLoggingIn(true);
     setLoginError('');
 
     try {
-      const result = await signInWithGistdaGoogle();
-
-      // ช่วง Migration นี้ยังคงชื่อ Role แบบเดิม
-      // เพื่อไม่ให้ MainApp ปัจจุบันเสียพฤติกรรม
-      const legacyRoleMap = {
-        technician: 'Technician',
-        commander: 'Commander',
-        admin: 'admin',
-        reporter: 'reporter',
-      };
-
-      const resolvedRole = legacyRoleMap[result.role] || result.role;
-
-      // ปุ่มนี้เป็นทางเข้าเฉพาะเจ้าหน้าที่ ฝวด.
-      // บุคลากร GISTDA ทั่วไปที่ไม่มี staff_roles จะยังเป็น Reporter
-      if (result.role === 'reporter') {
-        await logoutGse();
-        setLoginError('บัญชีนี้ไม่ได้รับสิทธิ์สำหรับเจ้าหน้าที่ ฝวด.');
-        return;
-      }
-
-      // เก็บข้อมูลเพื่อ Compatibility กับระบบเดิมชั่วคราว
-      if (result.staffProfile?.phone) {
-        localStorage.setItem(
-          'gse_staff_phone',
-          String(result.staffProfile.phone).replace(/-/g, '')
-        );
-      }
-
-      closeStaffLogin();
-      onStart(resolvedRole);
+      // ใช้ Redirect แทน Popup
+      // หน้าเว็บจะออกไป Google Sign-In และกลับเข้ามาที่ GSE App
+      await startGistdaGoogleRedirect('staff');
     } catch (error) {
-      console.error('Google Staff Login Error:', error);
+      console.error('Google Redirect Start Error:', error);
 
-      if (error?.message === 'GISTDA_ACCOUNT_REQUIRED') {
-        setLoginError('กรุณาเข้าสู่ระบบด้วยบัญชี @gistda.or.th เท่านั้น');
-      } else if (error?.message === 'STAFF_DISABLED') {
-        setLoginError('บัญชีเจ้าหน้าที่นี้ถูกระงับสิทธิ์การใช้งาน');
-      } else if (error?.message === 'INVALID_STAFF_ROLE') {
-        setLoginError('ไม่พบสิทธิ์การใช้งานที่ถูกต้อง กรุณาติดต่อผู้ดูแลระบบ');
-      } else if (error?.code === 'auth/popup-closed-by-user') {
-        setLoginError('ยกเลิกการเข้าสู่ระบบ');
-      } else if (error?.code === 'auth/unauthorized-domain') {
-        setLoginError('โดเมนที่ใช้ทดสอบยังไม่ได้รับอนุญาตจาก Firebase');
+      if (error?.code === 'auth/unauthorized-domain') {
+        setLoginError('โดเมนนี้ยังไม่ได้รับอนุญาตให้เข้าสู่ระบบ');
+      } else if (
+        error?.code === 'auth/operation-not-supported-in-this-environment'
+      ) {
+        setLoginError('สภาพแวดล้อมนี้ยังไม่รองรับการเข้าสู่ระบบ กรุณาใช้งานผ่านระบบ GSE ที่เผยแพร่แล้ว');
       } else {
-        setLoginError('ไม่สามารถเข้าสู่ระบบด้วย Google ได้ กรุณาลองใหม่');
+        setLoginError('ไม่สามารถเริ่มการเข้าสู่ระบบด้วย Google ได้ กรุณาลองใหม่');
       }
-    } finally {
+
       setIsLoggingIn(false);
     }
   };
 
   useEffect(() => {
+    let isMounted = true;
+
+    const handleGoogleRedirectResult = async () => {
+      try {
+        const result = await completeGistdaGoogleRedirect();
+
+        // เปิดหน้า App ตามปกติ ไม่ได้กลับมาจาก Google
+        if (!result || !isMounted) {
+          return;
+        }
+
+        const legacyRoleMap = {
+          technician: 'Technician',
+          commander: 'Commander',
+          admin: 'admin',
+          reporter: 'reporter',
+        };
+
+        const resolvedRole =
+          legacyRoleMap[result.role] || result.role;
+
+        // เข้ามาจากประตู "สำหรับเจ้าหน้าที่ ฝวด."
+        if (result.intent === 'staff') {
+          // เป็นบุคลากร GISTDA จริง แต่ไม่มีรายชื่อใน staff_roles
+          if (result.role === 'reporter') {
+            await logoutGse();
+
+            if (isMounted) {
+              setShowLogin(true);
+              setShowLegacyPin(false);
+              setLoginError('บัญชีนี้ไม่ได้รับสิทธิ์สำหรับเจ้าหน้าที่ ฝวด.');
+              setIsLoggingIn(false);
+            }
+
+            return;
+          }
+
+          // เก็บเบอร์ไว้เพื่อ Compatibility กับระบบเดิมชั่วคราว
+          if (result.staffProfile?.phone) {
+            localStorage.setItem(
+              'gse_staff_phone',
+              String(result.staffProfile.phone).replace(/-/g, '')
+            );
+          }
+
+          if (isMounted) {
+            setIsLoggingIn(false);
+            onStart(resolvedRole);
+          }
+
+          return;
+        }
+
+        // เตรียมไว้รองรับ Reporter Google Login ในขั้นถัดไป
+        if (result.intent === 'reporter' && isMounted) {
+          setIsLoggingIn(false);
+          onStart('reporter');
+        }
+      } catch (error) {
+        console.error('Google Redirect Complete Error:', error);
+
+        if (!isMounted) {
+          return;
+        }
+
+        setShowLogin(true);
+        setShowLegacyPin(false);
+        setIsLoggingIn(false);
+
+        if (error?.message === 'GISTDA_ACCOUNT_REQUIRED') {
+          setLoginError('กรุณาเข้าสู่ระบบด้วยบัญชี @gistda.or.th เท่านั้น');
+        } else if (error?.message === 'STAFF_DISABLED') {
+          setLoginError('บัญชีเจ้าหน้าที่นี้ถูกระงับสิทธิ์การใช้งาน');
+        } else if (error?.message === 'INVALID_STAFF_ROLE') {
+          setLoginError('ไม่พบสิทธิ์การใช้งานที่ถูกต้อง กรุณาติดต่อผู้ดูแลระบบ');
+        } else if (error?.code === 'auth/unauthorized-domain') {
+          setLoginError('โดเมนนี้ยังไม่ได้รับอนุญาตให้เข้าสู่ระบบ');
+        } else {
+          setLoginError('ไม่สามารถเข้าสู่ระบบด้วยบัญชี GISTDA ได้ กรุณาลองใหม่');
+        }
+      }
+    };
+
+    handleGoogleRedirectResult();
+
+    return () => {
+      isMounted = false;
+    };
+  }, []);
+
+  useEffect(() => {
     const initStaffLogin = async () => {
       if (showLogin) {
+        setShowLegacyPin(false);
         const savedPhone = localStorage.getItem('gse_staff_phone');
         if (savedPhone) {
           setStaffPhone(savedPhone);
@@ -119,6 +184,7 @@ export default function LandingPage({ onStart }) {
     setStaffRole('');
     setLoginError('');
     setAttemptCount(0);
+    setShowLegacyPin(false);
   };
 
   const handleStaffPhoneNext = async () => {
@@ -290,7 +356,7 @@ export default function LandingPage({ onStart }) {
 
   useEffect(() => {
     const handleStaffKeyDown = (e) => {
-      if (!showLogin) return;
+      if (!showLogin || !showLegacyPin) return;
       if (/^[0-9]$/.test(e.key)) handleStaffNumpad(e.key);
       else if (e.key === 'Backspace') handleStaffDelete();
       else if (e.key.toLowerCase() === 'c' || e.key === 'Escape') handleStaffClear();
@@ -302,7 +368,7 @@ export default function LandingPage({ onStart }) {
     };
     window.addEventListener('keydown', handleStaffKeyDown);
     return () => window.removeEventListener('keydown', handleStaffKeyDown);
-  }, [showLogin, staffStep, staffPhone, staffPin, staffEmail, staffRole, isConfirmingStaffPin, confirmStaffPin]);
+  }, [showLogin, showLegacyPin, staffStep, staffPhone, staffPin, staffEmail, staffRole, isConfirmingStaffPin, confirmStaffPin]);
 
   const formatPhone = (p) => {
     if (!p) return '___-___-____';
@@ -349,6 +415,15 @@ export default function LandingPage({ onStart }) {
             linear-gradient(rgba(34, 211, 238, 0.05) 1px, transparent 1px),
             linear-gradient(90deg, rgba(34, 211, 238, 0.05) 1px, transparent 1px);
           background-size: 30px 30px;
+        }
+        .gse-hidden-scrollbar {
+          scrollbar-width: none;
+          -ms-overflow-style: none;
+        }
+        .gse-hidden-scrollbar::-webkit-scrollbar {
+          display: none;
+          width: 0;
+          height: 0;
         }
       `}</style>
 
@@ -474,119 +549,161 @@ export default function LandingPage({ onStart }) {
       )}
 
       {showLogin && (
-        <div className="fixed inset-0 z-[300] bg-slate-950/90 backdrop-blur-md flex items-center justify-center p-4 animate-in fade-in duration-300">
+        <div className="fixed inset-0 z-[300] bg-slate-950/90 backdrop-blur-md flex items-center justify-center p-3 sm:p-4 animate-in fade-in duration-300">
           <div className="absolute w-[300px] h-[300px] bg-cyan-500/30 rounded-full blur-[100px] animate-pulse pointer-events-none z-0"></div>
-          
-          <div className="relative z-10 w-full max-w-sm max-h-[94dvh] overflow-y-auto overscroll-contain bg-slate-900 border-[3px] border-solid border-cyan-500 rounded-[2.5rem] p-6 shadow-[0_0_50px_rgba(34,211,238,0.5)] flex flex-col items-center gap-4 transform transition-all" onClick={e => e.stopPropagation()}>
-            <button onClick={closeStaffLogin} className="absolute top-5 right-5 text-slate-400 hover:text-rose-400 transition-colors z-20" aria-label="ปิดหน้าต่างเข้าสู่ระบบเจ้าหน้าที่">
+
+          <div
+            className="gse-hidden-scrollbar relative z-10 w-full max-w-sm max-h-[94dvh] overflow-y-auto overscroll-contain bg-slate-900 border-[3px] border-solid border-cyan-500 rounded-[2rem] sm:rounded-[2.5rem] p-5 sm:p-6 shadow-[0_0_50px_rgba(34,211,238,0.5)] flex flex-col items-center gap-4 transform transition-all"
+            onClick={e => e.stopPropagation()}
+          >
+            <button
+              onClick={closeStaffLogin}
+              className="absolute top-4 right-4 sm:top-5 sm:right-5 text-slate-400 hover:text-rose-400 transition-colors z-20"
+              aria-label="ปิดหน้าต่างเข้าสู่ระบบเจ้าหน้าที่"
+            >
               <X size={28} />
             </button>
 
-            {/* Phase 1 Migration: Google GISTDA Login เป็นทางเข้าหลัก โดยคง PIN เดิมไว้ชั่วคราว */}
-            <div className="w-full pt-8 sm:pt-6">
-              <button
-                type="button"
-                onClick={handleGoogleStaffLogin}
-                disabled={isLoggingIn}
-                className="w-full min-h-[58px] bg-white text-slate-900 rounded-2xl border-[2px] border-slate-200 shadow-[0_0_18px_rgba(255,255,255,0.16)] hover:border-cyan-300 hover:shadow-[0_0_24px_rgba(34,211,238,0.35)] active:scale-[0.98] transition-all disabled:opacity-60 disabled:cursor-not-allowed flex items-center justify-center gap-3 px-4 py-3"
-              >
-                <span className="w-9 h-9 shrink-0 rounded-full border border-slate-300 bg-white flex items-center justify-center font-black text-[20px] leading-none text-blue-600 shadow-sm">
-                  G
-                </span>
-                <span className="flex flex-col items-start text-left leading-tight min-w-0">
-                  <span className="font-black text-[14px] sm:text-[15px] text-slate-900">
-                    เข้าสู่ระบบด้วยบัญชี GISTDA
-                  </span>
-                  <span className="text-[11px] sm:text-xs font-bold text-slate-500">
-                    ใช้บัญชี Google @gistda.or.th
-                  </span>
-                </span>
-              </button>
+            <div className="flex flex-col items-center text-center pt-3 sm:pt-2 px-8">
+              <div className="relative w-14 h-14 mb-3">
+                <div className="absolute inset-0 bg-cyan-500/30 blur-[18px] rounded-full"></div>
+                <div className="relative w-14 h-14 bg-slate-950 border-[2px] border-cyan-400 rounded-full flex items-center justify-center shadow-[0_0_20px_rgba(34,211,238,0.5)]">
+                  <ShieldCheck className="w-7 h-7 text-cyan-300" />
+                </div>
+              </div>
+              <h2 className="text-[19px] sm:text-xl font-black text-white tracking-wide">สำหรับเจ้าหน้าที่ ฝวด.</h2>
+              <p className="mt-1 text-[11px] sm:text-xs font-bold text-slate-400 leading-relaxed">ใช้บัญชีองค์กรเพื่อยืนยันตัวตนและตรวจสอบสิทธิ์โดยอัตโนมัติ</p>
             </div>
 
-            <div className="w-full flex items-center gap-3" aria-hidden="true">
-              <div className="h-px flex-1 bg-slate-700"></div>
-              <span className="text-[10px] sm:text-xs font-bold text-slate-400 whitespace-nowrap">
-                หรือใช้ PIN เดิมชั่วคราว
+            <button
+              type="button"
+              onClick={handleGoogleStaffLogin}
+              disabled={isLoggingIn}
+              className="w-full min-h-[60px] bg-white text-slate-900 rounded-2xl border-[2px] border-slate-200 shadow-[0_0_18px_rgba(255,255,255,0.16)] hover:border-cyan-300 hover:shadow-[0_0_24px_rgba(34,211,238,0.35)] active:scale-[0.98] transition-all disabled:opacity-60 disabled:cursor-not-allowed flex items-center justify-center gap-3 px-4 py-3"
+            >
+              <span className="w-9 h-9 shrink-0 rounded-full border border-slate-300 bg-white flex items-center justify-center font-black text-[20px] leading-none text-blue-600 shadow-sm">G</span>
+              <span className="flex flex-col items-start text-left leading-tight min-w-0">
+                <span className="font-black text-[14px] sm:text-[15px] text-slate-900">เข้าสู่ระบบด้วยบัญชี GISTDA</span>
+                <span className="text-[11px] sm:text-xs font-bold text-slate-500">ใช้บัญชี Google @gistda.or.th</span>
               </span>
-              <div className="h-px flex-1 bg-slate-700"></div>
-            </div>
+            </button>
 
-            <div className="relative mt-1">
-              <div className="absolute inset-0 bg-cyan-500 blur-[20px] opacity-40 rounded-full"></div>
-              <div className="relative w-16 h-16 bg-slate-950 border-[2px] border-cyan-400 rounded-full flex items-center justify-center shadow-[0_0_20px_rgba(34,211,238,0.6)]">
-                <Phone className="w-8 h-8 text-cyan-400 drop-shadow-[0_0_8px_rgba(34,211,238,0.8)]" />
-              </div>
-            </div>
-            
-            <h2 className="text-xl font-black text-white tracking-wide text-center">
-              {staffStep === 1 ? 'เบอร์โทรศัพท์เจ้าหน้าที่' : (isNewStaff ? (isConfirmingStaffPin ? '✅ ยืนยันรหัส PIN อีกครั้ง' : '✨ ตั้งรหัส PIN 6 หลัก') : '🔒 ใส่รหัส PIN เข้าสู่ระบบ')}
-            </h2>
+            {loginError && (
+              <p className="text-sm font-bold text-center p-2.5 rounded-xl w-full border animate-in shake bg-rose-500/10 text-rose-400 border-rose-500/30 shadow-[0_0_10px_rgba(244,63,94,0.2)]">{loginError}</p>
+            )}
 
-            {loginError && <p className="text-sm font-bold text-center p-2 rounded-lg w-full border animate-in shake bg-rose-500/10 text-rose-400 border-rose-500/30 shadow-[0_0_10px_rgba(244,63,94,0.2)]">{loginError}</p>}
-
-            <div className="relative w-full mb-2">
-              <div className="w-full bg-slate-950 border-[2px] border-cyan-400 rounded-2xl h-16 flex items-center justify-center text-3xl font-black text-cyan-300 tracking-[0.1em] shadow-[0_0_15px_rgba(34,211,238,0.4),inset_0_0_10px_rgba(34,211,238,0.2)] transition-all">
-              {staffStep === 1 ? formatPhone(staffPhone) : formatPinDisplay(isConfirmingStaffPin ? confirmStaffPin : staffPin)}
-              </div>
-              {staffStep === 2 && (
-                <button type="button" onClick={() => setShowStaffPin(!showStaffPin)} className="absolute right-4 top-1/2 -translate-y-1/2 text-cyan-600 hover:text-cyan-300 transition-colors drop-shadow-md z-20">
-                  {showStaffPin ? <EyeOff size={24} /> : <Eye size={24} />}
+            {!showLegacyPin ? (
+              <div className="w-full flex flex-col items-center gap-3">
+                <div className="w-full flex items-center gap-3" aria-hidden="true">
+                  <div className="h-px flex-1 bg-slate-700"></div>
+                  <span className="text-[10px] sm:text-xs font-bold text-slate-500 whitespace-nowrap">ทางเลือกชั่วคราวช่วงเปลี่ยนระบบ</span>
+                  <div className="h-px flex-1 bg-slate-700"></div>
+                </div>
+                <button
+                  type="button"
+                  onClick={() => { setShowLegacyPin(true); setLoginError(''); }}
+                  disabled={isLoggingIn}
+                  className="w-full min-h-[48px] rounded-xl border border-slate-600 bg-slate-950/60 text-slate-300 hover:text-cyan-300 hover:border-cyan-500/70 hover:bg-cyan-500/5 active:scale-[0.98] transition-all text-[12px] sm:text-sm font-black tracking-wide disabled:opacity-50"
+                >
+                  ใช้ PIN เดิมชั่วคราว
                 </button>
-              )}
-            </div>
+                <p className="text-[10px] sm:text-[11px] text-slate-500 font-bold text-center leading-relaxed px-2">ระบบ PIN จะคงไว้เฉพาะช่วง Migration และจะยกเลิกหลังระบบบัญชี GISTDA ผ่านการทดสอบครบถ้วน</p>
+              </div>
+            ) : (
+              <div className="w-full flex flex-col items-center gap-4 animate-in fade-in slide-in-from-top-2 duration-300">
+                <div className="w-full flex items-center gap-3" aria-hidden="true">
+                  <div className="h-px flex-1 bg-slate-700"></div>
+                  <span className="text-[10px] sm:text-xs font-bold text-slate-400 whitespace-nowrap">PIN เดิมชั่วคราว</span>
+                  <div className="h-px flex-1 bg-slate-700"></div>
+                </div>
 
-            {staffStep === 2 && (
-              <div className="w-full flex justify-between items-center px-1 -mt-1 mb-1">
-                {attemptCount >= 3 && (
-                  <button type="button" onClick={async () => {
-                    if (!staffEmail) return;
-                    setIsLoggingIn(true);
-                    try {
-                      await sendPasswordResetEmail(auth, staffEmail);
-                      setLoginError('ระบบได้ส่งลิงก์รีเซ็ต PIN ไปที่อีเมลหน่วยงานของท่านแล้วค่ะ');
-                    } catch (err) {
-                      setLoginError('ไม่สามารถส่งอีเมลรีเซ็ตได้ กรุณาลองใหม่');
-                    } finally {
-                      setIsLoggingIn(false);
-                    }
-                  }} disabled={isLoggingIn} className="text-xs font-bold text-rose-400 hover:text-rose-300 underline transition-colors animate-pulse z-10">
-                    ลืมรหัส PIN ใช่หรือไม่?
-                  </button>
+                <button
+                  type="button"
+                  onClick={() => {
+                    setShowLegacyPin(false);
+                    setStaffPhone('');
+                    setStaffPin('');
+                    setConfirmStaffPin('');
+                    setStaffStep(1);
+                    setIsConfirmingStaffPin(false);
+                    setLoginError('');
+                    setAttemptCount(0);
+                  }}
+                  className="text-[11px] sm:text-xs font-bold text-cyan-400 hover:text-cyan-300 underline underline-offset-4 transition-colors"
+                >
+                  กลับไปใช้บัญชี GISTDA
+                </button>
+
+                <div className="relative mt-1">
+                  <div className="absolute inset-0 bg-cyan-500 blur-[20px] opacity-40 rounded-full"></div>
+                  <div className="relative w-14 h-14 sm:w-16 sm:h-16 bg-slate-950 border-[2px] border-cyan-400 rounded-full flex items-center justify-center shadow-[0_0_20px_rgba(34,211,238,0.6)]">
+                    <Phone className="w-7 h-7 sm:w-8 sm:h-8 text-cyan-400 drop-shadow-[0_0_8px_rgba(34,211,238,0.8)]" />
+                  </div>
+                </div>
+
+                <h3 className="text-lg sm:text-xl font-black text-white tracking-wide text-center">
+                  {staffStep === 1 ? 'เบอร์โทรศัพท์เจ้าหน้าที่' : (isNewStaff ? (isConfirmingStaffPin ? 'ยืนยันรหัส PIN อีกครั้ง' : 'ตั้งรหัส PIN 6 หลัก') : 'ใส่รหัส PIN เข้าสู่ระบบ')}
+                </h3>
+
+                <div className="relative w-full mb-1">
+                  <div className="w-full bg-slate-950 border-[2px] border-cyan-400 rounded-2xl h-14 sm:h-16 flex items-center justify-center text-[26px] sm:text-3xl font-black text-cyan-300 tracking-[0.1em] shadow-[0_0_15px_rgba(34,211,238,0.4),inset_0_0_10px_rgba(34,211,238,0.2)] transition-all">
+                    {staffStep === 1 ? formatPhone(staffPhone) : formatPinDisplay(isConfirmingStaffPin ? confirmStaffPin : staffPin)}
+                  </div>
+                  {staffStep === 2 && (
+                    <button type="button" onClick={() => setShowStaffPin(!showStaffPin)} className="absolute right-4 top-1/2 -translate-y-1/2 text-cyan-600 hover:text-cyan-300 transition-colors drop-shadow-md z-20" aria-label={showStaffPin ? 'ซ่อนรหัส PIN' : 'แสดงรหัส PIN'}>
+                      {showStaffPin ? <EyeOff size={24} /> : <Eye size={24} />}
+                    </button>
+                  )}
+                </div>
+
+                {staffStep === 2 && (
+                  <div className="w-full flex justify-between items-center px-1 -mt-1 mb-1">
+                    {attemptCount >= 3 && (
+                      <button
+                        type="button"
+                        onClick={async () => {
+                          if (!staffEmail) return;
+                          setIsLoggingIn(true);
+                          try {
+                            await sendPasswordResetEmail(auth, staffEmail);
+                            setLoginError('ระบบได้ส่งลิงก์รีเซ็ต PIN ไปที่อีเมลหน่วยงานของท่านแล้วค่ะ');
+                          } catch (err) {
+                            setLoginError('ไม่สามารถส่งอีเมลรีเซ็ตได้ กรุณาลองใหม่');
+                          } finally {
+                            setIsLoggingIn(false);
+                          }
+                        }}
+                        disabled={isLoggingIn}
+                        className="text-xs font-bold text-rose-400 hover:text-rose-300 underline transition-colors animate-pulse z-10"
+                      >
+                        ลืมรหัส PIN ใช่หรือไม่?
+                      </button>
+                    )}
+                    <button type="button" onClick={() => { setStaffStep(1); setStaffPhone(''); setStaffPin(''); setLoginError(''); setAttemptCount(0); setIsNewStaff(false); }} className="text-xs font-bold text-slate-400 hover:text-cyan-400 underline transition-colors ml-auto z-10">ไม่ใช่คุณใช่ไหม?</button>
+                  </div>
                 )}
-                <button type="button" onClick={() => { setStaffStep(1); setStaffPhone(''); setStaffPin(''); setLoginError(''); setAttemptCount(0); setIsNewStaff(false); }} className="text-xs font-bold text-slate-400 hover:text-cyan-400 underline transition-colors ml-auto z-10">
-                  ไม่ใช่คุณใช่ไหม?
-                </button>
+
+                <div className={`grid grid-cols-3 gap-2.5 sm:gap-3 w-full px-1 transition-all duration-500 ${isLoggingIn ? 'opacity-0 scale-90 pointer-events-none absolute' : 'opacity-100 scale-100 relative'}`}>
+                  {[1, 2, 3, 4, 5, 6, 7, 8, 9].map((num) => (
+                    <button key={num} type="button" onClick={() => handleStaffNumpad(num.toString())} className="h-14 sm:h-16 flex items-center justify-center bg-slate-900/60 backdrop-blur-md border border-slate-600/50 rounded-2xl text-[26px] sm:text-3xl font-black text-slate-200 transition-all duration-300 hover:bg-cyan-500/10 hover:border-cyan-400 hover:text-cyan-300 hover:shadow-[0_0_20px_rgba(34,211,238,0.6),inset_0_0_10px_rgba(34,211,238,0.2)] active:scale-90 active:bg-cyan-500 active:text-white">{num}</button>
+                  ))}
+                  <button type="button" onClick={handleStaffClear} className="h-14 sm:h-16 flex items-center justify-center bg-slate-900/60 backdrop-blur-md border border-slate-600/50 rounded-2xl text-[26px] sm:text-3xl font-black text-amber-500 transition-all duration-300 hover:bg-amber-500/10 hover:border-amber-400 hover:text-amber-400 hover:shadow-[0_0_20px_rgba(245,158,11,0.6),inset_0_0_10px_rgba(245,158,11,0.2)] active:scale-90 active:bg-amber-500 active:text-white">C</button>
+                  <button type="button" onClick={() => handleStaffNumpad('0')} className="h-14 sm:h-16 flex items-center justify-center bg-slate-900/60 backdrop-blur-md border border-slate-600/50 rounded-2xl text-[26px] sm:text-3xl font-black text-slate-200 transition-all duration-300 hover:bg-cyan-500/10 hover:border-cyan-400 hover:text-cyan-300 hover:shadow-[0_0_20px_rgba(34,211,238,0.6),inset_0_0_10px_rgba(34,211,238,0.2)] active:scale-90 active:bg-cyan-500 active:text-white">0</button>
+                  <button type="button" onClick={handleStaffDelete} className="h-14 sm:h-16 flex items-center justify-center bg-slate-900/60 backdrop-blur-md border border-slate-600/50 rounded-2xl transition-all duration-300 hover:bg-rose-500/10 hover:border-rose-500 hover:text-rose-400 hover:shadow-[0_0_20px_rgba(225,29,72,0.6),inset_0_0_10px_rgba(225,29,72,0.2)] active:scale-90 active:bg-rose-600 active:text-white text-rose-500">
+                    <X size={30} className="drop-shadow-md stroke-[3px]" />
+                  </button>
+                </div>
               </div>
             )}
 
-            <div className={`grid grid-cols-3 gap-3 w-full px-1 transition-all duration-500 ${isLoggingIn ? 'opacity-0 scale-90 pointer-events-none absolute' : 'opacity-100 scale-100 relative'}`}>
-              {[1, 2, 3, 4, 5, 6, 7, 8, 9].map((num) => (
-                <button key={num} type="button" onClick={() => handleStaffNumpad(num.toString())} className="h-16 flex items-center justify-center bg-slate-900/60 backdrop-blur-md border border-slate-600/50 rounded-2xl text-3xl font-black text-slate-200 transition-all duration-300 hover:bg-cyan-500/10 hover:border-cyan-400 hover:text-cyan-300 hover:shadow-[0_0_20px_rgba(34,211,238,0.6),inset_0_0_10px_rgba(34,211,238,0.2)] active:scale-90 active:bg-cyan-500 active:text-white">
-                  {num}
-                </button>
-              ))}
-              <button type="button" onClick={handleStaffClear} className="h-16 flex items-center justify-center bg-slate-900/60 backdrop-blur-md border border-slate-600/50 rounded-2xl text-3xl font-black text-amber-500 transition-all duration-300 hover:bg-amber-500/10 hover:border-amber-400 hover:text-amber-400 hover:shadow-[0_0_20px_rgba(245,158,11,0.6),inset_0_0_10px_rgba(245,158,11,0.2)] active:scale-90 active:bg-amber-500 active:text-white">
-                C
-              </button>
-              <button type="button" onClick={() => handleStaffNumpad('0')} className="h-16 flex items-center justify-center bg-slate-900/60 backdrop-blur-md border border-slate-600/50 rounded-2xl text-3xl font-black text-slate-200 transition-all duration-300 hover:bg-cyan-500/10 hover:border-cyan-400 hover:text-cyan-300 hover:shadow-[0_0_20px_rgba(34,211,238,0.6),inset_0_0_10px_rgba(34,211,238,0.2)] active:scale-90 active:bg-cyan-500 active:text-white">
-                0
-              </button>
-              <button type="button" onClick={handleStaffDelete} className="h-16 flex items-center justify-center bg-slate-900/60 backdrop-blur-md border border-slate-600/50 rounded-2xl transition-all duration-300 hover:bg-rose-500/10 hover:border-rose-500 hover:text-rose-400 hover:shadow-[0_0_20px_rgba(225,29,72,0.6),inset_0_0_10px_rgba(225,29,72,0.2)] active:scale-90 active:bg-rose-600 active:text-white text-rose-500">
-                <X size={32} className="drop-shadow-md stroke-[3px]" />
-              </button>
-            </div>
-
             {isLoggingIn && (
-              <div className="w-full h-[256px] flex flex-col items-center justify-center animate-in zoom-in duration-300">
-                <div className="relative w-20 h-20 mb-5">
+              <div className="w-full min-h-[150px] flex flex-col items-center justify-center animate-in zoom-in duration-300">
+                <div className="relative w-16 h-16 mb-4">
                   <div className="absolute inset-0 border-[4px] border-cyan-500/20 rounded-full"></div>
                   <div className="absolute inset-0 border-[4px] border-cyan-400 border-t-transparent rounded-full animate-spin"></div>
-                  <ShieldCheck className="absolute inset-0 m-auto text-cyan-400 animate-pulse w-8 h-8" />
+                  <ShieldCheck className="absolute inset-0 m-auto text-cyan-400 animate-pulse w-7 h-7" />
                 </div>
-                <span className="text-cyan-400 font-black tracking-widest text-[18px] drop-shadow-[0_0_10px_rgba(34,211,238,0.8)] animate-pulse">
-                  ตรวจสอบสิทธิ์...
-                </span>
+                <span className="text-cyan-400 font-black tracking-widest text-[15px] sm:text-[17px] drop-shadow-[0_0_10px_rgba(34,211,238,0.8)] animate-pulse">ตรวจสอบสิทธิ์...</span>
               </div>
             )}
           </div>
