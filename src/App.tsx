@@ -1,132 +1,777 @@
-import React, { useState, useEffect } from 'react';
-import { AlertCircle } from 'lucide-react';
+import React, {
+  useState,
+  useEffect,
+} from 'react';
+
+import {
+  AlertCircle,
+  ShieldCheck,
+} from 'lucide-react';
+
+import {
+  onAuthStateChanged,
+} from 'firebase/auth';
+
 import LandingPage from './components/LandingPage';
 import MainApp from './components/MainApp';
 
-// 1. 🛡️ ระบบกันแอปพัง (ป้องกันจอขาว 1,000,000%)
-class ErrorBoundary extends React.Component {
+import {
+  auth,
+} from './lib/firebaseConfig.jsx';
+
+import {
+  logoutGse,
+  resolveExistingGistdaSession,
+} from './lib/authService.js';
+
+// =========================================================
+// GSE APPLICATION ROOT
+// Security Phase 1
+//
+// หลักการ:
+// - Firebase Authentication = ตัวตน
+// - staff_roles = สิทธิ์
+// - sessionStorage = ใช้ได้เฉพาะ UI state / auth mode
+// - ห้ามใช้ role / hasStarted จาก sessionStorage
+//   เป็นหลักฐานในการอนุญาตเข้าระบบ
+// =========================================================
+
+
+// =========================================================
+// 1. Error Boundary
+// ป้องกันระบบแสดงจอขาวเมื่อ Component เกิด Runtime Error
+// =========================================================
+
+class ErrorBoundary extends React.Component<
+  React.PropsWithChildren,
+  {
+    hasError: boolean;
+    error: Error | null;
+  }
+> {
   constructor(props) {
     super(props);
-    this.state = { hasError: false, error: null };
+
+    this.state = {
+      hasError: false,
+      error: null,
+    };
   }
-  static getDerivedStateFromError(error) {
-    return { hasError: true, error };
+
+  static getDerivedStateFromError(
+    error: Error
+  ) {
+    return {
+      hasError: true,
+      error,
+    };
   }
+
   render() {
     if (this.state.hasError) {
       return (
         <div className="p-10 bg-slate-950 text-white min-h-screen flex flex-col justify-center items-center font-sans text-center border-t-[10px] border-rose-500">
-          <AlertCircle size={80} className="mb-6 animate-pulse text-rose-500" />
-          <h2 className="text-2xl font-black uppercase tracking-tighter">ระบบพบข้อผิดพลาดรุนแรง</h2>
-          <p className="mt-2 text-slate-400 text-sm max-w-xs">{this.state.error?.message || 'กรุณารีเฟรชหน้าจอใหม่อีกครั้ง'}</p>
-          <button onClick={() => window.location.reload()} className="mt-8 px-10 py-4 bg-orange-500 text-white font-black rounded-2xl shadow-xl active:scale-95 transition-all">
+          <AlertCircle
+            size={80}
+            className="mb-6 animate-pulse text-rose-500"
+          />
+
+          <h2 className="text-2xl font-black uppercase tracking-tighter">
+            ระบบพบข้อผิดพลาดรุนแรง
+          </h2>
+
+          <p className="mt-2 text-slate-400 text-sm max-w-xs">
+            {this.state.error?.message ||
+              'กรุณารีเฟรชหน้าจอใหม่อีกครั้ง'}
+          </p>
+
+          <button
+            onClick={() =>
+              window.location.reload()
+            }
+            className="mt-8 px-10 py-4 bg-orange-500 text-white font-black rounded-2xl shadow-xl active:scale-95 transition-all"
+          >
             REBOOT SYSTEM
           </button>
         </div>
       );
     }
+
     return this.props.children;
   }
 }
 
-// 2. 🔤 ฟอนต์ Sarabun
+
+// =========================================================
+// 2. Font
+// =========================================================
+
 const SarabunFontEmbed = () => (
   <style>{`
     @import url('https://fonts.googleapis.com/css2?family=Sarabun:wght@200;300;400;500;600;700;800&display=swap');
-    body, html, *, h1, h2, h3, p, button, input { font-family: 'Sarabun', sans-serif !important; letter-spacing: 0.02em !important; line-height: 1.5 !important; }
-    .font-black { font-weight: 700 !important; } .font-bold { font-weight: 600 !important; } .font-normal { font-weight: 400 !important; }
-    .font-mono { font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace !important; letter-spacing: 0.02em !important; font-weight: 600 !important; }
+
+    body, html, *, h1, h2, h3, p, button, input {
+      font-family: 'Sarabun', sans-serif !important;
+      letter-spacing: 0.02em !important;
+      line-height: 1.5 !important;
+    }
+
+    .font-black {
+      font-weight: 700 !important;
+    }
+
+    .font-bold {
+      font-weight: 600 !important;
+    }
+
+    .font-normal {
+      font-weight: 400 !important;
+    }
+
+    .font-mono {
+      font-family:
+        ui-monospace,
+        SFMono-Regular,
+        Menlo,
+        Monaco,
+        Consolas,
+        monospace !important;
+
+      letter-spacing: 0.02em !important;
+      font-weight: 600 !important;
+    }
   `}</style>
 );
 
-// 3. 🚀 ตัวคุมประตูหลัก (App)
+
+// =========================================================
+// 3. Compatibility Adapter
+//
+// MainApp รุ่นเดิมบางส่วนยังใช้:
+//
+// Commander
+// Technician
+// Admin
+//
+// แต่ authService ใช้มาตรฐาน lowercase:
+//
+// commander
+// technician
+// admin
+//
+// Adapter นี้มีไว้ชั่วคราวจนกว่า STEP 3
+// จะปรับ MainApp ให้ใช้ Role มาตรฐานเดียวกันทั้งหมด
+//
+// *** Adapter นี้ไม่ใช่ Security Boundary ***
+// =========================================================
+
+const toLegacyMainAppRole = (
+  role: string | null | undefined
+) => {
+  switch (
+    String(role || '')
+      .trim()
+      .toLowerCase()
+  ) {
+    case 'commander':
+      return 'Commander';
+
+    case 'technician':
+      return 'Technician';
+
+    case 'admin':
+      return 'Admin';
+
+    case 'reporter':
+    default:
+      return 'reporter';
+  }
+};
+
+
+// =========================================================
+// 4. Secure Session Loading Screen
+// =========================================================
+
+const SecureSessionLoader = () => (
+  <div className="fixed inset-0 z-[99998] bg-[#050816] flex flex-col items-center justify-center text-center px-6">
+    <div className="w-20 h-20 rounded-full border border-cyan-400/40 bg-slate-950 flex items-center justify-center shadow-[0_0_35px_rgba(34,211,238,0.25)]">
+      <ShieldCheck
+        size={38}
+        className="text-cyan-400 animate-pulse"
+      />
+    </div>
+
+    <div className="mt-6 text-cyan-300 font-bold text-lg">
+      กำลังตรวจสอบสิทธิ์การใช้งาน
+    </div>
+
+    <div className="mt-2 text-slate-500 text-sm">
+      GSE Secure Authentication
+    </div>
+  </div>
+);
+
+
+// =========================================================
+// 5. Main Application
+// =========================================================
+
 export default function App() {
-  const [showSplash, setShowSplash] = useState(true);
-  const [fadeOut, setFadeOut] = useState(false);
-  const [progress, setProgress] = useState(0);
-  const [hasStarted, setHasStarted] = useState(() => sessionStorage.getItem('hasStarted') === 'true');
-  const [role, setRole] = useState(() => sessionStorage.getItem('role') || 'reporter');
+
+  // -------------------------------------------------------
+  // Splash UI
+  // -------------------------------------------------------
+
+  const [
+    showSplash,
+    setShowSplash,
+  ] = useState(true);
+
+  const [
+    fadeOut,
+    setFadeOut,
+  ] = useState(false);
+
+  const [
+    progress,
+    setProgress,
+  ] = useState(0);
+
+
+  // -------------------------------------------------------
+  // Verified Access
+  //
+  // สำคัญ:
+  // ไม่มีการ initialize จาก sessionStorage.role
+  // ไม่มีการ initialize จาก hasStarted
+  // -------------------------------------------------------
+
+  const [
+    access,
+    setAccess,
+  ] = useState<any>(null);
+
+  const [
+    authChecking,
+    setAuthChecking,
+  ] = useState(true);
+
+
+  // =======================================================
+  // ล้าง Legacy Browser Authorization State
+  //
+  // ต่อให้ User เปิด DevTools แล้วสร้างค่าเหล่านี้ขึ้นมา
+  // App จะไม่ใช้ค่าดังกล่าวในการอนุญาตอีกต่อไป
+  // =======================================================
 
   useEffect(() => {
-    if (sessionStorage.getItem('hasStarted') === 'true') {
-      setShowSplash(false);
-    }
+    sessionStorage.removeItem(
+      'role'
+    );
+
+    sessionStorage.removeItem(
+      'hasStarted'
+    );
   }, []);
 
+
+  // =======================================================
+  // Firebase Session Observer
+  //
+  // Refresh / เปิด Tab ใหม่:
+  //
+  // Firebase Auth
+  //      ↓
+  // resolveExistingGistdaSession()
+  //      ↓
+  // staff_roles
+  //      ↓
+  // verified access
+  //
+  // ไม่อ่าน Role จาก Browser Storage
+  // =======================================================
+
   useEffect(() => {
-    if (!showSplash || sessionStorage.getItem('hasStarted') === 'true') return;
-    const timer = setInterval(() => {
-      setProgress((oldProgress) => {
-        if (oldProgress >= 100) { clearInterval(timer); return 100; }
-        const diff = Math.floor(Math.random() * 8) + 4; 
-        return Math.min(oldProgress + diff, 100);
-      });
-    }, 100);
-    return () => clearInterval(timer);
+
+    let alive = true;
+
+    const unsubscribe =
+      onAuthStateChanged(
+        auth,
+        async (user) => {
+
+          if (!alive) {
+            return;
+          }
+
+          // ------------------------------------------------
+          // ไม่มี Firebase Session
+          // ------------------------------------------------
+
+          if (!user) {
+            setAccess(null);
+            setAuthChecking(false);
+            return;
+          }
+
+
+          // ------------------------------------------------
+          // มี Redirect ที่กำลังรอ LandingPage 처리
+          //
+          // ห้าม Restore Session ตรงนี้ก่อน
+          // เพราะ completeGistdaGoogleRedirect()
+          // ต้องเป็นผู้รับ Redirect Result ก่อน
+          //
+          // ป้องกัน Race Condition:
+          //
+          // Google Redirect
+          //     ↓
+          // Firebase user พร้อม
+          //     ↓
+          // แต่ AUTH_MODE ยังไม่ได้กำหนด
+          // ------------------------------------------------
+
+          const pendingIntent =
+            sessionStorage.getItem(
+              'gse_auth_intent'
+            );
+
+          if (pendingIntent) {
+            setAccess(null);
+            setAuthChecking(false);
+            return;
+          }
+
+
+          // ------------------------------------------------
+          // Restore Existing Firebase Session
+          // ------------------------------------------------
+
+          setAuthChecking(true);
+
+          try {
+
+            const verifiedAccess =
+              await resolveExistingGistdaSession(
+                user
+              );
+
+            if (!alive) {
+              return;
+            }
+
+            setAccess(
+              verifiedAccess
+            );
+
+          } catch (error) {
+
+            console.error(
+              'GSE Session Validation Error:',
+              error
+            );
+
+            if (alive) {
+              setAccess(null);
+            }
+
+          } finally {
+
+            if (alive) {
+              setAuthChecking(false);
+            }
+          }
+        }
+      );
+
+
+    return () => {
+      alive = false;
+      unsubscribe();
+    };
+
+  }, []);
+
+
+  // =======================================================
+  // Splash Progress
+  // =======================================================
+
+  useEffect(() => {
+
+    if (!showSplash) {
+      return;
+    }
+
+    const timer =
+      setInterval(() => {
+
+        setProgress(
+          (oldProgress) => {
+
+            if (
+              oldProgress >= 100
+            ) {
+              clearInterval(timer);
+
+              return 100;
+            }
+
+            const diff =
+              Math.floor(
+                Math.random() * 8
+              ) + 4;
+
+            return Math.min(
+              oldProgress + diff,
+              100
+            );
+          }
+        );
+
+      }, 100);
+
+
+    return () =>
+      clearInterval(timer);
+
   }, [showSplash]);
 
+
+  // =======================================================
+  // Splash Fade Out
+  // =======================================================
+
   useEffect(() => {
-    if (progress === 100) {
-      const fadeTimer = setTimeout(() => setFadeOut(true), 400);
-      const closeTimer = setTimeout(() => setShowSplash(false), 900);
-      return () => { clearTimeout(fadeTimer); clearTimeout(closeTimer); };
+
+    if (
+      progress !== 100
+    ) {
+      return;
     }
+
+    const fadeTimer =
+      setTimeout(
+        () =>
+          setFadeOut(true),
+        400
+      );
+
+    const closeTimer =
+      setTimeout(
+        () =>
+          setShowSplash(false),
+        900
+      );
+
+
+    return () => {
+      clearTimeout(
+        fadeTimer
+      );
+
+      clearTimeout(
+        closeTimer
+      );
+    };
+
   }, [progress]);
 
-  const handleStart = (selectedRole) => {
-    setRole(selectedRole);
-    setHasStarted(true);
-    sessionStorage.setItem('role', selectedRole);
-    sessionStorage.setItem('hasStarted', 'true');
-  };
 
-  const handleGoHome = async () => {
-    setHasStarted(false);
-    sessionStorage.removeItem('hasStarted');
-    sessionStorage.removeItem('activeTab');
-    sessionStorage.removeItem('role'); 
-  };
+  // =======================================================
+  // LandingPage Login Success
+  //
+  // *** ห้ามเชื่อ selectedRole ที่ส่งมาจาก UI ***
+  //
+  // ถึง LandingPage จะส่ง:
+  //
+  // Commander
+  // Technician
+  // reporter
+  //
+  // App จะไม่เอาค่านั้นมาใช้
+  //
+  // App จะถาม Firebase Auth + staff_roles ใหม่เอง
+  // =======================================================
+
+  const handleStart =
+    async (
+      _selectedRole?: unknown
+    ) => {
+
+      setAuthChecking(true);
+
+      try {
+
+        const currentUser =
+          auth.currentUser;
+
+        if (!currentUser) {
+          throw new Error(
+            'AUTHENTICATED_USER_REQUIRED'
+          );
+        }
+
+        const verifiedAccess =
+          await resolveExistingGistdaSession(
+            currentUser
+          );
+
+        if (!verifiedAccess) {
+          throw new Error(
+            'AUTHORIZED_ACCESS_REQUIRED'
+          );
+        }
+
+        setAccess(
+          verifiedAccess
+        );
+
+        // --------------------------------------------------
+        // Legacy Authorization State
+        // ต้องไม่ถูกสร้างกลับมาอีก
+        // --------------------------------------------------
+
+        sessionStorage.removeItem(
+          'role'
+        );
+
+        sessionStorage.removeItem(
+          'hasStarted'
+        );
+
+        return true;
+
+      } catch (error) {
+
+        console.error(
+          'GSE Start Authorization Error:',
+          error
+        );
+
+        setAccess(null);
+
+        return false;
+
+      } finally {
+
+        setAuthChecking(false);
+      }
+    };
+
+
+  // =======================================================
+  // Logout / กลับหน้าแรก
+  //
+  // ไม่ใช่แค่เปลี่ยน React State
+  // ต้อง Sign Out Firebase จริง
+  // =======================================================
+
+  const handleGoHome =
+    async () => {
+
+      setAccess(null);
+      setAuthChecking(true);
+
+      try {
+
+        await logoutGse();
+
+      } catch (error) {
+
+        console.error(
+          'GSE Logout Error:',
+          error
+        );
+
+      } finally {
+
+        sessionStorage.removeItem(
+          'activeTab'
+        );
+
+        sessionStorage.removeItem(
+          'role'
+        );
+
+        sessionStorage.removeItem(
+          'hasStarted'
+        );
+
+        setAuthChecking(false);
+      }
+    };
+
+
+  // =======================================================
+  // Splash Screen
+  // =======================================================
 
   if (showSplash) {
-    let barColor = "from-red-600 to-red-400 shadow-[0_0_10px_rgba(239,68,68,0.7)]"; 
-    if (progress >= 30 && progress < 50) barColor = "from-orange-600 to-orange-400 shadow-[0_0_10px_rgba(249,115,22,0.7)]"; 
-    else if (progress >= 50 && progress < 70) barColor = "from-yellow-500 to-yellow-400 shadow-[0_0_10px_rgba(234,179,8,0.7)]"; 
-    else if (progress >= 70 && progress < 100) barColor = "from-emerald-500 to-emerald-400 shadow-[0_0_10px_rgba(16,185,129,0.7)]"; 
-    else if (progress === 100) barColor = "from-green-600 to-green-500 shadow-[0_0_15px_rgba(22,163,74,1)]"; 
+
+    let barColor =
+      'from-red-600 to-red-400 shadow-[0_0_10px_rgba(239,68,68,0.7)]';
+
+    if (
+      progress >= 30 &&
+      progress < 50
+    ) {
+      barColor =
+        'from-orange-600 to-orange-400 shadow-[0_0_10px_rgba(249,115,22,0.7)]';
+
+    } else if (
+      progress >= 50 &&
+      progress < 70
+    ) {
+      barColor =
+        'from-yellow-500 to-yellow-400 shadow-[0_0_10px_rgba(234,179,8,0.7)]';
+
+    } else if (
+      progress >= 70 &&
+      progress < 100
+    ) {
+      barColor =
+        'from-emerald-500 to-emerald-400 shadow-[0_0_10px_rgba(16,185,129,0.7)]';
+
+    } else if (
+      progress === 100
+    ) {
+      barColor =
+        'from-green-600 to-green-500 shadow-[0_0_15px_rgba(22,163,74,1)]';
+    }
+
 
     return (
-      <div className={`fixed inset-0 z-[99999] flex flex-col items-center justify-center transition-opacity duration-700 ease-in-out ${fadeOut ? 'opacity-0' : 'opacity-100'} overflow-hidden bg-[#0c0a09]`}>
-        <div className="absolute inset-0 bg-gradient-to-br from-orange-900/40 via-[#0c0a09] to-black z-0"></div>
-        <div className="absolute inset-0 z-0 opacity-20 bg-[linear-gradient(rgba(249,115,22,0.2)_1px,transparent_1px),linear-gradient(90deg,rgba(249,115,22,0.2)_1px,transparent_1px)] bg-[size:50px_50px]"></div>
+      <div
+        className={`fixed inset-0 z-[99999] flex flex-col items-center justify-center transition-opacity duration-700 ease-in-out ${
+          fadeOut
+            ? 'opacity-0'
+            : 'opacity-100'
+        } overflow-hidden bg-[#0c0a09]`}
+      >
+
+        <div className="absolute inset-0 bg-gradient-to-br from-orange-900/40 via-[#0c0a09] to-black z-0" />
+
+        <div className="absolute inset-0 z-0 opacity-20 bg-[linear-gradient(rgba(249,115,22,0.2)_1px,transparent_1px),linear-gradient(90deg,rgba(249,115,22,0.2)_1px,transparent_1px)] bg-[size:50px_50px]" />
+
         <div className="relative z-10 flex flex-col items-center justify-center gap-12 w-full">
+
           <div className="relative flex flex-col items-center justify-center">
-             <div className="absolute w-[250px] h-[250px] md:w-[500px] md:h-[500px] bg-[radial-gradient(circle_at_center,_var(--tw-gradient-stops))] from-orange-500/30 via-orange-900/10 to-transparent blur-[80px] z-0 animate-pulse"></div>
-             <img src="/GSE-logo.webp" alt="GSE Splash Logo" className="relative z-10 w-56 sm:w-64 md:w-80 h-auto drop-shadow-[0_0_20px_rgba(249,115,22,0.5)]" />
+
+            <div className="absolute w-[250px] h-[250px] md:w-[500px] md:h-[500px] bg-[radial-gradient(circle_at_center,_var(--tw-gradient-stops))] from-orange-500/30 via-orange-900/10 to-transparent blur-[80px] z-0 animate-pulse" />
+
+            <img
+              src="/GSE-logo.webp"
+              alt="GSE Splash Logo"
+              className="relative z-10 w-56 sm:w-64 md:w-80 h-auto drop-shadow-[0_0_20px_rgba(249,115,22,0.5)]"
+            />
+
           </div>
+
+
           <div className="w-full max-w-[320px] md:max-w-[420px] px-6 flex flex-col items-center gap-4 z-10">
-             <span className="text-white font-black tracking-[0.4em] text-[15px] md:text-[18px] uppercase drop-shadow-[0_2px_4px_rgba(0,0,0,0.9)] animate-pulse">LOADING...</span>
-             <div className="w-full h-9 md:h-11 bg-slate-950 rounded-xl md:rounded-[1rem] border-2 border-solid border-cyan-400 p-1 flex gap-1 md:gap-1.5 items-center relative shadow-[0_0_30px_rgba(34,211,238,0.9)]">
-               {Array.from({ length: 10 }).map((_, index) => {
-                 const blockThreshold = (index + 1) * 10;
-                 const isActive = progress >= blockThreshold;
-                 return <div key={index} className={`h-full flex-1 rounded-[2px] md:rounded-[4px] transition-all duration-150 bg-gradient-to-b ${isActive ? barColor : "from-slate-900 to-slate-950 opacity-20 border border-slate-800"}`} />
-               })}
-             </div>
-             <span className="text-white font-black text-[26px] md:text-[32px] drop-shadow-[0_2px_6px_rgba(0,0,0,1)] tracking-wide">{progress}%</span>
+
+            <span className="text-white font-black tracking-[0.4em] text-[15px] md:text-[18px] uppercase drop-shadow-[0_2px_4px_rgba(0,0,0,0.9)] animate-pulse">
+              LOADING...
+            </span>
+
+
+            <div className="w-full h-9 md:h-11 bg-slate-950 rounded-xl md:rounded-[1rem] border-2 border-solid border-cyan-400 p-1 flex gap-1 md:gap-1.5 items-center relative shadow-[0_0_30px_rgba(34,211,238,0.9)]">
+
+              {Array.from({
+                length: 10,
+              }).map(
+                (_, index) => {
+
+                  const blockThreshold =
+                    (index + 1) * 10;
+
+                  const isActive =
+                    progress >=
+                    blockThreshold;
+
+
+                  return (
+                    <div
+                      key={index}
+                      className={`h-full flex-1 rounded-[2px] md:rounded-[4px] transition-all duration-150 bg-gradient-to-b ${
+                        isActive
+                          ? barColor
+                          : 'from-slate-900 to-slate-950 opacity-20 border border-slate-800'
+                      }`}
+                    />
+                  );
+                }
+              )}
+
+            </div>
+
+
+            <span className="text-white font-black text-[26px] md:text-[32px] drop-shadow-[0_2px_6px_rgba(0,0,0,1)] tracking-wide">
+              {progress}%
+            </span>
+
           </div>
+
         </div>
       </div>
     );
   }
 
+
+  // =======================================================
+  // Firebase กำลังตรวจ Session
+  // =======================================================
+
+  if (authChecking) {
+    return (
+      <>
+        <SarabunFontEmbed />
+        <SecureSessionLoader />
+      </>
+    );
+  }
+
+
+  // =======================================================
+  // Verified Access เท่านั้นที่เข้า MainApp
+  // =======================================================
+
+  const verifiedRole =
+    access?.role
+      ? toLegacyMainAppRole(
+          access.role
+        )
+      : null;
+
+
   return (
     <ErrorBoundary>
+
       <SarabunFontEmbed />
-      {hasStarted ? (
-        <MainApp onGoHome={handleGoHome} initialRole={role} />
+
+      {access && verifiedRole ? (
+
+        <MainApp
+          onGoHome={
+            handleGoHome
+          }
+          initialRole={
+            verifiedRole
+          }
+        />
+
       ) : (
-        <LandingPage onStart={handleStart} />
+
+        <LandingPage
+          onStart={
+            handleStart
+          }
+        />
+
       )}
+
     </ErrorBoundary>
   );
 }
