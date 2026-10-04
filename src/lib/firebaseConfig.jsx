@@ -42,7 +42,7 @@ const isProductionDomain =
 
 const firebaseConfig = {
   apiKey:
-    'AIzaSyD3440oEO-8MvilWbHd5DUHVn1HSjjHl1rk',
+    'AIzaSyD3440oEO-8MvilWbHd5DUHVnlHSjiH1rk',
 
   authDomain: isProductionDomain
     ? PRODUCTION_AUTH_DOMAIN
