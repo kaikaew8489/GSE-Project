@@ -1,5 +1,4 @@
 import React, { useState, useMemo, useEffect, useRef } from 'react';
-import { createPortal } from 'react-dom';
 import {
   Home, PlusCircle, CheckCircle, AlertCircle, Wrench, MapPin, User, Camera, X, Monitor, Activity, Phone, CheckSquare, ThumbsUp, Search, PieChart, LayoutDashboard, ClipboardCheck, Mail, AlertTriangle, FileText, PauseCircle, Send, Loader2, ChevronRight, ChevronDown, XCircle, RotateCcw, Hash, DoorOpen, Building, Clock, TrendingUp, Calendar, PhoneCall, Flame, Settings, Star, Briefcase, Users, Landmark, Maximize2, Save, ShieldAlert, CheckCircle2, ClipboardList, Moon, ShieldCheck, Lock, LogOut, Eye, EyeOff, Video, BatteryCharging, Timer, ArrowRightLeft, Thermometer, Zap, Package, Globe, ArrowUpRight, ShieldMinus, HelpCircle
 } from 'lucide-react';
@@ -7,8 +6,8 @@ import {
 import AttendanceView from './AttendanceView';
 
 import { auth, db, storage } from '../lib/firebaseConfig';
-import { signInAnonymously, onAuthStateChanged, signOut, signInWithEmailAndPassword, sendPasswordResetEmail } from 'firebase/auth';
-import { collection, addDoc, onSnapshot, doc, updateDoc, query, orderBy, limit, serverTimestamp, writeBatch, getDocs, where } from 'firebase/firestore';
+import { onAuthStateChanged } from 'firebase/auth';
+import { collection, addDoc, onSnapshot, doc, getDoc, updateDoc, query, orderBy, limit, serverTimestamp, where } from 'firebase/firestore';
 import { ref, uploadBytes, getDownloadURL } from 'firebase/storage';
 
 import ActionModal from './ActionModal';
@@ -23,17 +22,98 @@ import TrackingView from './TrackingView';
 import TaskBoardView from './TaskBoardView'; 
 import InventoryView from './InventoryView'; // 🌟 นำเข้า InventoryView 🌟
 
-import { ThaiDateFormatter, ErrorBoundary, SearchableDropdown, SciFiSelectModal, SarabunFontEmbed } from './SharedUI';
+import { ErrorBoundary } from './SharedUI';
 
-import { employeeList, techMapping, equipmentCategories, buildingList, technicianList, fixedHolidays, dynamicHolidays } from '../lib/systemData';
-import { formatDateTimeString, getNextReqId, formatDisplayPhone, getMinutesDiff, formatMinutesToText, calculateDuration } from '../lib/utils';
+import { employeeList, techMapping, technicianList } from '../lib/systemData';
+import { getNextReqId, formatDisplayPhone } from '../lib/utils';
+
+// =========================================================
+// Security Phase 1 - MainApp Role Gate
+// =========================================================
+
+const normalizeAppRole = (rawRole) => {
+  const role = String(rawRole || '').trim().toLowerCase();
+
+  if (role === 'commander') return 'Commander';
+  if (role === 'technician') return 'Technician';
+  if (role === 'admin') return 'Admin';
+  if (role === 'reporter') return 'reporter';
+
+  return null;
+};
+
+const STAFF_ROLES = new Set(['Commander', 'Technician', 'Admin']);
+const PRIVILEGED_ROLES = new Set(['Commander', 'Admin']);
+
+const getAllowedTabs = (role) => {
+  if (role === 'reporter') {
+    return new Set(['report', 'tracking']);
+  }
+
+  if (role === 'Technician') {
+    return new Set([
+      'hub',
+      'dashboard',
+      'report',
+      'daily_report',
+      'pm',
+      'leave',
+      'monitoring',
+      'tracking',
+      'manage',
+    ]);
+  }
+
+  if (role === 'Commander' || role === 'Admin') {
+    return new Set([
+      'hub',
+      'dashboard',
+      'report',
+      'daily_report',
+      'pm',
+      'leave',
+      'monitoring',
+      'inventory',
+      'tracking',
+      'manage',
+    ]);
+  }
+
+  return new Set();
+};
+
+const getDefaultTabForRole = (role) => (
+  role === 'reporter' ? 'report' : 'hub'
+);
+
+const getInitialTab = (role) => {
+  const savedTab = sessionStorage.getItem('activeTab');
+  const allowedTabs = getAllowedTabs(role);
+
+  return savedTab && allowedTabs.has(savedTab)
+    ? savedTab
+    : getDefaultTabForRole(role);
+};
+
+const normalizeEmail = (email = '') => String(email).trim().toLowerCase();
 
 export default function MainApp({ onGoHome, initialRole }) {
-  const [activeTab, setActiveTab] = useState(() => sessionStorage.getItem('activeTab') || (initialRole !== 'reporter' ? 'hub' : 'report'));
-  const [currentUserRole, setCurrentUserRole] = useState(initialRole || 'reporter');
-  const [currentUserName, setCurrentUserName] = useState(() => localStorage.getItem('gse_remembered_name') || '');
-  const [user, setUser] = useState(null);
-  
+  const normalizedInitialRole = normalizeAppRole(initialRole);
+
+  const [currentUserRole, setCurrentUserRole] = useState(normalizedInitialRole);
+  const [activeTab, setActiveTab] = useState(() => getInitialTab(normalizedInitialRole));
+  const [currentUserName, setCurrentUserName] = useState('');
+  const [staffProfile, setStaffProfile] = useState(null);
+  const [user, setUser] = useState(() => auth.currentUser || null);
+  const [identityReady, setIdentityReady] = useState(false);
+  const [identityError, setIdentityError] = useState('');
+
+  const isStaffUser = STAFF_ROLES.has(currentUserRole);
+  const isPrivilegedUser = PRIVILEGED_ROLES.has(currentUserRole);
+  const canManageInventory = isPrivilegedUser;
+  const canManageRoster = isPrivilegedUser;
+  const canPerformStaffActions = isStaffUser;
+
   const [sysTime, setSysTime] = useState(new Date());
   const [tickets, setTickets] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
@@ -70,6 +150,7 @@ export default function MainApp({ onGoHome, initialRole }) {
   const [showSuccess, setShowSuccess] = useState(false); 
   const [isNavVisible, setIsNavVisible] = useState(true);
   const lastScrollY = useRef(0);
+  const activeTabRef = useRef(activeTab);
   const [showImagePicker, setShowImagePicker] = useState(false);
   
   const [actionModal, setActionModal] = useState({ isOpen: false, ticketId: null, type: null });
@@ -82,88 +163,309 @@ export default function MainApp({ onGoHome, initialRole }) {
   const [lightboxImg, setLightboxImg] = useState(null);
   const [ratingModal, setRatingModal] = useState({ isOpen: false, ticketId: null, rating: 0, comment: '', techName: '', techPhotoUrl: '', tags: [] });
 
+  // ---------------------------------------------------------
+  // Sync Role ที่ผ่านการ Verify จาก App.tsx
+  // ---------------------------------------------------------
   useEffect(() => {
-    const bypassAuth = () => setUser({ uid: 'public-bypass-user' });
-    const initAuth = async () => {
-      if (!auth.currentUser) {
-        try { await signInAnonymously(auth); } catch (error) { bypassAuth(); }
+    const normalizedRole = normalizeAppRole(initialRole);
+
+    if (!normalizedRole) {
+      setCurrentUserRole(null);
+      setIdentityError('INVALID_AUTHORIZED_ROLE');
+      setIdentityReady(true);
+      return;
+    }
+
+    setCurrentUserRole(normalizedRole);
+    setActiveTab((currentTab) => (
+      getAllowedTabs(normalizedRole).has(currentTab)
+        ? currentTab
+        : getDefaultTabForRole(normalizedRole)
+    ));
+  }, [initialRole]);
+
+  // ---------------------------------------------------------
+  // Firebase Auth Observer
+  // ไม่มี Anonymous Auth / ไม่มี public bypass
+  // ---------------------------------------------------------
+  useEffect(() => {
+    const unsubscribeAuth = onAuthStateChanged(auth, (firebaseUser) => {
+      if (!firebaseUser) {
+        setUser(null);
+        setStaffProfile(null);
+        setCurrentUserName('');
+        setIdentityReady(false);
+        setIdentityError('AUTH_SESSION_REQUIRED');
+
+        Promise.resolve(onGoHome?.()).catch((error) => {
+          console.error('GSE Secure Logout Error:', error);
+        });
+        return;
       }
-    };
-    initAuth();
 
-    const unsubscribeAuth = onAuthStateChanged(auth, async (u) => {
-      if (u) setUser(u);
-      else bypassAuth();
-
-      if (initialRole !== 'reporter') {
-        try {
-          const savedPhone = localStorage.getItem('gse_staff_phone');
-          if (savedPhone) {
-            const cleanPhone = savedPhone.replace(/-/g, '');
-            const q = query(collection(db, 'staff_roles'), where('phone', '==', cleanPhone));
-            const snap = await getDocs(q);
-            if (!snap.empty) {
-              const staffData = snap.docs[0].data();
-              const dbPhone = String(staffData.phone || '').replace(/\D/g, '');
-              const dbName = String(staffData.fullName || '').trim();
-              
-              let exactName = dbName;
-              const matchedTech = technicianList.find(t => (t.phone && String(t.phone).replace(/\D/g, '') === dbPhone) || (t.name && t.name.includes(dbName)));
-              const mappedTech = Object.values(techMapping).find(t => (t.phone && String(t.phone).replace(/\D/g, '') === dbPhone) || (t.name && t.name.includes(dbName)));
-
-              if (matchedTech) exactName = matchedTech.name;
-              else if (mappedTech) exactName = mappedTech.name;
-
-              setCurrentUserName(exactName);
-              localStorage.setItem('gse_remembered_name', exactName);
-            }
-          }
-        } catch (err) { console.error("กู้คืนชื่อไม่สำเร็จ", err); }
-      }
+      setUser(firebaseUser);
     });
 
     return () => unsubscribeAuth();
-  }, [initialRole]);
+  }, [onGoHome]);
 
+  // ---------------------------------------------------------
+  // Resolve identity จาก Firebase Auth + staff_roles/{email}
+  // ห้ามใช้ phone/name จาก Browser Storage เป็น Staff Identity
+  // ---------------------------------------------------------
   useEffect(() => {
-    if (!user) return; 
-    setIsLoading(true);
-    const ticketsRef = query(collection(db, 'tickets'), orderBy('date', 'desc'), limit(500));
+    let alive = true;
 
-    const unsubscribeData = onSnapshot(ticketsRef, (snapshot) => {
-      try {
-        const ticketsData = [];
-        snapshot.forEach((doc) => {
-          ticketsData.push({ dbId: doc.id, ...doc.data() });
-        });
-        
-        ticketsData.sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
-        setTickets(ticketsData);
-        setIsLoading(false); 
-
-        if (isFirstLoad.current) { 
-          isFirstLoad.current = false; 
-        } else {
-          snapshot.docChanges().forEach(change => { 
-            if (change.type === "added" && activeTab !== 'dashboard') setHasNewTicket(true); 
-          });
-        }
-      } catch (e) {
-        console.error('Data Parse Error:', e);
-        setIsLoading(false);
+    const resolveIdentity = async () => {
+      if (!user || !currentUserRole) {
+        return;
       }
-    }, (error) => {
-      console.error('Firebase Read Error:', error);
-      setIsLoading(false);
-    });
 
-    return () => unsubscribeData();
-  }, [user]);
+      setIdentityReady(false);
+      setIdentityError('');
+
+      const email = normalizeEmail(user.email);
+
+      if (!user.emailVerified || !email.endsWith('@gistda.or.th')) {
+        if (!alive) return;
+        setIdentityError('GISTDA_ACCOUNT_REQUIRED');
+        setIdentityReady(true);
+        return;
+      }
+
+      // Reporter ใช้ Firebase UID/email เป็น Security Identity
+      // ชื่อ/เบอร์ที่จำไว้ใน Browser เป็นเพียงข้อมูล UX ของแบบฟอร์ม
+      if (currentUserRole === 'reporter') {
+        const rememberedName = localStorage.getItem('gse_remembered_name') || '';
+        const displayName = String(user.displayName || '').trim();
+
+        if (!alive) return;
+        setStaffProfile(null);
+        setCurrentUserName(displayName || rememberedName || email.split('@')[0] || 'ผู้ใช้งานระบบ');
+        setIdentityReady(true);
+        return;
+      }
+
+      try {
+        const staffRef = doc(db, 'staff_roles', email);
+        const staffSnap = await getDoc(staffRef);
+
+        if (!staffSnap.exists()) {
+          throw new Error('STAFF_ACCESS_REQUIRED');
+        }
+
+        const profile = staffSnap.data();
+
+        if (profile.active === false) {
+          throw new Error('STAFF_DISABLED');
+        }
+
+        const verifiedRole = normalizeAppRole(profile.role);
+
+        if (!verifiedRole || !STAFF_ROLES.has(verifiedRole)) {
+          throw new Error('INVALID_STAFF_ROLE');
+        }
+
+        // Defense in depth: Role ใน MainApp ต้องตรงกับ Role ที่ Firestore ยืนยัน
+        if (verifiedRole !== currentUserRole) {
+          throw new Error('STAFF_ROLE_MISMATCH');
+        }
+
+        const dbPhone = String(profile.phone || '').replace(/\D/g, '');
+        const dbName = String(profile.fullName || '').trim();
+
+        let exactName = dbName || String(user.displayName || '').trim() || email.split('@')[0];
+
+        const matchedTech = technicianList.find((tech) => (
+          (tech.phone && String(tech.phone).replace(/\D/g, '') === dbPhone) ||
+          (dbName && tech.name && tech.name.includes(dbName))
+        ));
+
+        const mappedTech = Object.values(techMapping).find((tech) => (
+          (tech.phone && String(tech.phone).replace(/\D/g, '') === dbPhone) ||
+          (dbName && tech.name && tech.name.includes(dbName))
+        ));
+
+        if (matchedTech) exactName = matchedTech.name;
+        else if (mappedTech) exactName = mappedTech.name;
+
+        if (!alive) return;
+
+        setStaffProfile({
+          ...profile,
+          email,
+          role: verifiedRole,
+        });
+        setCurrentUserName(exactName);
+
+        // UX cache only - ห้ามใช้เป็น Security Boundary
+        localStorage.setItem('gse_remembered_name', exactName);
+        setIdentityReady(true);
+      } catch (error) {
+        console.error('GSE Staff Identity Error:', error);
+
+        if (!alive) return;
+        setStaffProfile(null);
+        setCurrentUserName('');
+        setIdentityError(error?.message || 'STAFF_ACCESS_REQUIRED');
+        setIdentityReady(true);
+      }
+    };
+
+    resolveIdentity();
+
+    return () => {
+      alive = false;
+    };
+  }, [user, currentUserRole]);
+
+  // ---------------------------------------------------------
+  // Role-scoped Ticket subscriptions
+  // - Commander/Admin: ทั้งหมด
+  // - Reporter: เฉพาะ reporterUid ของตนเอง
+  // - Technician: เฉพาะงานที่เกี่ยวข้องกับตนเอง + Pending เมื่อเข้าเวร SSC
+  // ---------------------------------------------------------
+  useEffect(() => {
+    if (!user || !identityReady || identityError || !currentUserRole) {
+      setTickets([]);
+      setIsLoading(false);
+      return undefined;
+    }
+
+    if (currentUserRole === 'Technician' && !currentUserName) {
+      setTickets([]);
+      setIsLoading(true);
+      return undefined;
+    }
+
+    setIsLoading(true);
+    isFirstLoad.current = true;
+
+    const subscriptions = [];
+    const snapshotsByKey = new Map();
+    const initializedKeys = new Set();
+
+    const publishMergedTickets = () => {
+      const merged = new Map();
+
+      snapshotsByKey.forEach((docsMap) => {
+        docsMap.forEach((ticket, dbId) => {
+          merged.set(dbId, ticket);
+        });
+      });
+
+      const ticketsData = Array.from(merged.values())
+        .sort((a, b) => new Date(b.date || 0).getTime() - new Date(a.date || 0).getTime())
+        .slice(0, 500);
+
+      setTickets(ticketsData);
+      setIsLoading(false);
+    };
+
+    const subscribeQuery = (key, ticketQuery) => {
+      const unsubscribe = onSnapshot(
+        ticketQuery,
+        (snapshot) => {
+          try {
+            const docsMap = new Map();
+
+            snapshot.forEach((ticketDoc) => {
+              docsMap.set(ticketDoc.id, {
+                dbId: ticketDoc.id,
+                ...ticketDoc.data(),
+              });
+            });
+
+            snapshotsByKey.set(key, docsMap);
+
+            const wasInitialized = initializedKeys.has(key);
+            initializedKeys.add(key);
+
+            if (wasInitialized && activeTabRef.current !== 'dashboard') {
+              const hasAdded = snapshot.docChanges().some((change) => change.type === 'added');
+              if (hasAdded) setHasNewTicket(true);
+            }
+
+            publishMergedTickets();
+          } catch (error) {
+            console.error(`Ticket Parse Error (${key}):`, error);
+            setIsLoading(false);
+          }
+        },
+        (error) => {
+          console.error(`Firebase Ticket Read Error (${key}):`, error);
+          setIsLoading(false);
+        }
+      );
+
+      subscriptions.push(unsubscribe);
+    };
+
+    if (currentUserRole === 'Commander' || currentUserRole === 'Admin') {
+      subscribeQuery(
+        'all',
+        query(collection(db, 'tickets'), orderBy('date', 'desc'), limit(500))
+      );
+    } else if (currentUserRole === 'reporter') {
+      subscribeQuery(
+        'reporterUid',
+        query(collection(db, 'tickets'), where('reporterUid', '==', user.uid), limit(500))
+      );
+    } else if (currentUserRole === 'Technician') {
+      subscribeQuery(
+        'primaryTech',
+        query(collection(db, 'tickets'), where('techName', '==', currentUserName), limit(500))
+      );
+
+      subscribeQuery(
+        'sscTech',
+        query(collection(db, 'tickets'), where('sscTechName', '==', currentUserName), limit(500))
+      );
+
+      subscribeQuery(
+        'myReports',
+        query(collection(db, 'tickets'), where('reporterUid', '==', user.uid), limit(500))
+      );
+
+      const todayStr = new Date().toISOString().split('T')[0];
+      const todayDuty = allRosters.find((roster) => roster.date === todayStr);
+      const isSSCToday = todayDuty && todayDuty.techName === currentUserName;
+
+      if (isSSCToday) {
+        subscribeQuery(
+          'sscPending',
+          query(
+            collection(db, 'tickets'),
+            where('status', 'in', ['pending', 'รอช่างเข้าดำเนินการ']),
+            limit(500)
+          )
+        );
+      }
+    }
+
+    return () => {
+      subscriptions.forEach((unsubscribe) => unsubscribe());
+    };
+  }, [user, identityReady, identityError, currentUserRole, currentUserName, allRosters]);
 
   useEffect(() => {
+    activeTabRef.current = activeTab;
+
+    if (!currentUserRole) return;
+
+    const allowedTabs = getAllowedTabs(currentUserRole);
+
+    if (!allowedTabs.has(activeTab)) {
+      const safeTab = getDefaultTabForRole(currentUserRole);
+      setActiveTab(safeTab);
+      sessionStorage.setItem('activeTab', safeTab);
+      return;
+    }
+
+    // UI state เท่านั้น ไม่ใช่ Authorization
     sessionStorage.setItem('activeTab', activeTab);
     if (activeTab === 'dashboard') setHasNewTicket(false);
-  }, [activeTab]);
+  }, [activeTab, currentUserRole]);
 
   useEffect(() => {
     const timer = setInterval(() => setSysTime(new Date()), 1000);
@@ -184,41 +486,57 @@ export default function MainApp({ onGoHome, initialRole }) {
   }, [sysTime, isHoliday]);
 
   useEffect(() => {
-    const q = collection(db, 'rosters');
-    const unsub = onSnapshot(q, (snap) => {
-      const data = snap.docs.map(doc => ({ ...doc.data(), date: doc.id }));
+    if (!isStaffUser || !identityReady || identityError) {
+      setAllRosters([]);
+      setIsHoliday(false);
+      return undefined;
+    }
+
+    const rosterRef = collection(db, 'rosters');
+    const unsub = onSnapshot(rosterRef, (snap) => {
+      const data = snap.docs.map((rosterDoc) => ({
+        ...rosterDoc.data(),
+        date: rosterDoc.id,
+      }));
+
       setAllRosters(data);
+
       const todayStr = new Date().toISOString().split('T')[0];
-      const todayRoster = data.find(r => r.date === todayStr);
+      const todayRoster = data.find((roster) => roster.date === todayStr);
       setIsHoliday(!!(todayRoster && todayRoster.isHoliday));
+    }, (error) => {
+      console.error('Roster Read Error:', error);
     });
+
     return () => unsub();
-  }, []); 
+  }, [isStaffUser, identityReady, identityError]); 
 
   const handleResetForm = () => {
-    let savedName = localStorage.getItem('gse_remembered_name') || currentUserName || '';
-    const savedPhone = localStorage.getItem('gse_remembered_phone') || '';
-    
+    const isReporter = currentUserRole === 'reporter';
+
+    let savedName = isReporter
+      ? (localStorage.getItem('gse_remembered_name') || currentUserName || '')
+      : (currentUserName || '');
+
+    let savedPhone = isReporter
+      ? (localStorage.getItem('gse_remembered_phone') || '')
+      : String(staffProfile?.phone || '');
+
+    savedPhone = savedPhone.replace(/\D/g, '');
+
     let formattedPhone = savedPhone;
     if (savedPhone.length === 10) {
       formattedPhone = `${savedPhone.substring(0, 2)}-${savedPhone.substring(2, 6)}-${savedPhone.substring(6)}`;
     }
 
     if (!savedName || savedName.trim() === '') {
-      const rawPhone = savedPhone.replace(/\D/g, '');
-      const matchedTech = technicianList.find(t => t.phone && t.phone.replace(/\D/g, '') === rawPhone);
-      if (matchedTech) {
-        savedName = matchedTech.name; 
-        localStorage.setItem('gse_remembered_name', savedName);
-        setCurrentUserName(savedName);
-      } else {
-        savedName = 'ผู้ใช้งานระบบ'; 
-      }
+      savedName = String(user?.displayName || '').trim() || 'ผู้ใช้งานระบบ';
     }
 
-    const emp = employeeList.find((x) => x.name === savedName) || technicianList.find((x) => x.name === savedName);
+    const emp = employeeList.find((item) => item.name === savedName) ||
+      technicianList.find((item) => item.name === savedName);
 
-    if (!formattedPhone && emp && emp.phone && emp.phone !== '-') {
+    if (!formattedPhone && emp?.phone && emp.phone !== '-') {
       formattedPhone = emp.phone;
     }
 
@@ -238,14 +556,15 @@ export default function MainApp({ onGoHome, initialRole }) {
       videos: [],
       isSsc: false,
     });
+
     setFormErrors({});
   };
 
   useEffect(() => {
-    if (activeTab === 'report') {
+    if (activeTab === 'report' && identityReady && user) {
       handleResetForm();
     }
-  }, [activeTab, currentUserName]);
+  }, [activeTab, currentUserName, currentUserRole, staffProfile, identityReady, user]);
 
   const getLiveStopwatch = (dateStart, dateEnd, sysTime, totalPauseMs = 0, isHolding = false, lastHoldAt = null) => {
     if (!dateStart) return "00:00:00";
@@ -325,6 +644,12 @@ export default function MainApp({ onGoHome, initialRole }) {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+
+    if (!user?.uid || !normalizeEmail(user?.email).endsWith('@gistda.or.th')) {
+      alert('❌ ไม่พบ Session บัญชี GISTDA ที่ถูกต้อง กรุณาเข้าสู่ระบบใหม่');
+      return;
+    }
+
     const errs = validateForm();
     if (Object.keys(errs).length > 0) { 
       setFormErrors(errs); 
@@ -339,6 +664,9 @@ export default function MainApp({ onGoHome, initialRole }) {
 
     const newTicket = {
       id: newId,
+      reporterUid: user.uid,
+      reporterEmail: normalizeEmail(user.email),
+      createdByRole: currentUserRole,
       reporter: formData.reporter || '',
       reporterContact: formData.reporterContact || '',
       position: formData.position || '',
@@ -357,11 +685,13 @@ export default function MainApp({ onGoHome, initialRole }) {
       techPhone: autoAssignedTech ? autoAssignedTech.phone : '-',
       status: 'pending',
       date: new Date().toISOString(),
+      createdAt: serverTimestamp(),
     };
 
     try {
       await addDoc(collection(db, 'tickets'), newTicket);
-      if (newTicket.reporterContact) {
+      if (currentUserRole === 'reporter' && newTicket.reporterContact) {
+        // UX convenience only - Ticket ownership ใช้ Firebase UID/email
         localStorage.setItem('gse_remembered_phone', String(newTicket.reporterContact).replace(/\D/g, ''));
         localStorage.setItem('gse_remembered_name', newTicket.reporter);
       }
@@ -401,16 +731,61 @@ export default function MainApp({ onGoHome, initialRole }) {
     }
   };
 
+  const isTicketOwnedByCurrentUser = (ticket) => (
+    !!user?.uid && ticket?.reporterUid === user.uid
+  );
+
+  const canStaffAccessTicket = (ticket) => {
+    if (!ticket || !isStaffUser) return false;
+    if (isPrivilegedUser) return true;
+
+    const todayStr = sysTime.toISOString().split('T')[0];
+    const todayDuty = allRosters.find((roster) => roster.date === todayStr);
+    const isSSCToday = todayDuty && todayDuty.techName === currentUserName;
+
+    return (
+      ticket.techName === currentUserName ||
+      ticket.sscTechName === currentUserName ||
+      isTicketOwnedByCurrentUser(ticket) ||
+      (
+        isSSCToday &&
+        (ticket.status === 'pending' || ticket.status === 'รอช่างเข้าดำเนินการ')
+      )
+    );
+  };
+
   const updateTicketStatus = async (ticketId, updates) => {
-    const target = tickets.find((t) => t.id === ticketId);
+    const target = tickets.find((ticket) => ticket.id === ticketId);
     if (!target || !target.dbId) return;
-    try { await updateDoc(doc(db, 'tickets', target.dbId), updates); } catch (e) { console.error(e); }
+
+    // Reporter ไม่มีสิทธิ์เรียก generic staff update
+    if (!canStaffAccessTicket(target)) {
+      console.warn('Blocked unauthorized ticket update:', ticketId);
+      return;
+    }
+
+    try {
+      await updateDoc(doc(db, 'tickets', target.dbId), {
+        ...updates,
+        updatedAt: serverTimestamp(),
+        updatedByUid: user?.uid || null,
+        updatedByEmail: normalizeEmail(user?.email),
+      });
+    } catch (error) {
+      console.error(error);
+    }
   };
 
   const executeActionModal = async () => {
     const { ticketId, type } = actionModal;
-    const ticket = tickets.find(t => t.id === ticketId);
+    const ticket = tickets.find((item) => item.id === ticketId);
     if (!ticket) return;
+
+    if (!canPerformStaffActions || !canStaffAccessTicket(ticket)) {
+      alert('❌ คุณไม่มีสิทธิ์ดำเนินการกับรายการนี้');
+      setActionModal({ isOpen: false, ticketId: null, type: null });
+      return;
+    }
 
     try {
       let finalUrls = [];
@@ -441,7 +816,7 @@ export default function MainApp({ onGoHome, initialRole }) {
         const log = { type: 'resume', timestamp: sysTime.toISOString(), reason: actionText || 'ได้รับอะไหล่/ดำเนินการต่อ', attachments: finalUrls };
         updateData = { status: 'in_progress', totalPauseMs: (ticket.totalPauseMs || 0) + pauseDurationMs, historyLog: [...(ticket.historyLog || []), log] };
       } else if (type === 'ssc') {
-        updateData = { sscTechName: currentUserName, sscTechPhone: formatDisplayPhone(auth.currentUser?.email === 'admin@mail.com' ? '0812345678' : ''), sscNote: actionText, sscAttachments: finalUrls, status: 'pending', updatedAt: serverTimestamp() };
+        updateData = { sscTechName: currentUserName, sscTechPhone: formatDisplayPhone(staffProfile?.phone || ''), sscNote: actionText, sscAttachments: finalUrls, status: 'pending' };
       } else if (type === 'cancel') {
         updateData = { status: 'cancelled', cancelReason: actionText, completedAt: serverTimestamp() };
       } else if (type === 'accept') {
@@ -453,7 +828,12 @@ export default function MainApp({ onGoHome, initialRole }) {
         pushStatusLine = "COMPLETED";
       }
       
-      await updateDoc(doc(db, "tickets", ticket.dbId), { ...updateData, updatedAt: serverTimestamp() });
+      await updateDoc(doc(db, "tickets", ticket.dbId), {
+        ...updateData,
+        updatedAt: serverTimestamp(),
+        updatedByUid: user?.uid || null,
+        updatedByEmail: normalizeEmail(user?.email),
+      });
 
       if (pushStatusLine) {
         const APPS_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbxBoB_e637WkWMeSuX9NP3BSKcSiE8J3dSXmlzNV9aeiq6DRUvn81bSp6w-B0nzCVA5/exec"; 
@@ -492,41 +872,64 @@ export default function MainApp({ onGoHome, initialRole }) {
       alert("⚠️ กรุณาให้คะแนนอย่างน้อย 1 ดาวครับ");
       return;
     }
+
     try {
-      const target = tickets.find((t) => t.id === ratingModal.ticketId);
+      const target = tickets.find((ticket) => ticket.id === ratingModal.ticketId);
       if (!target || !target.dbId) return;
-      
+
+      // ผู้ประเมินต้องเป็นเจ้าของ Ticket ตาม Firebase UID เท่านั้น
+      if (!isTicketOwnedByCurrentUser(target)) {
+        alert('❌ คุณไม่มีสิทธิ์ประเมินงานรายการนี้');
+        setRatingModal({ isOpen: false, ticketId: null, rating: 0, comment: '', techName: '', techPhotoUrl: '', tags: [] });
+        return;
+      }
+
       await updateDoc(doc(db, "tickets", target.dbId), {
         status: 'verified',
         rating: ratingModal.rating,
         ratingTags: ratingModal.tags || [],
         ratingComment: ratingModal.comment,
-        verifiedAt: serverTimestamp()
+        verifiedAt: serverTimestamp(),
+        verifiedByUid: user.uid,
+        verifiedByEmail: normalizeEmail(user.email),
+        updatedAt: serverTimestamp(),
       });
-      
+
       setRatingModal({ isOpen: false, ticketId: null, rating: 0, comment: '', techName: '', techPhotoUrl: '', tags: [] });
-    } catch (e) {
-      console.error(e);
+    } catch (error) {
+      console.error(error);
       alert("❌ เกิดข้อผิดพลาดในการบันทึกคะแนน");
     }
   };
 
   const permittedTickets = useMemo(() => {
-    return tickets.filter((t) => {
-      if (currentUserRole === 'Commander') return true; 
-      if (currentUserRole === 'reporter') {
-        return t.reporter === currentUserName;
+    return tickets.filter((ticket) => {
+      if (currentUserRole === 'Commander' || currentUserRole === 'Admin') {
+        return true;
       }
+
+      if (currentUserRole === 'reporter') {
+        return isTicketOwnedByCurrentUser(ticket);
+      }
+
+      if (currentUserRole !== 'Technician') {
+        return false;
+      }
+
       const todayStr = sysTime.toISOString().split('T')[0];
-      const todayDuty = allRosters.find(r => r.date === todayStr);
+      const todayDuty = allRosters.find((roster) => roster.date === todayStr);
       const isSSCToday = todayDuty && todayDuty.techName === currentUserName;
-      const isPrimary = t.techName === currentUserName; 
-      const isSSCActed = t.sscTechName === currentUserName; 
-      const isMyReport = t.reporter === currentUserName; 
-      const isPendingForSSC = isSSCToday && (t.status === 'pending' || t.status === 'รอช่างเข้าดำเนินการ'); 
+      const isPrimary = ticket.techName === currentUserName;
+      const isSSCActed = ticket.sscTechName === currentUserName;
+      const isMyReport = isTicketOwnedByCurrentUser(ticket);
+      const isPendingForSSC = isSSCToday && (
+        ticket.status === 'pending' ||
+        ticket.status === 'รอช่างเข้าดำเนินการ'
+      );
+
       return isPrimary || isSSCActed || isMyReport || isPendingForSSC;
     });
-  }, [tickets, currentUserRole, currentUserName, allRosters, sysTime]);
+  }, [tickets, currentUserRole, currentUserName, allRosters, sysTime, user]);
 
   const handleNavigateToTracking = (status) => {
     setActiveTab('tracking'); setFilterStatus(status); setSearchTerm('');
@@ -625,6 +1028,31 @@ export default function MainApp({ onGoHome, initialRole }) {
     lastScrollY.current = currentScrollY;
   };
 
+  if (!identityReady) {
+    return (
+      <div className="fixed inset-0 bg-slate-950 text-slate-300 flex flex-col items-center justify-center gap-4">
+        <Loader2 size={52} className="animate-spin text-cyan-400" />
+        <div className="font-bold tracking-wider">กำลังตรวจสอบสิทธิ์ผู้ใช้งาน...</div>
+      </div>
+    );
+  }
+
+  if (identityError || !currentUserRole || !user) {
+    return (
+      <div className="fixed inset-0 bg-slate-950 text-white flex flex-col items-center justify-center p-6 text-center">
+        <ShieldAlert size={64} className="text-rose-500 mb-5" />
+        <h2 className="text-2xl font-black">ไม่พบสิทธิ์การใช้งานที่ถูกต้อง</h2>
+        <p className="text-slate-400 mt-2 text-sm">กรุณาเข้าสู่ระบบใหม่ หรือติดต่อผู้ดูแลระบบ</p>
+        <button
+          onClick={onGoHome}
+          className="mt-7 px-8 py-3 rounded-xl bg-cyan-600 hover:bg-cyan-500 font-black active:scale-95 transition-all"
+        >
+          กลับหน้าเข้าสู่ระบบ
+        </button>
+      </div>
+    );
+  }
+
   return (
     <div className="fixed inset-0 w-full h-[100dvh] bg-slate-900 flex justify-center overflow-hidden">
       <div className="absolute inset-0 z-0 bg-cover bg-center bg-no-repeat opacity-40 pointer-events-none" style={{ backgroundImage: "url('/bg-earth-new.webp')" }}></div>
@@ -638,7 +1066,7 @@ export default function MainApp({ onGoHome, initialRole }) {
       }`}>
 
         {/* 🌟 กำหนดหัวหน้าต่าง Header สำหรับทุกหน้า 🌟 */}
-        {activeTab === 'hub' ? (
+        {activeTab === 'hub' && isStaffUser ? (
           <div className="sticky top-4 w-[calc(100%-2rem)] md:w-[calc(100%-3rem)] md:max-w-[976px] mx-auto bg-slate-900/95 backdrop-blur-xl border-2 md:border-[3px] border-solid border-cyan-500 rounded-2xl md:rounded-[1.2rem] py-4 md:py-6 px-6 shadow-[0_10px_30px_rgba(6,182,212,0.3)] mt-4 md:mt-3 mb-2 flex flex-col items-center justify-center relative overflow-hidden group transition-all duration-500 z-50 shrink-0">
             <div className="absolute -top-10 -left-10 w-32 h-32 bg-cyan-500/20 blur-[50px] rounded-full pointer-events-none group-hover:bg-cyan-400/30 transition-all"></div>
             <div className="absolute -bottom-10 -right-10 w-32 h-32 bg-blue-500/20 blur-[50px] rounded-full pointer-events-none group-hover:bg-blue-400/30 transition-all"></div>
@@ -749,7 +1177,7 @@ export default function MainApp({ onGoHome, initialRole }) {
                       </button>
 
                       {/* 🌟 ปุ่มที่ 5: อะไหล่/ครุภัณฑ์ (ย้ายมาตรงนี้! ซ่อนไว้ให้เห็นเฉพาะ หน.ฝวด. และ Admin) 🌟 */}
-                      {(currentUserRole === 'Commander' || currentUserRole === 'admin') && (
+                      {canManageInventory && (
                         <button onClick={() => setActiveTab('inventory')} className="group relative aspect-square md:aspect-auto md:h-44 bg-slate-900/80 border-[2px] border-slate-700/80 rounded-3xl hover:border-indigo-500 shadow-lg hover:shadow-[0_0_30px_rgba(99,102,241,0.4)] transition-all duration-300 flex flex-col items-center justify-center gap-3 overflow-hidden">
                           <div className="absolute inset-0 bg-gradient-to-b from-indigo-500/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity"></div>
                           <div className="w-14 h-14 md:w-16 md:h-16 bg-gradient-to-br from-indigo-500 to-violet-700 rounded-2xl flex items-center justify-center shadow-[0_0_20px_rgba(99,102,241,0.6)] group-hover:scale-110 transition-transform duration-300 z-10">
@@ -815,7 +1243,7 @@ export default function MainApp({ onGoHome, initialRole }) {
                 </div>
               )}
 
-              {activeTab === 'inventory' && (
+              {activeTab === 'inventory' && canManageInventory && (
                 <div className="px-4 md:px-6">
                   <InventoryView 
                     sysTime={sysTime} currentUserRole={currentUserRole} currentUserName={currentUserName} setActiveTab={setActiveTab} 
@@ -823,7 +1251,7 @@ export default function MainApp({ onGoHome, initialRole }) {
                 </div>
               )}
 
-              {activeTab === 'dashboard' && (currentUserRole !== 'reporter') && (
+              {activeTab === 'dashboard' && isStaffUser && (
                 <div className="w-full [&>div]:!max-w-full px-4 md:px-6">
                   <Dashboard sysTime={sysTime} stats={dashStats} tickets={filteredTickets_forDashboard} allRosters={allRosters} technicianList={technicianList} dashTimeframe={dashTimeframe} setDashTimeframe={setDashTimeframe} customMonth={customMonth} setCustomMonth={setCustomMonth} showMonthPicker={showMonthPicker} setShowMonthPicker={setShowMonthPicker} pickerYear={pickerYear} setPickerYear={setPickerYear} customDate={customDate} setCustomDate={setCustomDate} showDatePicker={showDatePicker} setShowDatePicker={setShowDatePicker} calMonth={calMonth} setCalMonth={setCalMonth} calYear={calYear} setCalYear={setCalYear} currentUserRole={currentUserRole} currentUserName={currentUserName} handleNavigateToTracking={handleNavigateToTracking} setShowAdminRoster={setShowAdminRoster} />
                 </div>
@@ -839,13 +1267,13 @@ export default function MainApp({ onGoHome, initialRole }) {
                 </div>
               )}
 
-              {activeTab === 'daily_report' && (
+              {activeTab === 'daily_report' && isStaffUser && (
                 <div className="px-4 md:px-6">
                   <DailyReportView sysTime={sysTime} currentUserRole={currentUserRole} currentUserName={currentUserName} setActiveTab={setActiveTab} onGoHome={onGoHome} />
                 </div>
               )}
 
-              {activeTab === 'pm' && (
+              {activeTab === 'pm' && isStaffUser && (
                 <div className="w-full [&>div]:!max-w-full h-full min-h-[80vh] px-4 md:px-6">
                   <TaskBoardView 
                     sysTime={sysTime} currentUserRole={currentUserRole} currentUserName={currentUserName} technicianList={technicianList} setActiveTab={setActiveTab} onGoHome={onGoHome} 
@@ -855,13 +1283,13 @@ export default function MainApp({ onGoHome, initialRole }) {
                 </div>
               )}
 
-              {activeTab === 'monitoring' && (
+              {activeTab === 'monitoring' && isStaffUser && (
                 <div className="px-4 md:px-6">
                   <UPSStatusCard sysTime={sysTime} />
                 </div>
               )}
 
-              {activeTab === 'satellite' && (
+              {activeTab === 'satellite' && isStaffUser && (
                 <div className="px-4 md:px-6">
                   <SatelliteStatusCard sysTime={sysTime} />
                 </div>
@@ -873,13 +1301,13 @@ export default function MainApp({ onGoHome, initialRole }) {
                 </div>
               )}
 
-              {activeTab === 'manage' && (
+              {activeTab === 'manage' && isStaffUser && (
                 <div className="px-4 md:px-6">
                   <TrackingView sysTime={sysTime} currentUserRole={currentUserRole} currentUserName={currentUserName} tickets={permittedTickets} filteredTickets={filteredTickets_forTracking} searchTerm={searchTerm} setSearchTerm={setSearchTerm} filterStatus={filterStatus} setFilterStatus={setFilterStatus} trackTimeframe={trackTimeframe} setTrackTimeframe={setTrackTimeframe} trackMonth={trackMonth} setTrackMonth={setTrackMonth} trackDate={trackDate} setTrackDate={setTrackDate} showTrackMonthPicker={showTrackMonthPicker} setShowTrackMonthPicker={setShowTrackMonthPicker} showTrackDatePicker={showTrackDatePicker} setShowTrackDatePicker={setShowTrackDatePicker} trackCalMonth={trackCalMonth} setTrackCalMonth={setTrackCalMonth} trackCalYear={trackCalYear} setTrackCalYear={setTrackCalYear} allRosters={allRosters} technicianList={technicianList} setActionModal={setActionModal} updateTicketStatus={updateTicketStatus} setRatingModal={setRatingModal} setLightboxImg={setLightboxImg} getLiveStopwatch={getLiveStopwatch} handleClipboardPaste={handleClipboardPaste} handleMediaUpload={handleMediaUpload} />
                 </div>
               )}
 
-              {activeTab === 'leave' && (
+              {activeTab === 'leave' && isStaffUser && (
                 <div className="px-4 md:px-6">
                   <AttendanceView sysTime={sysTime} currentUserRole={currentUserRole} currentUserName={currentUserName} setActiveTab={setActiveTab} onGoHome={onGoHome} allRosters={allRosters} />
                 </div>
@@ -952,7 +1380,7 @@ export default function MainApp({ onGoHome, initialRole }) {
 
       {/* 🌟 ส่งตัวแปรทะลุ ActionModal ป้องกัน Error 🌟 */}
       <ActionModal 
-        isOpen={actionModal.isOpen} 
+        isOpen={canPerformStaffActions && actionModal.isOpen} 
         onClose={() => {
           setActionModal({ isOpen: false, ticketId: null, type: null });
           setActionText('');
@@ -970,7 +1398,7 @@ export default function MainApp({ onGoHome, initialRole }) {
         handleClipboardPaste={handleClipboardPaste} handleMediaUpload={handleMediaUpload} 
       />
       
-      {showAdminRoster && (
+      {showAdminRoster && canManageRoster && (
         <div className="fixed inset-0 z-[99999] bg-slate-950 overflow-y-auto pb-20">
           <div className="sticky top-0 right-0 p-4 md:p-6 flex justify-end z-[100] bg-gradient-to-b from-slate-950/90 to-transparent pointer-events-none"></div>
           <div className="-mt-16 md:-mt-20">
@@ -979,7 +1407,7 @@ export default function MainApp({ onGoHome, initialRole }) {
         </div>
       )}
 
-      {ratingModal.isOpen && (() => {
+      {ratingModal.isOpen && isTicketOwnedByCurrentUser(tickets.find((ticket) => ticket.id === ratingModal.ticketId)) && (() => {
         const getRatingColors = (rating) => {
           switch(rating) {
             case 1: return { text: 'text-rose-400', star: 'text-rose-400', outline: 'border-rose-500', flare: 'bg-rose-500', mainBtn: 'bg-rose-500 hover:bg-rose-600', tagActive: 'border-rose-500 bg-rose-500/20', emojiText: 'ต้องปรับปรุง 😞', shadow: 'shadow-[0_0_50px_rgba(225,29,72,0.4)]' };
