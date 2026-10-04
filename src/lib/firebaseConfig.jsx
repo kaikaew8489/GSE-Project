@@ -22,31 +22,73 @@ import {
 // Project: GSE-Project-Phase-2
 // =========================================================
 
-// Firebase Auth helper domain สำหรับ Production บน Vercel
+// ---------------------------------------------------------
+// Firebase Auth Domains
+// ---------------------------------------------------------
+//
+// Production:
+//   gse-project-slzm.vercel.app
+//
+// Preview / security-phase1:
+//   gse-project-slzm-git-secur-aa427e-
+//   nawattakorn-kaikaews-projects.vercel.app
+//
+// Development / StackBlitz:
+//   gse-project-phase-2.firebaseapp.com
 //
 // หมายเหตุ:
-// - StackBlitz ใช้สำหรับพัฒนา UI/Code
-// - Google Redirect จะทดสอบจริงผ่าน Production domain
-// - /__/auth/* บน Vercel จะถูก Proxy ไปยัง Firebase
+// - Production และ Preview บน Vercel ใช้ same-origin authDomain
+// - /__/auth/* บน Vercel ถูก Proxy ไปยัง Firebase ผ่าน vercel.json
+// - แนวทางนี้ใช้เพื่อรองรับ signInWithRedirect()
+//   และลดปัญหา browser storage partitioning / missing initial state
+// ---------------------------------------------------------
+
 const PRODUCTION_AUTH_DOMAIN =
   'gse-project-slzm.vercel.app';
+
+const SECURITY_PREVIEW_AUTH_DOMAIN =
+  'gse-project-slzm-git-secur-aa427e-nawattakorn-kaikaews-projects.vercel.app';
 
 const DEFAULT_FIREBASE_AUTH_DOMAIN =
   'gse-project-phase-2.firebaseapp.com';
 
-// ตรวจว่า App กำลังรันจาก Production domain หรือไม่
+// ---------------------------------------------------------
+// ตรวจสอบ hostname ที่กำลังใช้งาน
+// ---------------------------------------------------------
+
+const currentHostname =
+  typeof window !== 'undefined'
+    ? window.location.hostname
+    : '';
+
+// Production
 const isProductionDomain =
-  typeof window !== 'undefined' &&
-  window.location.hostname ===
-    PRODUCTION_AUTH_DOMAIN;
+  currentHostname ===
+  PRODUCTION_AUTH_DOMAIN;
+
+// Preview branch: security-phase1
+const isSecurityPreviewDomain =
+  currentHostname ===
+  SECURITY_PREVIEW_AUTH_DOMAIN;
+
+// เลือก Firebase Auth Domain ให้ตรงกับ Environment
+const resolvedAuthDomain =
+  isProductionDomain
+    ? PRODUCTION_AUTH_DOMAIN
+    : isSecurityPreviewDomain
+      ? SECURITY_PREVIEW_AUTH_DOMAIN
+      : DEFAULT_FIREBASE_AUTH_DOMAIN;
+
+// ---------------------------------------------------------
+// Firebase Config
+// ---------------------------------------------------------
 
 const firebaseConfig = {
   apiKey:
-    'AIzaSyD3440oEO-8MvilWbHd5DUHVnlHSjiH1rk',
+    'AIzaSyD3440oEO-8MvilWbHd5DUHVnlHSjjH1rk',
 
-  authDomain: isProductionDomain
-    ? PRODUCTION_AUTH_DOMAIN
-    : DEFAULT_FIREBASE_AUTH_DOMAIN,
+  authDomain:
+    resolvedAuthDomain,
 
   projectId:
     'gse-project-phase-2',
@@ -64,8 +106,14 @@ const firebaseConfig = {
     'G-7XWJ5SHYWC',
 };
 
+// =========================================================
+// Firebase App Initialization
+// =========================================================
+//
 // ป้องกันการ Initialize Firebase ซ้ำ
 // ระหว่าง Vite Hot Module Reload
+// =========================================================
+
 const appInstance =
   getApps().length === 0
     ? initializeApp(firebaseConfig)
