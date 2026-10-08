@@ -233,15 +233,51 @@ export default function MainApp({ onGoHome, initialRole }) {
         return;
       }
 
-      // Reporter ใช้ Firebase UID/email เป็น Security Identity
-      // ชื่อ/เบอร์ที่จำไว้ใน Browser เป็นเพียงข้อมูล UX ของแบบฟอร์ม
+      // ---------------------------------------------------------
+      // Reporter Security Identity = Firebase UID/email
+      // หากเป็นบุคลากร GISTDA ที่มีข้อมูลใน staff_roles
+      // ให้อ่าน Profile ของตนเองเพื่อใช้ Auto-fill แบบฟอร์มเท่านั้น
+      // ห้ามนำ Role จาก Profile นี้ไปยกระดับสิทธิ์ Reporter
+      // ---------------------------------------------------------
       if (currentUserRole === 'reporter') {
         const rememberedName = localStorage.getItem('gse_remembered_name') || '';
         const displayName = String(user.displayName || '').trim();
 
+        let reporterProfile = null;
+
+        try {
+          const reporterStaffRef = doc(db, 'staff_roles', email);
+          const reporterStaffSnap = await getDoc(reporterStaffRef);
+
+          if (reporterStaffSnap.exists()) {
+            const profileData = reporterStaffSnap.data();
+
+            // ใช้ข้อมูล Profile สำหรับ Auto-fill เท่านั้น
+            // ไม่เปลี่ยน currentUserRole
+            if (profileData.active !== false) {
+              reporterProfile = {
+                ...profileData,
+                email,
+              };
+            }
+          }
+        } catch (error) {
+          console.warn('Reporter staff profile lookup skipped:', error);
+        }
+
         if (!alive) return;
-        setStaffProfile(null);
-        setCurrentUserName(displayName || rememberedName || email.split('@')[0] || 'ผู้ใช้งานระบบ');
+
+        const profileName = String(reporterProfile?.fullName || '').trim();
+
+        setStaffProfile(reporterProfile);
+        setCurrentUserName(
+          profileName ||
+          displayName ||
+          rememberedName ||
+          email.split('@')[0] ||
+          'ผู้ใช้งานระบบ'
+        );
+
         setIdentityReady(true);
         return;
       }
@@ -514,38 +550,67 @@ export default function MainApp({ onGoHome, initialRole }) {
   const handleResetForm = () => {
     const isReporter = currentUserRole === 'reporter';
 
-    let savedName = isReporter
-      ? (localStorage.getItem('gse_remembered_name') || currentUserName || '')
-      : (currentUserName || '');
+    // =======================================================
+    // 1. NAME
+    // Firestore staff_roles เป็น Source หลัก
+    // Google / Browser cache เป็น fallback
+    // =======================================================
+    const profileName = String(staffProfile?.fullName || '').trim();
+    const rememberedName = localStorage.getItem('gse_remembered_name') || '';
 
-    let savedPhone = isReporter
-      ? (localStorage.getItem('gse_remembered_phone') || '')
-      : String(staffProfile?.phone || '');
+    let savedName =
+      profileName ||
+      currentUserName ||
+      String(user?.displayName || '').trim() ||
+      rememberedName ||
+      'ผู้ใช้งานระบบ';
+
+    // =======================================================
+    // 2. PHONE
+    // Firestore staff_roles เป็น Source หลักทั้ง Staff/Reporter
+    // localStorage ใช้เป็น fallback สำหรับ Reporter เท่านั้น
+    // =======================================================
+    let savedPhone = String(staffProfile?.phone || '').trim();
+
+    if (!savedPhone && isReporter) {
+      savedPhone = localStorage.getItem('gse_remembered_phone') || '';
+    }
 
     savedPhone = savedPhone.replace(/\D/g, '');
 
-    let formattedPhone = savedPhone;
-    if (savedPhone.length === 10) {
-      formattedPhone = `${savedPhone.substring(0, 2)}-${savedPhone.substring(2, 6)}-${savedPhone.substring(6)}`;
-    }
-
-    if (!savedName || savedName.trim() === '') {
-      savedName = String(user?.displayName || '').trim() || 'ผู้ใช้งานระบบ';
-    }
-
+    // =======================================================
+    // 3. FALLBACK จาก employeeList / technicianList
+    // =======================================================
     const emp = employeeList.find((item) => item.name === savedName) ||
       technicianList.find((item) => item.name === savedName);
 
-    if (!formattedPhone && emp?.phone && emp.phone !== '-') {
-      formattedPhone = emp.phone;
+    if (!savedPhone && emp?.phone && emp.phone !== '-') {
+      savedPhone = String(emp.phone).replace(/\D/g, '');
     }
 
+    // =======================================================
+    // 4. FORMAT เบอร์โทรศัพท์ไทย
+    // 08X-XXX-XXXX
+    // =======================================================
+    let formattedPhone = savedPhone;
+
+    if (savedPhone.length === 10) {
+      formattedPhone =
+        `${savedPhone.substring(0, 3)}-` +
+        `${savedPhone.substring(3, 6)}-` +
+        `${savedPhone.substring(6)}`;
+    }
+
+    // =======================================================
+    // 5. FORM DATA
+    // Firestore Profile มาก่อน Static List
+    // =======================================================
     setFormData({
       reporter: savedName,
       reporterContact: formattedPhone,
-      position: emp?.position || '',
-      department: emp?.department || '',
-      bureau: 'สำนักปฏิบัติการดาวเทียม',
+      position: String(staffProfile?.position || '').trim() || emp?.position || '',
+      department: String(staffProfile?.department || '').trim() || emp?.department || '',
+      bureau: String(staffProfile?.bureau || '').trim() || 'สำนักปฏิบัติการดาวเทียม',
       equipment: '',
       description: '',
       assetNumber: '',
