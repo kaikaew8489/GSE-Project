@@ -7,7 +7,19 @@ import AttendanceView from './AttendanceView';
 
 import { auth, db, storage } from '../lib/firebaseConfig';
 import { onAuthStateChanged } from 'firebase/auth';
-import { collection, addDoc, onSnapshot, doc, getDoc, updateDoc, query, orderBy, limit, serverTimestamp, where } from 'firebase/firestore';
+import {
+  collection,
+  onSnapshot,
+  doc,
+  getDoc,
+  updateDoc,
+  query,
+  orderBy,
+  limit,
+  serverTimestamp,
+  where,
+  runTransaction
+} from 'firebase/firestore';
 import { ref, uploadBytes, getDownloadURL } from 'firebase/storage';
 
 import ActionModal from './ActionModal';
@@ -19,13 +31,13 @@ import ReportView from './ReportView';
 import DailyReportView from './DailyReportView';
 import TrackingView from './TrackingView';
 
-import TaskBoardView from './TaskBoardView'; 
+import TaskBoardView from './TaskBoardView';
 import InventoryView from './InventoryView'; // 🌟 นำเข้า InventoryView 🌟
 
 import { ErrorBoundary } from './SharedUI';
 
 import { employeeList, techMapping, technicianList } from '../lib/systemData';
-import { getNextReqId, formatDisplayPhone } from '../lib/utils';
+import { formatDisplayPhone } from '../lib/utils';
 
 // =========================================================
 // Security Phase 1 - MainApp Role Gate
@@ -97,6 +109,23 @@ const getInitialTab = (role) => {
 
 const normalizeEmail = (email = '') => String(email).trim().toLowerCase();
 
+// =========================================================
+// Ticket ID Generator
+// Format: GSE-YYMM-NNNN
+// Example: GSE-2611-0001
+//
+// หมายเหตุ:
+// ฟังก์ชันนี้สร้างเฉพาะ Prefix ของ Ticket เท่านั้น
+// Running Number จริงจะถูกสร้างภายใน Firestore Transaction
+// =========================================================
+
+const getTicketPrefix = (date = new Date()) => {
+  const yy = String(date.getFullYear()).slice(-2);
+  const mm = String(date.getMonth() + 1).padStart(2, '0');
+
+  return `GSE-${yy}${mm}`;
+};
+
 export default function MainApp({ onGoHome, initialRole }) {
   const normalizedInitialRole = normalizeAppRole(initialRole);
 
@@ -121,22 +150,22 @@ export default function MainApp({ onGoHome, initialRole }) {
   const [filterStatus, setFilterStatus] = useState('all');
   const [hasNewTicket, setHasNewTicket] = useState(false);
   const isFirstLoad = useRef(true);
-  
+
   const [isOutOfHours, setIsOutOfHours] = useState(false);
   const [allRosters, setAllRosters] = useState([]);
   const [showAdminRoster, setShowAdminRoster] = useState(false);
   const [isHoliday, setIsHoliday] = useState(false);
-  
+
   const [dashTimeframe, setDashTimeframe] = useState('today');
-  const [customMonth, setCustomMonth] = useState(''); 
-  const [showMonthPicker, setShowMonthPicker] = useState(false); 
-  const [pickerYear, setPickerYear] = useState(new Date().getFullYear()); 
-  const [customDate, setCustomDate] = useState(''); 
-  const [showDatePicker, setShowDatePicker] = useState(false); 
+  const [customMonth, setCustomMonth] = useState('');
+  const [showMonthPicker, setShowMonthPicker] = useState(false);
+  const [pickerYear, setPickerYear] = useState(new Date().getFullYear());
+  const [customDate, setCustomDate] = useState('');
+  const [showDatePicker, setShowDatePicker] = useState(false);
   const [calMonth, setCalMonth] = useState(new Date().getMonth());
   const [calYear, setCalYear] = useState(new Date().getFullYear());
-  
-  const [trackTimeframe, setTrackTimeframe] = useState('all'); 
+
+  const [trackTimeframe, setTrackTimeframe] = useState('all');
   const [trackMonth, setTrackMonth] = useState('');
   const [trackDate, setTrackDate] = useState('');
   const [showTrackMonthPicker, setShowTrackMonthPicker] = useState(false);
@@ -144,16 +173,37 @@ export default function MainApp({ onGoHome, initialRole }) {
   const [trackCalMonth, setTrackCalMonth] = useState(new Date().getMonth());
   const [trackCalYear, setTrackCalYear] = useState(new Date().getFullYear());
 
-  const [formData, setFormData] = useState({ reporter: '', reporterContact: '', position: '', department: '', bureau: 'สำนักปฏิบัติการดาวเทียม', equipment: '', description: '', assetNumber: '', building: '', room: '', equipmentCategory: '', images: [], videos: [], isSsc: false });
+  const [formData, setFormData] = useState({
+    reporter: '',
+    reporterContact: '',
+    position: '',
+    department: '',
+    bureau: 'สำนักปฏิบัติการดาวเทียม',
+    equipment: '',
+    description: '',
+    assetNumber: '',
+    building: '',
+    room: '',
+    equipmentCategory: '',
+    images: [],
+    videos: [],
+    isSsc: false
+  });
+
   const [formErrors, setFormErrors] = useState({});
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [showSuccess, setShowSuccess] = useState(false); 
+  const [showSuccess, setShowSuccess] = useState(false);
   const [isNavVisible, setIsNavVisible] = useState(true);
   const lastScrollY = useRef(0);
   const activeTabRef = useRef(activeTab);
   const [showImagePicker, setShowImagePicker] = useState(false);
-  
-  const [actionModal, setActionModal] = useState({ isOpen: false, ticketId: null, type: null });
+
+  const [actionModal, setActionModal] = useState({
+    isOpen: false,
+    ticketId: null,
+    type: null
+  });
+
   const [selectedTech, setSelectedTech] = useState('');
   const [actionText, setActionText] = useState('');
   const [actionAttachments, setActionAttachments] = useState([]);
@@ -161,11 +211,21 @@ export default function MainApp({ onGoHome, initialRole }) {
   const [helperSearch, setHelperSearch] = useState('');
   const [sscSuccess, setSscSuccess] = useState(false);
   const [lightboxImg, setLightboxImg] = useState(null);
-  const [ratingModal, setRatingModal] = useState({ isOpen: false, ticketId: null, rating: 0, comment: '', techName: '', techPhotoUrl: '', tags: [] });
+
+  const [ratingModal, setRatingModal] = useState({
+    isOpen: false,
+    ticketId: null,
+    rating: 0,
+    comment: '',
+    techName: '',
+    techPhotoUrl: '',
+    tags: []
+  });
 
   // ---------------------------------------------------------
   // Sync Role ที่ผ่านการ Verify จาก App.tsx
   // ---------------------------------------------------------
+
   useEffect(() => {
     const normalizedRole = normalizeAppRole(initialRole);
 
@@ -177,6 +237,7 @@ export default function MainApp({ onGoHome, initialRole }) {
     }
 
     setCurrentUserRole(normalizedRole);
+
     setActiveTab((currentTab) => (
       getAllowedTabs(normalizedRole).has(currentTab)
         ? currentTab
@@ -188,6 +249,7 @@ export default function MainApp({ onGoHome, initialRole }) {
   // Firebase Auth Observer
   // ไม่มี Anonymous Auth / ไม่มี public bypass
   // ---------------------------------------------------------
+
   useEffect(() => {
     const unsubscribeAuth = onAuthStateChanged(auth, (firebaseUser) => {
       if (!firebaseUser) {
@@ -200,6 +262,7 @@ export default function MainApp({ onGoHome, initialRole }) {
         Promise.resolve(onGoHome?.()).catch((error) => {
           console.error('GSE Secure Logout Error:', error);
         });
+
         return;
       }
 
@@ -213,6 +276,7 @@ export default function MainApp({ onGoHome, initialRole }) {
   // Resolve identity จาก Firebase Auth + staff_roles/{email}
   // ห้ามใช้ phone/name จาก Browser Storage เป็น Staff Identity
   // ---------------------------------------------------------
+
   useEffect(() => {
     let alive = true;
 
@@ -228,6 +292,7 @@ export default function MainApp({ onGoHome, initialRole }) {
 
       if (!user.emailVerified || !email.endsWith('@gistda.or.th')) {
         if (!alive) return;
+
         setIdentityError('GISTDA_ACCOUNT_REQUIRED');
         setIdentityReady(true);
         return;
@@ -239,6 +304,7 @@ export default function MainApp({ onGoHome, initialRole }) {
       // ให้อ่าน Profile ของตนเองเพื่อใช้ Auto-fill แบบฟอร์มเท่านั้น
       // ห้ามนำ Role จาก Profile นี้ไปยกระดับสิทธิ์ Reporter
       // ---------------------------------------------------------
+
       if (currentUserRole === 'reporter') {
         const rememberedName = localStorage.getItem('gse_remembered_name') || '';
         const displayName = String(user.displayName || '').trim();
@@ -252,8 +318,6 @@ export default function MainApp({ onGoHome, initialRole }) {
           if (reporterStaffSnap.exists()) {
             const profileData = reporterStaffSnap.data();
 
-            // ใช้ข้อมูล Profile สำหรับ Auto-fill เท่านั้น
-            // ไม่เปลี่ยน currentUserRole
             if (profileData.active !== false) {
               reporterProfile = {
                 ...profileData,
@@ -270,6 +334,7 @@ export default function MainApp({ onGoHome, initialRole }) {
         const profileName = String(reporterProfile?.fullName || '').trim();
 
         setStaffProfile(reporterProfile);
+
         setCurrentUserName(
           profileName ||
           displayName ||
@@ -302,7 +367,6 @@ export default function MainApp({ onGoHome, initialRole }) {
           throw new Error('INVALID_STAFF_ROLE');
         }
 
-        // Defense in depth: Role ใน MainApp ต้องตรงกับ Role ที่ Firestore ยืนยัน
         if (verifiedRole !== currentUserRole) {
           throw new Error('STAFF_ROLE_MISMATCH');
         }
@@ -310,7 +374,10 @@ export default function MainApp({ onGoHome, initialRole }) {
         const dbPhone = String(profile.phone || '').replace(/\D/g, '');
         const dbName = String(profile.fullName || '').trim();
 
-        let exactName = dbName || String(user.displayName || '').trim() || email.split('@')[0];
+        let exactName =
+          dbName ||
+          String(user.displayName || '').trim() ||
+          email.split('@')[0];
 
         const matchedTech = technicianList.find((tech) => (
           (tech.phone && String(tech.phone).replace(/\D/g, '') === dbPhone) ||
@@ -332,15 +399,17 @@ export default function MainApp({ onGoHome, initialRole }) {
           email,
           role: verifiedRole,
         });
+
         setCurrentUserName(exactName);
 
-        // UX cache only - ห้ามใช้เป็น Security Boundary
         localStorage.setItem('gse_remembered_name', exactName);
+
         setIdentityReady(true);
       } catch (error) {
         console.error('GSE Staff Identity Error:', error);
 
         if (!alive) return;
+
         setStaffProfile(null);
         setCurrentUserName('');
         setIdentityError(error?.message || 'STAFF_ACCESS_REQUIRED');
@@ -357,10 +426,8 @@ export default function MainApp({ onGoHome, initialRole }) {
 
   // ---------------------------------------------------------
   // Role-scoped Ticket subscriptions
-  // - Commander/Admin: ทั้งหมด
-  // - Reporter: เฉพาะ reporterUid ของตนเอง
-  // - Technician: เฉพาะงานที่เกี่ยวข้องกับตนเอง + Pending เมื่อเข้าเวร SSC
   // ---------------------------------------------------------
+
   useEffect(() => {
     if (!user || !identityReady || identityError || !currentUserRole) {
       setTickets([]);
@@ -391,7 +458,10 @@ export default function MainApp({ onGoHome, initialRole }) {
       });
 
       const ticketsData = Array.from(merged.values())
-        .sort((a, b) => new Date(b.date || 0).getTime() - new Date(a.date || 0).getTime())
+        .sort((a, b) =>
+          new Date(b.date || 0).getTime() -
+          new Date(a.date || 0).getTime()
+        )
         .slice(0, 500);
 
       setTickets(ticketsData);
@@ -415,11 +485,16 @@ export default function MainApp({ onGoHome, initialRole }) {
             snapshotsByKey.set(key, docsMap);
 
             const wasInitialized = initializedKeys.has(key);
+
             initializedKeys.add(key);
 
             if (wasInitialized && activeTabRef.current !== 'dashboard') {
-              const hasAdded = snapshot.docChanges().some((change) => change.type === 'added');
-              if (hasAdded) setHasNewTicket(true);
+              const hasAdded = snapshot.docChanges()
+                .some((change) => change.type === 'added');
+
+              if (hasAdded) {
+                setHasNewTicket(true);
+              }
             }
 
             publishMergedTickets();
@@ -437,42 +512,75 @@ export default function MainApp({ onGoHome, initialRole }) {
       subscriptions.push(unsubscribe);
     };
 
-    if (currentUserRole === 'Commander' || currentUserRole === 'Admin') {
+    if (
+      currentUserRole === 'Commander' ||
+      currentUserRole === 'Admin'
+    ) {
       subscribeQuery(
         'all',
-        query(collection(db, 'tickets'), orderBy('date', 'desc'), limit(500))
+        query(
+          collection(db, 'tickets'),
+          orderBy('date', 'desc'),
+          limit(500)
+        )
       );
     } else if (currentUserRole === 'reporter') {
       subscribeQuery(
         'reporterUid',
-        query(collection(db, 'tickets'), where('reporterUid', '==', user.uid), limit(500))
+        query(
+          collection(db, 'tickets'),
+          where('reporterUid', '==', user.uid),
+          limit(500)
+        )
       );
     } else if (currentUserRole === 'Technician') {
       subscribeQuery(
         'primaryTech',
-        query(collection(db, 'tickets'), where('techName', '==', currentUserName), limit(500))
+        query(
+          collection(db, 'tickets'),
+          where('techName', '==', currentUserName),
+          limit(500)
+        )
       );
 
       subscribeQuery(
         'sscTech',
-        query(collection(db, 'tickets'), where('sscTechName', '==', currentUserName), limit(500))
+        query(
+          collection(db, 'tickets'),
+          where('sscTechName', '==', currentUserName),
+          limit(500)
+        )
       );
 
       subscribeQuery(
         'myReports',
-        query(collection(db, 'tickets'), where('reporterUid', '==', user.uid), limit(500))
+        query(
+          collection(db, 'tickets'),
+          where('reporterUid', '==', user.uid),
+          limit(500)
+        )
       );
 
       const todayStr = new Date().toISOString().split('T')[0];
-      const todayDuty = allRosters.find((roster) => roster.date === todayStr);
-      const isSSCToday = todayDuty && todayDuty.techName === currentUserName;
+
+      const todayDuty = allRosters.find(
+        (roster) => roster.date === todayStr
+      );
+
+      const isSSCToday =
+        todayDuty &&
+        todayDuty.techName === currentUserName;
 
       if (isSSCToday) {
         subscribeQuery(
           'sscPending',
           query(
             collection(db, 'tickets'),
-            where('status', 'in', ['pending', 'รอช่างเข้าดำเนินการ']),
+            where(
+              'status',
+              'in',
+              ['pending', 'รอช่างเข้าดำเนินการ']
+            ),
             limit(500)
           )
         );
@@ -482,7 +590,14 @@ export default function MainApp({ onGoHome, initialRole }) {
     return () => {
       subscriptions.forEach((unsubscribe) => unsubscribe());
     };
-  }, [user, identityReady, identityError, currentUserRole, currentUserName, allRosters]);
+  }, [
+    user,
+    identityReady,
+    identityError,
+    currentUserRole,
+    currentUserName,
+    allRosters
+  ]);
 
   useEffect(() => {
     activeTabRef.current = activeTab;
@@ -493,18 +608,25 @@ export default function MainApp({ onGoHome, initialRole }) {
 
     if (!allowedTabs.has(activeTab)) {
       const safeTab = getDefaultTabForRole(currentUserRole);
+
       setActiveTab(safeTab);
       sessionStorage.setItem('activeTab', safeTab);
+
       return;
     }
 
-    // UI state เท่านั้น ไม่ใช่ Authorization
     sessionStorage.setItem('activeTab', activeTab);
-    if (activeTab === 'dashboard') setHasNewTicket(false);
+
+    if (activeTab === 'dashboard') {
+      setHasNewTicket(false);
+    }
   }, [activeTab, currentUserRole]);
 
   useEffect(() => {
-    const timer = setInterval(() => setSysTime(new Date()), 1000);
+    const timer = setInterval(() => {
+      setSysTime(new Date());
+    }, 1000);
+
     return () => clearInterval(timer);
   }, []);
 
@@ -513,11 +635,18 @@ export default function MainApp({ onGoHome, initialRole }) {
       const now = sysTime;
       const hours = now.getHours();
       const minutes = now.getMinutes();
-      const day = now.getDay(); 
+      const day = now.getDay();
+
       const timeNum = hours * 100 + minutes;
-      const isAfterHours = (day === 0 || day === 6) || (timeNum < 830 || timeNum > 1630) || isHoliday;
+
+      const isAfterHours =
+        (day === 0 || day === 6) ||
+        (timeNum < 830 || timeNum > 1630) ||
+        isHoliday;
+
       setIsOutOfHours(isAfterHours);
     };
+
     checkOutOfHours();
   }, [sysTime, isHoliday]);
 
@@ -525,38 +654,48 @@ export default function MainApp({ onGoHome, initialRole }) {
     if (!isStaffUser || !identityReady || identityError) {
       setAllRosters([]);
       setIsHoliday(false);
+
       return undefined;
     }
 
     const rosterRef = collection(db, 'rosters');
-    const unsub = onSnapshot(rosterRef, (snap) => {
-      const data = snap.docs.map((rosterDoc) => ({
-        ...rosterDoc.data(),
-        date: rosterDoc.id,
-      }));
 
-      setAllRosters(data);
+    const unsub = onSnapshot(
+      rosterRef,
+      (snap) => {
+        const data = snap.docs.map((rosterDoc) => ({
+          ...rosterDoc.data(),
+          date: rosterDoc.id,
+        }));
 
-      const todayStr = new Date().toISOString().split('T')[0];
-      const todayRoster = data.find((roster) => roster.date === todayStr);
-      setIsHoliday(!!(todayRoster && todayRoster.isHoliday));
-    }, (error) => {
-      console.error('Roster Read Error:', error);
-    });
+        setAllRosters(data);
+
+        const todayStr = new Date().toISOString().split('T')[0];
+
+        const todayRoster = data.find(
+          (roster) => roster.date === todayStr
+        );
+
+        setIsHoliday(
+          !!(todayRoster && todayRoster.isHoliday)
+        );
+      },
+      (error) => {
+        console.error('Roster Read Error:', error);
+      }
+    );
 
     return () => unsub();
-  }, [isStaffUser, identityReady, identityError]); 
+  }, [isStaffUser, identityReady, identityError]);
 
   const handleResetForm = () => {
     const isReporter = currentUserRole === 'reporter';
 
-    // =======================================================
-    // 1. NAME
-    // Firestore staff_roles เป็น Source หลัก
-    // Google / Browser cache เป็น fallback
-    // =======================================================
-    const profileName = String(staffProfile?.fullName || '').trim();
-    const rememberedName = localStorage.getItem('gse_remembered_name') || '';
+    const profileName =
+      String(staffProfile?.fullName || '').trim();
+
+    const rememberedName =
+      localStorage.getItem('gse_remembered_name') || '';
 
     let savedName =
       profileName ||
@@ -565,33 +704,25 @@ export default function MainApp({ onGoHome, initialRole }) {
       rememberedName ||
       'ผู้ใช้งานระบบ';
 
-    // =======================================================
-    // 2. PHONE
-    // Firestore staff_roles เป็น Source หลักทั้ง Staff/Reporter
-    // localStorage ใช้เป็น fallback สำหรับ Reporter เท่านั้น
-    // =======================================================
-    let savedPhone = String(staffProfile?.phone || '').trim();
+    let savedPhone =
+      String(staffProfile?.phone || '').trim();
 
     if (!savedPhone && isReporter) {
-      savedPhone = localStorage.getItem('gse_remembered_phone') || '';
+      savedPhone =
+        localStorage.getItem('gse_remembered_phone') || '';
     }
 
     savedPhone = savedPhone.replace(/\D/g, '');
 
-    // =======================================================
-    // 3. FALLBACK จาก employeeList / technicianList
-    // =======================================================
-    const emp = employeeList.find((item) => item.name === savedName) ||
+    const emp =
+      employeeList.find((item) => item.name === savedName) ||
       technicianList.find((item) => item.name === savedName);
 
     if (!savedPhone && emp?.phone && emp.phone !== '-') {
-      savedPhone = String(emp.phone).replace(/\D/g, '');
+      savedPhone =
+        String(emp.phone).replace(/\D/g, '');
     }
 
-    // =======================================================
-    // 4. FORMAT เบอร์โทรศัพท์ไทย
-    // 08X-XXX-XXXX
-    // =======================================================
     let formattedPhone = savedPhone;
 
     if (savedPhone.length === 10) {
@@ -601,16 +732,20 @@ export default function MainApp({ onGoHome, initialRole }) {
         `${savedPhone.substring(6)}`;
     }
 
-    // =======================================================
-    // 5. FORM DATA
-    // Firestore Profile มาก่อน Static List
-    // =======================================================
     setFormData({
       reporter: savedName,
       reporterContact: formattedPhone,
-      position: String(staffProfile?.position || '').trim() || emp?.position || '',
-      department: String(staffProfile?.department || '').trim() || emp?.department || '',
-      bureau: String(staffProfile?.bureau || '').trim() || 'สำนักปฏิบัติการดาวเทียม',
+      position:
+        String(staffProfile?.position || '').trim() ||
+        emp?.position ||
+        '',
+      department:
+        String(staffProfile?.department || '').trim() ||
+        emp?.department ||
+        '',
+      bureau:
+        String(staffProfile?.bureau || '').trim() ||
+        'สำนักปฏิบัติการดาวเทียม',
       equipment: '',
       description: '',
       assetNumber: '',
@@ -629,485 +764,1709 @@ export default function MainApp({ onGoHome, initialRole }) {
     if (activeTab === 'report' && identityReady && user) {
       handleResetForm();
     }
-  }, [activeTab, currentUserName, currentUserRole, staffProfile, identityReady, user]);
+  }, [
+    activeTab,
+    currentUserName,
+    currentUserRole,
+    staffProfile,
+    identityReady,
+    user
+  ]);
 
-  const getLiveStopwatch = (dateStart, dateEnd, sysTime, totalPauseMs = 0, isHolding = false, lastHoldAt = null) => {
+  const getLiveStopwatch = (
+    dateStart,
+    dateEnd,
+    sysTime,
+    totalPauseMs = 0,
+    isHolding = false,
+    lastHoldAt = null
+  ) => {
     if (!dateStart) return "00:00:00";
+
     const start = new Date(dateStart).getTime();
-    const end = dateEnd ? new Date(dateEnd).getTime() : sysTime.getTime();
-    let duration = end - start - totalPauseMs;
+
+    const end =
+      dateEnd
+        ? new Date(dateEnd).getTime()
+        : sysTime.getTime();
+
+    let duration =
+      end -
+      start -
+      totalPauseMs;
+
     if (isHolding && lastHoldAt) {
-      const pauseDuration = sysTime.getTime() - new Date(lastHoldAt).getTime();
+      const pauseDuration =
+        sysTime.getTime() -
+        new Date(lastHoldAt).getTime();
+
       duration -= pauseDuration;
     }
+
     if (duration < 0) duration = 0;
-    const hours = Math.floor(duration / 3600000);
-    const minutes = Math.floor((duration % 3600000) / 60000);
-    const seconds = Math.floor((duration % 60000) / 1000);
+
+    const hours =
+      Math.floor(duration / 3600000);
+
+    const minutes =
+      Math.floor((duration % 3600000) / 60000);
+
+    const seconds =
+      Math.floor((duration % 60000) / 1000);
+
     return `${String(hours).padStart(2, '0')}:${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}`;
   };
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
-    setFormData((prev) => ({ ...prev, [name]: value }));
-    if (formErrors[name]) setFormErrors((prev) => ({ ...prev, [name]: null }));
+
+    setFormData((prev) => ({
+      ...prev,
+      [name]: value
+    }));
+
+    if (formErrors[name]) {
+      setFormErrors((prev) => ({
+        ...prev,
+        [name]: null
+      }));
+    }
   };
 
   const handleMediaUpload = async (e) => {
     const files = Array.from(e.target.files);
+
     if (files.length === 0) return;
-    let newImages = []; let newVideos = [];
+
+    let newImages = [];
+    let newVideos = [];
+
     for (let i = 0; i < files.length; i++) {
       const file = files[i];
+
       if (file.type.startsWith('video/')) {
         try {
-          const fileRef = ref(storage, `gse_reports/videos/${Date.now()}_${file.name}`);
-          const snapshot = await uploadBytes(fileRef, file);
-          newVideos.push(await getDownloadURL(snapshot.ref));
-        } catch (error) { console.error("Video Upload Error:", error); }
+          const fileRef = ref(
+            storage,
+            `gse_reports/videos/${Date.now()}_${file.name}`
+          );
+
+          const snapshot =
+            await uploadBytes(fileRef, file);
+
+          newVideos.push(
+            await getDownloadURL(snapshot.ref)
+          );
+        } catch (error) {
+          console.error(
+            "Video Upload Error:",
+            error
+          );
+        }
       } else if (file.type.startsWith('image/')) {
         try {
-          const fileRef = ref(storage, `gse_reports/images/${Date.now()}_${file.name}`);
-          const snapshot = await uploadBytes(fileRef, file);
-          newImages.push(await getDownloadURL(snapshot.ref));
-        } catch (error) { console.error("Image Upload Error:", error); }
+          const fileRef = ref(
+            storage,
+            `gse_reports/images/${Date.now()}_${file.name}`
+          );
+
+          const snapshot =
+            await uploadBytes(fileRef, file);
+
+          newImages.push(
+            await getDownloadURL(snapshot.ref)
+          );
+        } catch (error) {
+          console.error(
+            "Image Upload Error:",
+            error
+          );
+        }
       }
     }
-    setFormData(prev => ({ ...prev, images: [...prev.images, ...newImages].slice(0, 6), videos: [...prev.videos, ...newVideos].slice(0, 1) }));
+
+    setFormData(prev => ({
+      ...prev,
+      images:
+        [...prev.images, ...newImages].slice(0, 6),
+      videos:
+        [...prev.videos, ...newVideos].slice(0, 1)
+    }));
   };
 
   const handleClipboardPaste = async () => {
     try {
-      const clipboardItems = await navigator.clipboard.read();
+      const clipboardItems =
+        await navigator.clipboard.read();
+
       for (const clipboardItem of clipboardItems) {
-        const imageTypes = clipboardItem.types.filter(type => type.startsWith('image/'));
+        const imageTypes =
+          clipboardItem.types.filter(
+            type => type.startsWith('image/')
+          );
+
         if (imageTypes.length > 0) {
-          const blob = await clipboardItem.getType(imageTypes[0]);
-          const file = new File([blob], `snipped_image_${Date.now()}.png`, { type: blob.type });
-          handleMediaUpload({ target: { files: [file] } });
+          const blob =
+            await clipboardItem.getType(
+              imageTypes[0]
+            );
+
+          const file = new File(
+            [blob],
+            `snipped_image_${Date.now()}.png`,
+            { type: blob.type }
+          );
+
+          handleMediaUpload({
+            target: {
+              files: [file]
+            }
+          });
+
           setShowImagePicker(false);
+
           return;
         }
       }
+
       alert("⚠️ ไม่พบรูปภาพที่แคปไว้ครับ!");
-    } catch (err) { alert("⚠️ เบราว์เซอร์ไม่อนุญาต หรือท่านยังไม่ได้แคปรูปไว้ครับ"); }
+    } catch (err) {
+      alert(
+        "⚠️ เบราว์เซอร์ไม่อนุญาต หรือท่านยังไม่ได้แคปรูปไว้ครับ"
+      );
+    }
   };
 
   const validateForm = () => {
     const errors = {};
-    if (!formData.reporter) errors.reporter = 'กรุณาระบุชื่อผู้แจ้ง';
-    const phone = formData.reporterContact ? String(formData.reporterContact).replace(/\D/g, '') : '';
-    if (phone.length !== 10) errors.reporterContact = 'เบอร์โทรต้องมี 10 หลัก';
-    if (!formData.equipmentCategory) errors.equipmentCategory = 'กรุณาระบุกลุ่มงาน/ภารกิจ';
-    if (!formData.equipment) errors.equipment = 'กรุณาระบุอุปกรณ์/ระบบ';
-    if (!formData.building) errors.building = 'กรุณาระบุอาคาร/ตึก';
-    if (!formData.room) errors.room = 'กรุณาระบุสถานที่/ห้อง';
-    if (!formData.description) errors.description = 'กรุณาระบุอาการเสีย';
-    if (!formData.images || formData.images.length === 0) errors.images = 'กรุณาแนบภาพอย่างน้อย 1 รูป';
+
+    if (!formData.reporter) {
+      errors.reporter =
+        'กรุณาระบุชื่อผู้แจ้ง';
+    }
+
+    const phone =
+      formData.reporterContact
+        ? String(formData.reporterContact)
+            .replace(/\D/g, '')
+        : '';
+
+    if (phone.length !== 10) {
+      errors.reporterContact =
+        'เบอร์โทรต้องมี 10 หลัก';
+    }
+
+    if (!formData.equipmentCategory) {
+      errors.equipmentCategory =
+        'กรุณาระบุกลุ่มงาน/ภารกิจ';
+    }
+
+    if (!formData.equipment) {
+      errors.equipment =
+        'กรุณาระบุอุปกรณ์/ระบบ';
+    }
+
+    if (!formData.building) {
+      errors.building =
+        'กรุณาระบุอาคาร/ตึก';
+    }
+
+    if (!formData.room) {
+      errors.room =
+        'กรุณาระบุสถานที่/ห้อง';
+    }
+
+    if (!formData.description) {
+      errors.description =
+        'กรุณาระบุอาการเสีย';
+    }
+
+    if (
+      !formData.images ||
+      formData.images.length === 0
+    ) {
+      errors.images =
+        'กรุณาแนบภาพอย่างน้อย 1 รูป';
+    }
+
     return errors;
   };
 
+  // =========================================================
+  // CREATE TICKET
+  // Atomic Ticket Number + Document ID
+  // =========================================================
+
   const handleSubmit = async (e) => {
     e.preventDefault();
-
-    if (!user?.uid || !normalizeEmail(user?.email).endsWith('@gistda.or.th')) {
-      alert('❌ ไม่พบ Session บัญชี GISTDA ที่ถูกต้อง กรุณาเข้าสู่ระบบใหม่');
+  
+    if (
+      !user?.uid ||
+      !normalizeEmail(user?.email).endsWith('@gistda.or.th')
+    ) {
+      alert(
+        '❌ ไม่พบ Session บัญชี GISTDA ที่ถูกต้อง กรุณาเข้าสู่ระบบใหม่'
+      );
       return;
     }
-
+  
     const errs = validateForm();
-    if (Object.keys(errs).length > 0) { 
-      setFormErrors(errs); 
-      alert("⚠️ ข้อมูลยังไม่ครบ หรือ เบอร์โทรศัพท์ไม่ถูกต้องครับ!\n\n(หากชื่อ/เบอร์โทร หรือแผนกหายไป กรุณาตรวจสอบให้ครบถ้วน)");
-      return; 
+  
+    if (Object.keys(errs).length > 0) {
+      setFormErrors(errs);
+  
+      alert(
+        "⚠️ ข้อมูลยังไม่ครบ หรือ เบอร์โทรศัพท์ไม่ถูกต้องครับ!\n\n" +
+        "(หากชื่อ/เบอร์โทร หรือแผนกหายไป กรุณาตรวจสอบให้ครบถ้วน)"
+      );
+  
+      return;
     }
-    
+  
     setIsSubmitting(true);
-    const newId = getNextReqId(tickets);
-    const selectedCategory = formData.equipmentCategory; 
+  
+    const selectedCategory = formData.equipmentCategory;
     const autoAssignedTech = techMapping[selectedCategory];
-
-    const newTicket = {
-      id: newId,
+  
+    // =======================================================
+    // Ticket Payload
+    // id และ createdAt จะถูกกำหนดภายใน Transaction
+    // =======================================================
+  
+    const ticketPayload = {
       reporterUid: user.uid,
       reporterEmail: normalizeEmail(user.email),
       createdByRole: currentUserRole,
+  
       reporter: formData.reporter || '',
       reporterContact: formData.reporterContact || '',
+  
       position: formData.position || '',
       department: formData.department || '',
-      bureau: formData.bureau || 'สำนักปฏิบัติการดาวเทียม',
+      bureau:
+        formData.bureau ||
+        'สำนักปฏิบัติการดาวเทียม',
+  
       equipment: formData.equipment || '',
       description: formData.description || '',
       assetNumber: formData.assetNumber || '',
+  
       building: formData.building || '',
       room: formData.room || '',
-      equipmentCategory: formData.equipmentCategory || '',
+      equipmentCategory:
+        formData.equipmentCategory || '',
+  
       images: formData.images || [],
       videos: formData.videos || [],
+  
       isSsc: formData.isSsc || false,
-      techName: autoAssignedTech ? autoAssignedTech.name : 'รอเจ้าหน้าที่รับงาน',
-      techPhone: autoAssignedTech ? autoAssignedTech.phone : '-',
+  
+      techName: autoAssignedTech
+        ? autoAssignedTech.name
+        : 'รอเจ้าหน้าที่รับงาน',
+  
+      techPhone: autoAssignedTech
+        ? autoAssignedTech.phone
+        : '-',
+  
       status: 'pending',
+  
+      // Compatibility กับระบบเดิม
       date: new Date().toISOString(),
-      createdAt: serverTimestamp(),
     };
-
+  
+    let newId = '';
+  
     try {
-      await addDoc(collection(db, 'tickets'), newTicket);
-      if (currentUserRole === 'reporter' && newTicket.reporterContact) {
-        // UX convenience only - Ticket ownership ใช้ Firebase UID/email
-        localStorage.setItem('gse_remembered_phone', String(newTicket.reporterContact).replace(/\D/g, ''));
-        localStorage.setItem('gse_remembered_name', newTicket.reporter);
+  
+      // =====================================================
+      // Atomic Ticket Number
+      //
+      // Counter:
+      // system_counters/ticket_GSE-2611
+      //
+      // Ticket:
+      // tickets/GSE-2611-0001
+      //
+      // Firestore จะ retry Transaction อัตโนมัติ
+      // หาก Counter ถูกเปลี่ยนพร้อมกันจากผู้ใช้อื่น
+      // =====================================================
+  
+      newId = await runTransaction(
+        db,
+        async (transaction) => {
+  
+          const prefix =
+            getTicketPrefix(new Date());
+  
+          const counterRef = doc(
+            db,
+            'system_counters',
+            `ticket_${prefix}`
+          );
+  
+          // -----------------------------------------------
+          // READ Counter
+          // -----------------------------------------------
+  
+          const counterSnap =
+            await transaction.get(counterRef);
+  
+          let currentNumber = 0;
+  
+          if (counterSnap.exists()) {
+            currentNumber = Number(
+              counterSnap.data()?.lastNumber || 0
+            );
+          }
+  
+          const nextNumber =
+            currentNumber + 1;
+  
+          if (
+            !Number.isSafeInteger(nextNumber) ||
+            nextNumber < 1 ||
+            nextNumber > 9999
+          ) {
+            throw new Error(
+              'INVALID_TICKET_SEQUENCE'
+            );
+          }
+  
+          const ticketId =
+            `${prefix}-${String(nextNumber).padStart(4, '0')}`;
+  
+          const ticketRef = doc(
+            db,
+            'tickets',
+            ticketId
+          );
+  
+          // -----------------------------------------------
+          // WRITE Counter
+          //
+          // ไม่ต้องอ่าน ticketRef ก่อน
+          // เพื่อไม่ชนกับ Reporter Read Rules
+          // -----------------------------------------------
+  
+          transaction.set(
+            counterRef,
+            {
+              prefix,
+              lastNumber: nextNumber,
+  
+              updatedAt:
+                serverTimestamp(),
+  
+              updatedByUid:
+                user.uid,
+  
+              updatedByEmail:
+                normalizeEmail(user.email),
+            },
+            {
+              merge: true,
+            }
+          );
+  
+          // -----------------------------------------------
+          // WRITE Ticket
+          //
+          // Firestore Document ID = Ticket ID
+          // -----------------------------------------------
+  
+          transaction.set(
+            ticketRef,
+            {
+              id: ticketId,
+  
+              ...ticketPayload,
+  
+              createdAt:
+                serverTimestamp(),
+            }
+          );
+  
+          return ticketId;
+        }
+      );
+  
+      // =====================================================
+      // Frontend / Notification Object
+      // =====================================================
+  
+      const newTicket = {
+        id: newId,
+        ...ticketPayload,
+      };
+  
+      // =====================================================
+      // Reporter UX Cache
+      // ไม่ใช่ Security Boundary
+      // =====================================================
+  
+      if (
+        currentUserRole === 'reporter' &&
+        newTicket.reporterContact
+      ) {
+        localStorage.setItem(
+          'gse_remembered_phone',
+          String(
+            newTicket.reporterContact
+          ).replace(/\D/g, '')
+        );
+  
+        localStorage.setItem(
+          'gse_remembered_name',
+          newTicket.reporter
+        );
       }
-
-      const APPS_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbxBoB_e637WkWMeSuX9NP3BSKcSiE8J3dSXmlzNV9aeiq6DRUvn81bSp6w-B0nzCVA5/exec"; 
-      
+  
+      // =====================================================
+      // LINE / Apps Script เดิม
+      // =====================================================
+  
+      const APPS_SCRIPT_URL =
+        "https://script.google.com/macros/s/AKfycbxBoB_e637WkWMeSuX9NP3BSKcSiE8J3dSXmlzNV9aeiq6DRUvn81bSp6w-B0nzCVA5/exec";
+  
       fetch(APPS_SCRIPT_URL, {
         method: 'POST',
+  
         mode: 'no-cors',
+  
         headers: {
-          'Content-Type': 'application/json'
+          'Content-Type':
+            'application/json',
         },
+  
         body: JSON.stringify({
           ticketId: newId,
-          equipment: formData.equipment,
-          description: formData.description,
-          reporter: formData.reporter,
-          phone: formData.reporterContact,
-          primaryTech: newTicket.techName,
-          building: formData.building,
-          room: formData.room,
-          status: "NEW" 
-        })
-      }).catch(err => console.error("LINE Notify Error:", err));
-
+  
+          equipment:
+            formData.equipment,
+  
+          description:
+            formData.description,
+  
+          reporter:
+            formData.reporter,
+  
+          phone:
+            formData.reporterContact,
+  
+          primaryTech:
+            newTicket.techName,
+  
+          building:
+            formData.building,
+  
+          room:
+            formData.room,
+  
+          status: 'NEW',
+        }),
+  
+      }).catch((err) => {
+        console.error(
+          'LINE Notify Error:',
+          err
+        );
+      });
+  
+      // =====================================================
+      // Success UX เดิม
+      // =====================================================
+  
       setShowSuccess(true);
+  
       setTimeout(() => {
         setShowSuccess(false);
-        handleResetForm(); 
+  
+        handleResetForm();
+  
         setFilterStatus('all');
+  
         setActiveTab('tracking');
+  
       }, 5000);
-    } catch (e) {
-      alert("❌ เกิดข้อผิดพลาดในการส่งข้อมูล: " + e.message);
-    } finally {         
+  
+    } catch (error) {
+  
+      console.error(
+        'Create Ticket Error:',
+        error
+      );
+  
+      const errorMessage =
+        String(
+          error?.message ||
+          error ||
+          ''
+        );
+  
+      if (
+        errorMessage.includes(
+          'INVALID_TICKET_SEQUENCE'
+        )
+      ) {
+        alert(
+          '❌ Running Number ของ Ticket ไม่ถูกต้อง\n\n' +
+          'กรุณาตรวจสอบ Ticket Counter ก่อน'
+        );
+  
+      } else if (
+        error?.code ===
+          'permission-denied'
+      ) {
+        alert(
+          '❌ Firestore ยังไม่อนุญาตให้สร้าง Ticket Counter\n\n' +
+          'ต้องตรวจสอบ Security Rules ของ system_counters'
+        );
+  
+      } else {
+        alert(
+          '❌ เกิดข้อผิดพลาดในการส่งข้อมูล: ' +
+          errorMessage
+        );
+      }
+  
+    } finally {
       setIsSubmitting(false);
     }
   };
 
   const isTicketOwnedByCurrentUser = (ticket) => (
-    !!user?.uid && ticket?.reporterUid === user.uid
+    !!user?.uid &&
+    ticket?.reporterUid === user.uid
   );
 
   const canStaffAccessTicket = (ticket) => {
-    if (!ticket || !isStaffUser) return false;
-    if (isPrivilegedUser) return true;
+    if (!ticket || !isStaffUser) {
+      return false;
+    }
 
-    const todayStr = sysTime.toISOString().split('T')[0];
-    const todayDuty = allRosters.find((roster) => roster.date === todayStr);
-    const isSSCToday = todayDuty && todayDuty.techName === currentUserName;
+    if (isPrivilegedUser) {
+      return true;
+    }
+
+    const todayStr =
+      sysTime.toISOString()
+        .split('T')[0];
+
+    const todayDuty =
+      allRosters.find(
+        (roster) =>
+          roster.date === todayStr
+      );
+
+    const isSSCToday =
+      todayDuty &&
+      todayDuty.techName ===
+        currentUserName;
 
     return (
-      ticket.techName === currentUserName ||
-      ticket.sscTechName === currentUserName ||
-      isTicketOwnedByCurrentUser(ticket) ||
+      ticket.techName ===
+        currentUserName ||
+      ticket.sscTechName ===
+        currentUserName ||
+      isTicketOwnedByCurrentUser(
+        ticket
+      ) ||
       (
         isSSCToday &&
-        (ticket.status === 'pending' || ticket.status === 'รอช่างเข้าดำเนินการ')
+        (
+          ticket.status ===
+            'pending' ||
+          ticket.status ===
+            'รอช่างเข้าดำเนินการ'
+        )
       )
     );
   };
 
-  const updateTicketStatus = async (ticketId, updates) => {
-    const target = tickets.find((ticket) => ticket.id === ticketId);
-    if (!target || !target.dbId) return;
+  const updateTicketStatus = async (
+    ticketId,
+    updates
+  ) => {
+    const target =
+      tickets.find(
+        (ticket) =>
+          ticket.id === ticketId
+      );
 
-    // Reporter ไม่มีสิทธิ์เรียก generic staff update
-    if (!canStaffAccessTicket(target)) {
-      console.warn('Blocked unauthorized ticket update:', ticketId);
+    if (
+      !target ||
+      !target.dbId
+    ) {
+      return;
+    }
+
+    if (
+      !canStaffAccessTicket(
+        target
+      )
+    ) {
+      console.warn(
+        'Blocked unauthorized ticket update:',
+        ticketId
+      );
+
       return;
     }
 
     try {
-      await updateDoc(doc(db, 'tickets', target.dbId), {
-        ...updates,
-        updatedAt: serverTimestamp(),
-        updatedByUid: user?.uid || null,
-        updatedByEmail: normalizeEmail(user?.email),
-      });
+      await updateDoc(
+        doc(
+          db,
+          'tickets',
+          target.dbId
+        ),
+        {
+          ...updates,
+          updatedAt:
+            serverTimestamp(),
+          updatedByUid:
+            user?.uid || null,
+          updatedByEmail:
+            normalizeEmail(
+              user?.email
+            ),
+        }
+      );
     } catch (error) {
       console.error(error);
     }
   };
 
-  const executeActionModal = async () => {
-    const { ticketId, type } = actionModal;
-    const ticket = tickets.find((item) => item.id === ticketId);
-    if (!ticket) return;
+  const executeActionModal =
+    async () => {
+      const {
+        ticketId,
+        type
+      } = actionModal;
 
-    if (!canPerformStaffActions || !canStaffAccessTicket(ticket)) {
-      alert('❌ คุณไม่มีสิทธิ์ดำเนินการกับรายการนี้');
-      setActionModal({ isOpen: false, ticketId: null, type: null });
-      return;
-    }
+      const ticket =
+        tickets.find(
+          (item) =>
+            item.id === ticketId
+        );
 
-    try {
-      let finalUrls = [];
-      if (actionAttachments && actionAttachments.length > 0) {
-        for (let fileStr of actionAttachments) {
-          if (typeof fileStr === 'string' && fileStr.startsWith('data:image')) {
-            const response = await fetch(fileStr);
-            const blob = await response.blob();
-            const fileRef = ref(storage, `gse_actions/${Date.now()}_${Math.random().toString(36).substring(7)}.jpg`);
-            const snapshot = await uploadBytes(fileRef, blob);
-            const downloadUrl = await getDownloadURL(snapshot.ref);
-            finalUrls.push(downloadUrl);
-          } else {
-            finalUrls.push(fileStr); 
-          }
-        }
-      }
+      if (!ticket) return;
 
-      let updateData = {};
-      let pushStatusLine = ""; 
+      if (
+        !canPerformStaffActions ||
+        !canStaffAccessTicket(ticket)
+      ) {
+        alert(
+          '❌ คุณไม่มีสิทธิ์ดำเนินการกับรายการนี้'
+        );
 
-      if (type === 'hold') {
-        const log = { type: 'hold', timestamp: sysTime.toISOString(), reason: actionText || 'รออะไหล่/อุปกรณ์', attachments: finalUrls };
-        updateData = { status: 'on_hold', lastHoldAt: log.timestamp, historyLog: [...(ticket.historyLog || []), log] };
-      } else if (type === 'resume') {
-        const holdStart = new Date(ticket.lastHoldAt).getTime();
-        const pauseDurationMs = sysTime.getTime() - holdStart;
-        const log = { type: 'resume', timestamp: sysTime.toISOString(), reason: actionText || 'ได้รับอะไหล่/ดำเนินการต่อ', attachments: finalUrls };
-        updateData = { status: 'in_progress', totalPauseMs: (ticket.totalPauseMs || 0) + pauseDurationMs, historyLog: [...(ticket.historyLog || []), log] };
-      } else if (type === 'ssc') {
-        updateData = { sscTechName: currentUserName, sscTechPhone: formatDisplayPhone(staffProfile?.phone || ''), sscNote: actionText, sscAttachments: finalUrls, status: 'pending' };
-      } else if (type === 'cancel') {
-        updateData = { status: 'cancelled', cancelReason: actionText, completedAt: serverTimestamp() };
-      } else if (type === 'accept') {
-        const log = { type: 'accepted', timestamp: sysTime.toISOString(), by: selectedTech || currentUserName };
-        updateData = { status: 'in_progress', acceptedAt: log.timestamp, startedAt: sysTime.toISOString(), historyLog: [...(ticket.historyLog || []), log], techName: selectedTech || currentUserName, techPhone: technicianList.find(x => x.name === (selectedTech || currentUserName))?.phone || '-' };
-        pushStatusLine = "ACCEPTED";
-      } else if (type === 'finish') {
-        updateData = { status: 'completed', cause: actionText, completedAt: sysTime.toISOString(), finishAttachments: finalUrls, helpers: selectedHelpers };
-        pushStatusLine = "COMPLETED";
-      }
-      
-      await updateDoc(doc(db, "tickets", ticket.dbId), {
-        ...updateData,
-        updatedAt: serverTimestamp(),
-        updatedByUid: user?.uid || null,
-        updatedByEmail: normalizeEmail(user?.email),
-      });
+        setActionModal({
+          isOpen: false,
+          ticketId: null,
+          type: null
+        });
 
-      if (pushStatusLine) {
-        const APPS_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbxBoB_e637WkWMeSuX9NP3BSKcSiE8J3dSXmlzNV9aeiq6DRUvn81bSp6w-B0nzCVA5/exec"; 
-        
-        fetch(APPS_SCRIPT_URL, {
-          method: 'POST',
-          mode: 'no-cors',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            ticketId: ticket.id,
-            equipment: ticket.equipment,
-            description: ticket.description,
-            reporter: ticket.reporter,
-            phone: ticket.reporterContact,
-            primaryTech: updateData.techName || ticket.techName,
-            building: ticket.building,
-            room: ticket.room,
-            status: pushStatusLine
-          })
-        }).catch(e => console.error("LINE Notify Update Error:", e));
-      }
-      
-      setActionModal({ isOpen: false, ticketId: null, type: null });
-      setActionText('');
-      setActionAttachments([]);
-      setSelectedHelpers([]);
-      setHelperSearch('');
-    } catch (e) { 
-      console.error(e); 
-      alert("เกิดข้อผิดพลาดในการอัปเดตข้อมูล: " + e.message); 
-    }
-  };
-
-  const submitRating = async () => {
-    if (ratingModal.rating === 0) {
-      alert("⚠️ กรุณาให้คะแนนอย่างน้อย 1 ดาวครับ");
-      return;
-    }
-
-    try {
-      const target = tickets.find((ticket) => ticket.id === ratingModal.ticketId);
-      if (!target || !target.dbId) return;
-
-      // ผู้ประเมินต้องเป็นเจ้าของ Ticket ตาม Firebase UID เท่านั้น
-      if (!isTicketOwnedByCurrentUser(target)) {
-        alert('❌ คุณไม่มีสิทธิ์ประเมินงานรายการนี้');
-        setRatingModal({ isOpen: false, ticketId: null, rating: 0, comment: '', techName: '', techPhotoUrl: '', tags: [] });
         return;
       }
 
-      await updateDoc(doc(db, "tickets", target.dbId), {
-        status: 'verified',
-        rating: ratingModal.rating,
-        ratingTags: ratingModal.tags || [],
-        ratingComment: ratingModal.comment,
-        verifiedAt: serverTimestamp(),
-        verifiedByUid: user.uid,
-        verifiedByEmail: normalizeEmail(user.email),
-        updatedAt: serverTimestamp(),
-      });
+      try {
+        let finalUrls = [];
 
-      setRatingModal({ isOpen: false, ticketId: null, rating: 0, comment: '', techName: '', techPhotoUrl: '', tags: [] });
-    } catch (error) {
-      console.error(error);
-      alert("❌ เกิดข้อผิดพลาดในการบันทึกคะแนน");
-    }
-  };
+        if (
+          actionAttachments &&
+          actionAttachments.length > 0
+        ) {
+          for (
+            let fileStr of
+            actionAttachments
+          ) {
+            if (
+              typeof fileStr ===
+                'string' &&
+              fileStr.startsWith(
+                'data:image'
+              )
+            ) {
+              const response =
+                await fetch(fileStr);
 
-  const permittedTickets = useMemo(() => {
-    return tickets.filter((ticket) => {
-      if (currentUserRole === 'Commander' || currentUserRole === 'Admin') {
-        return true;
+              const blob =
+                await response.blob();
+
+              const fileRef = ref(
+                storage,
+                `gse_actions/${Date.now()}_${Math.random().toString(36).substring(7)}.jpg`
+              );
+
+              const snapshot =
+                await uploadBytes(
+                  fileRef,
+                  blob
+                );
+
+              const downloadUrl =
+                await getDownloadURL(
+                  snapshot.ref
+                );
+
+              finalUrls.push(
+                downloadUrl
+              );
+
+            } else {
+              finalUrls.push(
+                fileStr
+              );
+            }
+          }
+        }
+
+        let updateData = {};
+        let pushStatusLine = "";
+
+        if (type === 'hold') {
+          const log = {
+            type: 'hold',
+            timestamp:
+              sysTime.toISOString(),
+            reason:
+              actionText ||
+              'รออะไหล่/อุปกรณ์',
+            attachments:
+              finalUrls
+          };
+
+          updateData = {
+            status: 'on_hold',
+            lastHoldAt:
+              log.timestamp,
+            historyLog: [
+              ...(ticket.historyLog || []),
+              log
+            ]
+          };
+
+        } else if (
+          type === 'resume'
+        ) {
+          const holdStart =
+            new Date(
+              ticket.lastHoldAt
+            ).getTime();
+
+          const pauseDurationMs =
+            sysTime.getTime() -
+            holdStart;
+
+          const log = {
+            type: 'resume',
+            timestamp:
+              sysTime.toISOString(),
+            reason:
+              actionText ||
+              'ได้รับอะไหล่/ดำเนินการต่อ',
+            attachments:
+              finalUrls
+          };
+
+          updateData = {
+            status:
+              'in_progress',
+
+            totalPauseMs:
+              (ticket.totalPauseMs || 0) +
+              pauseDurationMs,
+
+            historyLog: [
+              ...(ticket.historyLog || []),
+              log
+            ]
+          };
+
+        } else if (
+          type === 'ssc'
+        ) {
+          updateData = {
+            sscTechName:
+              currentUserName,
+
+            sscTechPhone:
+              formatDisplayPhone(
+                staffProfile?.phone ||
+                ''
+              ),
+
+            sscNote:
+              actionText,
+
+            sscAttachments:
+              finalUrls,
+
+            status:
+              'pending'
+          };
+
+        } else if (
+          type === 'cancel'
+        ) {
+          updateData = {
+            status:
+              'cancelled',
+
+            cancelReason:
+              actionText,
+
+            completedAt:
+              serverTimestamp()
+          };
+
+        } else if (
+          type === 'accept'
+        ) {
+          const log = {
+            type: 'accepted',
+            timestamp:
+              sysTime.toISOString(),
+            by:
+              selectedTech ||
+              currentUserName
+          };
+
+          updateData = {
+            status:
+              'in_progress',
+
+            acceptedAt:
+              log.timestamp,
+
+            startedAt:
+              sysTime.toISOString(),
+
+            historyLog: [
+              ...(ticket.historyLog || []),
+              log
+            ],
+
+            techName:
+              selectedTech ||
+              currentUserName,
+
+            techPhone:
+              technicianList.find(
+                x =>
+                  x.name ===
+                  (
+                    selectedTech ||
+                    currentUserName
+                  )
+              )?.phone || '-'
+          };
+
+          pushStatusLine =
+            "ACCEPTED";
+
+        } else if (
+          type === 'finish'
+        ) {
+          updateData = {
+            status:
+              'completed',
+
+            cause:
+              actionText,
+
+            completedAt:
+              sysTime.toISOString(),
+
+            finishAttachments:
+              finalUrls,
+
+            helpers:
+              selectedHelpers
+          };
+
+          pushStatusLine =
+            "COMPLETED";
+        }
+
+        await updateDoc(
+          doc(
+            db,
+            "tickets",
+            ticket.dbId
+          ),
+          {
+            ...updateData,
+
+            updatedAt:
+              serverTimestamp(),
+
+            updatedByUid:
+              user?.uid ||
+              null,
+
+            updatedByEmail:
+              normalizeEmail(
+                user?.email
+              ),
+          }
+        );
+
+        if (pushStatusLine) {
+          const APPS_SCRIPT_URL =
+            "https://script.google.com/macros/s/AKfycbxBoB_e637WkWMeSuX9NP3BSKcSiE8J3dSXmlzNV9aeiq6DRUvn81bSp6w-B0nzCVA5/exec";
+
+          fetch(
+            APPS_SCRIPT_URL,
+            {
+              method: 'POST',
+
+              mode:
+                'no-cors',
+
+              headers: {
+                'Content-Type':
+                  'application/json'
+              },
+
+              body:
+                JSON.stringify({
+                  ticketId:
+                    ticket.id,
+
+                  equipment:
+                    ticket.equipment,
+
+                  description:
+                    ticket.description,
+
+                  reporter:
+                    ticket.reporter,
+
+                  phone:
+                    ticket.reporterContact,
+
+                  primaryTech:
+                    updateData.techName ||
+                    ticket.techName,
+
+                  building:
+                    ticket.building,
+
+                  room:
+                    ticket.room,
+
+                  status:
+                    pushStatusLine
+                })
+            }
+          ).catch(e =>
+            console.error(
+              "LINE Notify Update Error:",
+              e
+            )
+          );
+        }
+
+        setActionModal({
+          isOpen: false,
+          ticketId: null,
+          type: null
+        });
+
+        setActionText('');
+        setActionAttachments([]);
+        setSelectedHelpers([]);
+        setHelperSearch('');
+
+      } catch (e) {
+        console.error(e);
+
+        alert(
+          "เกิดข้อผิดพลาดในการอัปเดตข้อมูล: " +
+          e.message
+        );
+      }
+    };
+
+  const submitRating =
+    async () => {
+      if (
+        ratingModal.rating === 0
+      ) {
+        alert(
+          "⚠️ กรุณาให้คะแนนอย่างน้อย 1 ดาวครับ"
+        );
+
+        return;
       }
 
-      if (currentUserRole === 'reporter') {
-        return isTicketOwnedByCurrentUser(ticket);
-      }
+      try {
+        const target =
+          tickets.find(
+            (ticket) =>
+              ticket.id ===
+              ratingModal.ticketId
+          );
 
-      if (currentUserRole !== 'Technician') {
-        return false;
-      }
+        if (
+          !target ||
+          !target.dbId
+        ) {
+          return;
+        }
 
-      const todayStr = sysTime.toISOString().split('T')[0];
-      const todayDuty = allRosters.find((roster) => roster.date === todayStr);
-      const isSSCToday = todayDuty && todayDuty.techName === currentUserName;
-      const isPrimary = ticket.techName === currentUserName;
-      const isSSCActed = ticket.sscTechName === currentUserName;
-      const isMyReport = isTicketOwnedByCurrentUser(ticket);
-      const isPendingForSSC = isSSCToday && (
-        ticket.status === 'pending' ||
-        ticket.status === 'รอช่างเข้าดำเนินการ'
+        if (
+          !isTicketOwnedByCurrentUser(
+            target
+          )
+        ) {
+          alert(
+            '❌ คุณไม่มีสิทธิ์ประเมินงานรายการนี้'
+          );
+
+          setRatingModal({
+            isOpen: false,
+            ticketId: null,
+            rating: 0,
+            comment: '',
+            techName: '',
+            techPhotoUrl: '',
+            tags: []
+          });
+
+          return;
+        }
+
+        await updateDoc(
+          doc(
+            db,
+            "tickets",
+            target.dbId
+          ),
+          {
+            status:
+              'verified',
+
+            rating:
+              ratingModal.rating,
+
+            ratingTags:
+              ratingModal.tags || [],
+
+            ratingComment:
+              ratingModal.comment,
+
+            verifiedAt:
+              serverTimestamp(),
+
+            verifiedByUid:
+              user.uid,
+
+            verifiedByEmail:
+              normalizeEmail(
+                user.email
+              ),
+
+            updatedAt:
+              serverTimestamp(),
+          }
+        );
+
+        setRatingModal({
+          isOpen: false,
+          ticketId: null,
+          rating: 0,
+          comment: '',
+          techName: '',
+          techPhotoUrl: '',
+          tags: []
+        });
+
+      } catch (error) {
+        console.error(error);
+
+        alert(
+          "❌ เกิดข้อผิดพลาดในการบันทึกคะแนน"
+        );
+      }
+    };
+
+  const permittedTickets =
+    useMemo(() => {
+      return tickets.filter(
+        (ticket) => {
+          if (
+            currentUserRole ===
+              'Commander' ||
+            currentUserRole ===
+              'Admin'
+          ) {
+            return true;
+          }
+
+          if (
+            currentUserRole ===
+            'reporter'
+          ) {
+            return isTicketOwnedByCurrentUser(
+              ticket
+            );
+          }
+
+          if (
+            currentUserRole !==
+            'Technician'
+          ) {
+            return false;
+          }
+
+          const todayStr =
+            sysTime.toISOString()
+              .split('T')[0];
+
+          const todayDuty =
+            allRosters.find(
+              (roster) =>
+                roster.date ===
+                todayStr
+            );
+
+          const isSSCToday =
+            todayDuty &&
+            todayDuty.techName ===
+              currentUserName;
+
+          const isPrimary =
+            ticket.techName ===
+              currentUserName;
+
+          const isSSCActed =
+            ticket.sscTechName ===
+              currentUserName;
+
+          const isMyReport =
+            isTicketOwnedByCurrentUser(
+              ticket
+            );
+
+          const isPendingForSSC =
+            isSSCToday &&
+            (
+              ticket.status ===
+                'pending' ||
+              ticket.status ===
+                'รอช่างเข้าดำเนินการ'
+            );
+
+          return (
+            isPrimary ||
+            isSSCActed ||
+            isMyReport ||
+            isPendingForSSC
+          );
+        }
+      );
+    }, [
+      tickets,
+      currentUserRole,
+      currentUserName,
+      allRosters,
+      sysTime,
+      user
+    ]);
+
+  const handleNavigateToTracking =
+    (status) => {
+      setActiveTab(
+        'tracking'
       );
 
-      return isPrimary || isSSCActed || isMyReport || isPendingForSSC;
-    });
-  }, [tickets, currentUserRole, currentUserName, allRosters, sysTime, user]);
+      setFilterStatus(
+        status
+      );
 
-  const handleNavigateToTracking = (status) => {
-    setActiveTab('tracking'); setFilterStatus(status); setSearchTerm('');
-    if (dashTimeframe === 'today') { setTrackTimeframe('custom_date'); const d = new Date(sysTime); setTrackDate(`${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`); }
-    else if (dashTimeframe === 'month') { setTrackTimeframe('custom_month'); const d = new Date(sysTime); setTrackMonth(`${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}`); }
-    else if (dashTimeframe === 'week') setTrackTimeframe('week');
-    else setTrackTimeframe('all');
-  };
+      setSearchTerm('');
 
-  const filteredTickets_forTracking = useMemo(() => {
-    return permittedTickets.filter((t) => {
-      const searchStr = String(searchTerm || '').toLowerCase();
-      if (searchStr && !String(t.equipment).toLowerCase().includes(searchStr) && !String(t.id).toLowerCase().includes(searchStr)) return false;
-      
-      if (filterStatus !== 'all') {
-        if (filterStatus === 'fixing') {
-          if (!['acknowledged', 'in_progress'].includes(t.status)) return false;
-        } else if (filterStatus === 'verify') {
-          if (!['completed', 'รอผู้รับผิดชอบยืนยัน'].includes(t.status)) return false;
-        } else if (filterStatus === 'completed') {
-          if (t.status !== 'verified') return false;
-        } else if (t.status !== filterStatus) {
-          return false;
-        }
+      if (
+        dashTimeframe ===
+        'today'
+      ) {
+        setTrackTimeframe(
+          'custom_date'
+        );
+
+        const d =
+          new Date(sysTime);
+
+        setTrackDate(
+          `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`
+        );
+
+      } else if (
+        dashTimeframe ===
+        'month'
+      ) {
+        setTrackTimeframe(
+          'custom_month'
+        );
+
+        const d =
+          new Date(sysTime);
+
+        setTrackMonth(
+          `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}`
+        );
+
+      } else if (
+        dashTimeframe ===
+        'week'
+      ) {
+        setTrackTimeframe(
+          'week'
+        );
+
+      } else {
+        setTrackTimeframe(
+          'all'
+        );
       }
-
-      if (!t.date) return false;
-      const tDateObj = new Date(t.date);
-      if (isNaN(tDateObj.getTime())) return true;
-
-      const tDateStr = tDateObj.toISOString().split('T')[0];
-      const tMonthStr = tDateStr.substring(0, 7);
-
-      if (trackTimeframe === 'custom_date' && trackDate) {
-        if (tDateStr !== trackDate) return false;
-      } else if (trackTimeframe === 'custom_month' && trackMonth) {
-        if (tMonthStr !== trackMonth) return false;
-      } else if (trackTimeframe === 'week') {
-        const diffTime = sysTime.getTime() - tDateObj.getTime();
-        const diffDays = diffTime / (1000 * 60 * 60 * 24); 
-        if (diffDays > 7 || diffDays < 0) return false;
-      }
-      return true;
-    });
-  }, [permittedTickets, searchTerm, filterStatus, trackTimeframe, trackDate, trackMonth, sysTime]);
-
-  const filteredTickets_forDashboard = useMemo(() => {
-    return permittedTickets.filter((t) => {
-      if (!t.date) return false;
-      const tDateObj = new Date(t.date);
-      if (isNaN(tDateObj.getTime())) return true;
-
-      const tDateStr = tDateObj.toISOString().split('T')[0];
-      const tMonthStr = tDateStr.substring(0, 7);
-
-      if (dashTimeframe === 'custom_date' && customDate) {
-        if (tDateStr !== customDate) return false;
-      } else if (dashTimeframe === 'custom' && customMonth) {
-        if (tMonthStr !== customMonth) return false;
-      } else if (dashTimeframe === 'today') {
-        const todayStr = new Date(sysTime).toISOString().split('T')[0];
-        if (tDateStr !== todayStr) return false;
-      } else if (dashTimeframe === 'week') {
-        const now = new Date(sysTime);
-        const day = now.getDay();
-        const diffToMonday = day === 0 ? -6 : 1 - day;
-        const firstDay = new Date(now);
-        firstDay.setDate(now.getDate() + diffToMonday);
-        firstDay.setHours(0, 0, 0, 0);
-        const lastDay = new Date(firstDay);
-        lastDay.setDate(firstDay.getDate() + 6);
-        lastDay.setHours(23, 59, 59, 999);
-        if (tDateObj < firstDay || tDateObj > lastDay) return false;
-      } else if (dashTimeframe === 'month') {
-        const thisMonthStr = new Date(sysTime).toISOString().substring(0, 7);
-        if (tMonthStr !== thisMonthStr) return false;
-      }
-      return true;
-    });
-  }, [permittedTickets, dashTimeframe, customDate, customMonth, sysTime]);
-
-  const dashStats = useMemo(() => {
-    return {
-      total: filteredTickets_forDashboard.length,
-      pending: filteredTickets_forDashboard.filter(t => t.status === 'pending').length,
-      fixing: filteredTickets_forDashboard.filter(t => ['acknowledged', 'in_progress', 'on_hold'].includes(t.status)).length,
-      cancelled: filteredTickets_forDashboard.filter(t => t.status === 'cancelled').length,
-      done: filteredTickets_forDashboard.filter(t => ['completed', 'verified'].includes(t.status)).length,
     };
-  }, [filteredTickets_forDashboard]);
+
+  const filteredTickets_forTracking =
+    useMemo(() => {
+      return permittedTickets.filter(
+        (t) => {
+          const searchStr =
+            String(
+              searchTerm ||
+              ''
+            ).toLowerCase();
+
+          if (
+            searchStr &&
+            !String(
+              t.equipment
+            ).toLowerCase()
+              .includes(searchStr) &&
+            !String(
+              t.id
+            ).toLowerCase()
+              .includes(searchStr)
+          ) {
+            return false;
+          }
+
+          if (
+            filterStatus !==
+            'all'
+          ) {
+            if (
+              filterStatus ===
+              'fixing'
+            ) {
+              if (
+                ![
+                  'acknowledged',
+                  'in_progress'
+                ].includes(
+                  t.status
+                )
+              ) {
+                return false;
+              }
+
+            } else if (
+              filterStatus ===
+              'verify'
+            ) {
+              if (
+                ![
+                  'completed',
+                  'รอผู้รับผิดชอบยืนยัน'
+                ].includes(
+                  t.status
+                )
+              ) {
+                return false;
+              }
+
+            } else if (
+              filterStatus ===
+              'completed'
+            ) {
+              if (
+                t.status !==
+                'verified'
+              ) {
+                return false;
+              }
+
+            } else if (
+              t.status !==
+              filterStatus
+            ) {
+              return false;
+            }
+          }
+
+          if (!t.date) {
+            return false;
+          }
+
+          const tDateObj =
+            new Date(t.date);
+
+          if (
+            isNaN(
+              tDateObj.getTime()
+            )
+          ) {
+            return true;
+          }
+
+          const tDateStr =
+            tDateObj
+              .toISOString()
+              .split('T')[0];
+
+          const tMonthStr =
+            tDateStr.substring(
+              0,
+              7
+            );
+
+          if (
+            trackTimeframe ===
+              'custom_date' &&
+            trackDate
+          ) {
+            if (
+              tDateStr !==
+              trackDate
+            ) {
+              return false;
+            }
+
+          } else if (
+            trackTimeframe ===
+              'custom_month' &&
+            trackMonth
+          ) {
+            if (
+              tMonthStr !==
+              trackMonth
+            ) {
+              return false;
+            }
+
+          } else if (
+            trackTimeframe ===
+            'week'
+          ) {
+            const diffTime =
+              sysTime.getTime() -
+              tDateObj.getTime();
+
+            const diffDays =
+              diffTime /
+              (
+                1000 *
+                60 *
+                60 *
+                24
+              );
+
+            if (
+              diffDays > 7 ||
+              diffDays < 0
+            ) {
+              return false;
+            }
+          }
+
+          return true;
+        }
+      );
+    }, [
+      permittedTickets,
+      searchTerm,
+      filterStatus,
+      trackTimeframe,
+      trackDate,
+      trackMonth,
+      sysTime
+    ]);
+
+  const filteredTickets_forDashboard =
+    useMemo(() => {
+      return permittedTickets.filter(
+        (t) => {
+          if (!t.date) {
+            return false;
+          }
+
+          const tDateObj =
+            new Date(
+              t.date
+            );
+
+          if (
+            isNaN(
+              tDateObj.getTime()
+            )
+          ) {
+            return true;
+          }
+
+          const tDateStr =
+            tDateObj
+              .toISOString()
+              .split('T')[0];
+
+          const tMonthStr =
+            tDateStr.substring(
+              0,
+              7
+            );
+
+          if (
+            dashTimeframe ===
+              'custom_date' &&
+            customDate
+          ) {
+            if (
+              tDateStr !==
+              customDate
+            ) {
+              return false;
+            }
+
+          } else if (
+            dashTimeframe ===
+              'custom' &&
+            customMonth
+          ) {
+            if (
+              tMonthStr !==
+              customMonth
+            ) {
+              return false;
+            }
+
+          } else if (
+            dashTimeframe ===
+            'today'
+          ) {
+            const todayStr =
+              new Date(
+                sysTime
+              )
+                .toISOString()
+                .split('T')[0];
+
+            if (
+              tDateStr !==
+              todayStr
+            ) {
+              return false;
+            }
+
+          } else if (
+            dashTimeframe ===
+            'week'
+          ) {
+            const now =
+              new Date(
+                sysTime
+              );
+
+            const day =
+              now.getDay();
+
+            const diffToMonday =
+              day === 0
+                ? -6
+                : 1 - day;
+
+            const firstDay =
+              new Date(now);
+
+            firstDay.setDate(
+              now.getDate() +
+              diffToMonday
+            );
+
+            firstDay.setHours(
+              0,
+              0,
+              0,
+              0
+            );
+
+            const lastDay =
+              new Date(
+                firstDay
+              );
+
+            lastDay.setDate(
+              firstDay.getDate() +
+              6
+            );
+
+            lastDay.setHours(
+              23,
+              59,
+              59,
+              999
+            );
+
+            if (
+              tDateObj <
+                firstDay ||
+              tDateObj >
+                lastDay
+            ) {
+              return false;
+            }
+
+          } else if (
+            dashTimeframe ===
+            'month'
+          ) {
+            const thisMonthStr =
+              new Date(
+                sysTime
+              )
+                .toISOString()
+                .substring(
+                  0,
+                  7
+                );
+
+            if (
+              tMonthStr !==
+              thisMonthStr
+            ) {
+              return false;
+            }
+          }
+
+          return true;
+        }
+      );
+    }, [
+      permittedTickets,
+      dashTimeframe,
+      customDate,
+      customMonth,
+      sysTime
+    ]);
+
+  const dashStats =
+    useMemo(() => {
+      return {
+        total:
+          filteredTickets_forDashboard.length,
+
+        pending:
+          filteredTickets_forDashboard
+            .filter(
+              t =>
+                t.status ===
+                'pending'
+            ).length,
+
+        fixing:
+          filteredTickets_forDashboard
+            .filter(
+              t =>
+                [
+                  'acknowledged',
+                  'in_progress',
+                  'on_hold'
+                ].includes(
+                  t.status
+                )
+            ).length,
+
+        cancelled:
+          filteredTickets_forDashboard
+            .filter(
+              t =>
+                t.status ===
+                'cancelled'
+            ).length,
+
+        done:
+          filteredTickets_forDashboard
+            .filter(
+              t =>
+                [
+                  'completed',
+                  'verified'
+                ].includes(
+                  t.status
+                )
+            ).length,
+      };
+    }, [
+      filteredTickets_forDashboard
+    ]);
 
   const handleMainScroll = (e) => {
-    const currentScrollY = e.target.scrollTop;
-    if (currentScrollY > lastScrollY.current && currentScrollY > 20) setIsNavVisible(false);
-    else setIsNavVisible(true);
-    lastScrollY.current = currentScrollY;
+    const currentScrollY =
+      e.target.scrollTop;
+
+    if (
+      currentScrollY >
+        lastScrollY.current &&
+      currentScrollY > 20
+    ) {
+      setIsNavVisible(false);
+    } else {
+      setIsNavVisible(true);
+    }
+
+    lastScrollY.current =
+      currentScrollY;
   };
 
   if (!identityReady) {
     return (
       <div className="fixed inset-0 bg-slate-950 text-slate-300 flex flex-col items-center justify-center gap-4">
-        <Loader2 size={52} className="animate-spin text-cyan-400" />
-        <div className="font-bold tracking-wider">กำลังตรวจสอบสิทธิ์ผู้ใช้งาน...</div>
+        <Loader2
+          size={52}
+          className="animate-spin text-cyan-400"
+        />
+        <div className="font-bold tracking-wider">
+          กำลังตรวจสอบสิทธิ์ผู้ใช้งาน...
+        </div>
       </div>
     );
   }
 
-  if (identityError || !currentUserRole || !user) {
+  if (
+    identityError ||
+    !currentUserRole ||
+    !user
+  ) {
     return (
       <div className="fixed inset-0 bg-slate-950 text-white flex flex-col items-center justify-center p-6 text-center">
-        <ShieldAlert size={64} className="text-rose-500 mb-5" />
-        <h2 className="text-2xl font-black">ไม่พบสิทธิ์การใช้งานที่ถูกต้อง</h2>
-        <p className="text-slate-400 mt-2 text-sm">กรุณาเข้าสู่ระบบใหม่ หรือติดต่อผู้ดูแลระบบ</p>
+        <ShieldAlert
+          size={64}
+          className="text-rose-500 mb-5"
+        />
+
+        <h2 className="text-2xl font-black">
+          ไม่พบสิทธิ์การใช้งานที่ถูกต้อง
+        </h2>
+
+        <p className="text-slate-400 mt-2 text-sm">
+          กรุณาเข้าสู่ระบบใหม่ หรือติดต่อผู้ดูแลระบบ
+        </p>
+
         <button
           onClick={onGoHome}
           className="mt-7 px-8 py-3 rounded-xl bg-cyan-600 hover:bg-cyan-500 font-black active:scale-95 transition-all"
@@ -1120,320 +2479,1075 @@ export default function MainApp({ onGoHome, initialRole }) {
 
   return (
     <div className="fixed inset-0 w-full h-[100dvh] bg-slate-900 flex justify-center overflow-hidden">
-      <div className="absolute inset-0 z-0 bg-cover bg-center bg-no-repeat opacity-40 pointer-events-none" style={{ backgroundImage: "url('/bg-earth-new.webp')" }}></div>
-      <div className={`relative z-10 flex flex-col h-[100dvh] w-full max-w-md md:max-w-5xl backdrop-blur-md overflow-hidden text-slate-100 font-sans select-none bg-slate-900/40 border-x border-solid transition-all duration-1000 ${
-        activeTab === 'dashboard' ? 'shadow-[0_0_60px_-5px_rgba(249,115,22,1)] border-orange-500/50' :
-        activeTab === 'report' ? 'shadow-[0_0_60px_-5px_rgba(16,185,129,1)] border-emerald-500/50' :
-        activeTab === 'pm' ? 'shadow-[0_0_60px_-5px_rgba(16,185,129,1)] border-emerald-500/50' : 
-        activeTab === 'inventory' ? 'shadow-[0_0_60px_-5px_rgba(99,102,241,1)] border-indigo-500/50' :
-        (activeTab === 'tracking' && currentUserRole !== 'reporter' ? 'shadow-[0_0_60px_-5px_rgba(6,182,212,1)] border-cyan-500/50' :
-        'shadow-[0_0_60px_-5px_rgba(244,63,94,1)] border-rose-500/50')
-      }`}>
 
-        {/* 🌟 กำหนดหัวหน้าต่าง Header สำหรับทุกหน้า 🌟 */}
+      <div
+        className="absolute inset-0 z-0 bg-cover bg-center bg-no-repeat opacity-40 pointer-events-none"
+        style={{
+          backgroundImage:
+            "url('/bg-earth-new.webp')"
+        }}
+      />
+
+      <div
+        className={`relative z-10 flex flex-col h-[100dvh] w-full max-w-md md:max-w-5xl backdrop-blur-md overflow-hidden text-slate-100 font-sans select-none bg-slate-900/40 border-x border-solid transition-all duration-1000 ${
+          activeTab === 'dashboard'
+            ? 'shadow-[0_0_60px_-5px_rgba(249,115,22,1)] border-orange-500/50'
+            : activeTab === 'report'
+            ? 'shadow-[0_0_60px_-5px_rgba(16,185,129,1)] border-emerald-500/50'
+            : activeTab === 'pm'
+            ? 'shadow-[0_0_60px_-5px_rgba(16,185,129,1)] border-emerald-500/50'
+            : activeTab === 'inventory'
+            ? 'shadow-[0_0_60px_-5px_rgba(99,102,241,1)] border-indigo-500/50'
+            : (
+              activeTab ===
+                'tracking' &&
+              currentUserRole !==
+                'reporter'
+            )
+            ? 'shadow-[0_0_60px_-5px_rgba(6,182,212,1)] border-cyan-500/50'
+            : 'shadow-[0_0_60px_-5px_rgba(244,63,94,1)] border-rose-500/50'
+        }`}
+      >
+
         {activeTab === 'hub' && isStaffUser ? (
           <div className="sticky top-4 w-[calc(100%-2rem)] md:w-[calc(100%-3rem)] md:max-w-[976px] mx-auto bg-slate-900/95 backdrop-blur-xl border-2 md:border-[3px] border-solid border-cyan-500 rounded-2xl md:rounded-[1.2rem] py-4 md:py-6 px-6 shadow-[0_10px_30px_rgba(6,182,212,0.3)] mt-4 md:mt-3 mb-2 flex flex-col items-center justify-center relative overflow-hidden group transition-all duration-500 z-50 shrink-0">
-            <div className="absolute -top-10 -left-10 w-32 h-32 bg-cyan-500/20 blur-[50px] rounded-full pointer-events-none group-hover:bg-cyan-400/30 transition-all"></div>
-            <div className="absolute -bottom-10 -right-10 w-32 h-32 bg-blue-500/20 blur-[50px] rounded-full pointer-events-none group-hover:bg-blue-400/30 transition-all"></div>
-            <h1 className="text-[24px] md:text-[36px] font-black text-transparent bg-clip-text bg-gradient-to-r from-cyan-300 via-cyan-400 to-blue-500 tracking-widest drop-shadow-[0_0_15px_rgba(6,182,212,0.8)] relative z-10 text-center leading-tight mb-2">ศูนย์ปฏิบัติการ ฝวด.</h1>
+
+            <div className="absolute -top-10 -left-10 w-32 h-32 bg-cyan-500/20 blur-[50px] rounded-full pointer-events-none group-hover:bg-cyan-400/30 transition-all" />
+
+            <div className="absolute -bottom-10 -right-10 w-32 h-32 bg-blue-500/20 blur-[50px] rounded-full pointer-events-none group-hover:bg-blue-400/30 transition-all" />
+
+            <h1 className="text-[24px] md:text-[36px] font-black text-transparent bg-clip-text bg-gradient-to-r from-cyan-300 via-cyan-400 to-blue-500 tracking-widest drop-shadow-[0_0_15px_rgba(6,182,212,0.8)] relative z-10 text-center leading-tight mb-2">
+              ศูนย์ปฏิบัติการ ฝวด.
+            </h1>
+
             <div className="flex items-center justify-center gap-4 w-full relative z-10">
-              <div className="h-[2px] w-12 md:w-24 bg-gradient-to-r from-transparent to-cyan-500/50 rounded-full"></div>
-              <span className="text-slate-400 text-[11px] md:text-[13px] font-black tracking-[0.2em] uppercase">GSE Operations Hub</span>
-              <div className="h-[2px] w-12 md:w-24 bg-gradient-to-l from-transparent to-cyan-500/50 rounded-full"></div>
+              <div className="h-[2px] w-12 md:w-24 bg-gradient-to-r from-transparent to-cyan-500/50 rounded-full" />
+
+              <span className="text-slate-400 text-[11px] md:text-[13px] font-black tracking-[0.2em] uppercase">
+                GSE Operations Hub
+              </span>
+
+              <div className="h-[2px] w-12 md:w-24 bg-gradient-to-l from-transparent to-cyan-500/50 rounded-full" />
             </div>
           </div>
         ) : (() => {
-          const getHeaderProps = (tab, role) => {
-            switch(tab) {
-              case 'dashboard': return { title: 'แผงควบคุมหลัก', sub: 'MAIN DASHBOARD', icon: <LayoutDashboard className="w-8 h-8 md:w-6 md:h-6" strokeWidth={2.5}/>, border: 'border-orange-500', bgIcon: 'text-orange-500 border-orange-300', glow: 'shadow-[0_0_20px_rgba(249,115,22,0.4)]', text: 'text-orange-400' };
-              case 'report': return { title: 'แจ้งซ่อมระบบ/อุปกรณ์', sub: 'MAINTENANCE REQUEST', icon: <PlusCircle className="w-8 h-8 md:w-6 md:h-6" strokeWidth={2.5}/>, border: 'border-emerald-500', bgIcon: 'text-emerald-500 border-emerald-300', glow: 'shadow-[0_0_20px_rgba(16,185,129,0.4)]', text: 'text-emerald-400' };
-              case 'daily_report': return { title: 'รายงานผลปฏิบัติงาน', sub: 'DAILY REPORT', icon: <FileText className="w-8 h-8 md:w-6 md:h-6" strokeWidth={2.5}/>, border: 'border-purple-500', bgIcon: 'text-purple-500 border-purple-300', glow: 'shadow-[0_0_20px_rgba(168,85,247,0.4)]', text: 'text-purple-400' };
-              case 'pm': return { title: 'มอบหมาย/ติดตามงาน', sub: 'TASK BOARD', icon: <ClipboardList className="w-8 h-8 md:w-6 md:h-6" strokeWidth={2.5}/>, border: 'border-emerald-500', bgIcon: 'text-emerald-500 border-emerald-300', glow: 'shadow-[0_0_20px_rgba(16,185,129,0.4)]', text: 'text-emerald-400' };
-              case 'leave': return { title: 'ระบบลงเวลาและวันลา', sub: 'ATTENDANCE & LEAVE', icon: <Calendar className="w-8 h-8 md:w-6 md:h-6" strokeWidth={2.5}/>, border: 'border-rose-500', bgIcon: 'text-rose-500 border-rose-300', glow: 'shadow-[0_0_20px_rgba(244,63,94,0.4)]', text: 'text-rose-400' };
-              case 'monitoring': return { title: 'ศูนย์มอนิเตอร์สถานะ UPS', sub: 'POWER MONITORING', icon: <Activity className="w-8 h-8 md:w-6 md:h-6" strokeWidth={2.5}/>, border: 'border-yellow-500', bgIcon: 'text-yellow-500 border-yellow-300', glow: 'shadow-[0_0_20px_rgba(234,179,8,0.4)]', text: 'text-yellow-400' };
-              case 'satellite': return { title: 'สถานะสัญญาณดาวเทียม', sub: 'SATELLITE SIGNALS', icon: <Globe className="w-8 h-8 md:w-6 h-6" strokeWidth={2.5}/>, border: 'border-indigo-500', bgIcon: 'text-indigo-500 border-indigo-300', glow: 'shadow-[0_0_20px_rgba(99,102,241,0.4)]', text: 'text-indigo-400' };
-              case 'inventory': return { title: 'บริหารจัดการครุภัณฑ์', sub: 'ASSET & INVENTORY MATRIX', icon: <Package className="w-8 h-8 md:w-6 md:h-6" strokeWidth={2.5}/>, border: 'border-indigo-500', bgIcon: 'text-indigo-500 border-indigo-300', glow: 'shadow-[0_0_20px_rgba(99,102,241,0.4)]', text: 'text-indigo-400' };
-              case 'tracking': 
-              case 'manage': return { title: role !== 'reporter' ? 'จัดการงานซ่อม' : 'ติดตามสถานะ', sub: 'TICKET TRACKING', icon: role !== 'reporter' ? <Wrench className="w-8 h-8 md:w-6 md:h-6" strokeWidth={2.5}/> : <ClipboardCheck className="w-8 h-8 md:w-6 md:h-6" strokeWidth={2.5}/>, border: 'border-blue-500', bgIcon: 'text-blue-500 border-blue-300', glow: 'shadow-[0_0_20px_rgba(59,130,246,0.4)]', text: 'text-blue-400' };
-              default: return { title: 'ศูนย์ปฏิบัติการ', sub: 'OPERATIONS', icon: <Monitor className="w-8 h-8 md:w-6 md:h-6" strokeWidth={2.5}/>, border: 'border-slate-500', bgIcon: 'text-slate-500 border-slate-300', glow: 'shadow-[0_0_20px_rgba(255,255,255,0.1)]', text: 'text-slate-400' };
+
+          const getHeaderProps = (
+            tab,
+            role
+          ) => {
+            switch (tab) {
+              case 'dashboard':
+                return {
+                  title:
+                    'แผงควบคุมหลัก',
+                  sub:
+                    'MAIN DASHBOARD',
+                  icon:
+                    <LayoutDashboard
+                      className="w-8 h-8 md:w-6 md:h-6"
+                      strokeWidth={2.5}
+                    />,
+                  border:
+                    'border-orange-500',
+                  bgIcon:
+                    'text-orange-500 border-orange-300',
+                  glow:
+                    'shadow-[0_0_20px_rgba(249,115,22,0.4)]',
+                  text:
+                    'text-orange-400'
+                };
+
+              case 'report':
+                return {
+                  title:
+                    'แจ้งซ่อมระบบ/อุปกรณ์',
+                  sub:
+                    'MAINTENANCE REQUEST',
+                  icon:
+                    <PlusCircle
+                      className="w-8 h-8 md:w-6 md:h-6"
+                      strokeWidth={2.5}
+                    />,
+                  border:
+                    'border-emerald-500',
+                  bgIcon:
+                    'text-emerald-500 border-emerald-300',
+                  glow:
+                    'shadow-[0_0_20px_rgba(16,185,129,0.4)]',
+                  text:
+                    'text-emerald-400'
+                };
+
+              case 'daily_report':
+                return {
+                  title:
+                    'รายงานผลปฏิบัติงาน',
+                  sub:
+                    'DAILY REPORT',
+                  icon:
+                    <FileText
+                      className="w-8 h-8 md:w-6 md:h-6"
+                      strokeWidth={2.5}
+                    />,
+                  border:
+                    'border-purple-500',
+                  bgIcon:
+                    'text-purple-500 border-purple-300',
+                  glow:
+                    'shadow-[0_0_20px_rgba(168,85,247,0.4)]',
+                  text:
+                    'text-purple-400'
+                };
+
+              case 'pm':
+                return {
+                  title:
+                    'มอบหมาย/ติดตามงาน',
+                  sub:
+                    'TASK BOARD',
+                  icon:
+                    <ClipboardList
+                      className="w-8 h-8 md:w-6 md:h-6"
+                      strokeWidth={2.5}
+                    />,
+                  border:
+                    'border-emerald-500',
+                  bgIcon:
+                    'text-emerald-500 border-emerald-300',
+                  glow:
+                    'shadow-[0_0_20px_rgba(16,185,129,0.4)]',
+                  text:
+                    'text-emerald-400'
+                };
+
+              case 'leave':
+                return {
+                  title:
+                    'ระบบลงเวลาและวันลา',
+                  sub:
+                    'ATTENDANCE & LEAVE',
+                  icon:
+                    <Calendar
+                      className="w-8 h-8 md:w-6 md:h-6"
+                      strokeWidth={2.5}
+                    />,
+                  border:
+                    'border-rose-500',
+                  bgIcon:
+                    'text-rose-500 border-rose-300',
+                  glow:
+                    'shadow-[0_0_20px_rgba(244,63,94,0.4)]',
+                  text:
+                    'text-rose-400'
+                };
+
+              case 'monitoring':
+                return {
+                  title:
+                    'ศูนย์มอนิเตอร์สถานะ UPS',
+                  sub:
+                    'POWER MONITORING',
+                  icon:
+                    <Activity
+                      className="w-8 h-8 md:w-6 md:h-6"
+                      strokeWidth={2.5}
+                    />,
+                  border:
+                    'border-yellow-500',
+                  bgIcon:
+                    'text-yellow-500 border-yellow-300',
+                  glow:
+                    'shadow-[0_0_20px_rgba(234,179,8,0.4)]',
+                  text:
+                    'text-yellow-400'
+                };
+
+              case 'satellite':
+                return {
+                  title:
+                    'สถานะสัญญาณดาวเทียม',
+                  sub:
+                    'SATELLITE SIGNALS',
+                  icon:
+                    <Globe
+                      className="w-8 h-8 md:w-6 h-6"
+                      strokeWidth={2.5}
+                    />,
+                  border:
+                    'border-indigo-500',
+                  bgIcon:
+                    'text-indigo-500 border-indigo-300',
+                  glow:
+                    'shadow-[0_0_20px_rgba(99,102,241,0.4)]',
+                  text:
+                    'text-indigo-400'
+                };
+
+              case 'inventory':
+                return {
+                  title:
+                    'บริหารจัดการครุภัณฑ์',
+                  sub:
+                    'ASSET & INVENTORY MATRIX',
+                  icon:
+                    <Package
+                      className="w-8 h-8 md:w-6 md:h-6"
+                      strokeWidth={2.5}
+                    />,
+                  border:
+                    'border-indigo-500',
+                  bgIcon:
+                    'text-indigo-500 border-indigo-300',
+                  glow:
+                    'shadow-[0_0_20px_rgba(99,102,241,0.4)]',
+                  text:
+                    'text-indigo-400'
+                };
+
+              case 'tracking':
+              case 'manage':
+                return {
+                  title:
+                    role !==
+                    'reporter'
+                      ? 'จัดการงานซ่อม'
+                      : 'ติดตามสถานะ',
+                  sub:
+                    'TICKET TRACKING',
+                  icon:
+                    role !==
+                    'reporter'
+                      ? <Wrench
+                          className="w-8 h-8 md:w-6 md:h-6"
+                          strokeWidth={2.5}
+                        />
+                      : <ClipboardCheck
+                          className="w-8 h-8 md:w-6 md:h-6"
+                          strokeWidth={2.5}
+                        />,
+                  border:
+                    'border-blue-500',
+                  bgIcon:
+                    'text-blue-500 border-blue-300',
+                  glow:
+                    'shadow-[0_0_20px_rgba(59,130,246,0.4)]',
+                  text:
+                    'text-blue-400'
+                };
+
+              default:
+                return {
+                  title:
+                    'ศูนย์ปฏิบัติการ',
+                  sub:
+                    'OPERATIONS',
+                  icon:
+                    <Monitor
+                      className="w-8 h-8 md:w-6 md:h-6"
+                      strokeWidth={2.5}
+                    />,
+                  border:
+                    'border-slate-500',
+                  bgIcon:
+                    'text-slate-500 border-slate-300',
+                  glow:
+                    'shadow-[0_0_20px_rgba(255,255,255,0.1)]',
+                  text:
+                    'text-slate-400'
+                };
             }
           };
-          const hc = getHeaderProps(activeTab, currentUserRole);
-          
+
+          const hc =
+            getHeaderProps(
+              activeTab,
+              currentUserRole
+            );
+
           return (
-            <div className={`bg-slate-900/85 backdrop-blur-xl pl-5 md:pl-8 pr-4 py-4 md:py-6 flex items-center justify-between sticky top-4 z-50 border-[2px] border-solid ${hc.border} rounded-2xl md:rounded-[1.2rem] mt-4 md:mt-3 transition-all duration-500 ${hc.glow} mx-4 md:mx-6 mb-4 shrink-0`}>
+            <div
+              className={`bg-slate-900/85 backdrop-blur-xl pl-5 md:pl-8 pr-4 py-4 md:py-6 flex items-center justify-between sticky top-4 z-50 border-[2px] border-solid ${hc.border} rounded-2xl md:rounded-[1.2rem] mt-4 md:mt-3 transition-all duration-500 ${hc.glow} mx-4 md:mx-6 mb-4 shrink-0`}
+            >
               <div className="flex items-center gap-3.5 md:gap-5 z-10">
-                <div className={`bg-white w-14 h-14 md:w-16 md:h-16 rounded-2xl md:rounded-xl shadow-inner border-[2px] border-solid flex items-center justify-center shrink-0 ${hc.bgIcon}`}>
+
+                <div
+                  className={`bg-white w-14 h-14 md:w-16 md:h-16 rounded-2xl md:rounded-xl shadow-inner border-[2px] border-solid flex items-center justify-center shrink-0 ${hc.bgIcon}`}
+                >
                   {hc.icon}
                 </div>
+
                 <div className="flex flex-col">
-                  <h1 className="font-black text-white text-[24px] md:text-[36px] tracking-widest leading-tight drop-shadow-[0_2px_4px_rgba(0,0,0,0.5)]">{hc.title}</h1>
-                  <span className={`text-[13px] md:text-[16px] font-bold mt-1 tracking-wide ${hc.text} opacity-90 animate-in fade-in duration-300`}>สวัสดีครับ, <span className="text-white">คุณ{currentUserName ? currentUserName.replace(/^\s*(นาย|นางสาว|นาง|น\.ส\.|นส\.)\s*/g, '') : 'ผู้ใช้งาน'}</span></span>
+
+                  <h1 className="font-black text-white text-[24px] md:text-[36px] tracking-widest leading-tight drop-shadow-[0_2px_4px_rgba(0,0,0,0.5)]">
+                    {hc.title}
+                  </h1>
+
+                  <span
+                    className={`text-[13px] md:text-[16px] font-bold mt-1 tracking-wide ${hc.text} opacity-90 animate-in fade-in duration-300`}
+                  >
+                    สวัสดีครับ,{' '}
+                    <span className="text-white">
+                      คุณ
+                      {
+                        currentUserName
+                          ? currentUserName.replace(
+                              /^\s*(นาย|นางสาว|นาง|น\.ส\.|นส\.)\s*/g,
+                              ''
+                            )
+                          : 'ผู้ใช้งาน'
+                      }
+                    </span>
+                  </span>
                 </div>
               </div>
             </div>
           );
         })()}
 
-        <div id="gse-main-scroll" onScroll={handleMainScroll} className="relative z-10 flex-1 overflow-y-auto overflow-x-hidden w-full [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none] pb-32 md:pb-40 px-0 md:px-6">
+        <div
+          id="gse-main-scroll"
+          onScroll={handleMainScroll}
+          className="relative z-10 flex-1 overflow-y-auto overflow-x-hidden w-full [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none] pb-32 md:pb-40 px-0 md:px-6"
+        >
           <ErrorBoundary>
-          {isLoading ? (
-            <div className="flex flex-col items-center justify-center py-40 text-slate-400 opacity-80">
-              <Loader2 size={60} className="animate-spin mb-4 text-orange-500" />
-              <p className="font-bold text-xl uppercase tracking-widest">Loading...</p>
-            </div>
-          ) : (
-            <>
-              {/* 🌟 หน้า Hub 🌟 */}
-              {activeTab === 'hub' && (
-                <div className="w-full flex flex-col items-center pt-2 md:pt-4 pb-32 animate-in fade-in zoom-in-95 duration-500 relative z-10 px-4 md:px-0">
-                  <div className="w-full md:w-[calc(100%-3rem)] md:max-w-[976px] mx-auto bg-[#0f172a]/60 backdrop-blur-xl border-2 md:border-[3px] border-solid border-orange-500/80 rounded-2xl md:rounded-[1.2rem] p-6 md:p-10 shadow-[0_0_50px_rgba(249,115,22,0.2),inset_0_0_30px_rgba(249,115,22,0.05)] relative overflow-hidden">
-                    <div className="absolute inset-0 bg-[url('https://www.transparenttextures.com/patterns/cubes.png')] opacity-[0.03] pointer-events-none mix-blend-overlay"></div>
-                    
-                    {/* 🌟 ฟันธง: ปรับแก้ไขสีปุ่มทางเข้าหลักทั้ง 7 ปุ่มให้แตกต่างสว่างวับแยกสีนีออนเด็ดขาด 🌟 */}
-                    <div className="grid grid-cols-2 md:grid-cols-4 gap-4 md:gap-6 relative z-10">
-                      
-                      {/* ปุ่มที่ 1: จัดการงานซ่อม (สีส้มแอมเบอร์) */}
-                      <button onClick={() => setActiveTab('dashboard')} className="group relative aspect-square md:aspect-auto md:h-44 bg-slate-900/80 border-[2px] border-slate-700/80 rounded-3xl hover:border-orange-500 shadow-lg hover:shadow-[0_0_30px_rgba(249,115,22,0.4)] transition-all duration-300 flex flex-col items-center justify-center gap-3 overflow-hidden">
-                        <div className="absolute inset-0 bg-gradient-to-b from-orange-500/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity"></div>
-                        <div className="w-14 h-14 md:w-16 md:h-16 bg-gradient-to-br from-orange-400 to-orange-600 rounded-2xl flex items-center justify-center shadow-[0_0_20px_rgba(249,115,22,0.6)] group-hover:scale-110 transition-transform duration-300 z-10">
-                          <Wrench className="w-7 h-7 md:w-8 md:h-8 text-white" strokeWidth={2.5}/>
-                        </div>
-                        <div className="flex flex-col items-center z-10 mt-1">
-                          <span className="font-black text-white text-[14px] md:text-[16px] tracking-wide group-hover:text-orange-400 transition-colors">จัดการงานซ่อม</span>
-                          <span className="text-slate-400 text-[10px] md:text-[11px] font-bold tracking-wider uppercase mt-0.5">DashBoard</span>
-                        </div>
-                      </button>
 
-                      {/* ปุ่มที่ 2: รายงานประจำวัน (สีม่วงอเมทิสต์) */}
-                      <button onClick={() => setActiveTab('daily_report')} className="group relative aspect-square md:aspect-auto md:h-44 bg-slate-900/80 border-[2px] border-slate-700/80 rounded-3xl hover:border-purple-400 shadow-lg hover:shadow-[0_0_30px_rgba(168,85,247,0.4)] transition-all duration-300 flex flex-col items-center justify-center gap-3 overflow-hidden">
-                        <div className="absolute inset-0 bg-gradient-to-b from-purple-500/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity"></div>
-                        <div className="w-14 h-14 md:w-16 md:h-16 bg-gradient-to-br from-purple-400 to-fuchsia-600 rounded-2xl flex items-center justify-center shadow-[0_0_20px_rgba(168,85,247,0.6)] group-hover:scale-110 transition-transform duration-300 z-10">
-                          <FileText className="w-7 h-7 md:w-8 md:h-8 text-white" strokeWidth={2.5}/>
-                        </div>
-                        <div className="flex flex-col items-center z-10 mt-1">
-                          <span className="font-black text-white text-[14px] md:text-[16px] tracking-wide group-hover:text-purple-300 transition-colors">รายงานประจำวัน</span>
-                          <span className="text-slate-400 text-[10px] md:text-[11px] font-bold tracking-wider uppercase mt-0.5">Daily Report</span>
-                        </div>
-                      </button>
+            {isLoading ? (
+              <div className="flex flex-col items-center justify-center py-40 text-slate-400 opacity-80">
 
-                      {/* ปุ่มที่ 3: มอบหมายงาน (สีเขียวเอเมอรัลด์) */}
-                      <button onClick={() => setActiveTab('pm')} className="group relative aspect-square md:aspect-auto md:h-44 bg-slate-900/80 border-[2px] border-slate-700/80 rounded-3xl hover:border-emerald-400 shadow-lg hover:shadow-[0_0_30px_rgba(16,185,129,0.4)] transition-all duration-300 flex flex-col items-center justify-center gap-3 overflow-hidden">
-                        <div className="absolute inset-0 bg-gradient-to-b from-emerald-500/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity"></div>
-                        <div className="w-14 h-14 md:w-16 md:h-16 bg-gradient-to-br from-emerald-400 to-teal-500 rounded-2xl flex items-center justify-center shadow-[0_0_20px_rgba(16,185,129,0.6)] group-hover:scale-110 transition-transform duration-300 z-10">
-                          <ClipboardList className="w-7 h-7 md:w-8 md:h-8 text-white" strokeWidth={2.5}/>
-                        </div>
-                        <div className="flex flex-col items-center z-10 mt-1">
-                          <span className="font-black text-white text-[14px] md:text-[16px] tracking-wide group-hover:text-emerald-400 transition-colors">มอบหมายงาน</span>
-                          <span className="text-slate-400 text-[10px] md:text-[11px] font-bold tracking-wider uppercase mt-0.5">Task Board</span>
-                        </div>
-                      </button>
+                <Loader2
+                  size={60}
+                  className="animate-spin mb-4 text-orange-500"
+                />
 
-                      {/* ปุ่มที่ 4: วันลา/เข้าสาย (สีแดงทับทิม/โรส) */}
-                      <button onClick={() => setActiveTab('leave')} className="group relative aspect-square md:aspect-auto md:h-44 bg-slate-900/80 border-[2px] border-slate-700/80 rounded-3xl hover:border-rose-500 shadow-lg hover:shadow-[0_0_30px_rgba(225,29,72,0.4)] transition-all duration-300 flex flex-col items-center justify-center gap-3 overflow-hidden">
-                        <div className="absolute inset-0 bg-gradient-to-b from-rose-500/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity"></div>
-                        <div className="w-14 h-14 md:w-16 md:h-16 bg-gradient-to-br from-rose-500 to-red-600 rounded-2xl flex items-center justify-center shadow-[0_0_20px_rgba(225,29,72,0.6)] group-hover:scale-110 transition-transform duration-300 z-10">
-                          <Calendar className="w-7 h-7 md:w-8 md:h-8 text-white" strokeWidth={2.5}/>
-                        </div>
-                        <div className="flex flex-col items-center z-10 mt-1">
-                          <span className="font-black text-white text-[14px] md:text-[16px] tracking-wide group-hover:text-rose-400 transition-colors">วันลา/เข้าสาย</span>
-                          <span className="text-slate-400 text-[10px] md:text-[11px] font-bold tracking-wider uppercase mt-0.5">ระบบบุคคล</span>
-                        </div>
-                      </button>
+                <p className="font-bold text-xl uppercase tracking-widest">
+                  Loading...
+                </p>
+              </div>
 
-                      {/* 🌟 ปุ่มที่ 5: อะไหล่/ครุภัณฑ์ (ย้ายมาตรงนี้! ซ่อนไว้ให้เห็นเฉพาะ หน.ฝวด. และ Admin) 🌟 */}
-                      {canManageInventory && (
-                        <button onClick={() => setActiveTab('inventory')} className="group relative aspect-square md:aspect-auto md:h-44 bg-slate-900/80 border-[2px] border-slate-700/80 rounded-3xl hover:border-indigo-500 shadow-lg hover:shadow-[0_0_30px_rgba(99,102,241,0.4)] transition-all duration-300 flex flex-col items-center justify-center gap-3 overflow-hidden">
-                          <div className="absolute inset-0 bg-gradient-to-b from-indigo-500/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity"></div>
-                          <div className="w-14 h-14 md:w-16 md:h-16 bg-gradient-to-br from-indigo-500 to-violet-700 rounded-2xl flex items-center justify-center shadow-[0_0_20px_rgba(99,102,241,0.6)] group-hover:scale-110 transition-transform duration-300 z-10">
-                            <Package className="w-7 h-7 md:w-8 md:h-8 text-white" strokeWidth={2.5}/>
+            ) : (
+              <>
+
+                {activeTab === 'hub' && (
+                  <div className="w-full flex flex-col items-center pt-2 md:pt-4 pb-32 animate-in fade-in zoom-in-95 duration-500 relative z-10 px-4 md:px-0">
+
+                    <div className="w-full md:w-[calc(100%-3rem)] md:max-w-[976px] mx-auto bg-[#0f172a]/60 backdrop-blur-xl border-2 md:border-[3px] border-solid border-orange-500/80 rounded-2xl md:rounded-[1.2rem] p-6 md:p-10 shadow-[0_0_50px_rgba(249,115,22,0.2),inset_0_0_30px_rgba(249,115,22,0.05)] relative overflow-hidden">
+
+                      <div className="absolute inset-0 bg-[url('https://www.transparenttextures.com/patterns/cubes.png')] opacity-[0.03] pointer-events-none mix-blend-overlay" />
+
+                      <div className="grid grid-cols-2 md:grid-cols-4 gap-4 md:gap-6 relative z-10">
+
+                        <button
+                          onClick={() =>
+                            setActiveTab(
+                              'dashboard'
+                            )
+                          }
+                          className="group relative aspect-square md:aspect-auto md:h-44 bg-slate-900/80 border-[2px] border-slate-700/80 rounded-3xl hover:border-orange-500 shadow-lg hover:shadow-[0_0_30px_rgba(249,115,22,0.4)] transition-all duration-300 flex flex-col items-center justify-center gap-3 overflow-hidden"
+                        >
+                          <div className="absolute inset-0 bg-gradient-to-b from-orange-500/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
+
+                          <div className="w-14 h-14 md:w-16 md:h-16 bg-gradient-to-br from-orange-400 to-orange-600 rounded-2xl flex items-center justify-center shadow-[0_0_20px_rgba(249,115,22,0.6)] group-hover:scale-110 transition-transform duration-300 z-10">
+
+                            <Wrench
+                              className="w-7 h-7 md:w-8 md:h-8 text-white"
+                              strokeWidth={2.5}
+                            />
                           </div>
+
                           <div className="flex flex-col items-center z-10 mt-1">
-                            <span className="font-black text-white text-[14px] md:text-[16px] tracking-wide group-hover:text-indigo-300 transition-colors">อะไหล่/ครุภัณฑ์</span>
-                            <span className="text-indigo-400 text-[10px] md:text-[11px] font-bold tracking-wider uppercase mt-0.5">บริการงานจัดการ</span>
+
+                            <span className="font-black text-white text-[14px] md:text-[16px] tracking-wide group-hover:text-orange-400 transition-colors">
+                              จัดการงานซ่อม
+                            </span>
+
+                            <span className="text-slate-400 text-[10px] md:text-[11px] font-bold tracking-wider uppercase mt-0.5">
+                              DashBoard
+                            </span>
                           </div>
                         </button>
-                      )}
 
-                     {/* ปุ่มที่ 6: IoT Monitor (เปิดใช้งานเต็มระบบ) */}
-<button 
-  onClick={() => setActiveTab('monitoring')}
-  className="group relative aspect-square md:aspect-auto md:h-44 bg-slate-900/80 border-[2px] border-cyan-500/50 hover:border-cyan-400 rounded-3xl flex flex-col items-center justify-center gap-3 transition-all duration-300 hover:scale-105 hover:shadow-[0_0_25px_rgba(6,182,212,0.5)] active:scale-95 cursor-pointer overflow-hidden"
->
-  {/* แสง Flare เรืองแสงด้านหลังเมื่อชี้เมาส์ */}
-  <div className="absolute inset-0 bg-cyan-500/10 opacity-0 group-hover:opacity-100 blur-xl transition-opacity pointer-events-none"></div>
+                        <button
+                          onClick={() =>
+                            setActiveTab(
+                              'daily_report'
+                            )
+                          }
+                          className="group relative aspect-square md:aspect-auto md:h-44 bg-slate-900/80 border-[2px] border-slate-700/80 rounded-3xl hover:border-purple-400 shadow-lg hover:shadow-[0_0_30px_rgba(168,85,247,0.4)] transition-all duration-300 flex flex-col items-center justify-center gap-3 overflow-hidden"
+                        >
+                          <div className="absolute inset-0 bg-gradient-to-b from-purple-500/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
 
-  {/* กล่องไอคอนคลื่นสัญญาณ (ธีมสีฟ้า Cyan ไฮเทค) */}
-  <div className="w-14 h-14 md:w-16 md:h-16 bg-gradient-to-tr from-cyan-500 to-blue-600 rounded-2xl flex items-center justify-center text-white shadow-[0_0_15px_rgba(6,182,212,0.6)] border border-cyan-300/40 group-hover:shadow-[0_0_25px_rgba(6,182,212,0.9)] transition-all">
-    <Activity className="w-7 h-7 md:w-8 md:h-8 animate-pulse text-white" strokeWidth={2.5}/>
-  </div>
+                          <div className="w-14 h-14 md:w-16 md:h-16 bg-gradient-to-br from-purple-400 to-fuchsia-600 rounded-2xl flex items-center justify-center shadow-[0_0_20px_rgba(168,85,247,0.6)] group-hover:scale-110 transition-transform duration-300 z-10">
 
-  {/* ข้อความและคำอธิบาย */}
-  <div className="flex flex-col items-center mt-1 relative z-10">
-    <span className="font-black text-white text-[14px] md:text-[16px] tracking-wide group-hover:text-cyan-300 transition-colors drop-shadow-sm">
-      IoT Monitor
-    </span>
-    <span className="text-cyan-400/90 text-[10px] md:text-[11px] font-bold mt-0.5 tracking-wider">
-      สถานะ UPS
-    </span>
-  </div>
-</button>
+                            <FileText
+                              className="w-7 h-7 md:w-8 md:h-8 text-white"
+                              strokeWidth={2.5}
+                            />
+                          </div>
 
-                      {/* ปุ่มที่ 7: Sat Signals (ปิดชั่วคราวรอระบบเสถียร) */}
-                      <button disabled className="group relative aspect-square md:aspect-auto md:h-44 bg-slate-900/30 border-[2px] border-slate-800 rounded-3xl flex flex-col items-center justify-center gap-3 opacity-40 grayscale cursor-not-allowed">
-                        <span className="absolute top-3 right-3 bg-slate-800 text-slate-400 text-[9px] font-black px-2 py-0.5 rounded-md tracking-widest">SOON</span>
-                        <div className="w-14 h-14 md:w-16 md:h-16 bg-slate-800 rounded-2xl flex items-center justify-center">
-                          <Globe className="w-7 h-7 md:w-8 md:h-8 text-slate-600" strokeWidth={2.5}/>
-                        </div>
-                        <div className="flex flex-col items-center mt-1">
-                          <span className="font-bold text-slate-500 text-[14px] md:text-[16px]">Sat Signals</span>
-                          <span className="text-slate-600 text-[10px] md:text-[11px] font-bold mt-0.5">สถานะดาวเทียม</span>
-                        </div>
-                      </button>
+                          <div className="flex flex-col items-center z-10 mt-1">
 
-                      {/* ปุ่มที่ 8: Coming Soon (งานจัดซื้อจัดจ้าง) */}
-                      <button disabled className="group relative aspect-square md:aspect-auto md:h-44 bg-slate-900/30 border-[2px] border-slate-800 rounded-3xl flex flex-col items-center justify-center gap-3 opacity-60 cursor-not-allowed">
-                        <span className="absolute top-3 right-3 bg-slate-800 text-slate-400 text-[9px] font-black px-2 py-0.5 rounded-md tracking-widest">SOON</span>
-                        <div className="w-14 h-14 md:w-16 md:h-16 bg-slate-800 rounded-2xl flex items-center justify-center">
-                          <Briefcase className="w-7 h-7 md:w-8 md:h-8 text-slate-600" strokeWidth={2}/>
-                        </div>
-                        <div className="flex flex-col items-center mt-1">
-                          <span className="font-bold text-slate-500 text-[14px] md:text-[16px]">งานจัดซื้อจัดจ้าง</span>
-                          <span className="text-slate-600 text-[10px] md:text-[11px] font-bold mt-0.5">จัดการเอกสาร/เบิก</span>
-                        </div>
-                      </button>
+                            <span className="font-black text-white text-[14px] md:text-[16px] tracking-wide group-hover:text-purple-300 transition-colors">
+                              รายงานประจำวัน
+                            </span>
 
+                            <span className="text-slate-400 text-[10px] md:text-[11px] font-bold tracking-wider uppercase mt-0.5">
+                              Daily Report
+                            </span>
+                          </div>
+                        </button>
+
+                        <button
+                          onClick={() =>
+                            setActiveTab('pm')
+                          }
+                          className="group relative aspect-square md:aspect-auto md:h-44 bg-slate-900/80 border-[2px] border-slate-700/80 rounded-3xl hover:border-emerald-400 shadow-lg hover:shadow-[0_0_30px_rgba(16,185,129,0.4)] transition-all duration-300 flex flex-col items-center justify-center gap-3 overflow-hidden"
+                        >
+                          <div className="absolute inset-0 bg-gradient-to-b from-emerald-500/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
+
+                          <div className="w-14 h-14 md:w-16 md:h-16 bg-gradient-to-br from-emerald-400 to-teal-500 rounded-2xl flex items-center justify-center shadow-[0_0_20px_rgba(16,185,129,0.6)] group-hover:scale-110 transition-transform duration-300 z-10">
+
+                            <ClipboardList
+                              className="w-7 h-7 md:w-8 md:h-8 text-white"
+                              strokeWidth={2.5}
+                            />
+                          </div>
+
+                          <div className="flex flex-col items-center z-10 mt-1">
+
+                            <span className="font-black text-white text-[14px] md:text-[16px] tracking-wide group-hover:text-emerald-400 transition-colors">
+                              มอบหมายงาน
+                            </span>
+
+                            <span className="text-slate-400 text-[10px] md:text-[11px] font-bold tracking-wider uppercase mt-0.5">
+                              Task Board
+                            </span>
+                          </div>
+                        </button>
+
+                        <button
+                          onClick={() =>
+                            setActiveTab(
+                              'leave'
+                            )
+                          }
+                          className="group relative aspect-square md:aspect-auto md:h-44 bg-slate-900/80 border-[2px] border-slate-700/80 rounded-3xl hover:border-rose-500 shadow-lg hover:shadow-[0_0_30px_rgba(225,29,72,0.4)] transition-all duration-300 flex flex-col items-center justify-center gap-3 overflow-hidden"
+                        >
+                          <div className="absolute inset-0 bg-gradient-to-b from-rose-500/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
+
+                          <div className="w-14 h-14 md:w-16 md:h-16 bg-gradient-to-br from-rose-500 to-red-600 rounded-2xl flex items-center justify-center shadow-[0_0_20px_rgba(225,29,72,0.6)] group-hover:scale-110 transition-transform duration-300 z-10">
+
+                            <Calendar
+                              className="w-7 h-7 md:w-8 md:h-8 text-white"
+                              strokeWidth={2.5}
+                            />
+                          </div>
+
+                          <div className="flex flex-col items-center z-10 mt-1">
+
+                            <span className="font-black text-white text-[14px] md:text-[16px] tracking-wide group-hover:text-rose-400 transition-colors">
+                              วันลา/เข้าสาย
+                            </span>
+
+                            <span className="text-slate-400 text-[10px] md:text-[11px] font-bold mt-0.5">
+                              ระบบบุคคล
+                            </span>
+                          </div>
+                        </button>
+
+                        {canManageInventory && (
+                          <button
+                            onClick={() =>
+                              setActiveTab(
+                                'inventory'
+                              )
+                            }
+                            className="group relative aspect-square md:aspect-auto md:h-44 bg-slate-900/80 border-[2px] border-slate-700/80 rounded-3xl hover:border-indigo-500 shadow-lg hover:shadow-[0_0_30px_rgba(99,102,241,0.4)] transition-all duration-300 flex flex-col items-center justify-center gap-3 overflow-hidden"
+                          >
+
+                            <div className="absolute inset-0 bg-gradient-to-b from-indigo-500/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
+
+                            <div className="w-14 h-14 md:w-16 md:h-16 bg-gradient-to-br from-indigo-500 to-violet-700 rounded-2xl flex items-center justify-center shadow-[0_0_20px_rgba(99,102,241,0.6)] group-hover:scale-110 transition-transform duration-300 z-10">
+
+                              <Package
+                                className="w-7 h-7 md:w-8 md:h-8 text-white"
+                                strokeWidth={2.5}
+                              />
+                            </div>
+
+                            <div className="flex flex-col items-center z-10 mt-1">
+
+                              <span className="font-black text-white text-[14px] md:text-[16px] tracking-wide group-hover:text-indigo-300 transition-colors">
+                                อะไหล่/ครุภัณฑ์
+                              </span>
+
+                              <span className="text-indigo-400 text-[10px] md:text-[11px] font-bold tracking-wider uppercase mt-0.5">
+                                บริการงานจัดการ
+                              </span>
+                            </div>
+                          </button>
+                        )}
+
+                        <button
+                          onClick={() =>
+                            setActiveTab(
+                              'monitoring'
+                            )
+                          }
+                          className="group relative aspect-square md:aspect-auto md:h-44 bg-slate-900/80 border-[2px] border-cyan-500/50 hover:border-cyan-400 rounded-3xl flex flex-col items-center justify-center gap-3 transition-all duration-300 hover:scale-105 hover:shadow-[0_0_25px_rgba(6,182,212,0.5)] active:scale-95 cursor-pointer overflow-hidden"
+                        >
+                          <div className="absolute inset-0 bg-cyan-500/10 opacity-0 group-hover:opacity-100 blur-xl transition-opacity pointer-events-none" />
+
+                          <div className="w-14 h-14 md:w-16 md:h-16 bg-gradient-to-tr from-cyan-500 to-blue-600 rounded-2xl flex items-center justify-center text-white shadow-[0_0_15px_rgba(6,182,212,0.6)] border border-cyan-300/40 group-hover:shadow-[0_0_25px_rgba(6,182,212,0.9)] transition-all">
+
+                            <Activity
+                              className="w-7 h-7 md:w-8 md:h-8 animate-pulse text-white"
+                              strokeWidth={2.5}
+                            />
+                          </div>
+
+                          <div className="flex flex-col items-center mt-1 relative z-10">
+
+                            <span className="font-black text-white text-[14px] md:text-[16px] tracking-wide group-hover:text-cyan-300 transition-colors drop-shadow-sm">
+                              IoT Monitor
+                            </span>
+
+                            <span className="text-cyan-400/90 text-[10px] md:text-[11px] font-bold mt-0.5 tracking-wider">
+                              สถานะ UPS
+                            </span>
+                          </div>
+                        </button>
+
+                        <button
+                          disabled
+                          className="group relative aspect-square md:aspect-auto md:h-44 bg-slate-900/30 border-[2px] border-slate-800 rounded-3xl flex flex-col items-center justify-center gap-3 opacity-40 grayscale cursor-not-allowed"
+                        >
+                          <span className="absolute top-3 right-3 bg-slate-800 text-slate-400 text-[9px] font-black px-2 py-0.5 rounded-md tracking-widest">
+                            SOON
+                          </span>
+
+                          <div className="w-14 h-14 md:w-16 md:h-16 bg-slate-800 rounded-2xl flex items-center justify-center">
+
+                            <Globe
+                              className="w-7 h-7 md:w-8 md:h-8 text-slate-600"
+                              strokeWidth={2.5}
+                            />
+                          </div>
+
+                          <div className="flex flex-col items-center mt-1">
+
+                            <span className="font-bold text-slate-500 text-[14px] md:text-[16px]">
+                              Sat Signals
+                            </span>
+
+                            <span className="text-slate-600 text-[10px] md:text-[11px] font-bold mt-0.5">
+                              สถานะดาวเทียม
+                            </span>
+                          </div>
+                        </button>
+
+                        <button
+                          disabled
+                          className="group relative aspect-square md:aspect-auto md:h-44 bg-slate-900/30 border-[2px] border-slate-800 rounded-3xl flex flex-col items-center justify-center gap-3 opacity-60 cursor-not-allowed"
+                        >
+                          <span className="absolute top-3 right-3 bg-slate-800 text-slate-400 text-[9px] font-black px-2 py-0.5 rounded-md tracking-widest">
+                            SOON
+                          </span>
+
+                          <div className="w-14 h-14 md:w-16 md:h-16 bg-slate-800 rounded-2xl flex items-center justify-center">
+
+                            <Briefcase
+                              className="w-7 h-7 md:w-8 md:h-8 text-slate-600"
+                              strokeWidth={2}
+                            />
+                          </div>
+
+                          <div className="flex flex-col items-center mt-1">
+
+                            <span className="font-bold text-slate-500 text-[14px] md:text-[16px]">
+                              งานจัดซื้อจัดจ้าง
+                            </span>
+
+                            <span className="text-slate-600 text-[10px] md:text-[11px] font-bold mt-0.5">
+                              จัดการเอกสาร/เบิก
+                            </span>
+                          </div>
+                        </button>
+
+                      </div>
                     </div>
                   </div>
-                </div>
-              )}
+                )}
 
-              {activeTab === 'inventory' && canManageInventory && (
-                <div className="px-4 md:px-6">
-                  <InventoryView 
-                    sysTime={sysTime} currentUserRole={currentUserRole} currentUserName={currentUserName} setActiveTab={setActiveTab} 
-                  />
-                </div>
-              )}
+                {activeTab === 'inventory' && canManageInventory && (
+                  <div className="px-4 md:px-6">
 
-              {activeTab === 'dashboard' && isStaffUser && (
-                <div className="w-full [&>div]:!max-w-full px-4 md:px-6">
-                  <Dashboard sysTime={sysTime} stats={dashStats} tickets={filteredTickets_forDashboard} allRosters={allRosters} technicianList={technicianList} dashTimeframe={dashTimeframe} setDashTimeframe={setDashTimeframe} customMonth={customMonth} setCustomMonth={setCustomMonth} showMonthPicker={showMonthPicker} setShowMonthPicker={setShowMonthPicker} pickerYear={pickerYear} setPickerYear={setPickerYear} customDate={customDate} setCustomDate={setCustomDate} showDatePicker={showDatePicker} setShowDatePicker={setShowDatePicker} calMonth={calMonth} setCalMonth={setCalMonth} calYear={calYear} setCalYear={setCalYear} currentUserRole={currentUserRole} currentUserName={currentUserName} handleNavigateToTracking={handleNavigateToTracking} setShowAdminRoster={setShowAdminRoster} />
-                </div>
-              )}
+                    <InventoryView
+                      sysTime={sysTime}
+                      currentUserRole={currentUserRole}
+                      currentUserName={currentUserName}
+                      setActiveTab={setActiveTab}
+                    />
+                  </div>
+                )}
 
-              {activeTab === 'report' && (
-                <div className="px-4 md:px-6">
-                  <ReportView 
-                    sysTime={sysTime} showSuccess={showSuccess} handleSubmit={handleSubmit} handleResetForm={handleResetForm} allRosters={allRosters} technicianList={technicianList} formData={formData} setFormData={setFormData} formErrors={formErrors} setFormErrors={setFormErrors} handleInputChange={handleInputChange} showImagePicker={showImagePicker} setShowImagePicker={setShowImagePicker} setLightboxImg={setLightboxImg} isSubmitting={isSubmitting} currentUserName={currentUserName} 
-                    handleMediaUpload={handleMediaUpload} 
-                    handleClipboardPaste={handleClipboardPaste} 
-                  />
-                </div>
-              )}
+                {activeTab === 'dashboard' && isStaffUser && (
+                  <div className="w-full [&>div]:!max-w-full px-4 md:px-6">
 
-              {activeTab === 'daily_report' && isStaffUser && (
-                <div className="px-4 md:px-6">
-                  <DailyReportView sysTime={sysTime} currentUserRole={currentUserRole} currentUserName={currentUserName} setActiveTab={setActiveTab} onGoHome={onGoHome} />
-                </div>
-              )}
+                    <Dashboard
+                      sysTime={sysTime}
+                      stats={dashStats}
+                      tickets={filteredTickets_forDashboard}
+                      allRosters={allRosters}
+                      technicianList={technicianList}
+                      dashTimeframe={dashTimeframe}
+                      setDashTimeframe={setDashTimeframe}
+                      customMonth={customMonth}
+                      setCustomMonth={setCustomMonth}
+                      showMonthPicker={showMonthPicker}
+                      setShowMonthPicker={setShowMonthPicker}
+                      pickerYear={pickerYear}
+                      setPickerYear={setPickerYear}
+                      customDate={customDate}
+                      setCustomDate={setCustomDate}
+                      showDatePicker={showDatePicker}
+                      setShowDatePicker={setShowDatePicker}
+                      calMonth={calMonth}
+                      setCalMonth={setCalMonth}
+                      calYear={calYear}
+                      setCalYear={setCalYear}
+                      currentUserRole={currentUserRole}
+                      currentUserName={currentUserName}
+                      handleNavigateToTracking={handleNavigateToTracking}
+                      setShowAdminRoster={setShowAdminRoster}
+                    />
+                  </div>
+                )}
 
-              {activeTab === 'pm' && isStaffUser && (
-                <div className="w-full [&>div]:!max-w-full h-full min-h-[80vh] px-4 md:px-6">
-                  <TaskBoardView 
-                    sysTime={sysTime} currentUserRole={currentUserRole} currentUserName={currentUserName} technicianList={technicianList} setActiveTab={setActiveTab} onGoHome={onGoHome} 
-                    handleClipboardPaste={handleClipboardPaste} 
-                    handleMediaUpload={handleMediaUpload} 
-                  />
-                </div>
-              )}
+                {activeTab === 'report' && (
+                  <div className="px-4 md:px-6">
 
-              {activeTab === 'monitoring' && isStaffUser && (
-                <div className="px-4 md:px-6">
-                  <UPSStatusCard sysTime={sysTime} />
-                </div>
-              )}
+                    <ReportView
+                      sysTime={sysTime}
+                      showSuccess={showSuccess}
+                      handleSubmit={handleSubmit}
+                      handleResetForm={handleResetForm}
+                      allRosters={allRosters}
+                      technicianList={technicianList}
+                      formData={formData}
+                      setFormData={setFormData}
+                      formErrors={formErrors}
+                      setFormErrors={setFormErrors}
+                      handleInputChange={handleInputChange}
+                      showImagePicker={showImagePicker}
+                      setShowImagePicker={setShowImagePicker}
+                      setLightboxImg={setLightboxImg}
+                      isSubmitting={isSubmitting}
+                      currentUserName={currentUserName}
+                      handleMediaUpload={handleMediaUpload}
+                      handleClipboardPaste={handleClipboardPaste}
+                    />
+                  </div>
+                )}
 
-              {activeTab === 'satellite' && isStaffUser && (
-                <div className="px-4 md:px-6">
-                  <SatelliteStatusCard sysTime={sysTime} />
-                </div>
-              )}
+                {activeTab === 'daily_report' && isStaffUser && (
+                  <div className="px-4 md:px-6">
 
-              {activeTab === 'tracking' && (
-                <div className="px-4 md:px-6">
-                  <TrackingView sysTime={sysTime} currentUserRole={currentUserRole} currentUserName={currentUserName} tickets={permittedTickets} filteredTickets={filteredTickets_forTracking} searchTerm={searchTerm} setSearchTerm={setSearchTerm} filterStatus={filterStatus} setFilterStatus={setFilterStatus} trackTimeframe={trackTimeframe} setTrackTimeframe={setTrackTimeframe} trackMonth={trackMonth} setTrackMonth={setTrackMonth} trackDate={trackDate} setTrackDate={setTrackDate} showTrackMonthPicker={showTrackMonthPicker} setShowTrackMonthPicker={setShowTrackMonthPicker} showTrackDatePicker={showTrackDatePicker} setShowTrackDatePicker={setShowTrackDatePicker} trackCalMonth={trackCalMonth} setTrackCalMonth={setTrackCalMonth} trackCalYear={trackCalYear} setTrackCalYear={setTrackCalYear} allRosters={allRosters} technicianList={technicianList} setActionModal={setActionModal} updateTicketStatus={updateTicketStatus} setRatingModal={setRatingModal} setLightboxImg={setLightboxImg} getLiveStopwatch={getLiveStopwatch} handleClipboardPaste={handleClipboardPaste} handleMediaUpload={handleMediaUpload} />
-                </div>
-              )}
+                    <DailyReportView
+                      sysTime={sysTime}
+                      currentUserRole={currentUserRole}
+                      currentUserName={currentUserName}
+                      setActiveTab={setActiveTab}
+                      onGoHome={onGoHome}
+                    />
+                  </div>
+                )}
 
-              {activeTab === 'manage' && isStaffUser && (
-                <div className="px-4 md:px-6">
-                  <TrackingView sysTime={sysTime} currentUserRole={currentUserRole} currentUserName={currentUserName} tickets={permittedTickets} filteredTickets={filteredTickets_forTracking} searchTerm={searchTerm} setSearchTerm={setSearchTerm} filterStatus={filterStatus} setFilterStatus={setFilterStatus} trackTimeframe={trackTimeframe} setTrackTimeframe={setTrackTimeframe} trackMonth={trackMonth} setTrackMonth={setTrackMonth} trackDate={trackDate} setTrackDate={setTrackDate} showTrackMonthPicker={showTrackMonthPicker} setShowTrackMonthPicker={setShowTrackMonthPicker} showTrackDatePicker={showTrackDatePicker} setShowTrackDatePicker={setShowTrackDatePicker} trackCalMonth={trackCalMonth} setTrackCalMonth={setTrackCalMonth} trackCalYear={trackCalYear} setTrackCalYear={setTrackCalYear} allRosters={allRosters} technicianList={technicianList} setActionModal={setActionModal} updateTicketStatus={updateTicketStatus} setRatingModal={setRatingModal} setLightboxImg={setLightboxImg} getLiveStopwatch={getLiveStopwatch} handleClipboardPaste={handleClipboardPaste} handleMediaUpload={handleMediaUpload} />
-                </div>
-              )}
+                {activeTab === 'pm' && isStaffUser && (
+                  <div className="w-full [&>div]:!max-w-full h-full min-h-[80vh] px-4 md:px-6">
 
-              {activeTab === 'leave' && isStaffUser && (
-                <div className="px-4 md:px-6">
-                  <AttendanceView sysTime={sysTime} currentUserRole={currentUserRole} currentUserName={currentUserName} setActiveTab={setActiveTab} onGoHome={onGoHome} allRosters={allRosters} />
-                </div>
-              )}
-            </>
-          )}
+                    <TaskBoardView
+                      sysTime={sysTime}
+                      currentUserRole={currentUserRole}
+                      currentUserName={currentUserName}
+                      technicianList={technicianList}
+                      setActiveTab={setActiveTab}
+                      onGoHome={onGoHome}
+                      handleClipboardPaste={handleClipboardPaste}
+                      handleMediaUpload={handleMediaUpload}
+                    />
+                  </div>
+                )}
+
+                {activeTab === 'monitoring' && isStaffUser && (
+                  <div className="px-4 md:px-6">
+
+                    <UPSStatusCard
+                      sysTime={sysTime}
+                    />
+                  </div>
+                )}
+
+                {activeTab === 'satellite' && isStaffUser && (
+                  <div className="px-4 md:px-6">
+
+                    <SatelliteStatusCard
+                      sysTime={sysTime}
+                    />
+                  </div>
+                )}
+
+                {activeTab === 'tracking' && (
+                  <div className="px-4 md:px-6">
+
+                    <TrackingView
+                      sysTime={sysTime}
+                      currentUserRole={currentUserRole}
+                      currentUserName={currentUserName}
+                      tickets={permittedTickets}
+                      filteredTickets={filteredTickets_forTracking}
+                      searchTerm={searchTerm}
+                      setSearchTerm={setSearchTerm}
+                      filterStatus={filterStatus}
+                      setFilterStatus={setFilterStatus}
+                      trackTimeframe={trackTimeframe}
+                      setTrackTimeframe={setTrackTimeframe}
+                      trackMonth={trackMonth}
+                      setTrackMonth={setTrackMonth}
+                      trackDate={trackDate}
+                      setTrackDate={setTrackDate}
+                      showTrackMonthPicker={showTrackMonthPicker}
+                      setShowTrackMonthPicker={setShowTrackMonthPicker}
+                      showTrackDatePicker={showTrackDatePicker}
+                      setShowTrackDatePicker={setShowTrackDatePicker}
+                      trackCalMonth={trackCalMonth}
+                      setTrackCalMonth={setTrackCalMonth}
+                      trackCalYear={trackCalYear}
+                      setTrackCalYear={setTrackCalYear}
+                      allRosters={allRosters}
+                      technicianList={technicianList}
+                      setActionModal={setActionModal}
+                      updateTicketStatus={updateTicketStatus}
+                      setRatingModal={setRatingModal}
+                      setLightboxImg={setLightboxImg}
+                      getLiveStopwatch={getLiveStopwatch}
+                      handleClipboardPaste={handleClipboardPaste}
+                      handleMediaUpload={handleMediaUpload}
+                    />
+                  </div>
+                )}
+
+                {activeTab === 'manage' && isStaffUser && (
+                  <div className="px-4 md:px-6">
+
+                    <TrackingView
+                      sysTime={sysTime}
+                      currentUserRole={currentUserRole}
+                      currentUserName={currentUserName}
+                      tickets={permittedTickets}
+                      filteredTickets={filteredTickets_forTracking}
+                      searchTerm={searchTerm}
+                      setSearchTerm={setSearchTerm}
+                      filterStatus={filterStatus}
+                      setFilterStatus={setFilterStatus}
+                      trackTimeframe={trackTimeframe}
+                      setTrackTimeframe={setTrackTimeframe}
+                      trackMonth={trackMonth}
+                      setTrackMonth={setTrackMonth}
+                      trackDate={trackDate}
+                      setTrackDate={setTrackDate}
+                      showTrackMonthPicker={showTrackMonthPicker}
+                      setShowTrackMonthPicker={setShowTrackMonthPicker}
+                      showTrackDatePicker={showTrackDatePicker}
+                      setShowTrackDatePicker={setShowTrackDatePicker}
+                      trackCalMonth={trackCalMonth}
+                      setTrackCalMonth={setTrackCalMonth}
+                      trackCalYear={trackCalYear}
+                      setTrackCalYear={setTrackCalYear}
+                      allRosters={allRosters}
+                      technicianList={technicianList}
+                      setActionModal={setActionModal}
+                      updateTicketStatus={updateTicketStatus}
+                      setRatingModal={setRatingModal}
+                      setLightboxImg={setLightboxImg}
+                      getLiveStopwatch={getLiveStopwatch}
+                      handleClipboardPaste={handleClipboardPaste}
+                      handleMediaUpload={handleMediaUpload}
+                    />
+                  </div>
+                )}
+
+                {activeTab === 'leave' && isStaffUser && (
+                  <div className="px-4 md:px-6">
+
+                    <AttendanceView
+                      sysTime={sysTime}
+                      currentUserRole={currentUserRole}
+                      currentUserName={currentUserName}
+                      setActiveTab={setActiveTab}
+                      onGoHome={onGoHome}
+                      allRosters={allRosters}
+                    />
+                  </div>
+                )}
+              </>
+            )}
           </ErrorBoundary>
         </div>
 
-        {/* 🌟 แสดงแถบเมนูล่างตลอดเวลาทุกหน้า พร้อมเปลี่ยนสีให้ตรงกับกรอบบน 🌟 */}
-        <div className={`fixed left-1/2 -translate-x-1/2 w-[calc(100%-2rem)] md:w-[calc(100%-3rem)] md:max-w-[976px] py-2 md:py-3 bg-slate-900/95 backdrop-blur-xl border-2 md:border-[3px] border-solid rounded-2xl md:rounded-[1.2rem] z-[9999] transform-gpu transition-all duration-500 ease-in-out ${
-          activeTab === 'pm' ? 'border-emerald-500 shadow-[0_10px_30px_rgba(16,185,129,0.3)]' : 
-          activeTab === 'report' ? 'border-emerald-500 shadow-[0_10px_30px_rgba(16,185,129,0.3)]' : 
-          activeTab === 'daily_report' ? 'border-purple-500 shadow-[0_10px_30px_rgba(168,85,247,0.3)]' : 
-          activeTab === 'leave' ? 'border-rose-500 shadow-[0_10px_30px_rgba(225,29,72,0.3)]' : 
-          activeTab === 'monitoring' ? 'border-yellow-500 shadow-[0_10px_30px_rgba(234,179,8,0.3)]' : 
-          activeTab === 'satellite' ? 'border-indigo-500 shadow-[0_10px_30px_rgba(99,102,241,0.3)]' : 
-          activeTab === 'inventory' ? 'border-indigo-500 shadow-[0_10px_30px_rgba(99,102,241,0.3)]' : 
-          (activeTab === 'tracking' || activeTab === 'manage') ? 'border-blue-500 shadow-[0_10px_30px_rgba(59,130,246,0.3)]' : 
-          activeTab === 'hub' ? 'border-cyan-500 shadow-[0_10px_30px_rgba(6,182,212,0.3)]' : 
-          'border-orange-500 shadow-[0_10px_30px_rgba(249,115,22,0.3)]'
-        } ${isNavVisible ? 'bottom-4 md:bottom-6 opacity-100 translate-y-0' : '-bottom-32 opacity-0 translate-y-full pointer-events-none'}`}>
-
+        <div
+          className={`fixed left-1/2 -translate-x-1/2 w-[calc(100%-2rem)] md:w-[calc(100%-3rem)] md:max-w-[976px] py-2 md:py-3 bg-slate-900/95 backdrop-blur-xl border-2 md:border-[3px] border-solid rounded-2xl md:rounded-[1.2rem] z-[9999] transform-gpu transition-all duration-500 ease-in-out ${
+            activeTab === 'pm'
+              ? 'border-emerald-500 shadow-[0_10px_30px_rgba(16,185,129,0.3)]'
+              : activeTab === 'report'
+              ? 'border-emerald-500 shadow-[0_10px_30px_rgba(16,185,129,0.3)]'
+              : activeTab === 'daily_report'
+              ? 'border-purple-500 shadow-[0_10px_30px_rgba(168,85,247,0.3)]'
+              : activeTab === 'leave'
+              ? 'border-rose-500 shadow-[0_10px_30px_rgba(225,29,72,0.3)]'
+              : activeTab === 'monitoring'
+              ? 'border-yellow-500 shadow-[0_10px_30px_rgba(234,179,8,0.3)]'
+              : activeTab === 'satellite'
+              ? 'border-indigo-500 shadow-[0_10px_30px_rgba(99,102,241,0.3)]'
+              : activeTab === 'inventory'
+              ? 'border-indigo-500 shadow-[0_10px_30px_rgba(99,102,241,0.3)]'
+              : (
+                activeTab ===
+                  'tracking' ||
+                activeTab ===
+                  'manage'
+              )
+              ? 'border-blue-500 shadow-[0_10px_30px_rgba(59,130,246,0.3)]'
+              : activeTab === 'hub'
+              ? 'border-cyan-500 shadow-[0_10px_30px_rgba(6,182,212,0.3)]'
+              : 'border-orange-500 shadow-[0_10px_30px_rgba(249,115,22,0.3)]'
+          } ${
+            isNavVisible
+              ? 'bottom-4 md:bottom-6 opacity-100 translate-y-0'
+              : '-bottom-32 opacity-0 translate-y-full pointer-events-none'
+          }`}
+        >
           <div className="w-full flex justify-evenly items-center px-1 md:px-8">
-            <button onClick={onGoHome} className="flex flex-col items-center justify-center gap-1 md:gap-1.5 active:scale-95 transition-all shrink-0 group">
-              <div className="p-2 md:p-3 rounded-full bg-transparent text-slate-400 group-hover:text-rose-400 transition-colors"><LogOut className="w-6 h-6 md:w-7 md:h-7" /></div>
-              <span className="block text-[12px] md:text-[14px] font-black text-slate-400 group-hover:text-rose-400 tracking-widest whitespace-nowrap shrink-0 transition-colors">ออกจากระบบ</span>
+
+            <button
+              onClick={onGoHome}
+              className="flex flex-col items-center justify-center gap-1 md:gap-1.5 active:scale-95 transition-all shrink-0 group"
+            >
+              <div className="p-2 md:p-3 rounded-full bg-transparent text-slate-400 group-hover:text-rose-400 transition-colors">
+                <LogOut className="w-6 h-6 md:w-7 md:h-7" />
+              </div>
+
+              <span className="block text-[12px] md:text-[14px] font-black text-slate-400 group-hover:text-rose-400 tracking-widest whitespace-nowrap shrink-0 transition-colors">
+                ออกจากระบบ
+              </span>
             </button>
-            
+
             {activeTab !== 'hub' && (
               <>
-                {(activeTab === 'leave' || activeTab === 'daily_report' || activeTab === 'pm' || activeTab === 'monitoring' || activeTab === 'satellite' || activeTab === 'inventory') ? (
-                  <button onClick={() => setActiveTab('hub')} className="flex flex-col items-center justify-center gap-1 md:gap-1.5 transition-all shrink-0 active:scale-95 group">
-                    <div className="p-2 md:p-3 rounded-full transition-all bg-transparent text-slate-400 group-hover:text-cyan-300"><Home className="w-6 h-6 md:w-7 md:h-7" /></div>
-                    <span className="block text-[12px] md:text-[14px] font-black tracking-widest whitespace-nowrap shrink-0 transition-all text-slate-400 group-hover:text-cyan-300">หน้าหลัก</span>
+
+                {(
+                  activeTab === 'leave' ||
+                  activeTab === 'daily_report' ||
+                  activeTab === 'pm' ||
+                  activeTab === 'monitoring' ||
+                  activeTab === 'satellite' ||
+                  activeTab === 'inventory'
+                ) ? (
+
+                  <button
+                    onClick={() =>
+                      setActiveTab(
+                        'hub'
+                      )
+                    }
+                    className="flex flex-col items-center justify-center gap-1 md:gap-1.5 transition-all shrink-0 active:scale-95 group"
+                  >
+                    <div className="p-2 md:p-3 rounded-full transition-all bg-transparent text-slate-400 group-hover:text-cyan-300">
+                      <Home className="w-6 h-6 md:w-7 md:h-7" />
+                    </div>
+
+                    <span className="block text-[12px] md:text-[14px] font-black tracking-widest whitespace-nowrap shrink-0 transition-all text-slate-400 group-hover:text-cyan-300">
+                      หน้าหลัก
+                    </span>
                   </button>
+
                 ) : currentUserRole === 'reporter' ? (
                   <>
-                    <button onClick={() => setActiveTab('report')} className="flex flex-col items-center justify-center gap-1 md:gap-1.5 transition-all shrink-0 active:scale-95 group">
-                      <div className={`p-2 md:p-3 rounded-full transition-all ${activeTab === 'report' ? 'bg-gradient-to-b from-emerald-400 to-emerald-600 text-white shadow-[0_0_15px_rgba(16,185,129,0.8)] border-[2px] border-white scale-110' : 'bg-transparent text-slate-400 group-hover:text-emerald-300'}`}><PlusCircle className={`w-6 h-6 md:w-7 md:h-7 ${activeTab === 'report' ? 'stroke-[3px]' : ''}`} /></div>
-                      <span className={`block text-[12px] md:text-[14px] font-black tracking-widest whitespace-nowrap shrink-0 transition-all ${activeTab === 'report' ? 'text-emerald-400 drop-shadow-md' : 'text-slate-400 group-hover:text-emerald-300'}`}>แจ้งซ่อม</span>
+
+                    <button
+                      onClick={() =>
+                        setActiveTab(
+                          'report'
+                        )
+                      }
+                      className="flex flex-col items-center justify-center gap-1 md:gap-1.5 transition-all shrink-0 active:scale-95 group"
+                    >
+                      <div
+                        className={`p-2 md:p-3 rounded-full transition-all ${
+                          activeTab ===
+                          'report'
+                            ? 'bg-gradient-to-b from-emerald-400 to-emerald-600 text-white shadow-[0_0_15px_rgba(16,185,129,0.8)] border-[2px] border-white scale-110'
+                            : 'bg-transparent text-slate-400 group-hover:text-emerald-300'
+                        }`}
+                      >
+                        <PlusCircle
+                          className={`w-6 h-6 md:w-7 md:h-7 ${
+                            activeTab ===
+                            'report'
+                              ? 'stroke-[3px]'
+                              : ''
+                          }`}
+                        />
+                      </div>
+
+                      <span
+                        className={`block text-[12px] md:text-[14px] font-black tracking-widest whitespace-nowrap shrink-0 transition-all ${
+                          activeTab ===
+                          'report'
+                            ? 'text-emerald-400 drop-shadow-md'
+                            : 'text-slate-400 group-hover:text-emerald-300'
+                        }`}
+                      >
+                        แจ้งซ่อม
+                      </span>
                     </button>
-                    <button onClick={() => { setActiveTab('tracking'); setSearchTerm(''); }} className="flex flex-col items-center justify-center gap-1 md:gap-1.5 transition-all shrink-0 active:scale-95 group">
-                      <div className={`p-2 md:p-3 rounded-full transition-all ${activeTab === 'tracking' ? 'bg-gradient-to-b from-blue-400 to-blue-600 text-white shadow-[0_0_15px_rgba(59,130,246,0.8)] border-[2px] border-white scale-110' : 'bg-transparent text-slate-400 group-hover:text-blue-300'}`}><ClipboardCheck className={`w-6 h-6 md:w-7 md:h-7 ${activeTab === 'tracking' ? 'stroke-[3px]' : ''}`} /></div>
-                      <span className={`block text-[12px] md:text-[14px] font-black tracking-widest whitespace-nowrap shrink-0 transition-all ${activeTab === 'tracking' ? 'text-blue-400 drop-shadow-md' : 'text-slate-400 group-hover:text-blue-300'}`}>ติดตามสถานะ</span>
+
+                    <button
+                      onClick={() => {
+                        setActiveTab(
+                          'tracking'
+                        );
+                        setSearchTerm('');
+                      }}
+                      className="flex flex-col items-center justify-center gap-1 md:gap-1.5 transition-all shrink-0 active:scale-95 group"
+                    >
+                      <div
+                        className={`p-2 md:p-3 rounded-full transition-all ${
+                          activeTab ===
+                          'tracking'
+                            ? 'bg-gradient-to-b from-blue-400 to-blue-600 text-white shadow-[0_0_15px_rgba(59,130,246,0.8)] border-[2px] border-white scale-110'
+                            : 'bg-transparent text-slate-400 group-hover:text-blue-300'
+                        }`}
+                      >
+                        <ClipboardCheck
+                          className={`w-6 h-6 md:w-7 md:h-7 ${
+                            activeTab ===
+                            'tracking'
+                              ? 'stroke-[3px]'
+                              : ''
+                          }`}
+                        />
+                      </div>
+
+                      <span
+                        className={`block text-[12px] md:text-[14px] font-black tracking-widest whitespace-nowrap shrink-0 transition-all ${
+                          activeTab ===
+                          'tracking'
+                            ? 'text-blue-400 drop-shadow-md'
+                            : 'text-slate-400 group-hover:text-blue-300'
+                        }`}
+                      >
+                        ติดตามสถานะ
+                      </span>
                     </button>
                   </>
+
                 ) : (
                   <>
-                    <button onClick={() => setActiveTab('hub')} className="flex flex-col items-center justify-center gap-1 md:gap-1.5 transition-all shrink-0 active:scale-95 group">
-                      <div className="p-2 md:p-3 rounded-full transition-all bg-transparent text-slate-400 group-hover:text-cyan-300"><Home className="w-6 h-6 md:w-7 md:h-7" /></div>
-                      <span className="block text-[12px] md:text-[14px] font-black tracking-widest whitespace-nowrap shrink-0 transition-all text-slate-400 group-hover:text-cyan-300">หน้าหลัก</span>
+
+                    <button
+                      onClick={() =>
+                        setActiveTab(
+                          'hub'
+                        )
+                      }
+                      className="flex flex-col items-center justify-center gap-1 md:gap-1.5 transition-all shrink-0 active:scale-95 group"
+                    >
+                      <div className="p-2 md:p-3 rounded-full transition-all bg-transparent text-slate-400 group-hover:text-cyan-300">
+                        <Home className="w-6 h-6 md:w-7 md:h-7" />
+                      </div>
+
+                      <span className="block text-[12px] md:text-[14px] font-black tracking-widest whitespace-nowrap shrink-0 transition-all text-slate-400 group-hover:text-cyan-300">
+                        หน้าหลัก
+                      </span>
                     </button>
-                    <button onClick={() => setActiveTab('dashboard')} className="flex flex-col items-center justify-center gap-1 md:gap-1.5 transition-all shrink-0 active:scale-95 group">
-                      <div className={`p-2 md:p-3 rounded-full transition-all ${activeTab === 'dashboard' ? 'bg-gradient-to-b from-orange-400 to-orange-600 text-white shadow-[0_0_15px_rgba(249,115,22,0.8)] border-[2px] border-white scale-110' : 'bg-transparent text-slate-400 group-hover:text-orange-300'}`}><LayoutDashboard className={`w-6 h-6 md:w-7 md:h-7 ${activeTab === 'dashboard' ? 'stroke-[3px]' : ''}`} /></div>
-                      <span className={`block text-[12px] md:text-[14px] font-black tracking-widest whitespace-nowrap shrink-0 transition-all ${activeTab === 'dashboard' ? 'text-orange-400 drop-shadow-md' : 'text-slate-400 group-hover:text-orange-300'}`}>แผงควบคุม</span>
+
+                    <button
+                      onClick={() =>
+                        setActiveTab(
+                          'dashboard'
+                        )
+                      }
+                      className="flex flex-col items-center justify-center gap-1 md:gap-1.5 transition-all shrink-0 active:scale-95 group"
+                    >
+                      <div
+                        className={`p-2 md:p-3 rounded-full transition-all ${
+                          activeTab ===
+                          'dashboard'
+                            ? 'bg-gradient-to-b from-orange-400 to-orange-600 text-white shadow-[0_0_15px_rgba(249,115,22,0.8)] border-[2px] border-white scale-110'
+                            : 'bg-transparent text-slate-400 group-hover:text-orange-300'
+                        }`}
+                      >
+                        <LayoutDashboard
+                          className={`w-6 h-6 md:w-7 md:h-7 ${
+                            activeTab ===
+                            'dashboard'
+                              ? 'stroke-[3px]'
+                              : ''
+                          }`}
+                        />
+                      </div>
+
+                      <span
+                        className={`block text-[12px] md:text-[14px] font-black tracking-widest whitespace-nowrap shrink-0 transition-all ${
+                          activeTab ===
+                          'dashboard'
+                            ? 'text-orange-400 drop-shadow-md'
+                            : 'text-slate-400 group-hover:text-orange-300'
+                        }`}
+                      >
+                        แผงควบคุม
+                      </span>
                     </button>
-                    <button onClick={() => setActiveTab('tracking')} className="flex flex-col items-center justify-center gap-1 md:gap-1.5 transition-all shrink-0 active:scale-95 group">
-                      <div className={`p-2 md:p-3 rounded-full transition-all ${activeTab === 'tracking' ? 'bg-gradient-to-b from-blue-400 to-blue-600 text-white shadow-[0_0_15px_rgba(59,130,246,0.8)] border-[2px] border-white scale-110' : 'bg-transparent text-slate-400 group-hover:text-blue-300'}`}><Wrench className={`w-6 h-6 md:w-7 md:h-7 ${activeTab === 'tracking' ? 'stroke-[3px]' : ''}`} /></div>
-                      <span className={`block text-[12px] md:text-[14px] font-black tracking-widest whitespace-nowrap shrink-0 transition-all ${activeTab === 'tracking' ? 'text-blue-400 drop-shadow-md' : 'text-slate-400 group-hover:text-blue-300'}`}>จัดการงาน</span>
+
+                    <button
+                      onClick={() =>
+                        setActiveTab(
+                          'tracking'
+                        )
+                      }
+                      className="flex flex-col items-center justify-center gap-1 md:gap-1.5 transition-all shrink-0 active:scale-95 group"
+                    >
+                      <div
+                        className={`p-2 md:p-3 rounded-full transition-all ${
+                          activeTab ===
+                          'tracking'
+                            ? 'bg-gradient-to-b from-blue-400 to-blue-600 text-white shadow-[0_0_15px_rgba(59,130,246,0.8)] border-[2px] border-white scale-110'
+                            : 'bg-transparent text-slate-400 group-hover:text-blue-300'
+                        }`}
+                      >
+                        <Wrench
+                          className={`w-6 h-6 md:w-7 md:h-7 ${
+                            activeTab ===
+                            'tracking'
+                              ? 'stroke-[3px]'
+                              : ''
+                          }`}
+                        />
+                      </div>
+
+                      <span
+                        className={`block text-[12px] md:text-[14px] font-black tracking-widest whitespace-nowrap shrink-0 transition-all ${
+                          activeTab ===
+                          'tracking'
+                            ? 'text-blue-400 drop-shadow-md'
+                            : 'text-slate-400 group-hover:text-blue-300'
+                        }`}
+                      >
+                        จัดการงาน
+                      </span>
                     </button>
+
                   </>
                 )}
               </>
@@ -1443,98 +3557,428 @@ export default function MainApp({ onGoHome, initialRole }) {
         </div>
       </div>
 
-      {/* 🌟 ส่งตัวแปรทะลุ ActionModal ป้องกัน Error 🌟 */}
-      <ActionModal 
-        isOpen={canPerformStaffActions && actionModal.isOpen} 
+      <ActionModal
+        isOpen={
+          canPerformStaffActions &&
+          actionModal.isOpen
+        }
         onClose={() => {
-          setActionModal({ isOpen: false, ticketId: null, type: null });
+          setActionModal({
+            isOpen: false,
+            ticketId: null,
+            type: null
+          });
+
           setActionText('');
           setActionAttachments([]);
           setSelectedHelpers([]);
           setHelperSearch('');
-        }} 
-        type={actionModal.type} ticketId={actionModal.ticketId} currentUserRole={currentUserRole} 
-        selectedTech={selectedTech} setSelectedTech={setSelectedTech} currentUserName={currentUserName} 
-        technicianList={technicianList} employeeList={employeeList} actionText={actionText} setActionText={setActionText} 
-        actionAttachments={actionAttachments} setActionAttachments={setActionAttachments} 
-        selectedHelpers={selectedHelpers} setSelectedHelpers={setSelectedHelpers} 
-        helperSearch={helperSearch} setHelperSearch={setHelperSearch} setLightboxImg={setLightboxImg} 
-        executeActionModal={executeActionModal} 
-        handleClipboardPaste={handleClipboardPaste} handleMediaUpload={handleMediaUpload} 
+        }}
+        type={actionModal.type}
+        ticketId={actionModal.ticketId}
+        currentUserRole={currentUserRole}
+        selectedTech={selectedTech}
+        setSelectedTech={setSelectedTech}
+        currentUserName={currentUserName}
+        technicianList={technicianList}
+        employeeList={employeeList}
+        actionText={actionText}
+        setActionText={setActionText}
+        actionAttachments={actionAttachments}
+        setActionAttachments={setActionAttachments}
+        selectedHelpers={selectedHelpers}
+        setSelectedHelpers={setSelectedHelpers}
+        helperSearch={helperSearch}
+        setHelperSearch={setHelperSearch}
+        setLightboxImg={setLightboxImg}
+        executeActionModal={executeActionModal}
+        handleClipboardPaste={handleClipboardPaste}
+        handleMediaUpload={handleMediaUpload}
       />
-      
+
       {showAdminRoster && canManageRoster && (
         <div className="fixed inset-0 z-[99999] bg-slate-950 overflow-y-auto pb-20">
-          <div className="sticky top-0 right-0 p-4 md:p-6 flex justify-end z-[100] bg-gradient-to-b from-slate-950/90 to-transparent pointer-events-none"></div>
+
+          <div className="sticky top-0 right-0 p-4 md:p-6 flex justify-end z-[100] bg-gradient-to-b from-slate-950/90 to-transparent pointer-events-none" />
+
           <div className="-mt-16 md:-mt-20">
-            <AdminRosterSettings sysTime={sysTime} allRosters={allRosters} technicianList={technicianList} onClose={() => setShowAdminRoster(false)} />
+
+            <AdminRosterSettings
+              sysTime={sysTime}
+              allRosters={allRosters}
+              technicianList={technicianList}
+              onClose={() =>
+                setShowAdminRoster(
+                  false
+                )
+              }
+            />
           </div>
         </div>
       )}
 
-      {ratingModal.isOpen && isTicketOwnedByCurrentUser(tickets.find((ticket) => ticket.id === ratingModal.ticketId)) && (() => {
-        const getRatingColors = (rating) => {
-          switch(rating) {
-            case 1: return { text: 'text-rose-400', star: 'text-rose-400', outline: 'border-rose-500', flare: 'bg-rose-500', mainBtn: 'bg-rose-500 hover:bg-rose-600', tagActive: 'border-rose-500 bg-rose-500/20', emojiText: 'ต้องปรับปรุง 😞', shadow: 'shadow-[0_0_50px_rgba(225,29,72,0.4)]' };
-            case 2: return { text: 'text-orange-400', star: 'text-orange-400', outline: 'border-orange-500', flare: 'bg-orange-500', mainBtn: 'bg-orange-500 hover:bg-orange-600', tagActive: 'border-orange-500 bg-orange-500/20', emojiText: 'พอใช้ 😐', shadow: 'shadow-[0_0_50px_rgba(249,115,22,0.4)]' };
-            case 3: return { text: 'text-yellow-400', star: 'text-yellow-400', outline: 'border-yellow-400', flare: 'bg-yellow-400', mainBtn: 'bg-yellow-500 hover:bg-yellow-600', tagActive: 'border-yellow-400 bg-yellow-400/20', emojiText: 'ปานกลาง 🙂', shadow: 'shadow-[0_0_50px_rgba(250,204,21,0.3)]' };
-            case 4: return { text: 'text-lime-400', star: 'text-lime-400', outline: 'border-lime-500', flare: 'bg-lime-500', mainBtn: 'bg-lime-500 hover:bg-lime-600', tagActive: 'border-lime-500 bg-lime-500/20', emojiText: 'ดี 😃', shadow: 'shadow-[0_0_50px_rgba(132,204,22,0.3)]' };
-            case 5: return { text: 'text-emerald-400', star: 'text-emerald-400', outline: 'border-emerald-500', flare: 'bg-emerald-500', mainBtn: 'bg-emerald-500 hover:bg-emerald-600', tagActive: 'border-emerald-500 bg-emerald-500/20', emojiText: 'ยอดเยี่ยม 😍', shadow: 'shadow-[0_0_50px_rgba(16,185,129,0.4)]' };
-            default: return { text: 'text-slate-300', star: 'text-slate-600', outline: 'border-slate-600', flare: 'bg-slate-600', mainBtn: 'bg-emerald-600 hover:bg-emerald-500', tagActive: 'border-emerald-500 bg-slate-700/80', emojiText: '', shadow: 'shadow-[0_0_40px_rgba(255,255,255,0.05)]' };
-          }
-        };
-        const ratingColors = getRatingColors(ratingModal.rating);
-        
-        return (
-          <div className="fixed inset-0 z-[99999] bg-slate-950/90 backdrop-blur-md flex items-center justify-center p-4 animate-in fade-in">
-            <div className={`absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[350px] h-[350px] md:w-[500px] md:h-[500px] ${ratingColors.flare}/30 blur-[100px] md:blur-[120px] rounded-full pointer-events-none z-0 transition-colors duration-500`}></div>
-            <div className={`bg-[#0f172a] border-[2px] md:border-[3px] ${ratingColors.outline} rounded-[2rem] p-6 md:p-8 w-full max-w-md ${ratingColors.shadow} relative flex flex-col items-center overflow-y-auto max-h-[90vh] [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none] transition-all duration-500`}>
-              <button onClick={() => setRatingModal({ isOpen: false, ticketId: null, rating: 0, comment: '', techName: '', techPhotoUrl: '', tags: [] })} className="absolute top-4 right-4 md:top-6 md:right-6 text-slate-400 hover:text-rose-400 transition-colors z-20"><X size={28}/></button>
-              <div className={`w-20 h-20 md:w-24 md:h-24 rounded-full border-[3px] ${ratingColors.outline} overflow-hidden mb-3 md:mb-4 bg-slate-800 flex items-center justify-center shadow-inner shrink-0 transition-colors duration-500`}>
-                {ratingModal.techPhotoUrl ? <img src={ratingModal.techPhotoUrl} alt="Tech" className="w-full h-full object-cover" /> : <User size={40} className={ratingColors.star} />}
-              </div>
-              <h2 className="text-[20px] md:text-[24px] font-black text-white text-center mb-1 relative z-10">{ratingModal.techName || 'ช่างผู้รับผิดชอบ'}</h2>
-              <p className="text-slate-400 text-[12px] md:text-[14px] mb-6 text-center relative z-10">ผู้รับผิดชอบรหัสงาน <span className={`${ratingColors.text} font-mono transition-colors duration-500`}>{ratingModal.ticketId}</span></p>
-              <p className={`${ratingColors.text} font-bold text-[16px] md:text-[18px] mb-4 text-center relative z-10 transition-colors duration-500`}>คุณพึงพอใจการซ่อมระดับไหน?</p>
-              <div className={`border-[2px] ${ratingColors.outline} rounded-2xl p-3 md:p-4 mb-3 flex gap-2 md:gap-3 bg-slate-900/80 shadow-inner w-full justify-center relative z-10 transition-colors duration-500`}>
-                {[1,2,3,4,5].map(star => (
-                  <button key={star} onClick={() => setRatingModal({...ratingModal, rating: star})} className="focus:outline-none transition-transform hover:scale-125 active:scale-95">
-                    <Star size={36} className={ratingModal.rating >= star ? `${ratingColors.star} drop-shadow-[0_0_15px_currentColor]` : "text-slate-600"} fill={ratingModal.rating >= star ? "currentColor" : "none"} />
+      {
+        ratingModal.isOpen &&
+        isTicketOwnedByCurrentUser(
+          tickets.find(
+            (ticket) =>
+              ticket.id ===
+              ratingModal.ticketId
+          )
+        ) &&
+        (() => {
+          const getRatingColors =
+            (rating) => {
+              switch (rating) {
+                case 1:
+                  return {
+                    text: 'text-rose-400',
+                    star: 'text-rose-400',
+                    outline: 'border-rose-500',
+                    flare: 'bg-rose-500',
+                    mainBtn: 'bg-rose-500 hover:bg-rose-600',
+                    tagActive: 'border-rose-500 bg-rose-500/20',
+                    emojiText: 'ต้องปรับปรุง 😞',
+                    shadow: 'shadow-[0_0_50px_rgba(225,29,72,0.4)]'
+                  };
+
+                case 2:
+                  return {
+                    text: 'text-orange-400',
+                    star: 'text-orange-400',
+                    outline: 'border-orange-500',
+                    flare: 'bg-orange-500',
+                    mainBtn: 'bg-orange-500 hover:bg-orange-600',
+                    tagActive: 'border-orange-500 bg-orange-500/20',
+                    emojiText: 'พอใช้ 😐',
+                    shadow: 'shadow-[0_0_50px_rgba(249,115,22,0.4)]'
+                  };
+
+                case 3:
+                  return {
+                    text: 'text-yellow-400',
+                    star: 'text-yellow-400',
+                    outline: 'border-yellow-400',
+                    flare: 'bg-yellow-400',
+                    mainBtn: 'bg-yellow-500 hover:bg-yellow-600',
+                    tagActive: 'border-yellow-400 bg-yellow-400/20',
+                    emojiText: 'ปานกลาง 🙂',
+                    shadow: 'shadow-[0_0_50px_rgba(250,204,21,0.3)]'
+                  };
+
+                case 4:
+                  return {
+                    text: 'text-lime-400',
+                    star: 'text-lime-400',
+                    outline: 'border-lime-500',
+                    flare: 'bg-lime-500',
+                    mainBtn: 'bg-lime-500 hover:bg-lime-600',
+                    tagActive: 'border-lime-500 bg-lime-500/20',
+                    emojiText: 'ดี 😃',
+                    shadow: 'shadow-[0_0_50px_rgba(132,204,22,0.3)]'
+                  };
+
+                case 5:
+                  return {
+                    text: 'text-emerald-400',
+                    star: 'text-emerald-400',
+                    outline: 'border-emerald-500',
+                    flare: 'bg-emerald-500',
+                    mainBtn: 'bg-emerald-500 hover:bg-emerald-600',
+                    tagActive: 'border-emerald-500 bg-emerald-500/20',
+                    emojiText: 'ยอดเยี่ยม 😍',
+                    shadow: 'shadow-[0_0_50px_rgba(16,185,129,0.4)]'
+                  };
+
+                default:
+                  return {
+                    text: 'text-slate-300',
+                    star: 'text-slate-600',
+                    outline: 'border-slate-600',
+                    flare: 'bg-slate-600',
+                    mainBtn: 'bg-emerald-600 hover:bg-emerald-500',
+                    tagActive: 'border-emerald-500 bg-slate-700/80',
+                    emojiText: '',
+                    shadow: 'shadow-[0_0_40px_rgba(255,255,255,0.05)]'
+                  };
+              }
+            };
+
+          const ratingColors =
+            getRatingColors(
+              ratingModal.rating
+            );
+
+          return (
+            <div className="fixed inset-0 z-[99999] bg-slate-950/90 backdrop-blur-md flex items-center justify-center p-4 animate-in fade-in">
+
+              <div
+                className={`absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[350px] h-[350px] md:w-[500px] md:h-[500px] ${ratingColors.flare}/30 blur-[100px] md:blur-[120px] rounded-full pointer-events-none z-0 transition-colors duration-500`}
+              />
+
+              <div
+                className={`bg-[#0f172a] border-[2px] md:border-[3px] ${ratingColors.outline} rounded-[2rem] p-6 md:p-8 w-full max-w-md ${ratingColors.shadow} relative flex flex-col items-center overflow-y-auto max-h-[90vh] [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none] transition-all duration-500`}
+              >
+
+                <button
+                  onClick={() =>
+                    setRatingModal({
+                      isOpen: false,
+                      ticketId: null,
+                      rating: 0,
+                      comment: '',
+                      techName: '',
+                      techPhotoUrl: '',
+                      tags: []
+                    })
+                  }
+                  className="absolute top-4 right-4 md:top-6 md:right-6 text-slate-400 hover:text-rose-400 transition-colors z-20"
+                >
+                  <X size={28}/>
+                </button>
+
+                <div
+                  className={`w-20 h-20 md:w-24 md:h-24 rounded-full border-[3px] ${ratingColors.outline} overflow-hidden mb-3 md:mb-4 bg-slate-800 flex items-center justify-center shadow-inner shrink-0 transition-colors duration-500`}
+                >
+                  {
+                    ratingModal.techPhotoUrl
+                      ? (
+                        <img
+                          src={ratingModal.techPhotoUrl}
+                          alt="Tech"
+                          className="w-full h-full object-cover"
+                        />
+                      )
+                      : (
+                        <User
+                          size={40}
+                          className={ratingColors.star}
+                        />
+                      )
+                  }
+                </div>
+
+                <h2 className="text-[20px] md:text-[24px] font-black text-white text-center mb-1 relative z-10">
+                  {
+                    ratingModal.techName ||
+                    'ช่างผู้รับผิดชอบ'
+                  }
+                </h2>
+
+                <p className="text-slate-400 text-[12px] md:text-[14px] mb-6 text-center relative z-10">
+                  ผู้รับผิดชอบรหัสงาน{' '}
+                  <span
+                    className={`${ratingColors.text} font-mono transition-colors duration-500`}
+                  >
+                    {ratingModal.ticketId}
+                  </span>
+                </p>
+
+                <p
+                  className={`${ratingColors.text} font-bold text-[16px] md:text-[18px] mb-4 text-center relative z-10 transition-colors duration-500`}
+                >
+                  คุณพึงพอใจการซ่อมระดับไหน?
+                </p>
+
+                <div
+                  className={`border-[2px] ${ratingColors.outline} rounded-2xl p-3 md:p-4 mb-3 flex gap-2 md:gap-3 bg-slate-900/80 shadow-inner w-full justify-center relative z-10 transition-colors duration-500`}
+                >
+                  {[1,2,3,4,5].map(
+                    star => (
+                      <button
+                        key={star}
+                        onClick={() =>
+                          setRatingModal({
+                            ...ratingModal,
+                            rating: star
+                          })
+                        }
+                        className="focus:outline-none transition-transform hover:scale-125 active:scale-95"
+                      >
+                        <Star
+                          size={36}
+                          className={
+                            ratingModal.rating >= star
+                              ? `${ratingColors.star} drop-shadow-[0_0_15px_currentColor]`
+                              : "text-slate-600"
+                          }
+                          fill={
+                            ratingModal.rating >= star
+                              ? "currentColor"
+                              : "none"
+                          }
+                        />
+                      </button>
+                    )
+                  )}
+                </div>
+
+                <div className="h-8 mb-4 relative z-10">
+
+                  {ratingModal.rating > 0 && (
+                    <span
+                      className={`text-[18px] md:text-[20px] font-black ${ratingColors.text} animate-in zoom-in flex items-center justify-center`}
+                    >
+                      {ratingColors.emojiText}
+                    </span>
+                  )}
+                </div>
+
+                <p className="text-slate-300 font-bold text-[13px] md:text-[15px] mb-3 text-center relative z-10">
+                  ท่านประทับใจส่วนไหนเป็นพิเศษ? (เลือกได้หลายข้อ)
+                </p>
+
+                <div className="flex flex-col gap-2.5 w-full mb-6 px-2 relative z-10">
+
+                  {[
+                    '💡 ซ่อมเสร็จก่อนกำหนด',
+                    '🛠️ แก้ปัญหาเด็ดขาด',
+                    '🤝 บริการดีเยี่ยม/สุภาพ',
+                    '🛡️ ให้คำแนะนำป้องกัน'
+                  ].map(tag => {
+
+                    const isSelected =
+                      (
+                        ratingModal.tags ||
+                        []
+                      ).includes(tag);
+
+                    return (
+                      <button
+                        key={tag}
+                        onClick={() => {
+                          const currentTags =
+                            ratingModal.tags ||
+                            [];
+
+                          const newTags =
+                            isSelected
+                              ? currentTags.filter(
+                                  t =>
+                                    t !== tag
+                                )
+                              : [
+                                  ...currentTags,
+                                  tag
+                                ];
+
+                          setRatingModal({
+                            ...ratingModal,
+                            tags: newTags
+                          });
+                        }}
+                        className={`py-2.5 px-4 rounded-full text-[14px] md:text-[16px] font-bold border-[2px] transition-all active:scale-95 text-center ${
+                          isSelected
+                            ? `text-white ${ratingColors.tagActive} ${ratingColors.outline} shadow-[0_0_15px_currentColor]`
+                            : `bg-slate-800/50 text-slate-400 border-slate-700 hover:${ratingColors.outline}`
+                        }`}
+                      >
+                        {tag}
+                      </button>
+                    );
+                  })}
+                </div>
+
+                <div className="w-full mb-6 relative z-10">
+
+                  <textarea
+                    className={`w-full bg-slate-800/80 border-[2px] border-slate-700 focus:${ratingColors.outline} rounded-xl p-4 text-white placeholder-slate-500 outline-none transition-colors text-[14px] md:text-[16px] resize-none`}
+                    rows="3"
+                    placeholder="พิมพ์ข้อเสนอแนะเพิ่มเติม..."
+                    value={ratingModal.comment}
+                    onChange={(e) =>
+                      setRatingModal({
+                        ...ratingModal,
+                        comment:
+                          e.target.value
+                      })
+                    }
+                  />
+                </div>
+
+                <div className="flex w-full gap-3 relative z-10">
+
+                  <button
+                    onClick={() =>
+                      setRatingModal({
+                        isOpen: false,
+                        ticketId: null,
+                        rating: 0,
+                        comment: '',
+                        techName: '',
+                        techPhotoUrl: '',
+                        tags: []
+                      })
+                    }
+                    className="flex-[1] py-3.5 md:py-4 rounded-xl font-black text-rose-400 bg-rose-950/30 border border-rose-900/50 hover:bg-rose-900/50 transition-colors active:scale-95 text-[16px]"
+                  >
+                    ยกเลิก
                   </button>
-                ))}
-              </div>
-              <div className="h-8 mb-4 relative z-10">
-                {ratingModal.rating > 0 && <span className={`text-[18px] md:text-[20px] font-black ${ratingColors.text} animate-in zoom-in flex items-center justify-center`}>{ratingColors.emojiText}</span>}
-              </div>
-              <p className="text-slate-300 font-bold text-[13px] md:text-[15px] mb-3 text-center relative z-10">ท่านประทับใจส่วนไหนเป็นพิเศษ? (เลือกได้หลายข้อ)</p>
-              <div className="flex flex-col gap-2.5 w-full mb-6 px-2 relative z-10">
-                {['💡 ซ่อมเสร็จก่อนกำหนด', '🛠️ แก้ปัญหาเด็ดขาด', '🤝 บริการดีเยี่ยม/สุภาพ', '🛡️ ให้คำแนะนำป้องกัน'].map(tag => {
-                  const isSelected = (ratingModal.tags || []).includes(tag);
-                  return (
-                    <button key={tag} onClick={() => { const currentTags = ratingModal.tags || []; const newTags = isSelected ? currentTags.filter(t => t !== tag) : [...currentTags, tag]; setRatingModal({...ratingModal, tags: newTags}); }} className={`py-2.5 px-4 rounded-full text-[14px] md:text-[16px] font-bold border-[2px] transition-all active:scale-95 text-center ${isSelected ? `text-white ${ratingColors.tagActive} ${ratingColors.outline} shadow-[0_0_15px_currentColor]` : `bg-slate-800/50 text-slate-400 border-slate-700 hover:${ratingColors.outline}`}`}>{tag}</button>
-                  );
-                })}
-              </div>
-              <div className="w-full mb-6 relative z-10">
-                <textarea className={`w-full bg-slate-800/80 border-[2px] border-slate-700 focus:${ratingColors.outline} rounded-xl p-4 text-white placeholder-slate-500 outline-none transition-colors text-[14px] md:text-[16px] resize-none`} rows="3" placeholder="พิมพ์ข้อเสนอแนะเพิ่มเติม..." value={ratingModal.comment} onChange={(e) => setRatingModal({...ratingModal, comment: e.target.value})}></textarea>
-              </div>
-              <div className="flex w-full gap-3 relative z-10">
-                <button onClick={() => setRatingModal({ isOpen: false, ticketId: null, rating: 0, comment: '', techName: '', techPhotoUrl: '', tags: [] })} className="flex-[1] py-3.5 md:py-4 rounded-xl font-black text-rose-400 bg-rose-950/30 border border-rose-900/50 hover:bg-rose-900/50 transition-colors active:scale-95 text-[16px]">ยกเลิก</button>
-                <button onClick={submitRating} className={`flex-[1.5] py-3.5 md:py-4 rounded-xl font-black text-white ${ratingColors.mainBtn} ${ratingColors.shadow} transition-colors active:scale-95 text-[16px] border border-white/20`}>ยืนยันการประเมิน</button>
+
+                  <button
+                    onClick={submitRating}
+                    className={`flex-[1.5] py-3.5 md:py-4 rounded-xl font-black text-white ${ratingColors.mainBtn} ${ratingColors.shadow} transition-colors active:scale-95 text-[16px] border border-white/20`}
+                  >
+                    ยืนยันการประเมิน
+                  </button>
+                </div>
               </div>
             </div>
-          </div>
-        );
-      })()}
+          );
+        })()
+      }
 
       {lightboxImg && (
-        <div className="fixed inset-0 z-[99999] bg-black/90 backdrop-blur-sm flex items-center justify-center p-4 animate-in fade-in" onClick={() => setLightboxImg(null)}>
-          <button className="absolute top-5 right-5 text-slate-400 hover:text-white p-2 rounded-full bg-slate-800 border border-slate-700 active:scale-95" onClick={() => setLightboxImg(null)}><X size={24} /></button>
-          {(typeof lightboxImg === 'string' && (lightboxImg.includes('video') || lightboxImg.includes('.mp4') || lightboxImg.includes('data:video'))) ? (
-            <video src={lightboxImg} controls autoPlay className="max-w-full max-h-full rounded-2xl shadow-2xl border-2 border-slate-700" onClick={(e) => e.stopPropagation()} />
-          ) : (
-            <img src={lightboxImg} className="max-w-full max-h-full rounded-2xl shadow-2xl border-2 border-slate-700" alt="Full size view" />
-          )}
+        <div
+          className="fixed inset-0 z-[99999] bg-black/90 backdrop-blur-sm flex items-center justify-center p-4 animate-in fade-in"
+          onClick={() =>
+            setLightboxImg(null)
+          }
+        >
+          <button
+            className="absolute top-5 right-5 text-slate-400 hover:text-white p-2 rounded-full bg-slate-800 border border-slate-700 active:scale-95"
+            onClick={() =>
+              setLightboxImg(null)
+            }
+          >
+            <X size={24} />
+          </button>
+
+          {
+            (
+              typeof lightboxImg ===
+                'string' &&
+              (
+                lightboxImg.includes(
+                  'video'
+                ) ||
+                lightboxImg.includes(
+                  '.mp4'
+                ) ||
+                lightboxImg.includes(
+                  'data:video'
+                )
+              )
+            )
+              ? (
+                <video
+                  src={lightboxImg}
+                  controls
+                  autoPlay
+                  className="max-w-full max-h-full rounded-2xl shadow-2xl border-2 border-slate-700"
+                  onClick={(e) =>
+                    e.stopPropagation()
+                  }
+                />
+              )
+              : (
+                <img
+                  src={lightboxImg}
+                  className="max-w-full max-h-full rounded-2xl shadow-2xl border-2 border-slate-700"
+                  alt="Full size view"
+                />
+              )
+          }
         </div>
       )}
     </div>
